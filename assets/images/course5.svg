@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="React JS Course">
+  <defs>
+    <linearGradient id="g5" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g5)"/>
+  <circle cx="980" cy="180" r="200" fill="rgba(255,255,255,0.09)"/>
+  <circle cx="180" cy="700" r="230" fill="rgba(255,255,255,0.06)"/>
+  <rect x="80" y="80" width="230" height="44" rx="22" fill="rgba(255,255,255,0.18)"/>
+  <text x="110" y="110" font-size="22" font-weight="700" fill="white" font-family="Arial, sans-serif">Development</text>
+  <text x="80" y="392" font-size="60" font-weight="700" fill="white" font-family="Arial, sans-serif">React JS</text>
+  <text x="80" y="450" font-size="28" fill="rgba(255,255,255,0.84)" font-family="Arial, sans-serif">Complete Course</text>
+  <rect x="80" y="520" width="300" height="128" rx="22" fill="rgba(255,255,255,0.12)"/>
+  <circle cx="155" cy="585" r="32" fill="rgba(255,255,255,0.9)"/>
+  <path d="M155 525 L180 610 L155 695 L130 610 Z" fill="rgba(255,255,255,0.5)"/>
+  <path d="M222 548 L290 540 L260 610 L222 690" stroke="rgba(255,255,255,0.82)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Contact Us - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+            <a href="about.html" class="nav-link">
+                About
+            </a>
+
+            <a href="contact.html" class="nav-link active">
+                Contact
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<section class="page-header">
+
+    <div class="container">
+
+        <h1>
+            Contact Us
+        </h1>
+
+        <p>
+            Have questions? We'd love to hear from you.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="detail-grid">
+
+            <div>
+
+                <h2>
+                    Get in Touch
+                </h2>
+
+                <p>
+                    If you have any questions about our courses,
+                    payments or learning platform, contact us.
+                </p>
+
+                <br>
+
+                <p>
+                    📧 support@learnhub.com
+                </p>
+
+                <p>
+                    📞 +91 98765 43210
+                </p>
+
+                <p>
+                    📍 Hyderabad, India
+                </p>
+
+            </div>
+
+
+            <div class="form-card">
+
+                <form id="contactForm">
+
+                    <div class="form-group">
+
+                        <label>
+                            Name
+                        </label>
+
+                        <input
+                            type="text"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Subject
+                        </label>
+
+                        <input
+                            type="text"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Message
+                        </label>
+
+                        <textarea
+                            rows="5"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary form-submit"
+                    >
+                        Send Message
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+document
+    .getElementById("contactForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            alert(
+                "Thank you! Your message has been submitted."
+            );
+
+            this.reset();
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

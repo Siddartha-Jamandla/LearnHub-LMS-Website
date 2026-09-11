@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Courses - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+            <a href="my-courses.html" class="nav-link active">
+                My Courses
+            </a>
+
+            <a href="profile.html" class="nav-link">
+                Profile
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <a href="cart.html" class="nav-icon">
+                🛒
+                <span id="cart-count" class="cart-count">
+                    0
+                </span>
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="page-header">
+
+    <div class="container">
+
+        <h1>
+            My Courses
+        </h1>
+
+        <p>
+            Continue your learning journey.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div
+            id="myCourseList"
+            class="course-grid"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+function renderMyCourses() {
+
+    const ids =
+        JSON.parse(
+            localStorage.getItem("myCourses")
+        ) || [];
+
+
+    const container =
+        document.getElementById("myCourseList");
+
+
+    if (ids.length === 0) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <h2>
+                    No Courses Yet
+                </h2>
+
+                <p>
+                    Purchase a course to start learning.
+                </p>
+
+                <br>
+
+                <a
+                    href="courses.html"
+                    class="btn btn-primary"
+                >
+                    Explore Courses
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        ids.map(id => {
+
+            const course =
+                getCourseById(id);
+
+            return `
+
+                <div class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="${course.image}"
+                            alt="${course.title}"
+                        >
+
+                    </div>
+
+
+                    <div class="course-content">
+
+                        <h3>
+                            ${course.title}
+                        </h3>
+
+                        <p class="instructor">
+                            ${course.instructor}
+                        </p>
+
+                        <br>
+
+                        <p>
+                            Progress
+                        </p>
+
+                        <progress
+                            value="25"
+                            max="100"
+                            style="width:100%;"
+                        ></progress>
+
+                        <br><br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="alert('Course learning page can be added later.')"
+                        >
+                            Continue Learning
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    renderMyCourses
+);
+
+</script>
+
+</body>
+</html>

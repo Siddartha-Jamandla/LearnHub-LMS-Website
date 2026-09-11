@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Checkout - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <a href="cart.html" class="nav-icon">
+                🛒
+                <span id="cart-count" class="cart-count">
+                    0
+                </span>
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="form-page">
+
+    <div class="form-card">
+
+        <h1>
+            Checkout
+        </h1>
+
+        <p>
+            Enter your information to continue.
+        </p>
+
+
+        <form id="checkoutForm">
+
+            <div class="form-group">
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    required
+                    placeholder="Enter your name"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    required
+                    placeholder="Enter your email"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    required
+                    placeholder="Enter phone number"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Country
+                </label>
+
+                <select required>
+
+                    <option value="">
+                        Select Country
+                    </option>
+
+                    <option>
+                        India
+                    </option>
+
+                    <option>
+                        United States
+                    </option>
+
+                    <option>
+                        United Kingdom
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary form-submit"
+            >
+                Continue to Payment
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>

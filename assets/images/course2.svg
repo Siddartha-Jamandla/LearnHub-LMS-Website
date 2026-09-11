@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="JavaScript Course">
+  <defs>
+    <linearGradient id="g2" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g2)"/>
+  <circle cx="980" cy="180" r="180" fill="rgba(255,255,255,0.12)"/>
+  <circle cx="180" cy="700" r="220" fill="rgba(255,255,255,0.07)"/>
+  <rect x="80" y="80" width="260" height="44" rx="22" fill="rgba(255,255,255,0.18)"/>
+  <text x="110" y="110" font-size="22" font-weight="700" fill="white" font-family="Arial, sans-serif">Programming</text>
+  <text x="80" y="380" font-size="60" font-weight="700" fill="white" font-family="Arial, sans-serif">JavaScript</text>
+  <text x="80" y="450" font-size="30" fill="rgba(255,255,255,0.85)" font-family="Arial, sans-serif">From Beginner to Advanced</text>
+  <rect x="80" y="520" width="240" height="120" rx="20" fill="rgba(255,255,255,0.14)"/>
+  <text x="120" y="590" font-size="80" font-weight="700" fill="white" font-family="Arial, sans-serif">JS</text>
+  <path d="M300 555 H430" stroke="rgba(255,255,255,0.9)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M300 600 H390" stroke="rgba(255,255,255,0.65)" stroke-width="14" stroke-linecap="round"/>
+</svg>

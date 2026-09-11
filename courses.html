@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Courses - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link active">
+                Courses
+            </a>
+
+            <a href="about.html" class="nav-link">
+                About
+            </a>
+
+            <a href="contact.html" class="nav-link">
+                Contact
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <a href="wishlist.html" class="nav-icon">
+                ♡
+            </a>
+
+            <a href="cart.html" class="nav-icon">
+
+                🛒
+
+                <span id="cart-count" class="cart-count">
+                    0
+                </span>
+
+            </a>
+
+            <a href="login.html" class="btn btn-outline">
+                Login
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="page-header">
+
+    <div class="container">
+
+        <h1>Explore Courses</h1>
+
+        <p>
+            Find the perfect course and start learning.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="search-area">
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="courseSearch"
+                    placeholder="Search courses..."
+                >
+
+                <select id="categoryFilter">
+
+                    <option value="all">
+                        All Categories
+                    </option>
+
+                    <option value="Development">
+                        Development
+                    </option>
+
+                    <option value="Programming">
+                        Programming
+                    </option>
+
+                    <option value="Data Science">
+                        Data Science
+                    </option>
+
+                    <option value="Design">
+                        Design
+                    </option>
+
+                    <option value="Business">
+                        Business
+                    </option>
+
+                    <option value="Artificial Intelligence">
+                        Artificial Intelligence
+                    </option>
+
+                </select>
+
+
+                <select id="sortCourses">
+
+                    <option value="default">
+                        Sort By
+                    </option>
+
+                    <option value="low">
+                        Price: Low to High
+                    </option>
+
+                    <option value="high">
+                        Price: High to Low
+                    </option>
+
+                    <option value="rating">
+                        Highest Rated
+                    </option>
+
+                </select>
+
+
+                <button
+                    class="btn btn-primary"
+                    onclick="renderCourses()"
+                >
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="courseList"
+            class="course-grid"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<footer class="footer">
+
+    <div class="container footer-grid">
+
+        <div class="footer-column">
+
+            <a href="index.html" class="footer-logo">
+                Learn<span>Hub</span>
+            </a>
+
+            <p>
+                Learn new skills and build your future.
+            </p>
+
+        </div>
+
+        <div class="footer-column">
+
+            <h3>Quick Links</h3>
+
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+
+        </div>
+
+        <div class="footer-column">
+
+            <h3>Student</h3>
+
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+            <a href="my-courses.html">My Courses</a>
+
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+
+        <div class="container">
+
+            <p>
+                © 2026 LearnHub. All Rights Reserved.
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+function renderCourses() {
+
+    const search =
+        document
+        .getElementById("courseSearch")
+        .value
+        .toLowerCase();
+
+    const category =
+        document
+        .getElementById("categoryFilter")
+        .value;
+
+    const sort =
+        document
+        .getElementById("sortCourses")
+        .value;
+
+    let filteredCourses = courses.filter(course => {
+
+        const matchesSearch =
+            course.title.toLowerCase().includes(search);
+
+        const matchesCategory =
+            category === "all" ||
+            course.category === category;
+
+        return matchesSearch && matchesCategory;
+
+    });
+
+
+    if (sort === "low") {
+
+        filteredCourses.sort(
+            (a, b) => a.price - b.price
+        );
+
+    }
+
+    if (sort === "high") {
+
+        filteredCourses.sort(
+            (a, b) => b.price - a.price
+        );
+
+    }
+
+    if (sort === "rating") {
+
+        filteredCourses.sort(
+            (a, b) => b.rating - a.rating
+        );
+
+    }
+
+
+    const courseList =
+        document.getElementById("courseList");
+
+
+    if (filteredCourses.length === 0) {
+
+        courseList.innerHTML = `
+            <div class="empty-state">
+                <h2>No Courses Found</h2>
+                <p>Try another search or category.</p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    courseList.innerHTML =
+        filteredCourses.map(course => `
+
+        <div class="course-card">
+
+            <div class="course-image">
+
+                <img
+                    src="${course.image}"
+                    alt="${course.title}"
+                >
+
+                <span class="course-category">
+                    ${course.category}
+                </span>
+
+                <button
+                    class="wishlist-btn"
+                    onclick="addToWishlist(${course.id})"
+                >
+                    ♡
+                </button>
+
+            </div>
+
+
+            <div class="course-content">
+
+                <div class="course-rating">
+                    ⭐ ${course.rating}
+                    <span>
+                        (${course.students})
+                    </span>
+                </div>
+
+                <h3>
+                    ${course.title}
+                </h3>
+
+                <p class="instructor">
+                    By ${course.instructor}
+                </p>
+
+                <div class="course-info">
+
+                    <span>
+                        📚 ${course.lessons} Lessons
+                    </span>
+
+                    <span>
+                        ⏱ ${course.hours} Hours
+                    </span>
+
+                </div>
+
+
+                <div class="course-footer">
+
+                    <div class="course-price">
+
+                        ${formatPrice(course.price)}
+
+                        <del>
+                            ${formatPrice(course.oldPrice)}
+                        </del>
+
+                    </div>
+
+                    <a
+                        href="course-details.html?id=${course.id}"
+                        class="btn btn-small btn-primary"
+                    >
+                        View
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    renderCourses
+);
+
+document
+    .getElementById("courseSearch")
+    .addEventListener(
+        "input",
+        renderCourses
+    );
+
+</script>
+
+</body>
+</html>

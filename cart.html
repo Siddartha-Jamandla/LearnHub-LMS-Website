@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Course Details - LearnHub</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link active">
+                Courses
+            </a>
+
+            <a href="about.html" class="nav-link">
+                About
+            </a>
+
+            <a href="contact.html" class="nav-link">
+                Contact
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <a href="wishlist.html" class="nav-icon">
+                ♡
+            </a>
+
+            <a href="cart.html" class="nav-icon">
+
+                🛒
+
+                <span id="cart-count" class="cart-count">
+                    0
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="course-detail">
+
+    <div
+        class="container"
+        id="courseDetails"
+    ></div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+const params =
+    new URLSearchParams(window.location.search);
+
+const courseId =
+    params.get("id") || 1;
+
+const course =
+    getCourseById(courseId);
+
+
+const container =
+    document.getElementById("courseDetails");
+
+
+if (!course) {
+
+    container.innerHTML = `
+        <div class="empty-state">
+            <h2>Course Not Found</h2>
+            <a href="courses.html"
+               class="btn btn-primary">
+               Back to Courses
+            </a>
+        </div>
+    `;
+
+} else {
+
+    container.innerHTML = `
+
+        <div class="detail-grid">
+
+            <div class="detail-main">
+
+                <span class="section-tag">
+                    ${course.category}
+                </span>
+
+                <h1>
+                    ${course.title}
+                </h1>
+
+                <p class="detail-description">
+                    ${course.description}
+                </p>
+
+                <p>
+                    ⭐ ${course.rating}
+                    &nbsp; | &nbsp;
+                    ${course.students} students
+                </p>
+
+                <br>
+
+                <div class="detail-image">
+
+                    <img
+                        src="${course.image}"
+                        alt="${course.title}"
+                    >
+
+                </div>
+
+                <br>
+
+                <h2>
+                    What You Will Learn
+                </h2>
+
+                <ul class="detail-list">
+
+                    <li>
+                        ✓ Complete course fundamentals
+                    </li>
+
+                    <li>
+                        ✓ Practical real-world projects
+                    </li>
+
+                    <li>
+                        ✓ Step-by-step learning
+                    </li>
+
+                    <li>
+                        ✓ Certificate after completion
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+            <div class="detail-card">
+
+                <div class="detail-price">
+
+                    ${formatPrice(course.price)}
+
+                    <del>
+                        ${formatPrice(course.oldPrice)}
+                    </del>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    onclick="addToCart(${course.id})"
+                >
+                    Add to Cart
+                </button>
+
+
+                <button
+                    class="btn btn-outline"
+                    onclick="addToWishlist(${course.id})"
+                >
+                    Add to Wishlist
+                </button>
+
+
+                <ul class="detail-list">
+
+                    <li>
+                        📚 ${course.lessons} Lessons
+                    </li>
+
+                    <li>
+                        ⏱ ${course.hours} Hours
+                    </li>
+
+                    <li>
+                        👨‍🏫 ${course.instructor}
+                    </li>
+
+                    <li>
+                        🏆 Certificate Included
+                    </li>
+
+                    <li>
+                        ♾ Lifetime Access
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+</script>
+
+</body>
+</html>

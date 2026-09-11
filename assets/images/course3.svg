@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Python Course">
+  <defs>
+    <linearGradient id="g3" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g3)"/>
+  <circle cx="980" cy="190" r="200" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="220" cy="680" r="240" fill="rgba(255,255,255,0.07)"/>
+  <rect x="80" y="80" width="260" height="44" rx="22" fill="rgba(255,255,255,0.18)"/>
+  <text x="110" y="110" font-size="22" font-weight="700" fill="white" font-family="Arial, sans-serif">Data Science</text>
+  <text x="80" y="390" font-size="60" font-weight="700" fill="white" font-family="Arial, sans-serif">Python</text>
+  <text x="80" y="455" font-size="30" fill="rgba(255,255,255,0.85)" font-family="Arial, sans-serif">Masterclass</text>
+  <rect x="80" y="520" width="260" height="120" rx="20" fill="rgba(255,255,255,0.12)"/>
+  <path d="M116 590 L156 560 L196 590 L156 640 Z" fill="rgba(255,255,255,0.96)"/>
+  <path d="M180 560 C210 560, 220 620, 255 620" stroke="rgba(255,255,255,0.9)" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M255 620 L290 580" stroke="rgba(255,255,255,0.9)" stroke-width="10" fill="none" stroke-linecap="round"/>
+</svg>

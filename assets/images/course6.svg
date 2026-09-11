@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Digital Marketing Course">
+  <defs>
+    <linearGradient id="g6" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g6)"/>
+  <circle cx="980" cy="180" r="190" fill="rgba(255,255,255,0.12)"/>
+  <circle cx="180" cy="700" r="260" fill="rgba(255,255,255,0.06)"/>
+  <rect x="80" y="80" width="230" height="44" rx="22" fill="rgba(255,255,255,0.18)"/>
+  <text x="110" y="110" font-size="22" font-weight="700" fill="white" font-family="Arial, sans-serif">Business</text>
+  <text x="80" y="390" font-size="58" font-weight="700" fill="white" font-family="Arial, sans-serif">Marketing</text>
+  <text x="80" y="450" font-size="30" fill="rgba(255,255,255,0.86)" font-family="Arial, sans-serif">Masterclass</text>
+  <rect x="80" y="530" width="270" height="120" rx="20" fill="rgba(255,255,255,0.12)"/>
+  <path d="M110 620 L160 560 L210 620 L160 675 L110 620 Z" fill="rgba(255,255,255,0.86)"/>
+  <path d="M210 580 H330" stroke="rgba(255,255,255,0.9)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M210 610 H300" stroke="rgba(255,255,255,0.62)" stroke-width="12" stroke-linecap="round"/>
+</svg>

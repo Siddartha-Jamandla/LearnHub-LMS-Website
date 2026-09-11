@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Payment Successful - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+            <a href="my-courses.html" class="nav-link">
+                My Courses
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<section class="success-page">
+
+    <div class="container">
+
+        <div class="success-icon">
+            ✅
+        </div>
+
+        <h1>
+            Payment Successful!
+        </h1>
+
+        <p>
+            Congratulations! Your courses have been added
+            to your account.
+        </p>
+
+        <br>
+
+        <a
+            href="my-courses.html"
+            class="btn btn-primary"
+        >
+            Go to My Courses
+        </a>
+
+        <a
+            href="courses.html"
+            class="btn btn-outline"
+        >
+            Continue Learning
+        </a>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+const cart =
+    getCart();
+
+let myCourses =
+    JSON.parse(
+        localStorage.getItem("myCourses")
+    ) || [];
+
+
+cart.forEach(id => {
+
+    if (!myCourses.includes(id)) {
+        myCourses.push(id);
+    }
+
+});
+
+
+localStorage.setItem(
+    "myCourses",
+    JSON.stringify(myCourses)
+);
+
+
+/* Empty cart after successful purchase */
+
+localStorage.removeItem("cart");
+
+updateCartCount();
+
+</script>
+
+</body>
+</html>

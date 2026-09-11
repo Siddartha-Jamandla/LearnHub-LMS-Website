@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>FAQ - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+            <a href="about.html" class="nav-link">
+                About
+            </a>
+
+            <a href="contact.html" class="nav-link">
+                Contact
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<section class="page-header">
+
+    <div class="container">
+
+        <h1>
+            Frequently Asked Questions
+        </h1>
+
+        <p>
+            Find answers to common questions.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="faq-list">
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    onclick="toggleFAQ(this)"
+                >
+
+                    What is LearnHub?
+
+                    <span>
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    LearnHub is an online learning platform
+                    where students can browse and purchase
+                    educational courses.
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    onclick="toggleFAQ(this)"
+                >
+
+                    How do I register?
+
+                    <span>
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    Click the Register button and fill in
+                    your name, email and password.
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    onclick="toggleFAQ(this)"
+                >
+
+                    How can I purchase a course?
+
+                    <span>
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    Open a course, click Add to Cart,
+                    then proceed through checkout.
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    onclick="toggleFAQ(this)"
+                >
+
+                    Where can I find purchased courses?
+
+                    <span>
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    Purchased courses appear under
+                    My Courses.
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    onclick="toggleFAQ(this)"
+                >
+
+                    Can I save courses for later?
+
+                    <span>
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    Yes. Use the Wishlist button on any
+                    course.
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+function toggleFAQ(button) {
+
+    const item =
+        button.parentElement;
+
+    item.classList.toggle("open");
+
+
+    const symbol =
+        button.querySelector("span");
+
+
+    if (item.classList.contains("open")) {
+
+        symbol.textContent = "−";
+
+    } else {
+
+        symbol.textContent = "+";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

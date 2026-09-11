@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Wishlist - LearnHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+            <a href="wishlist.html" class="nav-link active">
+                Wishlist
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <a href="cart.html" class="nav-icon">
+                🛒
+                <span id="cart-count" class="cart-count">
+                    0
+                </span>
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="page-header">
+
+    <div class="container">
+
+        <h1>
+            My Wishlist
+        </h1>
+
+        <p>
+            Courses you want to learn later.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div
+            id="wishlistList"
+            class="course-grid"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+function renderWishlist() {
+
+    const wishlist =
+        getWishlist();
+
+
+    const container =
+        document.getElementById("wishlistList");
+
+
+    if (wishlist.length === 0) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <h2>
+                    Your Wishlist is Empty
+                </h2>
+
+                <p>
+                    Add courses you want to learn later.
+                </p>
+
+                <br>
+
+                <a
+                    href="courses.html"
+                    class="btn btn-primary"
+                >
+                    Browse Courses
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        wishlist.map(id => {
+
+            const course =
+                getCourseById(id);
+
+
+            return `
+
+                <div class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="${course.image}"
+                            alt="${course.title}"
+                        >
+
+                    </div>
+
+
+                    <div class="course-content">
+
+                        <h3>
+                            ${course.title}
+                        </h3>
+
+                        <p class="instructor">
+                            ${course.instructor}
+                        </p>
+
+                        <br>
+
+                        <div class="course-footer">
+
+                            <strong>
+                                ${formatPrice(course.price)}
+                            </strong>
+
+                            <button
+                                class="btn btn-primary btn-small"
+                                onclick="addToCart(${course.id})"
+                            >
+                                Add to Cart
+                            </button>
+
+                        </div>
+
+                        <br>
+
+                        <button
+                            class="btn btn-danger btn-small"
+                            onclick="removeFromWishlist(${course.id})"
+                        >
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    renderWishlist
+);
+
+</script>
+
+</body>
+</html>
