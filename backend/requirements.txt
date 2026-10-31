@@ -1,0 +1,5 @@
+# LearnHub LMS backend has NO third-party dependencies.
+# It runs on the Python standard library only:
+#   http.server, sqlite3, json, hashlib, secrets, os, re, urllib, mimetypes, time
+#
+# Python 3.8+ is enough. Nothing to pip install.

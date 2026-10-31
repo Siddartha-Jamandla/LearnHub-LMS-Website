@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# SQLite database (created locally by seed.py / app.py)
+*.db
+*.db-journal
+*.sqlite3
+
+# Environment
+.env
+backend/.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
