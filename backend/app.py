@@ -25,9 +25,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, unquote
 
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR  = os.path.dirname(BASE_DIR)               # ~/workspace/github-upgrades/learnhub
-REPO_DIR  = os.path.join(ROOT_DIR, "repo")          # static frontend (cloned GitHub repo)
-JS_DIR    = os.path.join(ROOT_DIR, "js")            # new integration JS (api.js, auth.js)
+ROOT_DIR  = os.path.dirname(BASE_DIR)               # repo root in production, workspace/learnhub locally
+# In workspace the frontend lives in repo/, in production (GitHub/Render) it's at root
+_cand = os.path.join(ROOT_DIR, "repo")
+REPO_DIR  = _cand if os.path.exists(os.path.join(_cand, "index.html")) else ROOT_DIR
+_js_cand = os.path.join(ROOT_DIR, "js")
+JS_DIR    = _js_cand if os.path.isdir(_js_cand) else None
 
 PORT       = int(os.environ.get("PORT", "8000"))
 DB_PATH    = os.environ.get("DB_PATH", os.path.join(BASE_DIR, "learnhub.db"))
@@ -164,7 +167,10 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._route_api(method, path)
             return
         if path.startswith("/js/"):          # new integration scripts
-            self._serve_file(os.path.join(JS_DIR, path[4:]))
+            if JS_DIR:
+                self._serve_file(os.path.join(JS_DIR, path[4:]))
+            else:
+                self._err(404, "Not found")
             return
         self._serve_file(os.path.join(REPO_DIR, path.lstrip("/") or "index.html"))
 
