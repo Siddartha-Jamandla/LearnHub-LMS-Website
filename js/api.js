@@ -74,9 +74,10 @@
         base: API_BASE,
         checkApi,
 
-        async getCourses() {
+        async getCourses(params = {}) {
             if (await checkApi()) {
-                const d = await request("GET", "/api/courses");
+                const qs = new URLSearchParams(params).toString();
+                const d = await request("GET", "/api/courses" + (qs ? "?" + qs : ""));
                 return d.courses;
             }
             return legacyCourses();

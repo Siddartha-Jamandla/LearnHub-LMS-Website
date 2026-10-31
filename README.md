@@ -68,7 +68,7 @@ from `/api/register` or `/api/login`).
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
 | GET | `/api/health` | - | Service status |
-| GET | `/api/courses` | - | List all courses |
+| GET | `/api/courses` | - | List all courses. Optional `?search=` (title/description) and `?category=` |
 | GET | `/api/courses/:id` | - | One course |
 | GET | `/api/courses/:id/lessons` | - | Lessons for a course |
 | POST | `/api/register` | - | `{name, email, password}` → token |

@@ -269,8 +269,25 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         self._ok({"errors": errs})
 
     def api_courses(self):
+        # Optional filters: ?search= (title/description, case-insensitive)
+        #                   ?category= (exact category name)
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        search = (qs.get("search", [""])[0] or "").strip()
+        category = (qs.get("category", [""])[0] or "").strip()
+        sql = "SELECT * FROM courses"
+        clauses, params = [], []
+        if category:
+            clauses.append("category = ?")
+            params.append(category)
+        if search:
+            clauses.append("(title LIKE ? OR description LIKE ?)")
+            params += [f"%{search}%", f"%{search}%"]
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+        sql += " ORDER BY id"
         conn = db()
-        rows = conn.execute("SELECT * FROM courses ORDER BY id").fetchall()
+        rows = conn.execute(sql, params).fetchall()
         conn.close()
         self._ok({"courses": [row_to_dict(r) for r in rows]})
 
