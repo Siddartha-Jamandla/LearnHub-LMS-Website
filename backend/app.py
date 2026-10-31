@@ -24,6 +24,8 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, unquote
 
+import error_bot  # local: automated error monitor + self-healing
+
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR  = os.path.dirname(BASE_DIR)               # repo root in production, workspace/learnhub locally
 # In workspace the frontend lives in repo/, in production (GitHub/Render) it's at root
@@ -54,6 +56,10 @@ def init_db():
     conn.close()
     if fresh:
         print(f"[learnhub] created database at {DB_PATH}")
+    try:
+        error_bot.init_error_bot(DB_PATH)
+    except Exception:
+        pass
 
 
 def row_to_dict(row):
@@ -160,19 +166,39 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         self._route("DELETE")
 
     def _route(self, method):
-        parsed = urlparse(self.path)
-        path = unquote(parsed.path)
+        try:
+            parsed = urlparse(self.path)
+            path = unquote(parsed.path)
 
-        if path.startswith("/api/"):
-            self._route_api(method, path)
-            return
-        if path.startswith("/js/"):          # new integration scripts
-            if JS_DIR:
-                self._serve_file(os.path.join(JS_DIR, path[4:]))
-            else:
-                self._err(404, "Not found")
-            return
-        self._serve_file(os.path.join(REPO_DIR, path.lstrip("/") or "index.html"))
+            if path.startswith("/api/"):
+                self._route_api(method, path)
+                return
+            if path.startswith("/js/"):          # new integration scripts
+                if JS_DIR:
+                    self._serve_file(os.path.join(JS_DIR, path[4:]))
+                else:
+                    self._err(404, "Not found")
+                return
+            self._serve_file(os.path.join(REPO_DIR, path.lstrip("/") or "index.html"))
+        except BrokenPipeError:
+            pass
+        except Exception as e:  # error-bot: log + try self-heal
+            try:
+                eid, fixed, action = error_bot.handle_exception(
+                    e, path=self.path, method=method, reinit_db=init_db
+                )
+                print(f"[learnhub] ERROR id={eid} fixed={fixed} {e!r} action={action}")
+            except Exception:
+                eid, fixed = 0, False
+            try:
+                msg = "Internal server error"
+                if eid:
+                    msg += f" (ref #{eid})"
+                if fixed:
+                    msg += " — auto-fix applied, please retry"
+                self._err(500, msg)
+            except Exception:
+                pass
 
     # -- static files --------------------------------------------------
     def _serve_file(self, full_path):
@@ -197,6 +223,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
     def _route_api(self, method, path):
         r = [
             ("GET",    r"^/api/health$",                 self.api_health),
+            ("GET",    r"^/api/errors$",                 self.api_errors),
             ("GET",    r"^/api/courses$",                self.api_courses),
             ("GET",    r"^/api/courses/(\d+)$",          self.api_course),
             ("GET",    r"^/api/courses/(\d+)/lessons$",  self.api_course_lessons),
@@ -220,7 +247,26 @@ class LearnHubHandler(BaseHTTPRequestHandler):
 
     # -- public endpoints ----------------------------------------------
     def api_health(self):
-        self._ok({"service": "learnhub", "status": "ok", "time": int(time.time())})
+        info = {"service": "learnhub", "status": "ok", "time": int(time.time())}
+        try:
+            info["error_bot"] = error_bot.health_status()
+        except Exception:
+            pass
+        self._ok(info)
+
+    def api_errors(self):
+        # admin-only: simple shared-secret check via query ?key=
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        key = qs.get("key", [""])[0] or self.headers.get("X-Admin-Key", "")
+        if key != API_SECRET:
+            self._err(403, "Forbidden")
+            return
+        try:
+            errs = error_bot.get_recent_errors(20)
+        except Exception:
+            errs = []
+        self._ok({"errors": errs})
 
     def api_courses(self):
         conn = db()
