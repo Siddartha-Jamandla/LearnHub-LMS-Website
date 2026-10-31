@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: learnhub-lms
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: python backend/app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
