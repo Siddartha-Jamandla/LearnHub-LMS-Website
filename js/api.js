@@ -189,6 +189,12 @@
             return d;
         },
 
+        async getCertificate(id) {
+            // Token required; the backend only serves your own certificates.
+            const d = await request("GET", `/api/certificates/${id}`, null, true);
+            return d.certificate;
+        },
+
         async getMyCourses() {
             const d = await request("GET", "/api/my-courses", null, true);
             return d.courses;

@@ -82,7 +82,8 @@ from `/api/register` or `/api/login`).
 | POST | `/api/checkout` | token | Enrol in all cart courses, create order, clear cart |
 | GET | `/api/enrollments` | token | Enrolments with progress |
 | PUT | `/api/enrollments/:id/progress` | token | `{progress_percent: 0-100}` |
-| POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent) |
+| POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent). Includes `certificate {id, certificate_code}` when this completes the course |
+| GET | `/api/certificates/:id` | token | View your own certificate of completion (user name, course, code, issue date) |
 | GET | `/api/my-courses` | token | Enrolled courses for the My Courses page |
 
 Example:
@@ -105,6 +106,7 @@ curl localhost:8000/api/courses | python3 -m json.tool | head -20
 - **cart_items** - `id, user_id, course_id` (unique user+course)
 - **orders** - `id, user_id, total (INR), status, created_at`
 - **reviews** - `id, user_id, course_id, rating (1-5), comment, created_at` (unique user+course)
+- **certificates** - `id, user_id, course_id, certificate_code, issued_at` (unique user+course; issued when progress hits 100%)
 - **auth_tokens** - `token, user_id, created_at` (login sessions survive restarts)
 
 Passwords are hashed with **SHA-256 + per-user random salt**

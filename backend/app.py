@@ -229,6 +229,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/courses/(\d+)/lessons$",  self.api_course_lessons),
             ("GET",    r"^/api/courses/(\d+)/reviews$",  self.api_course_reviews),
             ("POST",   r"^/api/reviews$",                self.api_review_add),
+            ("GET",    r"^/api/certificates/(\d+)$",     self.api_cert_get),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
@@ -441,11 +442,59 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         pct = round(done / total * 100, 2) if total else 0.0
         conn.execute("UPDATE enrollments SET progress_percent = ? WHERE id = ?",
                      (pct, enrollment["id"]))
+        # Certificate of completion: generated once when progress hits 100%.
+        # INSERT OR IGNORE keeps it idempotent (UNIQUE(user_id, course_id)).
+        certificate = None
+        if pct >= 100.0:
+            code = "LH-" + secrets.token_hex(4).upper()
+            cur = conn.execute(
+                "INSERT OR IGNORE INTO certificates (user_id, course_id, certificate_code)"
+                " VALUES (?, ?, ?)",
+                (user["id"], lesson["course_id"], code))
+            if cur.rowcount == 1:
+                certificate = {"id": cur.lastrowid,
+                               "certificate_code": code}
+            else:
+                existing = conn.execute(
+                    "SELECT id, certificate_code FROM certificates"
+                    " WHERE user_id = ? AND course_id = ?",
+                    (user["id"], lesson["course_id"])).fetchone()
+                if existing:
+                    certificate = {"id": existing["id"],
+                                   "certificate_code": existing["certificate_code"]}
         conn.commit()
         conn.close()
-        self._ok({"lesson_id": int(lesson_id), "completed": True,
-                  "progress_percent": pct,
-                  "message": f"Lesson '{lesson['title']}' marked complete"})
+        resp = {"lesson_id": int(lesson_id), "completed": True,
+                "progress_percent": pct,
+                "message": f"Lesson '{lesson['title']}' marked complete"}
+        if certificate:
+            resp["certificate"] = certificate
+        self._ok(resp)
+
+    def api_cert_get(self, cert_id):
+        """View a certificate. Users can only view their own certificates."""
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        cert = conn.execute(
+            """SELECT cf.id, cf.certificate_code, cf.issued_at,
+                      u.id AS user_id, u.name AS user_name,
+                      c.id AS course_id, c.title AS course_title,
+                      c.instructor, c.duration_hours
+               FROM certificates cf
+               JOIN users u ON u.id = cf.user_id
+               JOIN courses c ON c.id = cf.course_id
+               WHERE cf.id = ?""",
+            (cert_id,)).fetchone()
+        conn.close()
+        if not cert:
+            self._err(404, "Certificate not found")
+            return
+        if cert["user_id"] != user["id"]:
+            self._err(403, "You can only view your own certificates")
+            return
+        self._ok({"certificate": row_to_dict(cert)})
 
     def api_register(self):
         body = self._read_json()

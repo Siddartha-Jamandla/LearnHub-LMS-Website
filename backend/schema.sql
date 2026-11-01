@@ -91,3 +91,16 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reviews_course ON reviews(course_id);
+
+-- Certificates of completion: generated once when an enrolled learner's
+-- progress hits 100%. One certificate per user per course.
+CREATE TABLE IF NOT EXISTS certificates (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id          INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id        INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    certificate_code TEXT    NOT NULL UNIQUE,       -- e.g. LH-3F9A2C1B
+    issued_at        TEXT    NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, course_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_certificates_user ON certificates(user_id);
