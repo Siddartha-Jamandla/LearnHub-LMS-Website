@@ -86,9 +86,25 @@
         async getCourse(id) {
             if (await checkApi()) {
                 const d = await request("GET", `/api/courses/${id}`);
-                return d.course;
+                return d.course; // includes avg_rating + review_count
             }
             return legacyCourses().find((c) => String(c.id) === String(id)) || null;
+        },
+
+        async getReviews(courseId) {
+            if (await checkApi()) {
+                const d = await request("GET", `/api/courses/${courseId}/reviews`);
+                return d.reviews;
+            }
+            return [];
+        },
+
+        async postReview(courseId, rating, comment = "") {
+            // Token required; backend requires enrolment and enforces
+            // rating 1-5 and one review per user per course.
+            const d = await request("POST", "/api/reviews",
+                { course_id: courseId, rating, comment }, true);
+            return d;
         },
 
         async getLessons(courseId) {

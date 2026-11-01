@@ -78,3 +78,16 @@ CREATE INDEX IF NOT EXISTS idx_cart_user        ON cart_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user      ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_courses_category ON courses(category);
 CREATE INDEX IF NOT EXISTS idx_lesson_progress_user ON lesson_progress(user_id);
+
+-- Course reviews: one review per user per course, rating 1-5.
+CREATE TABLE IF NOT EXISTS reviews (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id  INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    rating     INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment    TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, course_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_course ON reviews(course_id);

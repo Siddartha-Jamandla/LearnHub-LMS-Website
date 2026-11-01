@@ -227,6 +227,8 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/courses$",                self.api_courses),
             ("GET",    r"^/api/courses/(\d+)$",          self.api_course),
             ("GET",    r"^/api/courses/(\d+)/lessons$",  self.api_course_lessons),
+            ("GET",    r"^/api/courses/(\d+)/reviews$",  self.api_course_reviews),
+            ("POST",   r"^/api/reviews$",                self.api_review_add),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
@@ -316,11 +318,77 @@ class LearnHubHandler(BaseHTTPRequestHandler):
     def api_course(self, course_id):
         conn = db()
         course = conn.execute("SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone()
-        conn.close()
         if not course:
+            conn.close()
             self._err(404, "Course not found")
             return
-        self._ok({"course": row_to_dict(course)})
+        stats = conn.execute(
+            "SELECT COUNT(*) AS n, ROUND(AVG(rating), 2) AS avg FROM reviews WHERE course_id = ?",
+            (course_id,)).fetchone()
+        conn.close()
+        d = row_to_dict(course)
+        d["avg_rating"] = stats["avg"] if stats["avg"] is not None else 0.0
+        d["review_count"] = stats["n"]
+        self._ok({"course": d})
+
+    def api_course_reviews(self, course_id):
+        conn = db()
+        course = conn.execute("SELECT id FROM courses WHERE id = ?", (course_id,)).fetchone()
+        if not course:
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        rows = conn.execute(
+            """SELECT r.id, r.rating, r.comment, r.created_at, u.name AS user_name
+               FROM reviews r JOIN users u ON u.id = r.user_id
+               WHERE r.course_id = ? ORDER BY r.id DESC""",
+            (course_id,)).fetchall()
+        conn.close()
+        self._ok({"reviews": [row_to_dict(r) for r in rows]})
+
+    def api_review_add(self):
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        course_id = body.get("course_id")
+        comment = (body.get("comment") or "").strip()
+        try:
+            rating = int(body.get("rating"))
+        except (TypeError, ValueError):
+            self._err(400, "rating must be an integer 1-5")
+            return
+        if not 1 <= rating <= 5:
+            self._err(400, "rating must be between 1 and 5")
+            return
+        if len(comment) > 2000:
+            self._err(400, "comment is too long (max 2000 characters)")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM courses WHERE id = ?", (course_id,)).fetchone():
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        if not conn.execute(
+                "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+                (user["id"], course_id)).fetchone():
+            conn.close()
+            self._err(403, "You must be enrolled in this course to review it")
+            return
+        try:
+            cur = conn.execute(
+                "INSERT INTO reviews (user_id, course_id, rating, comment)"
+                " VALUES (?, ?, ?, ?)",
+                (user["id"], course_id, rating, comment))
+            conn.commit()
+            review_id = cur.lastrowid
+        except sqlite3.IntegrityError:
+            conn.close()
+            self._err(409, "You have already reviewed this course")
+            return
+        conn.close()
+        self._ok({"review_id": review_id, "rating": rating,
+                  "message": "Review submitted"}, status=201)
 
     def api_course_lessons(self, course_id):
         conn = db()
