@@ -68,7 +68,7 @@ from `/api/register` or `/api/login`).
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
 | GET | `/api/health` | - | Service status |
-| GET | `/api/courses` | - | List all courses. Optional `?search=` (title/description) and `?category=` |
+| GET | `/api/courses` | - | List courses. `?q=`/`?search=` (title/description), `?category=`, `?level=`; paginated via `?page=` & `?per_page=` (max 50). Returns `courses` + `total/page/per_page/pages` |
 | GET | `/api/courses/:id` | - | One course |
 | GET | `/api/courses/:id/lessons` | - | Lessons for a course |
 | POST | `/api/register` | - | `{name, email, password}` → token |

@@ -270,27 +270,48 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         self._ok({"errors": errs})
 
     def api_courses(self):
-        # Optional filters: ?search= (title/description, case-insensitive)
+        # Optional filters: ?q= (alias of ?search=, title/description,
+        #                         case-insensitive)
         #                   ?category= (exact category name)
+        #                   ?level= (exact level: Beginner/Intermediate/Advanced)
+        # Pagination: ?page= (1-based, default 1), ?per_page= (1..50, default 12)
         from urllib.parse import urlparse, parse_qs
         qs = parse_qs(urlparse(self.path).query)
-        search = (qs.get("search", [""])[0] or "").strip()
+        search = (qs.get("q", [""])[0] or qs.get("search", [""])[0] or "").strip()
         category = (qs.get("category", [""])[0] or "").strip()
+        level = (qs.get("level", [""])[0] or "").strip()
+        try:
+            page = max(1, int(qs.get("page", ["1"])[0]))
+        except (TypeError, ValueError):
+            page = 1
+        try:
+            per_page = int(qs.get("per_page", ["12"])[0])
+        except (TypeError, ValueError):
+            per_page = 12
+        per_page = max(1, min(50, per_page))
         sql = "SELECT * FROM courses"
         clauses, params = [], []
         if category:
             clauses.append("category = ?")
             params.append(category)
+        if level:
+            clauses.append("level = ?")
+            params.append(level)
         if search:
             clauses.append("(title LIKE ? OR description LIKE ?)")
             params += [f"%{search}%", f"%{search}%"]
-        if clauses:
-            sql += " WHERE " + " AND ".join(clauses)
-        sql += " ORDER BY id"
+        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
         conn = db()
-        rows = conn.execute(sql, params).fetchall()
+        total = conn.execute(
+            "SELECT COUNT(*) AS n FROM courses" + where, params).fetchone()["n"]
+        rows = conn.execute(
+            sql + where + " ORDER BY id LIMIT ? OFFSET ?",
+            params + [per_page, (page - 1) * per_page],
+        ).fetchall()
         conn.close()
-        self._ok({"courses": [row_to_dict(r) for r in rows]})
+        self._ok({"courses": [row_to_dict(r) for r in rows],
+                  "total": total, "page": page, "per_page": per_page,
+                  "pages": (total + per_page - 1) // per_page})
 
     def api_course(self, course_id):
         conn = db()
