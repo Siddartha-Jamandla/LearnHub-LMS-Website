@@ -166,6 +166,13 @@
             return d;
         },
 
+        async completeLesson(lessonId) {
+            // Marks one lesson complete; the backend recomputes the
+            // course progress automatically (idempotent).
+            const d = await request("POST", `/api/lessons/${lessonId}/complete`, null, true);
+            return d;
+        },
+
         async getMyCourses() {
             const d = await request("GET", "/api/my-courses", null, true);
             return d.courses;

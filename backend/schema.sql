@@ -55,6 +55,16 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Which lessons a learner has marked complete. Drives the auto-computed
+-- enrollments.progress_percent (done_lessons / total_lessons * 100).
+CREATE TABLE IF NOT EXISTS lesson_progress (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id    INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    completed_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, lesson_id)
+);
+
 -- Auth tokens so login sessions survive a server restart.
 CREATE TABLE IF NOT EXISTS auth_tokens (
     token      TEXT PRIMARY KEY,
@@ -67,3 +77,4 @@ CREATE INDEX IF NOT EXISTS idx_enroll_user      ON enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_cart_user        ON cart_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user      ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_courses_category ON courses(category);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_user ON lesson_progress(user_id);

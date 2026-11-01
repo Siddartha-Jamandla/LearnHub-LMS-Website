@@ -227,6 +227,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/courses$",                self.api_courses),
             ("GET",    r"^/api/courses/(\d+)$",          self.api_course),
             ("GET",    r"^/api/courses/(\d+)/lessons$",  self.api_course_lessons),
+            ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
             ("POST",   r"^/api/logout$",                 self.api_logout),
@@ -313,6 +314,49 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         ).fetchall()
         conn.close()
         self._ok({"lessons": [row_to_dict(r) for r in rows]})
+
+    def api_lesson_complete(self, lesson_id):
+        """Mark one lesson complete and auto-update the course progress.
+
+        Progress = done_lessons / total_lessons * 100 (idempotent).
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        lesson = conn.execute(
+            "SELECT id, course_id, title FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
+        if not lesson:
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        # only a learner enrolled in the course can complete its lessons
+        enrollment = conn.execute(
+            "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+            (user["id"], lesson["course_id"])).fetchone()
+        if not enrollment:
+            conn.close()
+            self._err(403, "You must be enrolled in this course to complete its lessons")
+            return
+        conn.execute("INSERT OR IGNORE INTO lesson_progress (user_id, lesson_id)"
+                     " VALUES (?, ?)", (user["id"], lesson_id))
+        conn.commit()
+        total = conn.execute(
+            "SELECT COUNT(*) AS n FROM lessons WHERE course_id = ?",
+            (lesson["course_id"],)).fetchone()["n"]
+        done = conn.execute(
+            """SELECT COUNT(*) AS n FROM lesson_progress lp
+               JOIN lessons l ON l.id = lp.lesson_id
+               WHERE lp.user_id = ? AND l.course_id = ?""",
+            (user["id"], lesson["course_id"])).fetchone()["n"]
+        pct = round(done / total * 100, 2) if total else 0.0
+        conn.execute("UPDATE enrollments SET progress_percent = ? WHERE id = ?",
+                     (pct, enrollment["id"]))
+        conn.commit()
+        conn.close()
+        self._ok({"lesson_id": int(lesson_id), "completed": True,
+                  "progress_percent": pct,
+                  "message": f"Lesson '{lesson['title']}' marked complete"})
 
     def api_register(self):
         body = self._read_json()

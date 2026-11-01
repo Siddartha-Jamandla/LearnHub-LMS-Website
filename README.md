@@ -80,6 +80,7 @@ from `/api/register` or `/api/login`).
 | POST | `/api/checkout` | token | Enrol in all cart courses, create order, clear cart |
 | GET | `/api/enrollments` | token | Enrolments with progress |
 | PUT | `/api/enrollments/:id/progress` | token | `{progress_percent: 0-100}` |
+| POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent) |
 | GET | `/api/my-courses` | token | Enrolled courses for the My Courses page |
 
 Example:
