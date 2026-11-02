@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Admin - LearnHub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; }
+        .admin-card h2 { font-size: 1.1rem; margin-bottom: 12px; }
+        .admin-card .form-group { margin-bottom: 10px; }
+        .admin-card .form-group label { font-size: 0.85rem; }
+        .admin-result { margin-top: 20px; background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px; overflow-x: auto; }
+        .admin-result pre { margin: 0; font-size: 0.85rem; white-space: pre-wrap; }
+        .admin-note { font-size: 0.85rem; color: #64748b; }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="wishlist.html" class="nav-link">Wishlist</a>
+        </nav>
+        <div class="nav-actions" id="auth-slot"></div>
+    </div>
+</header>
+
+<section class="page-header">
+    <div class="container">
+        <h1>Course Admin</h1>
+        <p>Manage courses and lessons (instructor only).</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <div class="admin-card" style="margin-bottom: 20px; max-width: 520px;">
+            <h2>Admin key</h2>
+            <p class="admin-note">Enter once per tab - it is kept in <code>sessionStorage</code> and sent as <code>?key=</code>.</p>
+            <div class="form-group">
+                <label for="adminKey">Admin key (API_SECRET)</label>
+                <input type="password" id="adminKey" placeholder="Enter admin key">
+            </div>
+            <button class="btn btn-primary btn-small" id="saveKeyBtn">Save key</button>
+            <span id="keyStatus" class="admin-note"></span>
+        </div>
+
+        <div class="admin-grid">
+
+            <div class="admin-card">
+                <h2>Create course</h2>
+                <form id="createCourseForm">
+                    <div class="form-group"><label>Title *</label><input name="title" required></div>
+                    <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+                    <div class="form-group"><label>Category</label><input name="category" placeholder="General"></div>
+                    <div class="form-group"><label>Price (INR)</label><input name="price" type="number" min="0" value="0"></div>
+                    <div class="form-group"><label>Instructor</label><input name="instructor"></div>
+                    <div class="form-group"><label>Duration (hours)</label><input name="duration_hours" type="number" min="0" step="0.5" value="0"></div>
+                    <div class="form-group"><label>Level</label>
+                        <select name="level">
+                            <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Image URL</label><input name="image_url"></div>
+                    <button class="btn btn-primary btn-small" type="submit">Create</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>Update course</h2>
+                <form id="updateCourseForm">
+                    <div class="form-group"><label>Course ID *</label><input name="id" type="number" min="1" required></div>
+                    <div class="form-group"><label>Title</label><input name="title"></div>
+                    <div class="form-group"><label>Price (INR)</label><input name="price" type="number" min="0"></div>
+                    <div class="form-group"><label>Level</label>
+                        <select name="level"><option value="">(no change)</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+                    </div>
+                    <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+                    <button class="btn btn-primary btn-small" type="submit">Update</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>Delete course</h2>
+                <p class="admin-note">Blocked (409) while enrolments exist; its lessons are removed automatically.</p>
+                <form id="deleteCourseForm">
+                    <div class="form-group"><label>Course ID *</label><input name="id" type="number" min="1" required></div>
+                    <button class="btn btn-danger btn-small" type="submit">Delete</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>Add lesson</h2>
+                <form id="createLessonForm">
+                    <div class="form-group"><label>Course ID *</label><input name="course_id" type="number" min="1" required></div>
+                    <div class="form-group"><label>Title *</label><input name="title" required></div>
+                    <div class="form-group"><label>Content URL *</label><input name="content_url" required></div>
+                    <div class="form-group"><label>Duration (minutes)</label><input name="duration_minutes" type="number" min="0" value="0"></div>
+                    <button class="btn btn-primary btn-small" type="submit">Add lesson</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>Update lesson</h2>
+                <form id="updateLessonForm">
+                    <div class="form-group"><label>Lesson ID *</label><input name="id" type="number" min="1" required></div>
+                    <div class="form-group"><label>Title</label><input name="title"></div>
+                    <div class="form-group"><label>Content URL</label><input name="content_url"></div>
+                    <div class="form-group"><label>Duration (minutes)</label><input name="duration_minutes" type="number" min="0"></div>
+                    <button class="btn btn-primary btn-small" type="submit">Update</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>Delete lesson</h2>
+                <p class="admin-note">Learner progress rows for the lesson are removed automatically.</p>
+                <form id="deleteLessonForm">
+                    <div class="form-group"><label>Lesson ID *</label><input name="id" type="number" min="1" required></div>
+                    <button class="btn btn-danger btn-small" type="submit">Delete</button>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="admin-result">
+            <pre id="adminResult">Results appear here…</pre>
+        </div>
+
+    </div>
+</section>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    if (window.LearnHubAuth) LearnHubAuth.renderAuthSlot("auth-slot");
+
+    const keyInput = document.getElementById("adminKey");
+    const keyStatus = document.getElementById("keyStatus");
+    keyInput.value = sessionStorage.getItem("lh_admin_key") || "";
+    function getKey() {
+        const k = (keyInput.value || "").trim();
+        if (k) sessionStorage.setItem("lh_admin_key", k);
+        keyStatus.textContent = k ? "Key saved for this tab." : "No key set.";
+        return k;
+    }
+    document.getElementById("saveKeyBtn").addEventListener("click", getKey);
+    getKey();
+
+    const out = document.getElementById("adminResult");
+    function show(obj) { out.textContent = JSON.stringify(obj, null, 2); }
+    function fail(err) { out.textContent = "ERROR: " + err.message; }
+
+    function fields(form, names) {
+        const data = {};
+        for (const n of names) {
+            const el = form.elements[n];
+            if (el && el.value !== "") data[n] = el.value;
+        }
+        return data;
+    }
+
+    const api = window.LearnHubAPI;
+
+    document.getElementById("createCourseForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try { show(await api.adminCreateCourse(getKey(), fields(e.target,
+            ["title", "description", "category", "price", "instructor", "duration_hours", "level", "image_url"]))); }
+        catch (err) { fail(err); }
+    });
+
+    document.getElementById("updateCourseForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = e.target.elements.id.value;
+        try { show(await api.adminUpdateCourse(getKey(), id, fields(e.target,
+            ["title", "price", "level", "description"]))); }
+        catch (err) { fail(err); }
+    });
+
+    document.getElementById("deleteCourseForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = e.target.elements.id.value;
+        if (!confirm("Delete course " + id + " and all its lessons?")) return;
+        try { show(await api.adminDeleteCourse(getKey(), id)); }
+        catch (err) { fail(err); }
+    });
+
+    document.getElementById("createLessonForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const courseId = e.target.elements.course_id.value;
+        try { show(await api.adminCreateLesson(getKey(), courseId, fields(e.target,
+            ["title", "content_url", "duration_minutes"]))); }
+        catch (err) { fail(err); }
+    });
+
+    document.getElementById("updateLessonForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = e.target.elements.id.value;
+        try { show(await api.adminUpdateLesson(getKey(), id, fields(e.target,
+            ["title", "content_url", "duration_minutes"]))); }
+        catch (err) { fail(err); }
+    });
+
+    document.getElementById("deleteLessonForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = e.target.elements.id.value;
+        if (!confirm("Delete lesson " + id + "?")) return;
+        try { show(await api.adminDeleteLesson(getKey(), id)); }
+        catch (err) { fail(err); }
+    });
+})();
+</script>
+
+</body>
+</html>

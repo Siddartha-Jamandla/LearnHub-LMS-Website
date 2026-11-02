@@ -52,14 +52,14 @@ def init_db():
     with open(os.path.join(BASE_DIR, "schema.sql")) as f:
         schema = f.read()
     conn = db()
-    conn.executescript(schema)
-    conn.close()
+
     if fresh:
         print(f"[learnhub] created database at {DB_PATH}")
     try:
         error_bot.init_error_bot(DB_PATH)
     except Exception:
         pass
+
 
 
 def row_to_dict(row):
@@ -231,6 +231,13 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("POST",   r"^/api/reviews$",                self.api_review_add),
             ("GET",    r"^/api/certificates/(\d+)$",     self.api_cert_get),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
+            ("POST",   r"^/api/admin/courses$",          self.api_admin_course_create),
+            ("PUT",    r"^/api/admin/courses/(\d+)$",    self.api_admin_course_update),
+            ("DELETE", r"^/api/admin/courses/(\d+)$",    self.api_admin_course_delete),
+            ("POST",   r"^/api/admin/courses/(\d+)/lessons$",
+                                                     self.api_admin_lesson_create),
+            ("PUT",    r"^/api/admin/lessons/(\d+)$",    self.api_admin_lesson_update),
+            ("DELETE", r"^/api/admin/lessons/(\d+)$",    self.api_admin_lesson_delete),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
             ("POST",   r"^/api/logout$",                 self.api_logout),
@@ -260,11 +267,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
 
     def api_errors(self):
         # admin-only: simple shared-secret check via query ?key=
-        from urllib.parse import urlparse, parse_qs
-        qs = parse_qs(urlparse(self.path).query)
-        key = qs.get("key", [""])[0] or self.headers.get("X-Admin-Key", "")
-        if key != API_SECRET:
-            self._err(403, "Forbidden")
+        if not self._require_admin():
             return
         try:
             errs = error_bot.get_recent_errors(20)
@@ -554,6 +557,248 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             return None
         return user
 
+    # -- admin (instructor) helpers ------------------------------------
+    # All admin endpoints are gated on the shared secret: ?key=API_SECRET
+    # (or the X-Admin-Key header). The admin UI lives at /admin.html.
+    COURSE_LEVELS = ("Beginner", "Intermediate", "Advanced")
+
+    def _require_admin(self):
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        key = qs.get("key", [""])[0] or self.headers.get("X-Admin-Key", "")
+        if key != API_SECRET:
+            self._err(403, "Forbidden: invalid or missing admin key")
+            return False
+        return True
+
+    def _validate_course(self, body):
+        """Return (clean_dict, error). Validates fields present in body."""
+        clean, err = {}, None
+        if "title" in body:
+            title = (body.get("title") or "").strip()
+            if not title:
+                return None, "title is required and cannot be empty"
+            clean["title"] = title
+        if "price" in body:
+            try:
+                price = int(body.get("price"))
+            except (TypeError, ValueError):
+                return None, "price must be an integer >= 0"
+            if price < 0:
+                return None, "price must be >= 0"
+            clean["price"] = price
+        if "level" in body:
+            level = (body.get("level") or "").strip()
+            if level not in self.COURSE_LEVELS:
+                return None, f"level must be one of: {', '.join(self.COURSE_LEVELS)}"
+            clean["level"] = level
+        for f in ("description", "category", "instructor", "image_url"):
+            if f in body:
+                clean[f] = (body.get(f) or "").strip()
+        if "duration_hours" in body:
+            try:
+                dur = float(body.get("duration_hours"))
+            except (TypeError, ValueError):
+                return None, "duration_hours must be a number >= 0"
+            if dur < 0:
+                return None, "duration_hours must be >= 0"
+            clean["duration_hours"] = dur
+        return clean, err
+
+    def api_admin_course_create(self):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        clean, err = self._validate_course(body)
+        if err:
+            self._err(400, err)
+            return
+        if "title" not in clean:
+            self._err(400, "title is required")
+            return
+        course = {"title": clean.pop("title"),
+                  "description": clean.get("description", ""),
+                  "category": clean.get("category", "General"),
+                  "price": clean.get("price", 0),
+                  "instructor": clean.get("instructor", ""),
+                  "duration_hours": clean.get("duration_hours", 0.0),
+                  "level": clean.get("level", "Beginner"),
+                  "image_url": clean.get("image_url", "")}
+        conn = db()
+        cur = conn.execute(
+            """INSERT INTO courses (title, description, category, price, instructor,
+                                    duration_hours, level, image_url)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (course["title"], course["description"], course["category"],
+             course["price"], course["instructor"], course["duration_hours"],
+             course["level"], course["image_url"]))
+        conn.commit()
+        course["id"] = cur.lastrowid
+        conn.close()
+        self._ok({"course": course}, status=201)
+
+    def api_admin_course_update(self, course_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        clean, err = self._validate_course(body)
+        if err:
+            self._err(400, err)
+            return
+        if not clean:
+            self._err(400, "No valid fields to update")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM courses WHERE id = ?",
+                            (course_id,)).fetchone():
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        sets = ", ".join(f"{k} = ?" for k in clean)
+        conn.execute(f"UPDATE courses SET {sets} WHERE id = ?",
+                     list(clean.values()) + [course_id])
+        conn.commit()
+        course = row_to_dict(conn.execute(
+            "SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone())
+        conn.close()
+        self._ok({"course": course})
+
+    def api_admin_course_delete(self, course_id):
+        if not self._require_admin():
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM courses WHERE id = ?",
+                            (course_id,)).fetchone():
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        n = conn.execute("SELECT COUNT(*) AS n FROM enrollments WHERE course_id = ?",
+                         (course_id,)).fetchone()["n"]
+        if n:
+            conn.close()
+            self._err(409, f"Cannot delete: {n} enrollment(s) exist for this course"
+                           " (enrollment history is preserved)")
+            return
+        # lessons, reviews, certificates, cart items, wishlist rows
+        # cascade automatically via ON DELETE CASCADE
+        conn.execute("DELETE FROM courses WHERE id = ?", (course_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"message": f"Course {course_id} deleted"})
+
+    def api_admin_lesson_create(self, course_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        title = (body.get("title") or "").strip()
+        if not title:
+            self._err(400, "title is required")
+            return
+        content_url = (body.get("content_url") or body.get("body")
+                       or body.get("content") or "").strip()
+        if not content_url:
+            self._err(400, "content_url (or body) is required")
+            return
+        try:
+            duration = int(body.get("duration_minutes", 0) or 0)
+        except (TypeError, ValueError):
+            self._err(400, "duration_minutes must be an integer >= 0")
+            return
+        if duration < 0:
+            self._err(400, "duration_minutes must be >= 0")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM courses WHERE id = ?",
+                            (course_id,)).fetchone():
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        order_index = body.get("order_index")
+        if order_index is None:
+            order_index = conn.execute(
+                "SELECT COALESCE(MAX(order_index), 0) + 1 AS nxt FROM lessons"
+                " WHERE course_id = ?", (course_id,)).fetchone()["nxt"]
+        try:
+            order_index = int(order_index)
+        except (TypeError, ValueError):
+            conn.close()
+            self._err(400, "order_index must be an integer")
+            return
+        cur = conn.execute(
+            """INSERT INTO lessons (course_id, title, content_url,
+                                    duration_minutes, order_index)
+               VALUES (?, ?, ?, ?, ?)""",
+            (course_id, title, content_url, duration, order_index))
+        conn.commit()
+        lesson = row_to_dict(conn.execute(
+            "SELECT * FROM lessons WHERE id = ?", (cur.lastrowid,)).fetchone())
+        conn.close()
+        self._ok({"lesson": lesson}, status=201)
+
+    def api_admin_lesson_update(self, lesson_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        clean = {}
+        if "title" in body:
+            title = (body.get("title") or "").strip()
+            if not title:
+                self._err(400, "title cannot be empty")
+                return
+            clean["title"] = title
+        for f in ("content_url", "body", "content"):
+            if f in body:
+                clean["content_url"] = (body.get(f) or "").strip()
+                break
+        if "duration_minutes" in body:
+            try:
+                dur = int(body.get("duration_minutes"))
+            except (TypeError, ValueError):
+                self._err(400, "duration_minutes must be an integer >= 0")
+                return
+            if dur < 0:
+                self._err(400, "duration_minutes must be >= 0")
+                return
+            clean["duration_minutes"] = dur
+        if "order_index" in body:
+            try:
+                clean["order_index"] = int(body.get("order_index"))
+            except (TypeError, ValueError):
+                self._err(400, "order_index must be an integer")
+                return
+        if not clean:
+            self._err(400, "No valid fields to update")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM lessons WHERE id = ?",
+                            (lesson_id,)).fetchone():
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        sets = ", ".join(f"{k} = ?" for k in clean)
+        conn.execute(f"UPDATE lessons SET {sets} WHERE id = ?",
+                     list(clean.values()) + [lesson_id])
+        conn.commit()
+        lesson = row_to_dict(conn.execute(
+            "SELECT * FROM lessons WHERE id = ?", (lesson_id,)).fetchone())
+        conn.close()
+        self._ok({"lesson": lesson})
+
+    def api_admin_lesson_delete(self, lesson_id):
+        if not self._require_admin():
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM lessons WHERE id = ?",
+                            (lesson_id,)).fetchone():
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        # lesson_progress rows cascade automatically via ON DELETE CASCADE
+        conn.execute("DELETE FROM lessons WHERE id = ?", (lesson_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"message": f"Lesson {lesson_id} deleted"})
+
     def api_cart_get(self):
         user = self._require_user()
         if not user:
@@ -718,6 +963,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         ).fetchall()
         conn.close()
         self._ok({"courses": [row_to_dict(r) for r in rows]})
+
 
 
 def main():

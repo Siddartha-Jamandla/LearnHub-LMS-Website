@@ -199,6 +199,45 @@
             const d = await request("GET", "/api/my-courses", null, true);
             return d.courses;
         },
+
+        /* ---------------- admin (instructor) ---------------- */
+        // Admin endpoints need the shared admin key (same value as the
+        // backend's API_SECRET env var), passed as ?key=.
+        async _admin(method, path, key, body) {
+            if (!key) throw new Error("Admin key is required");
+            const res = await fetch(API_BASE + path + "?key=" + encodeURIComponent(key), {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: body ? JSON.stringify(body) : undefined,
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!data.ok) throw new Error(data.error || `Request failed (${res.status})`);
+            return data;
+        },
+
+        adminCreateCourse(key, course) {
+            return this._admin("POST", "/api/admin/courses", key, course);
+        },
+
+        adminUpdateCourse(key, id, fields) {
+            return this._admin("PUT", `/api/admin/courses/${id}`, key, fields);
+        },
+
+        adminDeleteCourse(key, id) {
+            return this._admin("DELETE", `/api/admin/courses/${id}`, key);
+        },
+
+        adminCreateLesson(key, courseId, lesson) {
+            return this._admin("POST", `/api/admin/courses/${courseId}/lessons`, key, lesson);
+        },
+
+        adminUpdateLesson(key, id, fields) {
+            return this._admin("PUT", `/api/admin/lessons/${id}`, key, fields);
+        },
+
+        adminDeleteLesson(key, id) {
+            return this._admin("DELETE", `/api/admin/lessons/${id}`, key);
+        },
     };
 
     window.LearnHubAPI = api;

@@ -70,7 +70,6 @@ from `/api/register` or `/api/login`).
 | GET | `/api/health` | - | Service status |
 | GET | `/api/courses` | - | List courses. `?q=`/`?search=` (title/description), `?category=`, `?level=`; paginated via `?page=` & `?per_page=` (max 50). Returns `courses` + `total/page/per_page/pages` |
 | GET | `/api/courses/:id` | - | One course (includes `avg_rating` + `review_count`) |
-| GET | `/api/courses/:id/lessons` | - | Lessons for a course |
 | GET | `/api/courses/:id/reviews` | - | Reviews for a course (newest first, with reviewer name) |
 | POST | `/api/reviews` | token | `{course_id, rating (1-5), comment?}` → 201. Must be enrolled; one review per user per course |
 | POST | `/api/register` | - | `{name, email, password}` → token |
@@ -85,6 +84,32 @@ from `/api/register` or `/api/login`).
 | POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent). Includes `certificate {id, certificate_code}` when this completes the course |
 | GET | `/api/certificates/:id` | token | View your own certificate of completion (user name, course, code, issue date) |
 | GET | `/api/my-courses` | token | Enrolled courses for the My Courses page |
+
+### Admin API (instructor)
+
+Admin endpoints are gated on the shared secret: pass it as `?key=<API_SECRET>`
+(the same value as the backend's `API_SECRET` env var) or as the
+`X-Admin-Key` header. The admin UI at [`admin.html`](admin.html) (also linked
+in the footer) talks to these endpoints and keeps the key in
+`sessionStorage`.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/admin/courses` | `{title*, description?, category?, price? (≥ 0), instructor?, duration_hours?, level? (Beginner/Intermediate/Advanced), image_url?}` → 201 |
+| PUT | `/api/admin/courses/:id` | Update course fields → 404 if missing |
+| DELETE | `/api/admin/courses/:id` | 404 if missing; 409 if enrolments exist (history preserved); lessons cascade |
+| POST | `/api/admin/courses/:id/lessons` | `{title*, content_url* (or body), duration_minutes?, order_index?}` → 201 |
+| PUT | `/api/admin/lessons/:id` | Update lesson fields → 404 if missing |
+| DELETE | `/api/admin/lessons/:id` | 404 if missing; learner progress rows cascade |
+
+Example:
+
+```bash
+curl -X POST 'localhost:8000/api/admin/courses?key=learnhub-dev-secret' \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Intro to SQL","category":"Data Science","price":499,"level":"Beginner"}'
+# {"ok": true, "course": {"id": 11, ...}}
+```
 
 Example:
 
@@ -101,7 +126,7 @@ curl localhost:8000/api/courses | python3 -m json.tool | head -20
 
 - **users** - `id, name, email (unique), password_hash, created_at`
 - **courses** - `id, title, description, category, price (INR), instructor, duration_hours, level, image_url, created_at`
-- **lessons** - `id, course_id, title, content_url, duration_minutes, order_index`
+
 - **enrollments** - `id, user_id, course_id, enrolled_at, progress_percent` (unique user+course)
 - **cart_items** - `id, user_id, course_id` (unique user+course)
 - **orders** - `id, user_id, total (INR), status, created_at`
