@@ -248,6 +248,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/enrollments$",            self.api_enrollments),
             ("PUT",    r"^/api/enrollments/(\d+)/progress$", self.api_progress),
             ("GET",    r"^/api/my-courses$",             self.api_my_courses),
+            ("GET",    r"^/api/wishlist$",               self.api_wishlist_get),
+            ("POST",   r"^/api/wishlist$",               self.api_wishlist_add),
+            ("DELETE", r"^/api/wishlist/(\d+)$",         self.api_wishlist_del),
         ]
         for m, pattern, handler in r:
             match = re.match(pattern, path)
@@ -964,6 +967,78 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         conn.close()
         self._ok({"courses": [row_to_dict(r) for r in rows]})
 
+    # -- wishlist ------------------------------------------------------
+    def api_wishlist_get(self):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT w.id AS wishlist_item_id, w.added_at,
+                      c.id, c.title, c.description, c.category, c.price,
+                      c.instructor, c.duration_hours, c.level, c.image_url,
+                      (SELECT ROUND(AVG(rating), 2) FROM reviews
+                       WHERE course_id = c.id) AS avg_rating
+               FROM wishlist w JOIN courses c ON c.id = w.course_id
+               WHERE w.user_id = ?
+               ORDER BY w.added_at DESC, w.id DESC""",
+            (user["id"],),
+        ).fetchall()
+        conn.close()
+        items = []
+        for r in rows:
+            d = row_to_dict(r)
+            if d["avg_rating"] is None:
+                d["avg_rating"] = 0.0
+            items.append(d)
+        self._ok({"items": items})
+
+    def api_wishlist_add(self):
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        course_id = body.get("course_id")
+        conn = db()
+        if not conn.execute("SELECT id FROM courses WHERE id = ?",
+                            (course_id,)).fetchone():
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        existing = conn.execute(
+            "SELECT id FROM wishlist WHERE user_id = ? AND course_id = ?",
+            (user["id"], course_id)).fetchone()
+        if existing:
+            conn.close()
+            # idempotent: re-adding is a no-op success, not an error
+            self._ok({"added": False, "wishlist_item_id": existing["id"],
+                      "course_id": course_id,
+                      "message": "Course already in wishlist"})
+            return
+        cur = conn.execute("INSERT INTO wishlist (user_id, course_id) VALUES (?, ?)",
+                           (user["id"], course_id))
+        conn.commit()
+        item_id = cur.lastrowid
+        conn.close()
+        self._ok({"added": True, "wishlist_item_id": item_id,
+                  "course_id": course_id,
+                  "message": "Added to wishlist"}, status=201)
+
+    def api_wishlist_del(self, course_id):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        cur = conn.execute(
+            "DELETE FROM wishlist WHERE user_id = ? AND course_id = ?",
+            (user["id"], course_id))
+        conn.commit()
+        deleted = cur.rowcount
+        conn.close()
+        if not deleted:
+            self._err(404, "Course not in wishlist")
+            return
+        self._ok({"message": "Removed from wishlist"})
 
 
 def main():

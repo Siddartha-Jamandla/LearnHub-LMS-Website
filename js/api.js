@@ -238,6 +238,26 @@
         adminDeleteLesson(key, id) {
             return this._admin("DELETE", `/api/admin/lessons/${id}`, key);
         },
+
+        /* ---------------- wishlist ---------------- */
+        async getWishlist() {
+            // Backend when signed in; items embed course details
+            // (id/title/price/level/avg_rating), newest first.
+            const d = await request("GET", "/api/wishlist", null, true);
+            return d.items;
+        },
+
+        async addToWishlist(courseId) {
+            // Idempotent: 201 {added:true} on new add,
+            // 200 {added:false} when already present.
+            const d = await request("POST", "/api/wishlist",
+                { course_id: courseId }, true);
+            return d;
+        },
+
+        async removeFromWishlist(courseId) {
+            return request("DELETE", `/api/wishlist/${courseId}`, null, true);
+        },
     };
 
     window.LearnHubAPI = api;

@@ -28,8 +28,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     title            TEXT NOT NULL,
     content_url      TEXT,
     duration_minutes INTEGER NOT NULL DEFAULT 0,
-    order_index      INTEGER NOT NULL DEFAULT 0
-);
+    order_index      INTEGER NOT NULL DEFAULT 0);
 
 CREATE TABLE IF NOT EXISTS enrollments (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,6 +70,18 @@ CREATE TABLE IF NOT EXISTS auth_tokens (
     user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Course wishlist: courses a learner wants to take later.
+-- One entry per user per course (idempotent adds).
+CREATE TABLE IF NOT EXISTS wishlist (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id  INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    added_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, course_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_wishlist_user ON wishlist(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_lessons_course   ON lessons(course_id);
 CREATE INDEX IF NOT EXISTS idx_enroll_user      ON enrollments(user_id);

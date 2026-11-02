@@ -90,24 +90,28 @@
 </section>
 
 
+<script src="/js/api.js"></script>
+
+<script src="/js/auth.js"></script>
+
 <script src="script.js"></script>
 
 
 <script>
 
-function renderWishlist() {
+// Signed-in users get the server-side wishlist (GET /api/wishlist);
+// guests keep the original localStorage behaviour from script.js.
 
-    const wishlist =
-        getWishlist();
+function escHtml(s) {
+    return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
 
-
-    const container =
-        document.getElementById("wishlistList");
-
-
-    if (wishlist.length === 0) {
-
-        container.innerHTML = `
+function emptyStateHtml() {
+    return `
 
             <div class="empty-state">
 
@@ -131,6 +135,139 @@ function renderWishlist() {
             </div>
 
         `;
+}
+
+async function renderWishlist() {
+
+    const container =
+        document.getElementById("wishlistList");
+
+    const useBackend =
+        window.LearnHubAuth &&
+        LearnHubAuth.isSignedIn() &&
+        window.LearnHubAPI &&
+        await LearnHubAPI.checkApi().catch(() => false);
+
+    if (useBackend) {
+        renderBackendWishlist(container);
+        return;
+    }
+
+    renderLegacyWishlist(container);
+
+}
+
+async function renderBackendWishlist(container) {
+
+    let items = [];
+
+    try {
+        items = await LearnHubAPI.getWishlist();
+    } catch (e) {
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <h2>
+                    Could not load your wishlist
+                </h2>
+
+                <p>
+                    ${escHtml(e.message)}
+                </p>
+
+            </div>
+
+        `;
+        return;
+    }
+
+    if (items.length === 0) {
+        container.innerHTML = emptyStateHtml();
+        return;
+    }
+
+    container.innerHTML =
+        items.map(item => `
+
+                <div class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="${escHtml(item.image_url || "assets/images/course1.svg")}"
+                            alt="${escHtml(item.title)}"
+                        >
+
+                    </div>
+
+
+                    <div class="course-content">
+
+                        <h3>
+                            ${escHtml(item.title)}
+                        </h3>
+
+                        <p class="instructor">
+                            ${escHtml(item.instructor)}
+                            &nbsp;·&nbsp;${escHtml(item.level)}
+                            &nbsp;·&nbsp;★ ${item.avg_rating}
+                        </p>
+
+                        <br>
+
+                        <div class="course-footer">
+
+                            <strong>
+                                ${formatPrice(item.price)}
+                            </strong>
+
+                            <button
+                                class="btn btn-primary btn-small"
+                                onclick="addToCart(${item.id})"
+                            >
+                                Add to Cart
+                            </button>
+
+                        </div>
+
+                        <br>
+
+                        <button
+                            class="btn btn-danger btn-small"
+                            onclick="removeWishlistBackend(${item.id})"
+                        >
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `).join("");
+
+}
+
+async function removeWishlistBackend(courseId) {
+
+    try {
+        await LearnHubAPI.removeFromWishlist(courseId);
+        renderWishlist();
+    } catch (e) {
+        alert("Could not remove: " + e.message);
+    }
+
+}
+
+function renderLegacyWishlist(container) {
+
+    const wishlist =
+        getWishlist();
+
+
+    if (wishlist.length === 0) {
+
+        container.innerHTML = emptyStateHtml();
 
         return;
 

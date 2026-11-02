@@ -84,6 +84,9 @@ from `/api/register` or `/api/login`).
 | POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent). Includes `certificate {id, certificate_code}` when this completes the course |
 | GET | `/api/certificates/:id` | token | View your own certificate of completion (user name, course, code, issue date) |
 | GET | `/api/my-courses` | token | Enrolled courses for the My Courses page |
+| GET | `/api/wishlist` | token | Wishlist items (newest first), each embedding course `id/title/price/level/avg_rating` |
+| POST | `/api/wishlist` | token | `{course_id}` → 201 on new add, 200 + `added:false` on re-add (idempotent); 404 if course missing |
+| DELETE | `/api/wishlist/:courseId` | token | Remove from wishlist (user-scoped); 404 if not present |
 
 ### Admin API (instructor)
 
@@ -131,6 +134,7 @@ curl localhost:8000/api/courses | python3 -m json.tool | head -20
 - **cart_items** - `id, user_id, course_id` (unique user+course)
 - **orders** - `id, user_id, total (INR), status, created_at`
 - **reviews** - `id, user_id, course_id, rating (1-5), comment, created_at` (unique user+course)
+- **wishlist** - `id, user_id, course_id, added_at` (unique user+course; one entry per learner per course)
 - **certificates** - `id, user_id, course_id, certificate_code, issued_at` (unique user+course; issued when progress hits 100%)
 - **auth_tokens** - `token, user_id, created_at` (login sessions survive restarts)
 
