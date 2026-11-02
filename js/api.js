@@ -115,6 +115,13 @@
             return [];
         },
 
+        async getLesson(id) {
+            // Each lesson includes is_preview (1 = free preview, public).
+            // Non-preview lessons need a token + enrolment (401/403 otherwise).
+            const d = await request("GET", `/api/lessons/${id}`);
+            return d.lesson;
+        },
+
         async register(name, email, password) {
             const d = await request("POST", "/api/register", { name, email, password });
             localStorage.setItem("lh_token", d.token);

@@ -52,7 +52,9 @@ def init_db():
     with open(os.path.join(BASE_DIR, "schema.sql")) as f:
         schema = f.read()
     conn = db()
-
+    conn.executescript(schema)
+    _migrate_schema(conn)
+    conn.close()
     if fresh:
         print(f"[learnhub] created database at {DB_PATH}")
     try:
@@ -60,6 +62,32 @@ def init_db():
     except Exception:
         pass
 
+
+def _migrate_schema(conn):
+    """Additive migrations for DBs created before a schema change.
+
+    CREATE TABLE IF NOT EXISTS covers fresh DBs; ALTER TABLE covers
+    existing ones. The preview backfill is idempotent - safe every start.
+    """
+    try:
+        cols = [r["name"] for r in conn.execute("PRAGMA table_info(lessons)")]
+        if "is_preview" not in cols:
+            conn.execute("ALTER TABLE lessons ADD COLUMN"
+                         " is_preview INTEGER NOT NULL DEFAULT 0")
+        conn.execute(
+            """UPDATE lessons SET is_preview = 1
+               WHERE is_preview = 0 AND id IN (
+                   SELECT MIN(l2.id) FROM lessons l2
+                   WHERE NOT EXISTS (
+                       SELECT 1 FROM lessons l3
+                       WHERE l3.course_id = l2.course_id
+                         AND l3.is_preview = 1
+                   )
+                   GROUP BY l2.course_id
+               )""")
+        conn.commit()
+    except Exception as e:
+        print(f"[learnhub] migration skipped: {e!r}")
 
 
 def row_to_dict(row):
@@ -230,6 +258,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/courses/(\d+)/reviews$",  self.api_course_reviews),
             ("POST",   r"^/api/reviews$",                self.api_review_add),
             ("GET",    r"^/api/certificates/(\d+)$",     self.api_cert_get),
+            ("GET",    r"^/api/lessons/(\d+)$",          self.api_lesson_get),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("POST",   r"^/api/admin/courses$",          self.api_admin_course_create),
             ("PUT",    r"^/api/admin/courses/(\d+)$",    self.api_admin_course_update),
@@ -410,6 +439,38 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         ).fetchall()
         conn.close()
         self._ok({"lessons": [row_to_dict(r) for r in rows]})
+
+    def api_lesson_get(self, lesson_id):
+        """Lesson detail/content.
+
+        Free-preview lessons (is_preview=1) are public - no token needed.
+        Other lessons keep the enrolment rule: signed-in AND enrolled in
+        the course, otherwise 401/403 (same rule as completing a lesson).
+        """
+        conn = db()
+        lesson = conn.execute(
+            """SELECT l.*, c.title AS course_title FROM lessons l
+               JOIN courses c ON c.id = l.course_id
+               WHERE l.id = ?""",
+            (lesson_id,)).fetchone()
+        conn.close()
+        if not lesson:
+            self._err(404, "Lesson not found")
+            return
+        d = row_to_dict(lesson)
+        if not d.get("is_preview"):
+            user = self._require_user()
+            if not user:
+                return
+            conn2 = db()
+            enr = conn2.execute(
+                "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+                (user["id"], d["course_id"])).fetchone()
+            conn2.close()
+            if not enr:
+                self._err(403, "You must be enrolled in this course to view this lesson")
+                return
+        self._ok({"lesson": d})
 
     def api_lesson_complete(self, lesson_id):
         """Mark one lesson complete and auto-update the course progress.
@@ -769,6 +830,16 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             except (TypeError, ValueError):
                 self._err(400, "order_index must be an integer")
                 return
+        if "is_preview" in body:
+            try:
+                pv = int(body.get("is_preview"))
+            except (TypeError, ValueError):
+                self._err(400, "is_preview must be 0 or 1")
+                return
+            if pv not in (0, 1):
+                self._err(400, "is_preview must be 0 or 1")
+                return
+            clean["is_preview"] = pv
         if not clean:
             self._err(400, "No valid fields to update")
             return

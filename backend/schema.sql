@@ -28,7 +28,9 @@ CREATE TABLE IF NOT EXISTS lessons (
     title            TEXT NOT NULL,
     content_url      TEXT,
     duration_minutes INTEGER NOT NULL DEFAULT 0,
-    order_index      INTEGER NOT NULL DEFAULT 0);
+    order_index      INTEGER NOT NULL DEFAULT 0,
+    is_preview       INTEGER NOT NULL DEFAULT 0   -- 1 = free preview, viewable without enrolment
+);
 
 CREATE TABLE IF NOT EXISTS enrollments (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,

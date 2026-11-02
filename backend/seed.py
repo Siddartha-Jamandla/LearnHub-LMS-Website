@@ -160,6 +160,19 @@ def main():
             total_lessons += 1
 
     conn.commit()
+    # Mark the first lesson (lowest id) of each course as a free preview.
+    # Idempotent - only touches courses with no preview lesson yet.
+    conn.execute(
+        """UPDATE lessons SET is_preview = 1
+           WHERE is_preview = 0 AND id IN (
+               SELECT MIN(l2.id) FROM lessons l2
+               WHERE NOT EXISTS (
+                   SELECT 1 FROM lessons l3
+                   WHERE l3.course_id = l2.course_id AND l3.is_preview = 1
+               )
+               GROUP BY l2.course_id
+           )""")
+    conn.commit()
     conn.close()
     print(f"[seed] done: {len(COURSES)} courses, {total_lessons} lessons -> {DB_PATH} "
           f"({'new db' if fresh else 'existing db'})")

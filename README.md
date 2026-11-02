@@ -70,6 +70,8 @@ from `/api/register` or `/api/login`).
 | GET | `/api/health` | - | Service status |
 | GET | `/api/courses` | - | List courses. `?q=`/`?search=` (title/description), `?category=`, `?level=`; paginated via `?page=` & `?per_page=` (max 50). Returns `courses` + `total/page/per_page/pages` |
 | GET | `/api/courses/:id` | - | One course (includes `avg_rating` + `review_count`) |
+| GET | `/api/courses/:id/lessons` | - | Lessons for a course (each includes `is_preview`: 1 = free preview) |
+| GET | `/api/lessons/:id` | - for previews | Lesson detail/content. Free-preview lessons are public; other lessons need a token **and** enrolment in the course (401/403 otherwise) |
 | GET | `/api/courses/:id/reviews` | - | Reviews for a course (newest first, with reviewer name) |
 | POST | `/api/reviews` | token | `{course_id, rating (1-5), comment?}` → 201. Must be enrolled; one review per user per course |
 | POST | `/api/register` | - | `{name, email, password}` → token |
@@ -129,7 +131,7 @@ curl localhost:8000/api/courses | python3 -m json.tool | head -20
 
 - **users** - `id, name, email (unique), password_hash, created_at`
 - **courses** - `id, title, description, category, price (INR), instructor, duration_hours, level, image_url, created_at`
-
+- **lessons** - `id, course_id, title, content_url, duration_minutes, order_index, is_preview` (1 = free preview lesson, viewable without enrolment; the first lesson of every course is a preview)
 - **enrollments** - `id, user_id, course_id, enrolled_at, progress_percent` (unique user+course)
 - **cart_items** - `id, user_id, course_id` (unique user+course)
 - **orders** - `id, user_id, total (INR), status, created_at`
