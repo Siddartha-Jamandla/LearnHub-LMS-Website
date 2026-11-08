@@ -71,6 +71,7 @@ from `/api/register` or `/api/login`).
 | GET | `/api/courses` | - | List courses. `?q=`/`?search=` (title/description), `?category=`, `?level=`; sort with `?sort=` (`rating` = avg review rating, `price_asc`, `price_desc`, `newest`; unknown value → 400); paginated via `?page=` & `?per_page=` (max 50). Returns `courses` + `total/page/per_page/pages`. Frontend: `LearnHubAPI.getCourses({sort: "rating"})` passes `sort` straight through |
 | GET | `/api/courses/:id` | - | One course (includes `avg_rating` + `review_count`) |
 | GET | `/api/courses/:id/lessons` | - | Lessons for a course (each includes `is_preview`: 1 = free preview) |
+| GET | `/api/courses/:id/progress` | token | Progress summary for an enrolled course: `{course_id, total_lessons, completed_lessons, progress_percent, next_lesson_id, next_lesson_title, certificate_code}` — 404 unknown course, 403 not enrolled; `certificate_code` is null until 100% with a certificate on file |
 | GET | `/api/lessons/:id` | - for previews | Lesson detail/content. Free-preview lessons are public; other lessons need a token **and** enrolment in the course (401/403 otherwise) |
 | GET | `/api/courses/:id/reviews` | - | Reviews for a course (newest first, with reviewer name) |
 | POST | `/api/reviews` | token | `{course_id, rating (1-5), comment?}` → 201. Must be enrolled; one review per user per course |

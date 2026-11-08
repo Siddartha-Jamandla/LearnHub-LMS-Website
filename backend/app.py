@@ -272,6 +272,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/courses$",                self.api_courses),
             ("GET",    r"^/api/courses/(\d+)$",          self.api_course),
             ("GET",    r"^/api/courses/(\d+)/lessons$",  self.api_course_lessons),
+            ("GET",    r"^/api/courses/(\d+)/progress$", self.api_course_progress),
             ("GET",    r"^/api/courses/(\d+)/reviews$",  self.api_course_reviews),
             ("POST",   r"^/api/reviews$",                self.api_review_add),
             ("GET",    r"^/api/certificates/(\d+)$",     self.api_cert_get),
@@ -405,6 +406,71 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         d["avg_rating"] = stats["avg"] if stats["avg"] is not None else 0.0
         d["review_count"] = stats["n"]
         self._ok({"course": d})
+
+    def api_course_progress(self, course_id):
+        """Progress summary for one course (auth required).
+
+        Caller must be enrolled (403 otherwise); unknown course -> 404.
+        Progress is recomputed from lesson_progress (the source of
+        truth, same formula as lesson completion), so it can never drift
+        from the stored enrolment row. next_lesson_* is the first lesson
+        (by order_index) the caller has not completed yet, or null when
+        the course is done. certificate_code is included only at 100%
+        with a certificate on file, else null.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        course = conn.execute(
+            "SELECT id, title FROM courses WHERE id = ?", (course_id,)).fetchone()
+        if not course:
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        enrollment = conn.execute(
+            "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+            (user["id"], course_id)).fetchone()
+        if not enrollment:
+            conn.close()
+            self._err(403, "You must be enrolled in this course to view its progress")
+            return
+        total = conn.execute(
+            "SELECT COUNT(*) AS n FROM lessons WHERE course_id = ?",
+            (course_id,)).fetchone()["n"]
+        done = conn.execute(
+            """SELECT COUNT(*) AS n FROM lesson_progress lp
+               JOIN lessons l ON l.id = lp.lesson_id
+               WHERE lp.user_id = ? AND l.course_id = ?""",
+            (user["id"], course_id)).fetchone()["n"]
+        pct = round(done / total * 100, 2) if total else 0.0
+        nxt = conn.execute(
+            """SELECT l.id, l.title FROM lessons l
+               WHERE l.course_id = ?
+                 AND NOT EXISTS (
+                     SELECT 1 FROM lesson_progress lp
+                     WHERE lp.user_id = ? AND lp.lesson_id = l.id)
+               ORDER BY l.order_index, l.id LIMIT 1""",
+            (course_id, user["id"])).fetchone()
+        certificate_code = None
+        if pct >= 100.0:
+            cert = conn.execute(
+                "SELECT certificate_code FROM certificates"
+                " WHERE user_id = ? AND course_id = ?",
+                (user["id"], course_id)).fetchone()
+            if cert:
+                certificate_code = cert["certificate_code"]
+        conn.close()
+        self._ok({
+            "course_id": int(course_id),
+            "total_lessons": total,
+            "completed_lessons": done,
+            "progress_percent": pct,
+            "next_lesson_id": nxt["id"] if nxt else None,
+            "next_lesson_title": nxt["title"] if nxt else None,
+            "certificate_code": certificate_code,
+        })
+
 
     def api_course_reviews(self, course_id):
         conn = db()

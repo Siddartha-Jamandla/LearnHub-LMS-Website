@@ -196,6 +196,16 @@
             return d;
         },
 
+        async getCourseProgress(courseId) {
+            // Token required; you must be enrolled (403 otherwise).
+            // Returns {course_id, total_lessons, completed_lessons,
+            // progress_percent, next_lesson_id, next_lesson_title,
+            // certificate_code} — certificate_code is null until the
+            // course is 100% complete and a certificate exists.
+            const d = await request("GET", `/api/courses/${courseId}/progress`, null, true);
+            return d;
+        },
+
         async getCertificate(id) {
             // Token required; the backend only serves your own certificates.
             const d = await request("GET", `/api/certificates/${id}`, null, true);
