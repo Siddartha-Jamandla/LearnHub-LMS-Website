@@ -106,6 +106,7 @@ in the footer) talks to these endpoints and keeps the key in
 | POST | `/api/admin/courses/:id/lessons` | `{title*, content_url* (or body), duration_minutes?, order_index?}` → 201 |
 | PUT | `/api/admin/lessons/:id` | Update lesson fields → 404 if missing |
 | DELETE | `/api/admin/lessons/:id` | 404 if missing; learner progress rows cascade |
+| GET | `/api/admin/stats` | User/course/enrolment counts, revenue (completed order totals + course price × enrolments), and the 5 most popular courses by enrolment count |
 
 Example:
 

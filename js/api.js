@@ -246,6 +246,13 @@
             return this._admin("DELETE", `/api/admin/lessons/${id}`, key);
         },
 
+        adminStats(key) {
+            // Platform stats: user/course/enrolment counts, revenue
+            // (orders + enrolment value) and the 5 most popular courses
+            // by enrolment count.
+            return this._admin("GET", "/api/admin/stats", key);
+        },
+
         /* ---------------- wishlist ---------------- */
         async getWishlist() {
             // Backend when signed in; items embed course details

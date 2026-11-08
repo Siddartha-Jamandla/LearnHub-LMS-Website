@@ -267,6 +267,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                                                      self.api_admin_lesson_create),
             ("PUT",    r"^/api/admin/lessons/(\d+)$",    self.api_admin_lesson_update),
             ("DELETE", r"^/api/admin/lessons/(\d+)$",    self.api_admin_lesson_delete),
+            ("GET",    r"^/api/admin/stats$",            self.api_admin_stats),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
             ("POST",   r"^/api/logout$",                 self.api_logout),
@@ -872,6 +873,46 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         conn.commit()
         conn.close()
         self._ok({"message": f"Lesson {lesson_id} deleted"})
+
+    def api_admin_stats(self):
+        """Platform-wide stats for the admin dashboard.
+
+        Same auth as every admin endpoint: ?key=API_SECRET or X-Admin-Key.
+        Revenue is reported two ways: the sum of completed order totals,
+        and the sum of course price x enrollments (the enrolment value).
+        """
+        if not self._require_admin():
+            return
+        conn = db()
+        total_users = conn.execute(
+            "SELECT COUNT(*) AS n FROM users").fetchone()["n"]
+        total_courses = conn.execute(
+            "SELECT COUNT(*) AS n FROM courses").fetchone()["n"]
+        total_enrollments = conn.execute(
+            "SELECT COUNT(*) AS n FROM enrollments").fetchone()["n"]
+        revenue_from_orders = conn.execute(
+            "SELECT COALESCE(SUM(total), 0) AS rev FROM orders"
+            " WHERE status = 'completed'").fetchone()["rev"]
+        revenue_from_enrollments = conn.execute(
+            "SELECT COALESCE(SUM(c.price), 0) AS rev FROM enrollments e"
+            " JOIN courses c ON c.id = e.course_id").fetchone()["rev"]
+        popular = conn.execute(
+            """SELECT c.id, c.title, c.category, c.price,
+                      COUNT(e.id) AS enrollments,
+                      COUNT(e.id) * c.price AS revenue
+               FROM courses c LEFT JOIN enrollments e ON e.course_id = c.id
+               GROUP BY c.id
+               ORDER BY enrollments DESC, c.id
+               LIMIT 5""").fetchall()
+        conn.close()
+        self._ok({
+            "total_users": total_users,
+            "total_courses": total_courses,
+            "total_enrollments": total_enrollments,
+            "revenue_from_orders": revenue_from_orders,
+            "revenue_from_enrollments": revenue_from_enrollments,
+            "popular_courses": [row_to_dict(r) for r in popular],
+        })
 
     def api_cart_get(self):
         user = self._require_user()
