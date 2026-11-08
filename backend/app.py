@@ -331,6 +331,8 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         #                         case-insensitive)
         #                   ?category= (exact category name)
         #                   ?level= (exact level: Beginner/Intermediate/Advanced)
+        # Sorting: ?sort= (rating | price_asc | price_desc | newest;
+        #                  unknown value -> 400)
         # Pagination: ?page= (1-based, default 1), ?per_page= (1..50, default 12)
         from urllib.parse import urlparse, parse_qs
         qs = parse_qs(urlparse(self.path).query)
@@ -347,6 +349,23 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             per_page = 12
         per_page = max(1, min(50, per_page))
         sql = "SELECT * FROM courses"
+        # Sorting: ?sort= (rating | price_asc | price_desc | newest).
+        # Unknown values are rejected with 400. The rating sort uses a
+        # correlated subquery (average review rating, unrated = 0) so the
+        # list stays a single query - no N+1.
+        sort = (qs.get("sort", [""])[0] or "").strip()
+        SORTS = {
+            "rating": ("(SELECT COALESCE(AVG(rating), 0) FROM reviews"
+                       " WHERE course_id = courses.id) DESC, id"),
+            "price_asc": "price ASC, id",
+            "price_desc": "price DESC, id",
+            "newest": "created_at DESC, id DESC",
+        }
+        if sort and sort not in SORTS:
+            self._err(400, "Invalid sort: expected one of rating, price_asc,"
+                           " price_desc, newest")
+            return
+        order_by = SORTS.get(sort, "id")
         clauses, params = [], []
         if category:
             clauses.append("category = ?")
@@ -362,7 +381,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         total = conn.execute(
             "SELECT COUNT(*) AS n FROM courses" + where, params).fetchone()["n"]
         rows = conn.execute(
-            sql + where + " ORDER BY id LIMIT ? OFFSET ?",
+            sql + where + " ORDER BY " + order_by + " LIMIT ? OFFSET ?",
             params + [per_page, (page - 1) * per_page],
         ).fetchall()
         conn.close()

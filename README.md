@@ -68,7 +68,7 @@ from `/api/register` or `/api/login`).
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
 | GET | `/api/health` | - | Service status |
-| GET | `/api/courses` | - | List courses. `?q=`/`?search=` (title/description), `?category=`, `?level=`; paginated via `?page=` & `?per_page=` (max 50). Returns `courses` + `total/page/per_page/pages` |
+| GET | `/api/courses` | - | List courses. `?q=`/`?search=` (title/description), `?category=`, `?level=`; sort with `?sort=` (`rating` = avg review rating, `price_asc`, `price_desc`, `newest`; unknown value → 400); paginated via `?page=` & `?per_page=` (max 50). Returns `courses` + `total/page/per_page/pages`. Frontend: `LearnHubAPI.getCourses({sort: "rating"})` passes `sort` straight through |
 | GET | `/api/courses/:id` | - | One course (includes `avg_rating` + `review_count`) |
 | GET | `/api/courses/:id/lessons` | - | Lessons for a course (each includes `is_preview`: 1 = free preview) |
 | GET | `/api/lessons/:id` | - for previews | Lesson detail/content. Free-preview lessons are public; other lessons need a token **and** enrolment in the course (401/403 otherwise) |
@@ -144,6 +144,8 @@ message when it is bad — the request never reaches the database:
 - Register: email must look like an email (`400` otherwise); name ≤ 100
   chars; password 6–128 chars.
 - Reviews: rating must be an int 1–5; comment ≤ 2000 chars.
+- Course list: `?sort=` must be one of `rating`, `price_asc`, `price_desc`,
+  `newest` (unknown value → `400`).
 - Progress: `progress_percent` must be a finite number (NaN/±∞ → `400`);
   it is clamped to 0–100.
 - Admin course fields: title ≤ 200 chars; description ≤ 10000;
