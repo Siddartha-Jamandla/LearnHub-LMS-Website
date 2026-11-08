@@ -21,7 +21,7 @@ LearnHub-LMS-Website/
 ├── backend/
 │   ├── app.py          # REST API + static file server (python3 backend/app.py)
 │   ├── schema.sql      # database schema
-│   ├── seed.py         # seeds 10 courses + lessons (python3 backend/seed.py)
+│   ├── seed.py         # seeds 12 courses + lessons (python3 backend/seed.py)
 │   ├── requirements.txt# stdlib only - nothing to install
 │   └── .env.example    # optional config
 ├── INTEGRATION.md      # exact <script> tags to add per page
@@ -147,10 +147,10 @@ stored server-side - never trust client data for auth.
 
 ## Seeded catalogue
 
-`backend/seed.py` inserts 10 realistic courses (INR pricing), each with 4-6
+`backend/seed.py` inserts 12 realistic courses (INR pricing), each with 6
 lessons: Web Development Bootcamp, JavaScript, Python Masterclass, Machine
 Learning, Deep Learning, Data Science with SQL & Python, UI/UX Design,
-React, Digital Marketing, and Django Full-Stack.
+React, Digital Marketing, Django Full-Stack, TypeScript, and Git & GitHub.
 
 ### Lesson progress in the frontend
 

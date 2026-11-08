@@ -3,7 +3,7 @@
 LearnHub LMS - database seed script.
 
 Creates the SQLite database (from schema.sql) and fills it with
-10 realistic courses, each with 4-6 lessons.
+12 realistic courses, each with 6 lessons.
 
 Run:  python3 backend/seed.py
 """
@@ -57,6 +57,7 @@ COURSES = [
             ("ML Concepts & Workflow", 45), ("Data Preprocessing with Pandas", 60),
             ("Regression Models", 55), ("Classification & Evaluation", 65),
             ("Clustering & Dimensionality Reduction", 50),
+            ("Model Deployment Basics", 55),
         ],
     },
     {
@@ -68,6 +69,7 @@ COURSES = [
             ("Neural Network Fundamentals", 60), ("Training & Backpropagation", 70),
             ("CNNs for Image Classification", 75), ("RNNs & Sequence Models", 65),
             ("Project: Image Classifier", 90),
+            ("Transfer Learning & Fine-Tuning", 70),
         ],
     },
     {
@@ -78,7 +80,7 @@ COURSES = [
         "lessons": [
             ("SQL Joins & Aggregations", 55), ("Pandas DataFrames", 60),
             ("Data Cleaning Techniques", 50), ("Visualisation with Matplotlib", 45),
-            ("End-to-End Analysis Project", 85),
+            ("End-to-End Analysis Project", 85), ("A/B Testing Fundamentals", 50),
         ],
     },
     {
@@ -89,7 +91,7 @@ COURSES = [
         "lessons": [
             ("Design Thinking Process", 40), ("Wireframing & Prototyping", 55),
             ("Typography & Colour Theory", 45), ("Figma Hands-On", 60),
-            ("Portfolio Project", 75),
+            ("Portfolio Project", 75), ("Design Systems & Component Libraries", 55),
         ],
     },
     {
@@ -100,7 +102,7 @@ COURSES = [
         "lessons": [
             ("Components & JSX", 50), ("Hooks: useState & useEffect", 60),
             ("React Router", 45), ("State Management Basics", 55),
-            ("Deploy a React App", 40),
+            ("Deploy a React App", 40), ("Performance Optimisation in React", 50),
         ],
     },
     {
@@ -111,7 +113,7 @@ COURSES = [
         "lessons": [
             ("Marketing Fundamentals", 35), ("SEO Essentials", 50),
             ("Social Media Strategy", 45), ("Email Campaigns", 40),
-            ("Google Analytics Basics", 45),
+            ("Google Analytics Basics", 45), ("Content Marketing & Copywriting", 45),
         ],
     },
     {
@@ -123,6 +125,28 @@ COURSES = [
             ("Django Setup & MTV Pattern", 45), ("Models & ORM", 60),
             ("Views, Templates & Forms", 65), ("User Authentication", 50),
             ("REST APIs with DRF", 70), ("Deploy to Production", 55),
+        ],
+    },
+    {
+        "title": "TypeScript: Static Typing for JavaScript",
+        "description": "Add static types to your JavaScript - interfaces, generics, type-safe DOM code and Node.js projects.",
+        "category": "Development", "price": 1099, "instructor": "Ananya Iyer",
+        "duration_hours": 13, "level": "Intermediate", "image_url": "assets/images/course5.svg",
+        "lessons": [
+            ("Why TypeScript?", 35), ("Types & Interfaces", 55),
+            ("Functions & Generics", 60), ("Type-Safe DOM Handling", 50),
+            ("TypeScript with Node.js", 55), ("Project: Typed Task Manager", 75),
+        ],
+    },
+    {
+        "title": "Git & GitHub: Version Control Mastery",
+        "description": "Master Git from first commit to open-source collaboration - branching, rebasing, pull requests and team workflows.",
+        "category": "Development", "price": 599, "instructor": "Kiran Patel",
+        "duration_hours": 8, "level": "Beginner", "image_url": "assets/images/course6.svg",
+        "lessons": [
+            ("Git Setup & First Commit", 30), ("Branching & Merging", 50),
+            ("Resolving Merge Conflicts", 40), ("GitHub: Remotes & Pull Requests", 55),
+            ("Stashing, Rebasing & Undo", 45), ("Capstone: Open-Source Contribution", 60),
         ],
     },
 ]
