@@ -14,6 +14,14 @@
         .admin-result { margin-top: 20px; background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px; overflow-x: auto; }
         .admin-result pre { margin: 0; font-size: 0.85rem; white-space: pre-wrap; }
         .admin-note { font-size: 0.85rem; color: #64748b; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 12px 0; }
+        .stat-card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+        .stat-label { font-size: 0.8rem; color: #64748b; }
+        .stats-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 8px; }
+        .stats-table th, .stats-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; }
+        .stats-error { color: #b91c1c; font-size: 0.9rem; margin-top: 8px; }
+        .stats-empty { color: #64748b; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -49,6 +57,15 @@
             </div>
             <button class="btn btn-primary btn-small" id="saveKeyBtn">Save key</button>
             <span id="keyStatus" class="admin-note"></span>
+        </div>
+
+        <div class="admin-card" style="margin-bottom: 20px;">
+            <h2>Platform stats</h2>
+            <p class="admin-note">Live totals from <code>GET /api/admin/stats</code> — needs the admin key above.</p>
+            <button class="btn btn-primary btn-small" id="loadStatsBtn">Load stats</button>
+            <span id="statsStatus" class="admin-note"></span>
+            <div id="statsBox"><p class="stats-empty">Stats not loaded yet.</p></div>
+            <p id="statsError" class="stats-error" role="alert"></p>
         </div>
 
         <div class="admin-grid">
@@ -169,6 +186,60 @@
     }
 
     const api = window.LearnHubAPI;
+
+    /* ---------------- platform stats dashboard ---------------- */
+    const statsBox = document.getElementById("statsBox");
+    const statsStatus = document.getElementById("statsStatus");
+    const statsError = document.getElementById("statsError");
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        }[c]));
+    }
+    function renderStats(d) {
+        const inr = (n) => "₹" + Number(n || 0).toLocaleString("en-IN");
+        const rows = (d.popular_courses || []).map((c) =>
+            `<tr><td>${esc(c.title)}</td><td>${esc(c.category || "")}</td>` +
+            `<td>${c.enrollments}</td><td>${inr(c.revenue)}</td></tr>`).join("");
+        statsBox.innerHTML =
+            `<div class="stats-grid">` +
+            `<div class="stat-card"><div class="stat-value">${d.total_users}</div><div class="stat-label">Users</div></div>` +
+            `<div class="stat-card"><div class="stat-value">${d.total_courses}</div><div class="stat-label">Courses</div></div>` +
+            `<div class="stat-card"><div class="stat-value">${d.total_enrollments}</div><div class="stat-label">Enrollments</div></div>` +
+            `<div class="stat-card"><div class="stat-value">${inr(d.revenue_from_orders)}</div><div class="stat-label">Revenue (orders)</div></div>` +
+            `<div class="stat-card"><div class="stat-value">${inr(d.revenue_from_enrollments)}</div><div class="stat-label">Revenue (enrollments)</div></div>` +
+            `</div>` +
+            `<h3 style="font-size: 1rem; margin-top: 12px;">Most popular courses</h3>` +
+            (rows
+                ? `<table class="stats-table"><thead><tr><th>Course</th><th>Category</th><th>Enrollments</th><th>Revenue</th></tr></thead><tbody>${rows}</tbody></table>`
+                : `<p class="stats-empty">No enrollments yet.</p>`);
+    }
+    async function loadStats() {
+        statsError.textContent = "";
+        const key = getKey();
+        if (!key) {
+            statsBox.innerHTML = `<p class="stats-empty">Stats not loaded yet.</p>`;
+            statsError.textContent = "Admin key is required — enter your admin key above first, then click Load stats.";
+            statsStatus.textContent = "";
+            return;
+        }
+        statsStatus.textContent = "Loading…";
+        try {
+            const d = await api.adminStats(key);
+            renderStats(d);
+            show(d); // also show the raw JSON in the result box below
+            statsStatus.textContent = "Loaded just now.";
+        } catch (err) {
+            statsBox.innerHTML = `<p class="stats-empty">Stats not loaded yet.</p>`;
+            statsError.textContent = /401|403|unauthori[sz]ed|invalid/i.test(err.message)
+                ? "Invalid admin key — check the key and try again."
+                : "Could not load stats: " + err.message;
+            statsStatus.textContent = "";
+        }
+    }
+    document.getElementById("loadStatsBtn").addEventListener("click", loadStats);
+    // Auto-load when a key is already saved for this tab.
+    if ((sessionStorage.getItem("lh_admin_key") || "").trim()) loadStats();
 
     document.getElementById("createCourseForm").addEventListener("submit", async (e) => {
         e.preventDefault();

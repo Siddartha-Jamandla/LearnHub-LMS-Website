@@ -96,7 +96,12 @@ Admin endpoints are gated on the shared secret: pass it as `?key=<API_SECRET>`
 (the same value as the backend's `API_SECRET` env var) or as the
 `X-Admin-Key` header. The admin UI at [`admin.html`](admin.html) (also linked
 in the footer) talks to these endpoints and keeps the key in
-`sessionStorage`.
+`sessionStorage`. It also has a **Platform stats** dashboard at the top of
+the page: a "Load stats" button calls `GET /api/admin/stats` and renders
+total users, courses and enrollments, revenue (orders + enrollment value),
+and a table of the 5 most popular courses. It loads automatically when a key
+is already saved for the tab, and shows a clear error when the key is missing
+or invalid.
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -130,13 +135,21 @@ curl localhost:8000/api/courses | python3 -m json.tool | head -20
 
 ### Input validation
 
-Write endpoints reject bad input with 400 before touching the database:
-register names ≤100 chars, emails must be valid (≤254 chars), passwords
-6–128 chars; course titles ≤200, descriptions ≤10000, categories ≤60,
-instructors ≤100, image URLs ≤2000, `duration_hours` a finite number ≥0;
-lesson titles ≤200, content URLs ≤2000; review/cart/wishlist `course_id`
-must be a positive integer, review comments ≤2000 chars, ratings 1–5;
-`progress_percent` must be a finite number (clamped to 0–100).
+Every write endpoint validates its input and answers `400` with a plain
+message when it is bad — the request never reaches the database:
+
+- `course_id` bodies (cart, wishlist, reviews) must be positive integers —
+  `"abc"`/`-1`/missing → `400`, unknown id → `404`.
+- Register: email must look like an email (`400` otherwise); name ≤ 100
+  chars; password 6–128 chars.
+- Reviews: rating must be an int 1–5; comment ≤ 2000 chars.
+- Progress: `progress_percent` must be a finite number (NaN/±∞ → `400`);
+  it is clamped to 0–100.
+- Admin course fields: title ≤ 200 chars; description ≤ 10000;
+  category ≤ 60; instructor ≤ 100; image_url ≤ 2000; price ≥ 0 (int);
+  level ∈ Beginner/Intermediate/Advanced; duration_hours ≥ 0.
+- Admin lesson fields: title ≤ 200 chars; content ≤ 20000 chars;
+  duration_minutes ≥ 0 (int); order_index int; is_preview ∈ {0, 1}.
 
 ## Database schema (`backend/schema.sql`)
 
@@ -153,7 +166,14 @@ must be a positive integer, review comments ≤2000 chars, ratings 1–5;
 
 Passwords are hashed with **SHA-256 + per-user random salt**
 (`hashlib.sha256`, format `salt$digest`). Tokens are random SHA-256 values
-stored server-side - never trust client data for auth.
+stored server-side - never trust client data for auth. Sessions expire after
+**30 days** (`user_from_token` rejects older tokens; expired rows are pruned
+on each login).
+
+Hot query paths are indexed (`CREATE INDEX IF NOT EXISTS`, applied on every
+startup): lessons/course, enrolments by user / course / (user, course),
+cart and wishlist by user and course, lesson_progress by user and lesson,
+reviews by course and user, certificates by user, auth_tokens by token.
 
 ## Seeded catalogue
 
