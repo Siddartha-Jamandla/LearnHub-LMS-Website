@@ -16,6 +16,8 @@
             <a href="courses.html" class="nav-link active">Courses</a>
             <a href="about.html" class="nav-link">About</a>
             <a href="contact.html" class="nav-link">Contact</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="learning-paths.html" class="nav-link">Learning Paths</a>
         </nav>
         <div class="nav-actions">
             <a href="wishlist.html" class="nav-icon">♡</a>
@@ -120,7 +122,16 @@
 
         html += '<div class="lesson-actions">' +
             '<button type="button" class="btn btn-primary" id="completeBtn">✓ Mark lesson complete</button> ' +
+            '<button type="button" class="btn btn-outline" id="bookmarkBtn">🔖 Bookmark</button> ' +
             '<span id="completeNote"></span></div>' +
+            '<div class="lesson-notes"><h2>📝 My notes</h2>' +
+            '<div id="notesBox"><p>Loading notes…</p></div>' +
+            '<form id="noteForm"><textarea id="noteInput" rows="3" maxlength="5000" placeholder="Write a note for yourself on this lesson…" style="width:100%"></textarea><br>' +
+            '<button type="submit" class="btn btn-primary btn-small">Save note</button> <span id="noteStatus"></span></form></div>' +
+            '<div class="lesson-discussion"><h2>💬 Ask a question / Discussion</h2>' +
+            '<div id="discussBox"><p>Loading discussion…</p></div>' +
+            '<form id="discussForm"><textarea id="discussInput" rows="3" maxlength="2000" placeholder="Ask a question about this lesson…" style="width:100%"></textarea><br>' +
+            '<button type="submit" class="btn btn-primary btn-small">Post question</button> <span id="discussStatus"></span></form></div>' +
             '<div class="lesson-nav" id="lessonNav"></div>';
 
         root.innerHTML = html;
@@ -135,12 +146,15 @@
         loadQuiz();
         loadTasks();
         loadNav(courseId);
+        loadBookmark();
+        loadNotes();
+        loadDiscussions();
 
         document.getElementById("completeBtn").addEventListener("click", async function () {
             var note = document.getElementById("completeNote");
             try {
                 var res = await LearnHubAPI.completeLesson(lessonId);
-                note.textContent = "✓ Completed — " + res.progress_percent + "% of the course done." +
+                note.textContent = "✓ Completed — +10 XP! " + res.progress_percent + "% of the course done." +
                     (res.certificate ? " 🎉 Certificate ready: certificate.html?id=" + res.certificate.id : "");
                 this.disabled = true;
             } catch (e) {
@@ -268,6 +282,87 @@
                         " (sign in and enrol first).</p>";
                 }
             });
+        });
+    }
+
+    async function loadBookmark() {
+        var btn = document.getElementById("bookmarkBtn");
+        var bookmarked = false;
+        try {
+            var list = await LearnHubAPI.getBookmarks();
+            bookmarked = list.some(function (b) { return String(b.lesson_id) === String(lessonId); });
+        } catch (e) { /* signed out: bookmarking needs sign-in */ }
+        function render() { btn.textContent = bookmarked ? "🔖 Bookmarked ✓" : "🔖 Bookmark"; }
+        render();
+        btn.addEventListener("click", async function () {
+            try {
+                await LearnHubAPI.toggleBookmark(lessonId, bookmarked);
+                bookmarked = !bookmarked;
+                render();
+            } catch (e) { alert("Could not bookmark: " + e.message + " (sign in and enrol first)."); }
+        });
+    }
+
+    async function loadNotes() {
+        var box = document.getElementById("notesBox");
+        var notes;
+        try { notes = await LearnHubAPI.getNotes(lessonId); }
+        catch (e) { box.innerHTML = "<p>Notes need sign-in" + (e.message ? ": " + esc(e.message) : "") + ".</p>"; return; }
+        box.innerHTML = notes.length ? notes.map(function (n) {
+            return '<div class="note-item"><p>' + esc(n.note) + '</p><small>' + esc((n.created_at || "").slice(0, 16).replace("T", " ")) +
+                '</small> <button type="button" class="btn btn-outline btn-small" data-note-del="' + n.id + '">Delete</button></div>';
+        }).join("") : "<p>No notes yet — write your first note below.</p>";
+        box.querySelectorAll("[data-note-del]").forEach(function (b) {
+            b.addEventListener("click", async function () {
+                try { await LearnHubAPI.deleteNote(b.dataset.noteDel); loadNotes(); }
+                catch (e) { alert("Could not delete note: " + e.message); }
+            });
+        });
+        document.getElementById("noteForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            var input = document.getElementById("noteInput");
+            var status = document.getElementById("noteStatus");
+            if (!input.value.trim()) { status.textContent = "Write something first."; return; }
+            try {
+                await LearnHubAPI.addNote(lessonId, input.value.trim());
+                input.value = ""; status.textContent = "✓ Note saved.";
+                loadNotes();
+            } catch (err) { status.textContent = "Could not save: " + err.message; }
+        });
+    }
+
+    async function loadDiscussions() {
+        var box = document.getElementById("discussBox");
+        var items;
+        try { items = await LearnHubAPI.getDiscussions(lessonId); }
+        catch (e) { box.innerHTML = "<p>Discussion is not available right now: " + esc(e.message) + "</p>"; return; }
+        function replyHtml(r) {
+            return '<div class="discuss-reply"><strong>' + esc(r.user_name) + '</strong> <small>' + esc((r.created_at || "").slice(0, 10)) + '</small><p>' + esc(r.body) + '</p></div>';
+        }
+        box.innerHTML = items.length ? items.map(function (d) {
+            return '<div class="discuss-item"><strong>' + esc(d.user_name) + '</strong> <small>' + esc((d.created_at || "").slice(0, 10)) + '</small>' +
+                '<p>' + esc(d.body) + '</p>' +
+                (d.replies || []).map(replyHtml).join("") +
+                '<form class="reply-form" data-discuss-id="' + d.id + '"><input type="text" maxlength="2000" placeholder="Write a reply…" required> <button type="submit" class="btn btn-outline btn-small">Reply</button></form></div>';
+        }).join("") : "<p>No questions yet — be the first to ask.</p>";
+        box.querySelectorAll(".reply-form").forEach(function (f) {
+            f.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                var input = f.querySelector("input");
+                try { await LearnHubAPI.replyDiscussion(f.dataset.discussId, input.value.trim()); loadDiscussions(); }
+                catch (err) { alert("Could not reply: " + err.message + " (sign in and enrol first)."); }
+            });
+        });
+        document.getElementById("discussForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            var input = document.getElementById("discussInput");
+            var status = document.getElementById("discussStatus");
+            if (!input.value.trim()) { status.textContent = "Write a question first."; return; }
+            try {
+                await LearnHubAPI.postDiscussion(lessonId, input.value.trim());
+                input.value = ""; status.textContent = "✓ Question posted.";
+                loadDiscussions();
+            } catch (err) { status.textContent = "Could not post: " + err.message; }
         });
     }
 

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your LearnHub dashboard — XP, level, streak, badges, continue learning, leaderboard and announcements.">
+    <meta property="og:title" content="My Dashboard - LearnHub">
+    <meta property="og:description" content="Track your XP, streak, badges and continue learning on LearnHub.">
+    <meta property="og:type" content="website">
+    <title>My Dashboard - LearnHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+            <a href="learning-paths.html" class="nav-link">Learning Paths</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="my-courses.html" class="nav-link">My Courses</a>
+        </div>
+    </div>
+</header>
+
+<main class="section">
+    <div class="container">
+        <span class="section-tag">My Dashboard</span>
+        <h1 id="greeting">Your learning dashboard</h1>
+        <p id="dashIntro">Sign in to see your XP, streak, badges and where you left off.</p>
+
+        <div id="signedOutBox" class="empty-state" hidden>
+            <h2>Sign in to see your dashboard</h2>
+            <p>Your XP, streak and badges are saved to your account.</p>
+            <a href="login.html" class="btn btn-primary">Sign In</a>
+            <a href="register.html" class="btn btn-outline">Create Account</a>
+        </div>
+
+        <div id="dashContent" hidden>
+            <div class="xp-card">
+                <div class="xp-head">
+                    <div><strong id="xpName"></strong><br><small id="xpLevel"></small></div>
+                    <div class="streak-flame" id="streakFlame">🔥 0 day streak</div>
+                </div>
+                <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+                <small id="xpNext"></small>
+            </div>
+
+            <div class="stat-grid" id="statGrid"></div>
+
+            <h2>Continue learning</h2>
+            <div id="continueList" class="course-grid"><p>Loading…</p></div>
+
+            <h2>Your badges</h2>
+            <div id="badgeGrid" class="badge-grid"></div>
+
+            <h2>Recent activity</h2>
+            <ul id="activityList" class="activity-list"></ul>
+
+            <h2>My bookmarks</h2>
+            <div id="bookmarkList"><p>Loading…</p></div>
+        </div>
+
+        <h2>🏆 Leaderboard</h2>
+        <div class="table-wrap"><table class="data-table leaderboard-table">
+            <thead><tr><th>Rank</th><th>Learner</th><th>XP</th><th>Lessons</th><th>Certificates</th></tr></thead>
+            <tbody id="leaderboardBody"><tr><td colspan="5">Loading…</td></tr></tbody>
+        </table></div>
+
+        <h2>📢 Announcements</h2>
+        <div id="announceList"><p>Loading…</p></div>
+
+        <p style="margin-top:24px"><a href="learning-paths.html" class="btn btn-primary">Explore Learning Paths</a>
+        <a href="courses.html" class="btn btn-outline">Browse Courses</a></p>
+    </div>
+</main>
+
+<footer class="footer"><div class="container footer-grid">
+    <div class="footer-column"><a href="index.html" class="footer-logo">Learn<span>Hub</span></a><p>Learn new skills and build your future.</p></div>
+    <div class="footer-column"><h3>Quick Links</h3><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="dashboard.html">Dashboard</a><a href="learning-paths.html">Learning Paths</a><a href="instructors.html">Instructors</a></div>
+    <div class="footer-column"><h3>Support</h3><a href="help.html">Help</a><a href="announcements.html">Announcements</a><a href="faq.html">FAQ</a><a href="terms.html">Terms</a><a href="privacy-policy.html">Privacy Policy</a></div>
+</div><div class="footer-bottom"><div class="container"><p>© 2026 LearnHub. All Rights Reserved.</p></div></div></footer>
+
+<script src="js/api.js"></script>
+<script>
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem("lh_user") || "null"); } catch (e) { user = null; }
+
+    async function loadPublic() {
+        try {
+            var lb = await LearnHubAPI.getLeaderboard();
+            document.getElementById("leaderboardBody").innerHTML = lb.length ? lb.slice(0, 10).map(function (r) {
+                return "<tr><td>#" + r.rank + "</td><td>" + esc(r.name) + "</td><td>" + r.xp + " XP</td><td>" + r.lessons_completed + "</td><td>" + r.certificates + "</td></tr>";
+            }).join("") : '<tr><td colspan="5">No learners on the leaderboard yet — be the first!</td></tr>';
+        } catch (e) { document.getElementById("leaderboardBody").innerHTML = '<tr><td colspan="5">Leaderboard is unavailable right now.</td></tr>'; }
+        try {
+            var ann = await LearnHubAPI.getAnnouncements();
+            document.getElementById("announceList").innerHTML = ann.length ? ann.map(function (a) {
+                return '<div class="announce-card"><h3>' + esc(a.title) + '</h3><p>' + esc(a.body) + '</p><small>' + esc((a.created_at || "").slice(0, 10)) + '</small></div>';
+            }).join("") : "<p>No announcements yet.</p>";
+        } catch (e) { document.getElementById("announceList").innerHTML = "<p>Announcements are unavailable right now.</p>"; }
+    }
+
+    async function loadDashboard() {
+        var d;
+        try { d = await LearnHubAPI.getDashboard(); }
+        catch (e) {
+            document.getElementById("signedOutBox").hidden = false;
+            document.getElementById("dashIntro").textContent = "Could not load your dashboard: " + e.message;
+            return;
+        }
+        document.getElementById("dashContent").hidden = false;
+        document.getElementById("greeting").textContent = "Welcome back, " + (d.user.name || "learner") + " 👋";
+        document.getElementById("dashIntro").textContent = "Here is where your learning stands.";
+        document.getElementById("xpName").textContent = d.xp + " XP";
+        document.getElementById("xpLevel").textContent = "Level " + d.level;
+        document.getElementById("streakFlame").textContent = "🔥 " + d.streak_days + " day streak";
+        var intoLevel = d.xp % 200;
+        document.getElementById("xpFill").style.width = (intoLevel / 200 * 100) + "%";
+        document.getElementById("xpNext").textContent = (200 - intoLevel) + " XP to Level " + (d.level + 1);
+        var stats = [
+            [d.enrolled_count, "Courses enrolled"], [d.completed_courses, "Courses completed"],
+            [d.lessons_completed, "Lessons done"], [d.tasks_done, "Tasks done"],
+            [d.avg_quiz_percent + "%", "Avg quiz score"], [d.certificates_count, "Certificates"],
+        ];
+        document.getElementById("statGrid").innerHTML = stats.map(function (s) {
+            return '<div class="stat-card"><div class="stat-value">' + s[0] + '</div><div class="stat-label">' + s[1] + '</div></div>';
+        }).join("");
+        document.getElementById("continueList").innerHTML = d.continue_learning.length ? d.continue_learning.map(function (c) {
+            var next = c.next_lesson_id
+                ? '<a href="lesson.html?id=' + c.next_lesson_id + '" class="btn btn-primary btn-small">Next: ' + esc(c.next_lesson_title) + '</a>'
+                : '<a href="certificate.html" class="btn btn-outline btn-small">Course complete 🎉</a>';
+            return '<div class="course-card"><h3>' + esc(c.title) + '</h3>' +
+                '<div class="xp-bar"><div class="xp-fill" style="width:' + c.progress_percent + '%"></div></div>' +
+                '<p><small>' + c.progress_percent + '% complete</small></p>' + next +
+                ' <a href="course-details.html?id=' + c.course_id + '" class="btn btn-outline btn-small">Course page</a></div>';
+        }).join("") : "<p>You are not enrolled in any course yet. <a href='courses.html'>Browse courses</a> to start.</p>";
+        var badgeIcons = { "first-lesson": "👣", "5-lessons": "🔥", "10-lessons": "💪", "quiz-master": "🧠", "task-finisher": "🛠️", "course-finisher": "🎓", "streak-3": "📅", "streak-7": "⚡" };
+        document.getElementById("badgeGrid").innerHTML = d.badges.map(function (b) {
+            return '<div class="badge-card ' + (b.earned ? "earned" : "locked") + '">' +
+                '<div class="badge-icon">' + (badgeIcons[b.id] || "🏅") + '</div>' +
+                '<strong>' + esc(b.title) + '</strong><p><small>' + esc(b.description) + '</small></p>' +
+                '<p><small>' + (b.earned ? "✓ Earned" + (b.earned_at ? " · " + esc(b.earned_at.slice(0, 10)) : "") : "🔒 Locked") + '</small></p></div>';
+        }).join("");
+        document.getElementById("activityList").innerHTML = d.recent_activity.length ? d.recent_activity.map(function (a) {
+            return '<li><small>' + esc((a.at || "").slice(0, 10)) + '</small> — ' + esc(a.text) + '</li>';
+        }).join("") : "<li>No activity yet — complete your first lesson to get started.</li>";
+        try {
+            var bm = await LearnHubAPI.getBookmarks();
+            document.getElementById("bookmarkList").innerHTML = bm.length ? bm.map(function (b) {
+                return '<p>🔖 <a href="lesson.html?id=' + b.lesson_id + '">' + esc(b.lesson_title) + '</a> <small>· ' + esc(b.course_title) + '</small></p>';
+            }).join("") : "<p>No bookmarks yet — tap 🔖 on any lesson to save it here.</p>";
+        } catch (e) { document.getElementById("bookmarkList").innerHTML = "<p>Bookmarks are unavailable right now.</p>"; }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadPublic();
+        if (localStorage.getItem("lh_token")) loadDashboard();
+        else document.getElementById("signedOutBox").hidden = false;
+    });
+})();
+</script>
+</body>
+</html>

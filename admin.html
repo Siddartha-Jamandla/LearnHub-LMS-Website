@@ -3,25 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Admin - LearnHub</title>
+    <title>Admin Dashboard - LearnHub</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; }
-        .admin-card h2 { font-size: 1.1rem; margin-bottom: 12px; }
-        .admin-card .form-group { margin-bottom: 10px; }
-        .admin-card .form-group label { font-size: 0.85rem; }
-        .admin-result { margin-top: 20px; background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px; overflow-x: auto; }
-        .admin-result pre { margin: 0; font-size: 0.85rem; white-space: pre-wrap; }
-        .admin-note { font-size: 0.85rem; color: #64748b; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 12px 0; }
-        .stat-card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center; }
+        /* ---- admin dashboard layout (LearnHub colours: #2a7ae2, #0f172a) ---- */
+        .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+        .admin-sidebar { position: sticky; top: 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; }
+        .admin-sidebar h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin: 4px 8px 10px; }
+        .admin-nav-btn { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; background: transparent; border-radius: 8px; font-size: .95rem; cursor: pointer; color: #334155; }
+        .admin-nav-btn:hover { background: #f8fafc; }
+        .admin-nav-btn.active { background: #eef2ff; color: #2a7ae2; font-weight: 700; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+        .admin-section h2 { font-size: 1.25rem; margin-bottom: 4px; }
+        .admin-section .section-sub { color: #64748b; font-size: .9rem; margin-bottom: 16px; }
+        .admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .admin-card h3 { font-size: 1.05rem; margin-bottom: 12px; }
+        .admin-note { font-size: .85rem; color: #64748b; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; text-align: center; }
         .stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
-        .stat-label { font-size: 0.8rem; color: #64748b; }
-        .stats-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 8px; }
-        .stats-table th, .stats-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; }
-        .stats-error { color: #b91c1c; font-size: 0.9rem; margin-top: 8px; }
-        .stats-empty { color: #64748b; font-size: 0.9rem; }
+        .stat-label { font-size: .8rem; color: #64748b; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        .data-table th, .data-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+        .data-table th { color: #64748b; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+        .table-wrap { overflow-x: auto; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-amber { background: #fef3c7; color: #92400e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-grey { background: #f1f5f9; color: #475569; }
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .progress { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; min-width: 80px; }
+        .progress > span { display: block; height: 100%; background: #2a7ae2; }
+        .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+        .toolbar input, .toolbar select, .toolbar textarea { padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: .9rem; }
+        .toolbar input[type="search"] { min-width: 220px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: .85rem; margin-bottom: 4px; color: #334155; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: .9rem; }
+        .form-group textarea { font-family: inherit; }
+        .code-box { font-family: ui-monospace, monospace; font-size: .8rem; }
+        .status-line { font-size: .85rem; color: #64748b; margin-top: 8px; }
+        .status-line.error { color: #b91c1c; }
+        .btn-small { padding: 6px 12px; font-size: .85rem; }
+        .btn-link { background: none; border: 0; color: #2a7ae2; cursor: pointer; font-size: .85rem; padding: 2px 0; text-decoration: underline; }
+        .btn-danger-outline { background: #fff; border: 1px solid #fecaca; color: #b91c1c; border-radius: 8px; padding: 6px 12px; font-size: .85rem; cursor: pointer; }
+        .flowchart-preview { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; margin-top: 10px; overflow-x: auto; background: #fff; }
+        .flowchart-preview svg { max-width: 100%; height: auto; }
+        .key-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+        .key-bar .form-group { flex: 1; min-width: 220px; margin-bottom: 0; }
+        @media (max-width: 860px) {
+            .admin-layout { grid-template-columns: 1fr; }
+            .admin-sidebar { position: static; }
+            .admin-sidebar nav { display: flex; gap: 4px; overflow-x: auto; }
+            .admin-nav-btn { width: auto; white-space: nowrap; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -32,7 +71,7 @@
         <nav class="nav-menu">
             <a href="index.html" class="nav-link">Home</a>
             <a href="courses.html" class="nav-link">Courses</a>
-            <a href="wishlist.html" class="nav-link">Wishlist</a>
+            <a href="my-courses.html" class="nav-link">My Courses</a>
         </nav>
         <div class="nav-actions" id="auth-slot"></div>
     </div>
@@ -40,143 +79,486 @@
 
 <section class="page-header">
     <div class="container">
-        <h1>Course Admin</h1>
-        <p>Manage courses and lessons (instructor only).</p>
+        <h1>Admin Dashboard</h1>
+        <p>Manage LearnHub — courses, lessons, learners, orders and certificates.</p>
     </div>
 </section>
 
 <section class="section">
     <div class="container">
 
-        <div class="admin-card" style="margin-bottom: 20px; max-width: 520px;">
-            <h2>Admin key</h2>
-            <p class="admin-note">Enter once per tab - it is kept in <code>sessionStorage</code> and sent as <code>?key=</code>.</p>
-            <div class="form-group">
-                <label for="adminKey">Admin key (API_SECRET)</label>
-                <input type="password" id="adminKey" placeholder="Enter admin key">
+        <div class="admin-card">
+            <h3>Admin key</h3>
+            <p class="admin-note">The admin key (API_SECRET) unlocks every section below. Enter once per tab — it is kept in <code>sessionStorage</code> and sent as <code>?key=</code> on every admin request. It is never stored on this page.</p>
+            <div class="key-bar">
+                <div class="form-group">
+                    <label for="adminKey">Admin key (API_SECRET)</label>
+                    <input type="password" id="adminKey" placeholder="Enter admin key" autocomplete="off">
+                </div>
+                <button class="btn btn-primary" id="saveKeyBtn" type="button">Save key</button>
+                <button class="btn" id="clearKeyBtn" type="button">Clear</button>
             </div>
-            <button class="btn btn-primary btn-small" id="saveKeyBtn">Save key</button>
-            <span id="keyStatus" class="admin-note"></span>
+            <p class="status-line" id="keyStatus"></p>
         </div>
 
-        <div class="admin-card" style="margin-bottom: 20px;">
-            <h2>Platform stats</h2>
-            <p class="admin-note">Live totals from <code>GET /api/admin/stats</code> — needs the admin key above.</p>
-            <button class="btn btn-primary btn-small" id="loadStatsBtn">Load stats</button>
-            <span id="statsStatus" class="admin-note"></span>
-            <div id="statsBox"><p class="stats-empty">Stats not loaded yet.</p></div>
-            <p id="statsError" class="stats-error" role="alert"></p>
-        </div>
+        <div class="admin-layout">
+            <aside class="admin-sidebar">
+                <h3>Admin</h3>
+                <nav id="adminNav">
+                    <button class="admin-nav-btn active" data-section="dashboard" type="button">📊 Dashboard</button>
+                    <button class="admin-nav-btn" data-section="courses" type="button">📚 Courses</button>
+                    <button class="admin-nav-btn" data-section="lessons" type="button">📝 Lessons &amp; Content</button>
+                    <button class="admin-nav-btn" data-section="users" type="button">👥 Users</button>
+                    <button class="admin-nav-btn" data-section="learning" type="button">📈 Learning</button>
+                    <button class="admin-nav-btn" data-section="orders" type="button">🧾 Orders</button>
+                    <button class="admin-nav-btn" data-section="certificates" type="button">🎓 Certificates</button>
+                    <button class="admin-nav-btn" data-section="announcements" type="button">📢 Announcements</button>
+                    <button class="admin-nav-btn" data-section="discussions" type="button">💬 Discussions</button>
+                </nav>
+                <p class="admin-note" style="margin-top: 14px;">Tip: the key is the same API_SECRET used by the server. Wrong key? Every section will say “Invalid admin key”.</p>
+            </aside>
 
-        <div class="admin-grid">
-
-            <div class="admin-card">
-                <h2>Create course</h2>
-                <form id="createCourseForm">
-                    <div class="form-group"><label>Title *</label><input name="title" required></div>
-                    <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
-                    <div class="form-group"><label>Category</label><input name="category" placeholder="General"></div>
-                    <div class="form-group"><label>Price (INR)</label><input name="price" type="number" min="0" value="0"></div>
-                    <div class="form-group"><label>Instructor</label><input name="instructor"></div>
-                    <div class="form-group"><label>Duration (hours)</label><input name="duration_hours" type="number" min="0" step="0.5" value="0"></div>
-                    <div class="form-group"><label>Level</label>
-                        <select name="level">
-                            <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
-                        </select>
+            <main>
+                <!-- ================= DASHBOARD ================= -->
+                <div class="admin-section active" id="section-dashboard">
+                    <h2>Dashboard</h2>
+                    <p class="section-sub">Live totals for the whole platform.</p>
+                    <div id="dashStats"><p class="admin-note">Enter the admin key above to load the dashboard.</p></div>
+                    <div class="admin-card">
+                        <h3>Most popular courses</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>Category</th><th>Enrolments</th><th>Revenue</th></tr></thead><tbody id="popularBody"><tr><td colspan="4" class="admin-note">—</td></tr></tbody></table></div>
                     </div>
-                    <div class="form-group"><label>Image URL</label><input name="image_url"></div>
-                    <button class="btn btn-primary btn-small" type="submit">Create</button>
-                </form>
-            </div>
-
-            <div class="admin-card">
-                <h2>Update course</h2>
-                <form id="updateCourseForm">
-                    <div class="form-group"><label>Course ID *</label><input name="id" type="number" min="1" required></div>
-                    <div class="form-group"><label>Title</label><input name="title"></div>
-                    <div class="form-group"><label>Price (INR)</label><input name="price" type="number" min="0"></div>
-                    <div class="form-group"><label>Level</label>
-                        <select name="level"><option value="">(no change)</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+                    <div class="admin-card">
+                        <h3>Recent enrolments</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Learner</th><th>Course</th><th>Enrolled</th></tr></thead><tbody id="recentEnrollBody"><tr><td colspan="3" class="admin-note">—</td></tr></tbody></table></div>
                     </div>
-                    <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
-                    <button class="btn btn-primary btn-small" type="submit">Update</button>
-                </form>
-            </div>
+                    <div class="admin-card">
+                        <h3>Recent users</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Enrolments</th></tr></thead><tbody id="recentUsersBody"><tr><td colspan="4" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <p class="status-line" id="dashStatus"></p>
+                </div>
 
-            <div class="admin-card">
-                <h2>Delete course</h2>
-                <p class="admin-note">Blocked (409) while enrolments exist; its lessons are removed automatically.</p>
-                <form id="deleteCourseForm">
-                    <div class="form-group"><label>Course ID *</label><input name="id" type="number" min="1" required></div>
-                    <button class="btn btn-danger btn-small" type="submit">Delete</button>
-                </form>
-            </div>
+                <!-- ================= COURSES ================= -->
+                <div class="admin-section" id="section-courses">
+                    <h2>Courses</h2>
+                    <p class="section-sub">All courses on the platform — create, edit and delete. Deleting is blocked while enrolments exist.</p>
+                    <div class="admin-card">
+                        <div class="toolbar">
+                            <input type="search" id="courseSearch" placeholder="Search courses…">
+                            <select id="courseCategory"><option value="">All categories</option></select>
+                            <button class="btn btn-primary btn-small" id="refreshCoursesBtn" type="button">Refresh</button>
+                        </div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Price</th><th>Level</th><th>Instructor</th><th>Actions</th></tr></thead><tbody id="coursesBody"><tr><td colspan="7" class="admin-note">—</td></tr></tbody></table></div>
+                        <p class="status-line" id="coursesStatus"></p>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Create course</h3>
+                        <form id="createCourseForm">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Title *</label><input name="title" required></div>
+                                <div class="form-group"><label>Category</label><input name="category" placeholder="General"></div>
+                                <div class="form-group"><label>Price (INR)</label><input name="price" type="number" min="0" value="0"></div>
+                                <div class="form-group"><label>Instructor</label><input name="instructor"></div>
+                                <div class="form-group"><label>Duration (hours)</label><input name="duration_hours" type="number" min="0" step="0.5" value="0"></div>
+                                <div class="form-group"><label>Level</label><select name="level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                                <div class="form-group"><label>Image URL</label><input name="image_url" placeholder="assets/images/course1.svg"></div>
+                            </div>
+                            <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+                            <button class="btn btn-primary" type="submit">Create course</button>
+                        </form>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Update course</h3>
+                        <p class="admin-note">Pick “Edit” on a course above to fill this in, or enter an ID yourself. Only filled fields change.</p>
+                        <form id="updateCourseForm">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Course ID *</label><input name="id" type="number" min="1" required></div>
+                                <div class="form-group"><label>Title</label><input name="title"></div>
+                                <div class="form-group"><label>Price (INR)</label><input name="price" type="number" min="0"></div>
+                                <div class="form-group"><label>Level</label><select name="level"><option value="">(no change)</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                                <div class="form-group"><label>Category</label><input name="category"></div>
+                                <div class="form-group"><label>Instructor</label><input name="instructor"></div>
+                                <div class="form-group"><label>Duration (hours)</label><input name="duration_hours" type="number" min="0" step="0.5"></div>
+                                <div class="form-group"><label>Image URL</label><input name="image_url"></div>
+                            </div>
+                            <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+                            <button class="btn btn-primary" type="submit">Update course</button>
+                        </form>
+                        <p class="status-line" id="courseFormStatus"></p>
+                    </div>
+                </div>
 
-            <div class="admin-card">
-                <h2>Add lesson</h2>
-                <form id="createLessonForm">
-                    <div class="form-group"><label>Course ID *</label><input name="course_id" type="number" min="1" required></div>
-                    <div class="form-group"><label>Title *</label><input name="title" required></div>
-                    <div class="form-group"><label>Content URL *</label><input name="content_url" required></div>
-                    <div class="form-group"><label>Duration (minutes)</label><input name="duration_minutes" type="number" min="0" value="0"></div>
-                    <button class="btn btn-primary btn-small" type="submit">Add lesson</button>
-                </form>
-            </div>
+                <!-- ================= LESSONS & CONTENT ================= -->
+                <div class="admin-section" id="section-lessons">
+                    <h2>Lessons &amp; Content</h2>
+                    <p class="section-sub">Edit what learners actually study — explanation, flowchart, video, MCQs and tasks for any lesson.</p>
+                    <div class="admin-card">
+                        <div class="toolbar">
+                            <select id="lessonCourseSelect"><option value="">Select a course…</option></select>
+                            <button class="btn btn-primary btn-small" id="refreshLessonsBtn" type="button">Load lessons</button>
+                        </div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Lesson</th><th>Duration</th><th>Preview</th><th>MCQs</th><th>Tasks</th><th>Actions</th></tr></thead><tbody id="lessonsBody"><tr><td colspan="7" class="admin-note">Pick a course above.</td></tr></tbody></table></div>
+                        <p class="status-line" id="lessonsStatus"></p>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Add lesson</h3>
+                        <form id="createLessonForm">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Course ID *</label><input name="course_id" type="number" min="1" required></div>
+                                <div class="form-group"><label>Title *</label><input name="title" required></div>
+                                <div class="form-group"><label>Content URL *</label><input name="content_url" required placeholder="/courses/1/lessons/1"></div>
+                                <div class="form-group"><label>Duration (minutes)</label><input name="duration_minutes" type="number" min="0" value="0"></div>
+                                <div class="form-group"><label>Free preview?</label><select name="is_preview"><option value="0">No</option><option value="1">Yes — free preview</option></select></div>
+                            </div>
+                            <button class="btn btn-primary" type="submit">Add lesson</button>
+                        </form>
+                    </div>
+                    <div class="admin-card" id="lessonEditorCard" style="display:none;">
+                        <h3 id="lessonEditorTitle">Edit lesson content</h3>
+                        <form id="lessonContentForm">
+                            <input type="hidden" id="editLessonId">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Lesson title</label><input id="editLessonTitle"></div>
+                                <div class="form-group"><label>Duration (minutes)</label><input id="editLessonDuration" type="number" min="0"></div>
+                                <div class="form-group"><label>Content URL</label><input id="editLessonUrl"></div>
+                                <div class="form-group"><label>Free preview?</label><select id="editLessonPreview"><option value="0">No</option><option value="1">Yes</option></select></div>
+                            </div>
+                            <div class="form-group"><label>Explanation (HTML — headings, paragraphs, code examples)</label><textarea id="editLessonBody" rows="10" class="code-box"></textarea></div>
+                            <div class="form-grid">
+                                <div class="form-group"><label>Flowchart title</label><input id="editFlowchartTitle"></div>
+                                <div class="form-group"><label>Video ID (YouTube, 11 chars)</label><input id="editVideoId" placeholder="rfscVS0vtbw"></div>
+                                <div class="form-group"><label>Video title</label><input id="editVideoTitle"></div>
+                            </div>
+                            <div class="form-group"><label>Flowchart JSON — {"nodes": [{id, label, kind}], "edges": [{from, to, label}]}</label><textarea id="editFlowchartJson" rows="8" class="code-box" placeholder='{"nodes": [{"id": "n1", "label": "Start", "kind": "start"}], "edges": []}'></textarea></div>
+                            <div class="toolbar">
+                                <button class="btn btn-primary" type="submit">Save lesson content</button>
+                                <button class="btn" id="previewFlowchartBtn" type="button">Preview flowchart</button>
+                                <button class="btn btn-danger-outline" id="deleteLessonBtn" type="button">Delete lesson</button>
+                            </div>
+                            <div class="flowchart-preview" id="flowchartPreview" style="display:none;"></div>
+                            <p class="status-line" id="lessonContentStatus"></p>
+                        </form>
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                        <h3>MCQ questions <span class="admin-note" id="mcqCount"></span></h3>
+                        <div id="mcqList"></div>
+                        <form id="mcqForm">
+                            <input type="hidden" id="mcqId">
+                            <div class="form-group"><label>Question *</label><textarea id="mcqQuestion" rows="2" required></textarea></div>
+                            <div class="form-grid">
+                                <div class="form-group"><label>Option A *</label><input id="mcqOpt0" required></div>
+                                <div class="form-group"><label>Option B *</label><input id="mcqOpt1" required></div>
+                                <div class="form-group"><label>Option C *</label><input id="mcqOpt2" required></div>
+                                <div class="form-group"><label>Option D *</label><input id="mcqOpt3" required></div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group"><label>Correct answer *</label><select id="mcqAnswer"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+                                <div class="form-group"><label>Explanation (why this answer is right)</label><input id="mcqWhy"></div>
+                            </div>
+                            <div class="toolbar">
+                                <button class="btn btn-primary btn-small" type="submit" id="mcqSaveBtn">Add question</button>
+                                <button class="btn btn-small" type="button" id="mcqCancelBtn" style="display:none;">Cancel edit</button>
+                            </div>
+                        </form>
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                        <h3>Practice tasks <span class="admin-note" id="taskCount"></span></h3>
+                        <div id="taskList"></div>
+                        <form id="taskForm">
+                            <input type="hidden" id="taskId">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Type *</label><select id="taskType"><option value="predict">Predict the output</option><option value="fix">Fix the bug</option><option value="fill">Fill in the blank</option><option value="trace">Trace the code</option><option value="project">Mini-project</option></select></div>
+                                <div class="form-group"><label>Title *</label><input id="taskTitle" required></div>
+                            </div>
+                            <div class="form-group"><label>Prompt *</label><textarea id="taskPrompt" rows="2" required></textarea></div>
+                            <div class="form-group"><label>Code</label><textarea id="taskCode" rows="4" class="code-box"></textarea></div>
+                            <div class="form-grid">
+                                <div class="form-group"><label>Expected answer</label><input id="taskExpected"></div>
+                                <div class="form-group"><label>Model answer / solution</label><input id="taskAnswer"></div>
+                                <div class="form-group"><label>Hint</label><input id="taskHint"></div>
+                            </div>
+                            <div class="toolbar">
+                                <button class="btn btn-primary btn-small" type="submit" id="taskSaveBtn">Add task</button>
+                                <button class="btn btn-small" type="button" id="taskCancelBtn" style="display:none;">Cancel edit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
-            <div class="admin-card">
-                <h2>Update lesson</h2>
-                <form id="updateLessonForm">
-                    <div class="form-group"><label>Lesson ID *</label><input name="id" type="number" min="1" required></div>
-                    <div class="form-group"><label>Title</label><input name="title"></div>
-                    <div class="form-group"><label>Content URL</label><input name="content_url"></div>
-                    <div class="form-group"><label>Duration (minutes)</label><input name="duration_minutes" type="number" min="0"></div>
-                    <button class="btn btn-primary btn-small" type="submit">Update</button>
-                </form>
-            </div>
+                <!-- ================= USERS ================= -->
+                <div class="admin-section" id="section-users">
+                    <h2>Users</h2>
+                    <p class="section-sub">Every registered learner — enrolments, quiz scores and certificates. Click a user for the full picture.</p>
+                    <div class="admin-card">
+                        <div class="toolbar">
+                            <input type="search" id="userSearch" placeholder="Search name or email…">
+                            <button class="btn btn-primary btn-small" id="searchUsersBtn" type="button">Search</button>
+                        </div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Enrolments</th><th>Certificates</th><th>Avg quiz</th><th></th></tr></thead><tbody id="usersBody"><tr><td colspan="7" class="admin-note">—</td></tr></tbody></table></div>
+                        <div class="toolbar" style="margin-top: 12px;">
+                            <button class="btn btn-small" id="usersPrevBtn" type="button">← Previous</button>
+                            <span class="admin-note" id="usersPageInfo"></span>
+                            <button class="btn btn-small" id="usersNextBtn" type="button">Next →</button>
+                        </div>
+                        <p class="status-line" id="usersStatus"></p>
+                    </div>
+                    <div class="admin-card" id="userDetailCard" style="display:none;">
+                        <h3 id="userDetailTitle">Learner detail</h3>
+                        <div id="userDetailBody"></div>
+                    </div>
+                </div>
 
-            <div class="admin-card">
-                <h2>Delete lesson</h2>
-                <p class="admin-note">Learner progress rows for the lesson are removed automatically.</p>
-                <form id="deleteLessonForm">
-                    <div class="form-group"><label>Lesson ID *</label><input name="id" type="number" min="1" required></div>
-                    <button class="btn btn-danger btn-small" type="submit">Delete</button>
-                </form>
-            </div>
+                <!-- ================= LEARNING ================= -->
+                <div class="admin-section" id="section-learning">
+                    <h2>Learning analytics</h2>
+                    <p class="section-sub">How well is each course teaching? Low quiz scores and unfinished tasks show where content needs fixing.</p>
+                    <div class="admin-card">
+                        <h3>Per-course learning</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>Enrolments</th><th>Avg quiz score</th><th>Tasks done</th><th>Task completion</th></tr></thead><tbody id="analyticsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Weakest lessons — lowest average quiz scores</h3>
+                        <p class="admin-note">Lessons with at least one quiz attempt, worst first. These are the lessons most worth rewriting.</p>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Lesson</th><th>Course</th><th>Attempts</th><th>Avg score</th><th></th></tr></thead><tbody id="weakestBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <p class="status-line" id="learningStatus"></p>
+                </div>
 
-        </div>
+                <!-- ================= ORDERS ================= -->
+                <div class="admin-section" id="section-orders">
+                    <h2>Orders &amp; revenue</h2>
+                    <p class="section-sub">Every completed checkout, and which courses earn the most.</p>
+                    <div id="orderSummary"></div>
+                    <div class="admin-card">
+                        <h3>Revenue by course</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>Enrolments</th><th>Revenue</th></tr></thead><tbody id="courseRevenueBody"><tr><td colspan="3" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>All orders</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody id="ordersBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                        <div class="toolbar" style="margin-top: 12px;">
+                            <button class="btn btn-small" id="ordersPrevBtn" type="button">← Previous</button>
+                            <span class="admin-note" id="ordersPageInfo"></span>
+                            <button class="btn btn-small" id="ordersNextBtn" type="button">Next →</button>
+                        </div>
+                    </div>
+                    <p class="status-line" id="ordersStatus"></p>
+                </div>
 
-        <div class="admin-result">
-            <pre id="adminResult">Results appear here…</pre>
+                <!-- ================= CERTIFICATES ================= -->
+                <div class="admin-section" id="section-certificates">
+                    <h2>Certificates</h2>
+                    <p class="section-sub">Every certificate issued when a learner finishes a course — with its public verification code.</p>
+                    <div class="admin-card">
+                        <div class="toolbar">
+                            <input type="search" id="certSearch" placeholder="Search code, learner or course…">
+                            <button class="btn btn-primary btn-small" id="searchCertsBtn" type="button">Search</button>
+                        </div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Code</th><th>Learner</th><th>Course</th><th>Issued</th><th></th></tr></thead><tbody id="certsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                        <div class="toolbar" style="margin-top: 12px;">
+                            <button class="btn btn-small" id="certsPrevBtn" type="button">← Previous</button>
+                            <span class="admin-note" id="certsPageInfo"></span>
+                            <button class="btn btn-small" id="certsNextBtn" type="button">Next →</button>
+                        </div>
+                        <p class="status-line" id="certsStatus"></p>
+                    </div>
+                </div>
+
+                <div class="admin-section" id="section-announcements">
+                    <h2>Announcements</h2>
+                    <p class="section-sub">Post platform news — learners see these on their dashboard and the announcements page.</p>
+                    <form id="createAnnouncementForm">
+                        <div class="form-group"><label>Title *</label><input id="annTitle" maxlength="200" required></div>
+                        <div class="form-group"><label>Message *</label><textarea id="annBody" rows="3" maxlength="5000" required></textarea></div>
+                        <button class="btn btn-primary" type="submit">Post announcement</button>
+                    </form>
+                    <p class="status-line" id="annFormStatus"></p>
+                    <div class="table-wrap"><table class="data-table"><thead><tr><th>Title</th><th>Message</th><th>Posted</th><th>Actions</th></tr></thead><tbody id="annBody2"><tr><td colspan="4" class="admin-note">—</td></tr></tbody></table></div>
+                    <p class="status-line" id="annStatus"></p>
+                </div>
+
+                <div class="admin-section" id="section-discussions">
+                    <h2>Discussions</h2>
+                    <p class="section-sub">Latest learner questions and replies across all lessons — delete anything abusive or off-topic.</p>
+                    <button class="btn btn-primary btn-small" id="refreshDiscussionsBtn" type="button">Refresh</button>
+                    <div class="table-wrap"><table class="data-table"><thead><tr><th>Learner</th><th>Course / Lesson</th><th>Message</th><th>Posted</th><th>Actions</th></tr></thead><tbody id="discussionsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    <p class="status-line" id="discussionsStatus"></p>
+                </div>
+            </main>
         </div>
 
     </div>
 </section>
 
-<script src="/js/api.js"></script>
-<script src="/js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/flowchart.js"></script>
 <script>
 (function () {
     "use strict";
 
     if (window.LearnHubAuth) LearnHubAuth.renderAuthSlot("auth-slot");
+    const api = window.LearnHubAPI;
 
+    /* ---------------- helpers ---------------- */
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        }[c]));
+    }
+    const inr = (n) => "₹" + Number(n || 0).toLocaleString("en-IN");
+    const pct = (v) => (v == null ? "—" : Number(v).toFixed(1) + "%");
+    function dateOnly(s) { return s ? String(s).slice(0, 10) : "—"; }
+    function scoreBadge(v) {
+        if (v == null) return '<span class="badge badge-grey">no attempts</span>';
+        const cls = v >= 70 ? "badge-green" : v >= 40 ? "badge-amber" : "badge-red";
+        return `<span class="badge ${cls}">${pct(v)}</span>`;
+    }
+    function statusEl(id, msg, isErr) {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = msg || ""; el.classList.toggle("error", !!isErr); }
+    }
+    function keyError(err) {
+        return /401|403|unauthori[sz]ed|invalid|admin key/i.test(err.message || "")
+            ? "Invalid admin key — check the key and try again."
+            : "Could not load: " + err.message;
+    }
+
+    /* ---------------- admin key ---------------- */
     const keyInput = document.getElementById("adminKey");
     const keyStatus = document.getElementById("keyStatus");
     keyInput.value = sessionStorage.getItem("lh_admin_key") || "";
-    function getKey() {
+    function getKey(save) {
         const k = (keyInput.value || "").trim();
-        if (k) sessionStorage.setItem("lh_admin_key", k);
-        keyStatus.textContent = k ? "Key saved for this tab." : "No key set.";
+        if (save !== false && k) sessionStorage.setItem("lh_admin_key", k);
+        keyStatus.textContent = k ? "Key saved for this tab." : "No key set — enter the admin key to unlock the dashboard.";
         return k;
     }
-    document.getElementById("saveKeyBtn").addEventListener("click", getKey);
-    getKey();
+    document.getElementById("saveKeyBtn").addEventListener("click", () => { getKey(); loadSection(currentSection); });
+    document.getElementById("clearKeyBtn").addEventListener("click", () => {
+        sessionStorage.removeItem("lh_admin_key"); keyInput.value = ""; getKey(false);
+    });
+    getKey(false);
 
-    const out = document.getElementById("adminResult");
-    function show(obj) { out.textContent = JSON.stringify(obj, null, 2); }
-    function fail(err) { out.textContent = "ERROR: " + err.message; }
+    /* ---------------- navigation ---------------- */
+    let currentSection = "dashboard";
+    let coursesCache = [];
+    let usersPage = 1, usersTotalPages = 1;
+    let ordersPage = 1, ordersTotalPages = 1;
+    let certsPage = 1, certsTotalPages = 1;
+    let currentLessonId = null;
 
-    function fields(form, names) {
+    document.getElementById("adminNav").addEventListener("click", (e) => {
+        const btn = e.target.closest(".admin-nav-btn");
+        if (!btn) return;
+        document.querySelectorAll(".admin-nav-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".admin-section").forEach((s) => s.classList.remove("active"));
+        currentSection = btn.dataset.section;
+        document.getElementById("section-" + currentSection).classList.add("active");
+        loadSection(currentSection);
+    });
+    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus" };
+    function loadSection(name) {
+        if (!getKey(false)) { statusEl(STATUS_IDS[name] || "dashStatus", "Enter the admin key above first.", true); return; }
+        if (name === "dashboard") loadDashboard();
+        else if (name === "courses") loadCourses();
+        else if (name === "lessons") loadLessonCourses();
+        else if (name === "users") loadUsers(1);
+        else if (name === "learning") loadLearning();
+        else if (name === "orders") loadOrders(1);
+        else if (name === "certificates") loadCerts(1);
+        else if (name === "announcements") loadAnnouncements();
+        else if (name === "discussions") loadDiscussionsAdmin();
+    }
+
+    /* ---------------- dashboard ---------------- */
+    async function loadDashboard() {
+        statusEl("dashStatus", "Loading…");
+        try {
+            const d = await api.adminOverview(getKey());
+            const cards = [
+                [d.total_users, "Users"], [d.total_courses, "Courses"],
+                [d.total_lessons, "Lessons"], [d.total_enrollments, "Enrolments"],
+                [inr(d.revenue), "Revenue"], [d.quiz_attempts, "Quiz attempts"],
+                [pct(d.avg_quiz_percent), "Avg quiz score"],
+                [d.certificates_issued, "Certificates"],
+            ];
+            document.getElementById("dashStats").innerHTML =
+                `<div class="stats-grid">` + cards.map(([v, l]) =>
+                    `<div class="stat-card"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`).join("") + `</div>`;
+            document.getElementById("popularBody").innerHTML = (d.popular_courses || []).map((c) =>
+                `<tr><td>${esc(c.title)}</td><td>${esc(c.category || "")}</td><td>${c.enrollments}</td><td>${inr(c.revenue)}</td></tr>`).join("")
+                || `<tr><td colspan="4" class="admin-note">No enrolments yet.</td></tr>`;
+            document.getElementById("recentEnrollBody").innerHTML = (d.recent_enrollments || []).map((e) =>
+                `<tr><td>${esc(e.user_name)}<br><span class="admin-note">${esc(e.user_email)}</span></td><td>${esc(e.course_title)}</td><td>${dateOnly(e.enrolled_at)}</td></tr>`).join("")
+                || `<tr><td colspan="3" class="admin-note">No enrolments yet.</td></tr>`;
+            document.getElementById("recentUsersBody").innerHTML = (d.recent_users || []).map((u) =>
+                `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${dateOnly(u.created_at)}</td><td>${u.enrollments}</td></tr>`).join("")
+                || `<tr><td colspan="4" class="admin-note">No users yet.</td></tr>`;
+            statusEl("dashStatus", "Loaded just now.");
+        } catch (err) { statusEl("dashStatus", keyError(err), true); }
+    }
+
+    /* ---------------- courses ---------------- */
+    async function loadCourses() {
+        statusEl("coursesStatus", "Loading…");
+        try {
+            coursesCache = await api.getCourses({ per_page: 50 });
+            const cats = [...new Set(coursesCache.map((c) => c.category).filter(Boolean))].sort();
+            document.getElementById("courseCategory").innerHTML =
+                `<option value="">All categories</option>` + cats.map((c) => `<option>${esc(c)}</option>`).join("");
+            renderCourses();
+            statusEl("coursesStatus", coursesCache.length + " courses.");
+        } catch (err) { statusEl("coursesStatus", keyError(err), true); }
+    }
+    function renderCourses() {
+        const q = (document.getElementById("courseSearch").value || "").toLowerCase();
+        const cat = document.getElementById("courseCategory").value;
+        const list = coursesCache.filter((c) =>
+            (!q || c.title.toLowerCase().includes(q)) && (!cat || c.category === cat));
+        document.getElementById("coursesBody").innerHTML = list.map((c) =>
+            `<tr><td>${c.id}</td><td>${esc(c.title)}</td><td>${esc(c.category || "")}</td>` +
+            `<td>${inr(c.price)}</td><td>${esc(c.level || "")}</td><td>${esc(c.instructor || "")}</td>` +
+            `<td><button class="btn-link" data-act="lessons" data-id="${c.id}">Lessons</button> · ` +
+            `<button class="btn-link" data-act="edit" data-id="${c.id}">Edit</button> · ` +
+            `<button class="btn-link" data-act="delete" data-id="${c.id}">Delete</button></td></tr>`).join("")
+            || `<tr><td colspan="7" class="admin-note">No courses match.</td></tr>`;
+    }
+    document.getElementById("courseSearch").addEventListener("input", renderCourses);
+    document.getElementById("courseCategory").addEventListener("change", renderCourses);
+    document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
+    document.getElementById("coursesBody").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-act]");
+        if (!btn) return;
+        const id = Number(btn.dataset.id);
+        const course = coursesCache.find((c) => c.id === id);
+        if (btn.dataset.act === "lessons") {
+            document.querySelector('.admin-nav-btn[data-section="lessons"]').click();
+            document.getElementById("lessonCourseSelect").value = String(id);
+            loadLessons();
+        } else if (btn.dataset.act === "edit" && course) {
+            const f = document.getElementById("updateCourseForm");
+            f.elements.id.value = course.id;
+            f.elements.title.value = course.title || "";
+            f.elements.price.value = course.price ?? "";
+            f.elements.level.value = course.level || "";
+            f.elements.category.value = course.category || "";
+            f.elements.instructor.value = course.instructor || "";
+            f.elements.duration_hours.value = course.duration_hours ?? "";
+            f.elements.image_url.value = course.image_url || "";
+            f.elements.description.value = course.description || "";
+            f.scrollIntoView({ behavior: "smooth", block: "center" });
+            statusEl("courseFormStatus", "Editing course " + id + " — change what you need and click Update course.");
+        } else if (btn.dataset.act === "delete") {
+            if (!confirm("Delete course " + id + " and all its lessons? (Blocked while enrolments exist.)")) return;
+            try {
+                await api.adminDeleteCourse(getKey(), id);
+                statusEl("courseFormStatus", "Course " + id + " deleted.");
+                loadCourses();
+            } catch (err) { statusEl("courseFormStatus", err.message, true); }
+        }
+    });
+    function formFields(form, names) {
         const data = {};
         for (const n of names) {
             const el = form.elements[n];
@@ -184,109 +566,432 @@
         }
         return data;
     }
-
-    const api = window.LearnHubAPI;
-
-    /* ---------------- platform stats dashboard ---------------- */
-    const statsBox = document.getElementById("statsBox");
-    const statsStatus = document.getElementById("statsStatus");
-    const statsError = document.getElementById("statsError");
-    function esc(s) {
-        return String(s).replace(/[&<>"']/g, (c) => ({
-            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-        }[c]));
-    }
-    function renderStats(d) {
-        const inr = (n) => "₹" + Number(n || 0).toLocaleString("en-IN");
-        const rows = (d.popular_courses || []).map((c) =>
-            `<tr><td>${esc(c.title)}</td><td>${esc(c.category || "")}</td>` +
-            `<td>${c.enrollments}</td><td>${inr(c.revenue)}</td></tr>`).join("");
-        statsBox.innerHTML =
-            `<div class="stats-grid">` +
-            `<div class="stat-card"><div class="stat-value">${d.total_users}</div><div class="stat-label">Users</div></div>` +
-            `<div class="stat-card"><div class="stat-value">${d.total_courses}</div><div class="stat-label">Courses</div></div>` +
-            `<div class="stat-card"><div class="stat-value">${d.total_enrollments}</div><div class="stat-label">Enrollments</div></div>` +
-            `<div class="stat-card"><div class="stat-value">${inr(d.revenue_from_orders)}</div><div class="stat-label">Revenue (orders)</div></div>` +
-            `<div class="stat-card"><div class="stat-value">${inr(d.revenue_from_enrollments)}</div><div class="stat-label">Revenue (enrollments)</div></div>` +
-            `</div>` +
-            `<h3 style="font-size: 1rem; margin-top: 12px;">Most popular courses</h3>` +
-            (rows
-                ? `<table class="stats-table"><thead><tr><th>Course</th><th>Category</th><th>Enrollments</th><th>Revenue</th></tr></thead><tbody>${rows}</tbody></table>`
-                : `<p class="stats-empty">No enrollments yet.</p>`);
-    }
-    async function loadStats() {
-        statsError.textContent = "";
-        const key = getKey();
-        if (!key) {
-            statsBox.innerHTML = `<p class="stats-empty">Stats not loaded yet.</p>`;
-            statsError.textContent = "Admin key is required — enter your admin key above first, then click Load stats.";
-            statsStatus.textContent = "";
-            return;
-        }
-        statsStatus.textContent = "Loading…";
-        try {
-            const d = await api.adminStats(key);
-            renderStats(d);
-            show(d); // also show the raw JSON in the result box below
-            statsStatus.textContent = "Loaded just now.";
-        } catch (err) {
-            statsBox.innerHTML = `<p class="stats-empty">Stats not loaded yet.</p>`;
-            statsError.textContent = /401|403|unauthori[sz]ed|invalid/i.test(err.message)
-                ? "Invalid admin key — check the key and try again."
-                : "Could not load stats: " + err.message;
-            statsStatus.textContent = "";
-        }
-    }
-    document.getElementById("loadStatsBtn").addEventListener("click", loadStats);
-    // Auto-load when a key is already saved for this tab.
-    if ((sessionStorage.getItem("lh_admin_key") || "").trim()) loadStats();
-
     document.getElementById("createCourseForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        try { show(await api.adminCreateCourse(getKey(), fields(e.target,
-            ["title", "description", "category", "price", "instructor", "duration_hours", "level", "image_url"]))); }
-        catch (err) { fail(err); }
+        try {
+            const d = await api.adminCreateCourse(getKey(), formFields(e.target,
+                ["title", "description", "category", "price", "instructor", "duration_hours", "level", "image_url"]));
+            statusEl("courseFormStatus", "Course created (ID " + d.course.id + ").");
+            e.target.reset();
+            loadCourses();
+        } catch (err) { statusEl("courseFormStatus", err.message, true); }
     });
-
     document.getElementById("updateCourseForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = e.target.elements.id.value;
-        try { show(await api.adminUpdateCourse(getKey(), id, fields(e.target,
-            ["title", "price", "level", "description"]))); }
-        catch (err) { fail(err); }
+        try {
+            await api.adminUpdateCourse(getKey(), id, formFields(e.target,
+                ["title", "price", "level", "description", "category", "instructor", "duration_hours", "image_url"]));
+            statusEl("courseFormStatus", "Course " + id + " updated.");
+            loadCourses();
+        } catch (err) { statusEl("courseFormStatus", err.message, true); }
     });
 
-    document.getElementById("deleteCourseForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const id = e.target.elements.id.value;
-        if (!confirm("Delete course " + id + " and all its lessons?")) return;
-        try { show(await api.adminDeleteCourse(getKey(), id)); }
-        catch (err) { fail(err); }
+    /* ---------------- lessons & content ---------------- */
+    async function loadLessonCourses() {
+        if (!coursesCache.length) {
+            try { coursesCache = await api.getCourses({ per_page: 50 }); } catch (err) { statusEl("lessonsStatus", keyError(err), true); return; }
+        }
+        document.getElementById("lessonCourseSelect").innerHTML =
+            `<option value="">Select a course…</option>` + coursesCache.map((c) =>
+                `<option value="${c.id}">${c.id} — ${esc(c.title)}</option>`).join("");
+    }
+    document.getElementById("refreshLessonsBtn").addEventListener("click", loadLessons);
+    document.getElementById("lessonCourseSelect").addEventListener("change", loadLessons);
+    async function loadLessons() {
+        const courseId = document.getElementById("lessonCourseSelect").value;
+        if (!courseId) { document.getElementById("lessonsBody").innerHTML = `<tr><td colspan="7" class="admin-note">Pick a course above.</td></tr>`; return; }
+        document.getElementById("createLessonForm").elements.course_id.value = courseId;
+        statusEl("lessonsStatus", "Loading…");
+        try {
+            const d = await api.getLessons(courseId);
+            const rows = [];
+            for (const l of d) {
+                let quiz = 0, tasks = 0;
+                try { const c = await api.adminLessonContent(getKey(), l.id); quiz = c.quizzes.length; tasks = c.tasks.length; } catch (e) { /* content may be absent */ }
+                rows.push(`<tr><td>${l.id}</td><td>${esc(l.title)}</td><td>${l.duration_minutes || 0} min</td>` +
+                    `<td>${l.is_preview ? '<span class="badge badge-green">Free</span>' : "—"}</td><td>${quiz}</td><td>${tasks}</td>` +
+                    `<td><button class="btn-link" data-edit-content="${l.id}">Edit content</button></td></tr>`);
+            }
+            document.getElementById("lessonsBody").innerHTML = rows.join("") || `<tr><td colspan="7" class="admin-note">No lessons yet — add one below.</td></tr>`;
+            statusEl("lessonsStatus", d.length + " lessons.");
+        } catch (err) { statusEl("lessonsStatus", err.message, true); }
+    }
+    document.getElementById("lessonsBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-edit-content]");
+        if (btn) openLessonEditor(Number(btn.dataset.editContent));
     });
-
     document.getElementById("createLessonForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const courseId = e.target.elements.course_id.value;
-        try { show(await api.adminCreateLesson(getKey(), courseId, fields(e.target,
-            ["title", "content_url", "duration_minutes"]))); }
-        catch (err) { fail(err); }
+        try {
+            const d = await api.adminCreateLesson(getKey(), courseId, formFields(e.target, ["title", "content_url", "duration_minutes", "is_preview"]));
+            statusEl("lessonsStatus", "Lesson created (ID " + d.lesson.id + ").");
+            e.target.reset();
+            loadLessons();
+        } catch (err) { statusEl("lessonsStatus", err.message, true); }
+    });
+    async function openLessonEditor(lessonId) {
+        currentLessonId = lessonId;
+        statusEl("lessonContentStatus", "Loading…");
+        try {
+            const d = await api.adminLessonContent(getKey(), lessonId);
+            document.getElementById("lessonEditorCard").style.display = "";
+            document.getElementById("lessonEditorTitle").textContent = "Edit lesson content — " + d.lesson.title;
+            document.getElementById("editLessonId").value = lessonId;
+            document.getElementById("editLessonTitle").value = d.lesson.title || "";
+            document.getElementById("editLessonDuration").value = d.lesson.duration_minutes ?? 0;
+            document.getElementById("editLessonUrl").value = d.lesson.content_url || "";
+            document.getElementById("editLessonPreview").value = String(d.lesson.is_preview || 0);
+            document.getElementById("editLessonBody").value = d.content.body || "";
+            document.getElementById("editFlowchartTitle").value = d.content.flowchart_title || "";
+            document.getElementById("editFlowchartJson").value = d.content.flowchart_json || "";
+            document.getElementById("editVideoId").value = d.content.video_id || "";
+            document.getElementById("editVideoTitle").value = d.content.video_title || "";
+            document.getElementById("flowchartPreview").style.display = "none";
+            renderMcqs(d.quizzes);
+            renderTasks(d.tasks);
+            document.getElementById("lessonEditorCard").scrollIntoView({ behavior: "smooth" });
+            statusEl("lessonContentStatus", "");
+        } catch (err) { statusEl("lessonContentStatus", keyError(err), true); }
+    }
+    document.getElementById("lessonContentForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = Number(document.getElementById("editLessonId").value);
+        const title = document.getElementById("editLessonTitle").value;
+        const duration = document.getElementById("editLessonDuration").value;
+        const url = document.getElementById("editLessonUrl").value;
+        const preview = document.getElementById("editLessonPreview").value;
+        let fc = document.getElementById("editFlowchartJson").value.trim();
+        try {
+            const fields = {
+                body: document.getElementById("editLessonBody").value,
+                flowchart_title: document.getElementById("editFlowchartTitle").value,
+                flowchart_json: fc === "" ? null : JSON.parse(fc),
+                video_id: document.getElementById("editVideoId").value,
+                video_title: document.getElementById("editVideoTitle").value,
+            };
+            await api.adminUpdateLessonContent(getKey(), id, fields);
+            const lessonFields = {};
+            if (title) lessonFields.title = title;
+            if (duration !== "") lessonFields.duration_minutes = duration;
+            if (url) lessonFields.content_url = url;
+            lessonFields.is_preview = Number(preview);
+            await api.adminUpdateLesson(getKey(), id, lessonFields);
+            statusEl("lessonContentStatus", "Lesson content saved.");
+            loadLessons();
+        } catch (err) { statusEl("lessonContentStatus", err.message, true); }
+    });
+    document.getElementById("previewFlowchartBtn").addEventListener("click", () => {
+        const box = document.getElementById("flowchartPreview");
+        try {
+            const fc = JSON.parse(document.getElementById("editFlowchartJson").value || "null");
+            if (!fc) { box.style.display = "none"; return; }
+            box.style.display = "";
+            window.LearnHubFlowchart.render(box, fc);
+        } catch (err) { box.style.display = ""; box.innerHTML = `<p class="status-line error">Invalid flowchart JSON: ${esc(err.message)}</p>`; }
+    });
+    document.getElementById("deleteLessonBtn").addEventListener("click", async () => {
+        if (!currentLessonId || !confirm("Delete lesson " + currentLessonId + " and all its content, quizzes and tasks?")) return;
+        try {
+            await api.adminDeleteLesson(getKey(), currentLessonId);
+            document.getElementById("lessonEditorCard").style.display = "none";
+            currentLessonId = null;
+            statusEl("lessonsStatus", "Lesson deleted.");
+            loadLessons();
+        } catch (err) { statusEl("lessonContentStatus", err.message, true); }
+    });
+    function renderMcqs(quizzes) {
+        document.getElementById("mcqCount").textContent = "(" + quizzes.length + " questions)";
+        const letters = ["A", "B", "C", "D"];
+        document.getElementById("mcqList").innerHTML = quizzes.map((q) => {
+            const opts = JSON.parse(q.options_json || "[]");
+            return `<div class="admin-card" style="padding: 14px; margin-bottom: 10px;">
+                <strong>Q${q.id}.</strong> ${esc(q.question)}
+                <ol type="A" style="margin: 6px 0 6px 20px;">${opts.map((o, i) =>
+                    `<li${i === q.answer_index ? ' style="font-weight:700; color:#166534;"' : ""}>${esc(o)}${i === q.answer_index ? " ✓" : ""}</li>`).join("")}</ol>
+                ${q.explanation ? `<p class="admin-note">Why: ${esc(q.explanation)}</p>` : ""}
+                <button class="btn-link" data-mcq-edit="${q.id}">Edit</button> ·
+                <button class="btn-link" data-mcq-del="${q.id}">Delete</button>
+            </div>`;
+        }).join("") || `<p class="admin-note">No questions yet — add the first one below.</p>`;
+        document.getElementById("mcqList").dataset.items = JSON.stringify(quizzes);
+    }
+    document.getElementById("mcqList").addEventListener("click", async (e) => {
+        const editBtn = e.target.closest("button[data-mcq-edit]");
+        const delBtn = e.target.closest("button[data-mcq-del]");
+        const items = JSON.parse(document.getElementById("mcqList").dataset.items || "[]");
+        if (editBtn) {
+            const q = items.find((x) => x.id === Number(editBtn.dataset.mcqEdit));
+            if (!q) return;
+            const opts = JSON.parse(q.options_json || "[]");
+            document.getElementById("mcqId").value = q.id;
+            document.getElementById("mcqQuestion").value = q.question;
+            opts.forEach((o, i) => { document.getElementById("mcqOpt" + i).value = o; });
+            document.getElementById("mcqAnswer").value = String(q.answer_index);
+            document.getElementById("mcqWhy").value = q.explanation || "";
+            document.getElementById("mcqSaveBtn").textContent = "Save changes";
+            document.getElementById("mcqCancelBtn").style.display = "";
+            document.getElementById("mcqForm").scrollIntoView({ behavior: "smooth" });
+        } else if (delBtn) {
+            if (!confirm("Delete this question?")) return;
+            try { await api.adminDeleteQuiz(getKey(), delBtn.dataset.mcqDel); openLessonEditor(currentLessonId); }
+            catch (err) { statusEl("lessonContentStatus", err.message, true); }
+        }
+    });
+    document.getElementById("mcqCancelBtn").addEventListener("click", () => {
+        document.getElementById("mcqForm").reset();
+        document.getElementById("mcqId").value = "";
+        document.getElementById("mcqSaveBtn").textContent = "Add question";
+        document.getElementById("mcqCancelBtn").style.display = "none";
+    });
+    document.getElementById("mcqForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("mcqId").value;
+        const body = {
+            question: document.getElementById("mcqQuestion").value,
+            options: [0, 1, 2, 3].map((i) => document.getElementById("mcqOpt" + i).value),
+            answer_index: Number(document.getElementById("mcqAnswer").value),
+            explanation: document.getElementById("mcqWhy").value,
+        };
+        try {
+            if (id) await api.adminUpdateQuiz(getKey(), id, body);
+            else await api.adminAddQuiz(getKey(), currentLessonId, body);
+            document.getElementById("mcqCancelBtn").click();
+            openLessonEditor(currentLessonId);
+        } catch (err) { statusEl("lessonContentStatus", err.message, true); }
+    });
+    function renderTasks(tasks) {
+        document.getElementById("taskCount").textContent = "(" + tasks.length + " tasks)";
+        document.getElementById("taskList").innerHTML = tasks.map((t) =>
+            `<div class="admin-card" style="padding: 14px; margin-bottom: 10px;">
+                <span class="badge badge-blue">${esc(t.type)}</span> <strong>${esc(t.title)}</strong>
+                <p class="admin-note">${esc(t.prompt)}</p>
+                ${t.code ? `<pre class="code-box" style="white-space: pre-wrap;">${esc(t.code)}</pre>` : ""}
+                <button class="btn-link" data-task-edit="${t.id}">Edit</button> ·
+                <button class="btn-link" data-task-del="${t.id}">Delete</button>
+            </div>`).join("") || `<p class="admin-note">No tasks yet — add the first one below.</p>`;
+        document.getElementById("taskList").dataset.items = JSON.stringify(tasks);
+    }
+    document.getElementById("taskList").addEventListener("click", async (e) => {
+        const editBtn = e.target.closest("button[data-task-edit]");
+        const delBtn = e.target.closest("button[data-task-del]");
+        const items = JSON.parse(document.getElementById("taskList").dataset.items || "[]");
+        if (editBtn) {
+            const t = items.find((x) => x.id === Number(editBtn.dataset.taskEdit));
+            if (!t) return;
+            document.getElementById("taskId").value = t.id;
+            document.getElementById("taskType").value = t.type;
+            document.getElementById("taskTitle").value = t.title;
+            document.getElementById("taskPrompt").value = t.prompt;
+            document.getElementById("taskCode").value = t.code || "";
+            document.getElementById("taskExpected").value = t.expected || "";
+            document.getElementById("taskAnswer").value = t.answer || "";
+            document.getElementById("taskHint").value = t.hint || "";
+            document.getElementById("taskSaveBtn").textContent = "Save changes";
+            document.getElementById("taskCancelBtn").style.display = "";
+            document.getElementById("taskForm").scrollIntoView({ behavior: "smooth" });
+        } else if (delBtn) {
+            if (!confirm("Delete this task?")) return;
+            try { await api.adminDeleteTask(getKey(), delBtn.dataset.taskDel); openLessonEditor(currentLessonId); }
+            catch (err) { statusEl("lessonContentStatus", err.message, true); }
+        }
+    });
+    document.getElementById("taskCancelBtn").addEventListener("click", () => {
+        document.getElementById("taskForm").reset();
+        document.getElementById("taskId").value = "";
+        document.getElementById("taskSaveBtn").textContent = "Add task";
+        document.getElementById("taskCancelBtn").style.display = "none";
+    });
+    document.getElementById("taskForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("taskId").value;
+        const body = {
+            type: document.getElementById("taskType").value,
+            title: document.getElementById("taskTitle").value,
+            prompt: document.getElementById("taskPrompt").value,
+            code: document.getElementById("taskCode").value,
+            expected: document.getElementById("taskExpected").value,
+            answer: document.getElementById("taskAnswer").value,
+            hint: document.getElementById("taskHint").value,
+        };
+        try {
+            if (id) await api.adminUpdateTask(getKey(), id, body);
+            else await api.adminAddTask(getKey(), currentLessonId, body);
+            document.getElementById("taskCancelBtn").click();
+            openLessonEditor(currentLessonId);
+        } catch (err) { statusEl("lessonContentStatus", err.message, true); }
     });
 
-    document.getElementById("updateLessonForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const id = e.target.elements.id.value;
-        try { show(await api.adminUpdateLesson(getKey(), id, fields(e.target,
-            ["title", "content_url", "duration_minutes"]))); }
-        catch (err) { fail(err); }
+    /* ---------------- users ---------------- */
+    async function loadUsers(page) {
+        usersPage = page;
+        statusEl("usersStatus", "Loading…");
+        try {
+            const q = document.getElementById("userSearch").value.trim();
+            const d = await api.adminUsers(getKey(), q, page);
+            usersTotalPages = d.pages;
+            document.getElementById("usersBody").innerHTML = d.users.map((u) =>
+                `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${dateOnly(u.created_at)}</td>` +
+                `<td>${u.enrollments}</td><td>${u.certificates}</td><td>${scoreBadge(u.avg_quiz_percent)}</td>` +
+                `<td><button class="btn-link" data-user="${u.id}">View</button></td></tr>`).join("")
+                || `<tr><td colspan="7" class="admin-note">No users found.</td></tr>`;
+            document.getElementById("usersPageInfo").textContent = "Page " + d.page + " of " + d.pages + " (" + d.total + " users)";
+            statusEl("usersStatus", "");
+        } catch (err) { statusEl("usersStatus", keyError(err), true); }
+    }
+    document.getElementById("searchUsersBtn").addEventListener("click", () => loadUsers(1));
+    document.getElementById("userSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") loadUsers(1); });
+    document.getElementById("usersPrevBtn").addEventListener("click", () => { if (usersPage > 1) loadUsers(usersPage - 1); });
+    document.getElementById("usersNextBtn").addEventListener("click", () => { if (usersPage < usersTotalPages) loadUsers(usersPage + 1); });
+    document.getElementById("usersBody").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-user]");
+        if (!btn) return;
+        try {
+            const d = await api.adminUser(getKey(), btn.dataset.user);
+            const card = document.getElementById("userDetailCard");
+            card.style.display = "";
+            document.getElementById("userDetailTitle").textContent = d.user.name + " — " + d.user.email;
+            const rows = d.enrollments.map((en) =>
+                `<tr><td>${esc(en.course_title)}</td><td>${dateOnly(en.enrolled_at)}</td>` +
+                `<td><div class="progress"><span style="width:${en.progress_percent || 0}%"></span></div>${(en.progress_percent || 0).toFixed(0)}% (${en.completed_lessons}/${en.total_lessons} lessons)</td>` +
+                `<td>${scoreBadge(en.avg_quiz_percent)}</td><td>${en.tasks_done}</td>` +
+                `<td>${en.certificate_code ? `<span class="badge badge-green">${esc(en.certificate_code)}</span>` : "—"}</td></tr>`).join("")
+                || `<tr><td colspan="6" class="admin-note">Not enrolled in any course yet.</td></tr>`;
+            document.getElementById("userDetailBody").innerHTML =
+                `<p class="admin-note">Joined ${dateOnly(d.user.created_at)} · ${d.certificates.length} certificate(s)</p>` +
+                `<div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>Enrolled</th><th>Progress</th><th>Quiz avg</th><th>Tasks done</th><th>Certificate</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+            card.scrollIntoView({ behavior: "smooth" });
+        } catch (err) { statusEl("usersStatus", err.message, true); }
     });
 
-    document.getElementById("deleteLessonForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const id = e.target.elements.id.value;
-        if (!confirm("Delete lesson " + id + "?")) return;
-        try { show(await api.adminDeleteLesson(getKey(), id)); }
-        catch (err) { fail(err); }
+    /* ---------------- learning ---------------- */
+    async function loadLearning() {
+        statusEl("learningStatus", "Loading…");
+        try {
+            const d = await api.adminAnalytics(getKey());
+            document.getElementById("analyticsBody").innerHTML = d.courses.map((c) =>
+                `<tr><td>${esc(c.title)}</td><td>${c.enrollments}</td><td>${scoreBadge(c.avg_quiz_percent)}</td>` +
+                `<td>${c.tasks_done} / ${c.tasks_total}</td><td>${pct(c.task_completion_rate)}</td></tr>`).join("");
+            document.getElementById("weakestBody").innerHTML = d.weakest_lessons.map((l) =>
+                `<tr><td>${esc(l.title)}</td><td>${esc(l.course_title)}</td><td>${l.attempts}</td>` +
+                `<td>${scoreBadge(l.avg_percent)}</td>` +
+                `<td><button class="btn-link" data-weak-lesson="${l.id}" data-weak-course="${l.course_id}">Fix it</button></td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No quiz attempts yet — weakest lessons will appear once learners take quizzes.</td></tr>`;
+            statusEl("learningStatus", "");
+        } catch (err) { statusEl("learningStatus", keyError(err), true); }
+    }
+    document.getElementById("weakestBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-weak-lesson]");
+        if (!btn) return;
+        document.querySelector('.admin-nav-btn[data-section="lessons"]').click();
+        document.getElementById("lessonCourseSelect").value = String(btn.dataset.weakCourse);
+        loadLessons().then(() => openLessonEditor(Number(btn.dataset.weakLesson)));
     });
+
+    /* ---------------- orders ---------------- */
+    async function loadOrders(page) {
+        ordersPage = page;
+        statusEl("ordersStatus", "Loading…");
+        try {
+            const d = await api.adminOrders(getKey(), page);
+            ordersTotalPages = d.pages;
+            const avg = d.total ? Math.round(d.revenue / d.total) : 0;
+            document.getElementById("orderSummary").innerHTML =
+                `<div class="stats-grid">` +
+                `<div class="stat-card"><div class="stat-value">${inr(d.revenue)}</div><div class="stat-label">Revenue (completed)</div></div>` +
+                `<div class="stat-card"><div class="stat-value">${d.total}</div><div class="stat-label">Orders</div></div>` +
+                `<div class="stat-card"><div class="stat-value">${inr(avg)}</div><div class="stat-label">Avg order value</div></div></div>`;
+            document.getElementById("courseRevenueBody").innerHTML = d.per_course_revenue.map((c) =>
+                `<tr><td>${esc(c.title)}</td><td>${c.enrollments}</td><td>${inr(c.revenue)}</td></tr>`).join("");
+            document.getElementById("ordersBody").innerHTML = d.orders.map((o) =>
+                `<tr><td>#${o.id}</td><td>${esc(o.user_name)}<br><span class="admin-note">${esc(o.user_email)}</span></td>` +
+                `<td>${inr(o.total)}</td><td><span class="badge ${o.status === "completed" ? "badge-green" : "badge-amber"}">${esc(o.status)}</span></td>` +
+                `<td>${dateOnly(o.created_at)}</td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No orders yet.</td></tr>`;
+            document.getElementById("ordersPageInfo").textContent = "Page " + d.page + " of " + d.pages + " (" + d.total + " orders)";
+            statusEl("ordersStatus", "");
+        } catch (err) { statusEl("ordersStatus", keyError(err), true); }
+    }
+    document.getElementById("ordersPrevBtn").addEventListener("click", () => { if (ordersPage > 1) loadOrders(ordersPage - 1); });
+    document.getElementById("ordersNextBtn").addEventListener("click", () => { if (ordersPage < ordersTotalPages) loadOrders(ordersPage + 1); });
+
+    /* ---------------- certificates ---------------- */
+    async function loadCerts(page) {
+        certsPage = page;
+        statusEl("certsStatus", "Loading…");
+        try {
+            const q = document.getElementById("certSearch").value.trim();
+            const d = await api.adminCertificates(getKey(), q, page);
+            certsTotalPages = d.pages;
+            document.getElementById("certsBody").innerHTML = d.certificates.map((c) =>
+                `<tr><td><span class="badge badge-blue">${esc(c.certificate_code)}</span></td>` +
+                `<td>${esc(c.student_name)}<br><span class="admin-note">${esc(c.student_email)}</span></td>` +
+                `<td>${esc(c.course_title)}</td><td>${dateOnly(c.issued_at)}</td>` +
+                `<td><a class="btn-link" href="certificate.html?id=${c.id}">View</a></td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No certificates issued yet.</td></tr>`;
+            document.getElementById("certsPageInfo").textContent = "Page " + d.page + " of " + d.pages + " (" + d.total + " certificates)";
+            statusEl("certsStatus", "");
+        } catch (err) { statusEl("certsStatus", keyError(err), true); }
+    }
+    document.getElementById("searchCertsBtn").addEventListener("click", () => loadCerts(1));
+    document.getElementById("certSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") loadCerts(1); });
+    document.getElementById("certsPrevBtn").addEventListener("click", () => { if (certsPage > 1) loadCerts(certsPage - 1); });
+    document.getElementById("certsNextBtn").addEventListener("click", () => { if (certsPage < certsTotalPages) loadCerts(certsPage + 1); });
+
+    /* ---------------- announcements ---------------- */
+    async function loadAnnouncements() {
+        statusEl("annStatus", "Loading…");
+        try {
+            const d = await api.adminAnnouncements(getKey());
+            document.getElementById("annBody2").innerHTML = d.announcements.map((a) =>
+                `<tr><td>${esc(a.title)}</td><td>${esc(a.body)}</td><td>${dateOnly(a.created_at)}</td>` +
+                `<td><button class="btn btn-danger-outline btn-small" data-ann-del="${a.id}" type="button">Delete</button></td></tr>`).join("")
+                || `<tr><td colspan="4" class="admin-note">No announcements yet.</td></tr>`;
+            statusEl("annStatus", "");
+        } catch (err) { statusEl("annStatus", keyError(err), true); }
+    }
+    document.getElementById("createAnnouncementForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+            await api.adminCreateAnnouncement(getKey(), { title: document.getElementById("annTitle").value.trim(), body: document.getElementById("annBody").value.trim() });
+            statusEl("annFormStatus", "Announcement posted.");
+            e.target.reset();
+            loadAnnouncements();
+        } catch (err) { statusEl("annFormStatus", keyError(err), true); }
+    });
+    document.getElementById("annBody2").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-ann-del]");
+        if (!btn) return;
+        if (!confirm("Delete this announcement?")) return;
+        try { await api.adminDeleteAnnouncement(getKey(), btn.dataset.annDel); loadAnnouncements(); }
+        catch (err) { statusEl("annStatus", keyError(err), true); }
+    });
+
+    /* ---------------- discussions (moderation) ---------------- */
+    async function loadDiscussionsAdmin() {
+        statusEl("discussionsStatus", "Loading…");
+        try {
+            const d = await api.adminDiscussions(getKey());
+            document.getElementById("discussionsBody").innerHTML = d.discussions.map((x) =>
+                `<tr><td>${esc(x.user_name)}</td><td>${esc(x.course_title)}<br><span class="admin-note">${esc(x.lesson_title)}</span>${x.parent_id ? '<br><span class="badge badge-grey">reply</span>' : ""}</td>` +
+                `<td>${esc(x.body)}</td><td>${dateOnly(x.created_at)}</td>` +
+                `<td><button class="btn btn-danger-outline btn-small" data-disc-del="${x.id}" type="button">Delete</button></td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No discussions yet.</td></tr>`;
+            statusEl("discussionsStatus", "");
+        } catch (err) { statusEl("discussionsStatus", keyError(err), true); }
+    }
+    document.getElementById("refreshDiscussionsBtn").addEventListener("click", loadDiscussionsAdmin);
+    document.getElementById("discussionsBody").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-disc-del]");
+        if (!btn) return;
+        if (!confirm("Delete this discussion post? Replies to it are removed too.")) return;
+        try { await api.adminDeleteDiscussion(getKey(), btn.dataset.discDel); loadDiscussionsAdmin(); }
+        catch (err) { statusEl("discussionsStatus", keyError(err), true); }
+    });
+
+    /* ---------------- boot ---------------- */
+    if (getKey(false)) loadDashboard();
 })();
 </script>
 

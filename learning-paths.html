@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LearnHub learning paths — guided course sequences for Python Developer, Web Developer, AI & ML Engineer and C & DSA Foundations.">
+    <meta property="og:title" content="Learning Paths - LearnHub">
+    <meta property="og:description" content="Follow a guided path instead of picking courses one by one.">
+    <meta property="og:type" content="website">
+    <title>Learning Paths - LearnHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="learning-paths.html" class="nav-link active">Learning Paths</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+        </nav>
+        <div class="nav-actions"><a href="my-courses.html" class="nav-link">My Courses</a></div>
+    </div>
+</header>
+<main class="section">
+    <div class="container">
+        <span class="section-tag">Learning Paths</span>
+        <h1>Follow a path, not a pile of courses</h1>
+        <p>Each path is a guided sequence of real LearnHub courses, in the order you should take them. Finish a path and you will have the skills — and the certificates — to prove it.</p>
+        <div id="pathsRoot" class="path-grid"><p>Loading learning paths…</p></div>
+        <p style="margin-top:24px"><a href="dashboard.html" class="btn btn-outline">My Dashboard</a> <a href="courses.html" class="btn btn-primary">Browse All Courses</a></p>
+    </div>
+</main>
+<footer class="footer"><div class="container footer-grid">
+    <div class="footer-column"><a href="index.html" class="footer-logo">Learn<span>Hub</span></a><p>Learn new skills and build your future.</p></div>
+    <div class="footer-column"><h3>Quick Links</h3><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="dashboard.html">Dashboard</a><a href="learning-paths.html">Learning Paths</a><a href="instructors.html">Instructors</a></div>
+    <div class="footer-column"><h3>Support</h3><a href="help.html">Help</a><a href="announcements.html">Announcements</a><a href="faq.html">FAQ</a><a href="terms.html">Terms</a><a href="privacy-policy.html">Privacy Policy</a></div>
+</div><div class="footer-bottom"><div class="container"><p>© 2026 LearnHub. All Rights Reserved.</p></div></div></footer>
+<script src="js/api.js"></script>
+<script>
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    var enrolledIds = {};
+    async function load() {
+        var root = document.getElementById("pathsRoot");
+        var paths;
+        try { paths = await LearnHubAPI.getLearningPaths(); }
+        catch (e) { root.innerHTML = "<p>Learning paths are unavailable right now: " + esc(e.message) + "</p>"; return; }
+        if (localStorage.getItem("lh_token")) {
+            try {
+                var d = await LearnHubAPI.getDashboard();
+                d.continue_learning.forEach(function (c) { enrolledIds[c.course_id] = c.progress_percent; });
+            } catch (e) { /* progress is optional */ }
+        }
+        root.innerHTML = paths.map(function (p) {
+            var steps = p.courses.map(function (c, i) {
+                var prog = enrolledIds[c.id];
+                var tag = prog === undefined ? "" : (prog >= 100 ? ' <span class="preview-badge">✓ done</span>' : ' <span class="preview-badge">' + prog + '%</span>');
+                return '<li class="path-step"><span class="path-step-num">' + (i + 1) + '</span>' +
+                    '<div><strong>' + esc(c.title) + '</strong> <small>· ' + esc(c.level) + '</small>' + tag +
+                    '<br><a href="course-details.html?id=' + c.id + '" class="btn btn-outline btn-small">View course</a></div></li>';
+            }).join("");
+            return '<article class="path-card"><h2>' + esc(p.title) + '</h2><p>' + esc(p.description) + '</p>' +
+                '<p><small>📚 ' + p.course_count + ' courses &nbsp;•&nbsp; ⏱ ' + p.duration_hours + ' hours</small></p>' +
+                '<ol class="path-steps">' + steps + '</ol>' +
+                (p.courses.length ? '<a href="course-details.html?id=' + p.courses[0].id + '" class="btn btn-primary">Start this path</a>' : "") +
+                '</article>';
+        }).join("");
+    }
+    document.addEventListener("DOMContentLoaded", load);
+})();
+</script>
+</body>
+</html>

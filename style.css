@@ -1526,3 +1526,46 @@ button {
     border-radius: 8px;
     font-size: 0.95rem;
 }
+
+/* =========================================================
+   Professional LMS upgrade (8 Nov 2026): dashboard, paths,
+   badges, leaderboard, notes, discussion, bookmarks.
+   ========================================================= */
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+.stat-card { background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+.stat-label { color: var(--muted); font-size: .9rem; }
+.xp-card { background: linear-gradient(135deg, #eef2ff, #f5f3ff); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 20px 0; }
+.xp-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak-flame { font-weight: 700; font-size: 1.1rem; }
+.xp-bar { height: 12px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin: 10px 0; }
+.xp-fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width .4s; }
+.badge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0 24px; }
+.badge-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; background: var(--white); }
+.badge-card.earned { border-color: var(--primary); background: #eef2ff; }
+.badge-card.locked { opacity: .55; filter: grayscale(1); }
+.badge-icon { font-size: 2rem; }
+.activity-list { list-style: none; margin: 12px 0 24px; }
+.activity-list li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.announce-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin: 12px 0; background: var(--light); }
+.leaderboard-table td, .leaderboard-table th { padding: 10px 12px; }
+.path-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+.path-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; background: var(--white); box-shadow: var(--shadow); }
+.path-steps { list-style: none; margin: 16px 0; padding: 0; }
+.path-step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.path-step-num { width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.discuss-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin: 12px 0; background: var(--white); }
+.discuss-reply { margin: 10px 0 0 20px; padding: 10px 12px; background: var(--light); border-left: 3px solid var(--primary); border-radius: 8px; }
+.reply-form { margin-top: 10px; display: flex; gap: 8px; }
+.reply-form input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; }
+.note-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin: 10px 0; background: #fffbeb; }
+.lesson-notes, .lesson-discussion { margin-top: 28px; }
+.lesson-notes textarea, .lesson-discussion textarea { padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+.instructor-card { text-align: center; }
+.instructor-avatar { width: 72px; height: 72px; margin: 0 auto 10px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; }
+.empty-state { text-align: center; padding: 32px 16px; border: 1px dashed var(--border); border-radius: var(--radius); margin: 20px 0; }
+@media (max-width: 720px) {
+    .stat-grid, .badge-grid, .path-grid { grid-template-columns: 1fr; }
+    .xp-head { flex-direction: column; align-items: flex-start; }
+    .reply-form { flex-direction: column; }
+}

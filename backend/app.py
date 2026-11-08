@@ -14,6 +14,7 @@ Env vars (see backend/.env.example):
 """
 
 import hashlib
+from datetime import date, timedelta
 import json
 import math
 import mimetypes
@@ -64,12 +65,72 @@ def init_db():
         pass
 
 
+ANNOUNCEMENTS_SEED = [
+    ("Welcome to the new LearnHub dashboard",
+     "Your learning is now in one place: XP, streaks, badges, your leaderboard rank and everything you are working on. Sign in and open your Dashboard to see your progress."),
+    ("New: Python, C, DSA, Java & SQL learning paths are live",
+     "Follow a guided path instead of picking courses one by one. Open Learning Paths from the menu and start with the path that matches your goal."),
+    ("Certificates are now verifiable - share your LH- code with recruiters",
+     "Every certificate has a unique LH- code. Anyone can verify it at certificate.html - share the code on your resume or LinkedIn."),
+]
+
+
+def _seed_announcements(conn):
+    try:
+        n = conn.execute("SELECT COUNT(*) AS n FROM announcements").fetchone()["n"]
+        if n == 0:
+            for title, body in ANNOUNCEMENTS_SEED:
+                conn.execute("INSERT INTO announcements (title, body) VALUES (?, ?)",
+                             (title, body))
+            conn.commit()
+    except Exception as e:
+        print(f"[learnhub] announcement seed skipped: {e!r}")
+
+
 def _migrate_schema(conn):
     """Additive migrations for DBs created before a schema change.
 
     CREATE TABLE IF NOT EXISTS covers fresh DBs; ALTER TABLE covers
     existing ones. The preview backfill is idempotent - safe every start.
     """
+    try:
+        conn.executescript("""
+CREATE TABLE IF NOT EXISTS announcements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS lesson_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    note TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS lesson_bookmarks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, lesson_id)
+);
+CREATE TABLE IF NOT EXISTS discussions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    parent_id INTEGER REFERENCES discussions(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_notes_user_lesson ON lesson_notes(user_id, lesson_id);
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON lesson_bookmarks(user_id);
+CREATE INDEX IF NOT EXISTS idx_discussions_lesson ON discussions(lesson_id);
+""")
+        conn.commit()
+        _seed_announcements(conn)
+    except Exception as e:
+        print(f"[learnhub] pro-lms migration skipped: {e!r}")
     try:
         cols = [r["name"] for r in conn.execute("PRAGMA table_info(lessons)")]
         if "is_preview" not in cols:
@@ -295,6 +356,42 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("PUT",    r"^/api/admin/lessons/(\d+)$",    self.api_admin_lesson_update),
             ("DELETE", r"^/api/admin/lessons/(\d+)$",    self.api_admin_lesson_delete),
             ("GET",    r"^/api/admin/stats$",            self.api_admin_stats),
+            ("GET",    r"^/api/admin/overview$",         self.api_admin_overview),
+            ("GET",    r"^/api/admin/users$",            self.api_admin_users),
+            ("GET",    r"^/api/admin/users/(\d+)$",      self.api_admin_user),
+            ("GET",    r"^/api/admin/orders$",           self.api_admin_orders),
+            ("GET",    r"^/api/admin/certificates$",     self.api_admin_certificates),
+            ("GET",    r"^/api/admin/analytics$",        self.api_admin_analytics),
+            ("GET",    r"^/api/admin/lessons/(\d+)/content$",
+                                                     self.api_admin_lesson_content),
+            ("PUT",    r"^/api/admin/lessons/(\d+)/content$",
+                                                     self.api_admin_lesson_content_update),
+            ("POST",   r"^/api/admin/lessons/(\d+)/quiz$",
+                                                     self.api_admin_quiz_add),
+            ("PUT",    r"^/api/admin/quiz/(\d+)$",      self.api_admin_quiz_update),
+            ("DELETE", r"^/api/admin/quiz/(\d+)$",      self.api_admin_quiz_delete),
+            ("POST",   r"^/api/admin/lessons/(\d+)/tasks$",
+                                                     self.api_admin_task_add),
+            ("PUT",    r"^/api/admin/tasks/(\d+)$",     self.api_admin_task_update),
+            ("DELETE", r"^/api/admin/tasks/(\d+)$",     self.api_admin_task_delete),
+            ("GET",    r"^/api/me/dashboard$",          self.api_me_dashboard),
+            ("GET",    r"^/api/leaderboard$",            self.api_leaderboard),
+            ("GET",    r"^/api/announcements$",          self.api_announcements),
+            ("GET",    r"^/api/learning-paths$",         self.api_learning_paths),
+            ("GET",    r"^/api/lessons/(\d+)/notes$",    self.api_lesson_notes_get),
+            ("POST",   r"^/api/lessons/(\d+)/notes$",    self.api_lesson_notes_post),
+            ("DELETE", r"^/api/notes/(\d+)$",            self.api_note_delete),
+            ("POST",   r"^/api/lessons/(\d+)/bookmark$", self.api_lesson_bookmark_add),
+            ("DELETE", r"^/api/lessons/(\d+)/bookmark$", self.api_lesson_bookmark_del),
+            ("GET",    r"^/api/me/bookmarks$",            self.api_me_bookmarks),
+            ("GET",    r"^/api/lessons/(\d+)/discussions$", self.api_lesson_discussions_get),
+            ("POST",   r"^/api/lessons/(\d+)/discussions$", self.api_lesson_discussions_post),
+            ("POST",   r"^/api/discussions/(\d+)/reply$", self.api_discussion_reply),
+            ("GET",    r"^/api/admin/announcements$",     self.api_admin_announcements),
+            ("POST",   r"^/api/admin/announcements$",     self.api_admin_announcement_create),
+            ("DELETE", r"^/api/admin/announcements/(\d+)$", self.api_admin_announcement_delete),
+            ("GET",    r"^/api/admin/discussions$",       self.api_admin_discussions),
+            ("DELETE", r"^/api/admin/discussions/(\d+)$", self.api_admin_discussion_delete),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
             ("POST",   r"^/api/logout$",                 self.api_logout),
@@ -1671,6 +1768,667 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             "popular_courses": [row_to_dict(r) for r in popular],
         })
 
+    # -- admin dashboard: overview, users, orders, certificates, -------
+    # -- learning analytics, and lesson-content / quiz / task editing ---
+    # All of these are admin-key gated (same ?key= / X-Admin-Key rule).
+
+    def _admin_page(self):
+        """Parse ?page= (1-based, default 1) and ?per_page= (1..50,
+        default 20) from the request query string."""
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        try:
+            page = max(1, int(qs.get("page", ["1"])[0]))
+        except (TypeError, ValueError):
+            page = 1
+        try:
+            per_page = int(qs.get("per_page", ["20"])[0])
+        except (TypeError, ValueError):
+            per_page = 20
+        per_page = max(1, min(50, per_page))
+        return page, per_page, (qs.get("q", [""])[0] or "").strip()
+
+    def _admin_paged(self, payload, total, page, per_page):
+        payload["page"] = page
+        payload["per_page"] = per_page
+        payload["total"] = total
+        payload["pages"] = max(1, -(-total // per_page))
+        return payload
+
+    def api_admin_overview(self):
+        """Dashboard overview for admin.html.
+
+        Totals (users, courses, lessons, enrolments, revenue from
+        completed orders, quiz attempts, average quiz score, certificates
+        issued), the 5 most popular courses, the 10 most recent
+        enrolments and the 10 most recently registered users.
+        """
+        if not self._require_admin():
+            return
+        conn = db()
+        one = lambda sql, args=(): conn.execute(sql, args).fetchone()[0]
+        total_users = one("SELECT COUNT(*) FROM users")
+        total_courses = one("SELECT COUNT(*) FROM courses")
+        total_lessons = one("SELECT COUNT(*) FROM lessons")
+        total_enrollments = one("SELECT COUNT(*) FROM enrollments")
+        revenue = one("SELECT COALESCE(SUM(total), 0) FROM orders"
+                      " WHERE status = 'completed'")
+        quiz_attempts = one("SELECT COUNT(*) FROM quiz_attempts")
+        avg_quiz = conn.execute(
+            "SELECT ROUND(AVG(score * 100.0 / NULLIF(total, 0)), 1)"
+            " FROM quiz_attempts WHERE total > 0").fetchone()[0]
+        certificates = one("SELECT COUNT(*) FROM certificates")
+        popular = conn.execute(
+            """SELECT c.id, c.title, c.category, c.price,
+                      COUNT(e.id) AS enrollments,
+                      COUNT(e.id) * c.price AS revenue
+               FROM courses c LEFT JOIN enrollments e ON e.course_id = c.id
+               GROUP BY c.id ORDER BY enrollments DESC, c.id LIMIT 5"""
+        ).fetchall()
+        recent_enrollments = conn.execute(
+            """SELECT e.id, e.enrolled_at, u.name AS user_name,
+                      u.email AS user_email, c.title AS course_title
+               FROM enrollments e
+               JOIN users u ON u.id = e.user_id
+               JOIN courses c ON c.id = e.course_id
+               ORDER BY e.enrolled_at DESC, e.id DESC LIMIT 10"""
+        ).fetchall()
+        recent_users = conn.execute(
+            """SELECT u.id, u.name, u.email, u.created_at,
+                      (SELECT COUNT(*) FROM enrollments e
+                        WHERE e.user_id = u.id) AS enrollments
+               FROM users u ORDER BY u.created_at DESC, u.id DESC LIMIT 10"""
+        ).fetchall()
+        conn.close()
+        self._ok({
+            "total_users": total_users,
+            "total_courses": total_courses,
+            "total_lessons": total_lessons,
+            "total_enrollments": total_enrollments,
+            "revenue": revenue,
+            "quiz_attempts": quiz_attempts,
+            "avg_quiz_percent": avg_quiz,
+            "certificates_issued": certificates,
+            "popular_courses": [row_to_dict(r) for r in popular],
+            "recent_enrollments": [row_to_dict(r) for r in recent_enrollments],
+            "recent_users": [row_to_dict(r) for r in recent_users],
+        })
+
+    def api_admin_users(self):
+        """List users for admin.html (searchable by name/email).
+
+        Each user carries enrolment + certificate counts and their
+        average quiz score across all attempts (null when never quizzed).
+        """
+        if not self._require_admin():
+            return
+        page, per_page, q = self._admin_page()
+        conn = db()
+        where, args = "", []
+        if q:
+            where = "WHERE LOWER(name) LIKE ? OR LOWER(email) LIKE ?"
+            args = [f"%{q.lower()}%", f"%{q.lower()}%"]
+        total = conn.execute(
+            f"SELECT COUNT(*) FROM users {where}", args).fetchone()[0]
+        rows = conn.execute(
+            f"""SELECT u.id, u.name, u.email, u.created_at,
+                       (SELECT COUNT(*) FROM enrollments e
+                         WHERE e.user_id = u.id) AS enrollments,
+                       (SELECT COUNT(*) FROM certificates cf
+                         WHERE cf.user_id = u.id) AS certificates,
+                       (SELECT ROUND(AVG(score * 100.0 / NULLIF(total, 0)), 1)
+                         FROM quiz_attempts qa
+                         WHERE qa.user_id = u.id AND qa.total > 0) AS avg_quiz_percent
+                FROM users u {where}
+                ORDER BY u.created_at DESC, u.id DESC
+                LIMIT ? OFFSET ?""",
+            args + [per_page, (page - 1) * per_page]).fetchall()
+        conn.close()
+        self._ok(self._admin_paged(
+            {"users": [row_to_dict(r) for r in rows]}, total, page, per_page))
+
+    def api_admin_user(self, user_id):
+        """One user with every enrolment (progress, quiz best, tasks,
+        certificate) — the admin's learner detail view."""
+        if not self._require_admin():
+            return
+        conn = db()
+        user = conn.execute(
+            "SELECT id, name, email, created_at FROM users WHERE id = ?",
+            (user_id,)).fetchone()
+        if not user:
+            conn.close()
+            self._err(404, "User not found")
+            return
+        enrolments = conn.execute(
+            """SELECT e.id, e.course_id, c.title AS course_title,
+                      e.progress_percent, e.enrolled_at,
+                      (SELECT COUNT(*) FROM lessons l
+                        WHERE l.course_id = e.course_id) AS total_lessons,
+                      (SELECT COUNT(*) FROM lesson_progress lp
+                        JOIN lessons l2 ON l2.id = lp.lesson_id
+                        WHERE lp.user_id = e.user_id
+                          AND l2.course_id = e.course_id) AS completed_lessons,
+                      (SELECT ROUND(AVG(qa.score * 100.0 / NULLIF(qa.total, 0)), 1)
+                        FROM quiz_attempts qa
+                        JOIN lessons l3 ON l3.id = qa.lesson_id
+                        WHERE qa.user_id = e.user_id
+                          AND l3.course_id = e.course_id
+                          AND qa.total > 0) AS avg_quiz_percent,
+                      (SELECT COUNT(*) FROM task_completions tc
+                        JOIN tasks t ON t.id = tc.task_id
+                        JOIN lessons l4 ON l4.id = t.lesson_id
+                        WHERE tc.user_id = e.user_id
+                          AND l4.course_id = e.course_id) AS tasks_done,
+                      (SELECT certificate_code FROM certificates cf
+                        WHERE cf.user_id = e.user_id
+                          AND cf.course_id = e.course_id) AS certificate_code
+               FROM enrollments e
+               JOIN courses c ON c.id = e.course_id
+               WHERE e.user_id = ?
+               ORDER BY e.enrolled_at DESC""", (user_id,)).fetchall()
+        certs = conn.execute(
+            """SELECT cf.id, cf.certificate_code, cf.issued_at,
+                      c.title AS course_title
+               FROM certificates cf
+               JOIN courses c ON c.id = cf.course_id
+               WHERE cf.user_id = ? ORDER BY cf.issued_at DESC""",
+            (user_id,)).fetchall()
+        conn.close()
+        self._ok({
+            "user": row_to_dict(user),
+            "enrollments": [row_to_dict(r) for r in enrolments],
+            "certificates": [row_to_dict(r) for r in certs],
+        })
+
+    def api_admin_orders(self):
+        """List orders (newest first) with the buyer, plus revenue
+        totals and per-course revenue (from enrolments)."""
+        if not self._require_admin():
+            return
+        page, per_page, q = self._admin_page()
+        conn = db()
+        total = conn.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
+        revenue = conn.execute(
+            "SELECT COALESCE(SUM(total), 0) FROM orders"
+            " WHERE status = 'completed'").fetchone()[0]
+        rows = conn.execute(
+            """SELECT o.id, o.total, o.status, o.created_at,
+                      u.name AS user_name, u.email AS user_email
+               FROM orders o JOIN users u ON u.id = o.user_id
+               ORDER BY o.created_at DESC, o.id DESC
+               LIMIT ? OFFSET ?""",
+            [per_page, (page - 1) * per_page]).fetchall()
+        per_course = conn.execute(
+            """SELECT c.id, c.title, COUNT(e.id) AS enrollments,
+                      COUNT(e.id) * c.price AS revenue
+               FROM courses c LEFT JOIN enrollments e ON e.course_id = c.id
+               GROUP BY c.id ORDER BY revenue DESC, c.id"""
+        ).fetchall()
+        conn.close()
+        self._ok(self._admin_paged({
+            "orders": [row_to_dict(r) for r in rows],
+            "revenue": revenue,
+            "per_course_revenue": [row_to_dict(r) for r in per_course],
+        }, total, page, per_page))
+
+    def api_admin_certificates(self):
+        """All issued certificates (searchable by code, student or
+        course) with the public verification code."""
+        if not self._require_admin():
+            return
+        page, per_page, q = self._admin_page()
+        conn = db()
+        where, args = "", []
+        if q:
+            like = f"%{q.lower()}%"
+            where = ("WHERE LOWER(cf.certificate_code) LIKE ?"
+                     " OR LOWER(u.name) LIKE ? OR LOWER(u.email) LIKE ?"
+                     " OR LOWER(c.title) LIKE ?")
+            args = [like, like, like, like]
+        total = conn.execute(
+            f"""SELECT COUNT(*) FROM certificates cf
+                JOIN users u ON u.id = cf.user_id
+                JOIN courses c ON c.id = cf.course_id {where}""",
+            args).fetchone()[0]
+        rows = conn.execute(
+            f"""SELECT cf.id, cf.certificate_code, cf.issued_at,
+                       u.name AS student_name, u.email AS student_email,
+                       c.title AS course_title
+                FROM certificates cf
+                JOIN users u ON u.id = cf.user_id
+                JOIN courses c ON c.id = cf.course_id {where}
+                ORDER BY cf.issued_at DESC, cf.id DESC
+                LIMIT ? OFFSET ?""",
+            args + [per_page, (page - 1) * per_page]).fetchall()
+        conn.close()
+        self._ok(self._admin_paged(
+            {"certificates": [row_to_dict(r) for r in rows]},
+            total, page, per_page))
+
+    def api_admin_analytics(self):
+        """Learning analytics: per-course enrolments, average quiz
+        score and task completion rate, plus the weakest lessons
+        (lowest average quiz score, at least one attempt) so the admin
+        can see which lessons need fixing."""
+        if not self._require_admin():
+            return
+        conn = db()
+        courses = conn.execute(
+            """SELECT c.id, c.title,
+                      (SELECT COUNT(*) FROM enrollments e
+                        WHERE e.course_id = c.id) AS enrollments,
+                      (SELECT COUNT(*) FROM lessons l
+                        WHERE l.course_id = c.id) AS lessons,
+                      (SELECT COUNT(*) FROM tasks t
+                        JOIN lessons l2 ON l2.id = t.lesson_id
+                        WHERE l2.course_id = c.id) AS tasks_total,
+                      (SELECT COUNT(*) FROM task_completions tc
+                        JOIN tasks t2 ON t2.id = tc.task_id
+                        JOIN lessons l3 ON l3.id = t2.lesson_id
+                        WHERE l3.course_id = c.id) AS tasks_done,
+                      (SELECT ROUND(AVG(qa.score * 100.0 / NULLIF(qa.total, 0)), 1)
+                        FROM quiz_attempts qa
+                        JOIN lessons l4 ON l4.id = qa.lesson_id
+                        WHERE l4.course_id = c.id AND qa.total > 0) AS avg_quiz_percent
+               FROM courses c ORDER BY c.id"""
+        ).fetchall()
+        out = []
+        for r in courses:
+            d = row_to_dict(r)
+            if d["tasks_total"] and d["enrollments"]:
+                d["task_completion_rate"] = round(
+                    100.0 * d["tasks_done"]
+                    / (d["tasks_total"] * d["enrollments"]), 1)
+            else:
+                d["task_completion_rate"] = None
+            out.append(d)
+        weakest = conn.execute(
+            """SELECT l.id, l.title, c.id AS course_id, c.title AS course_title,
+                      COUNT(qa.id) AS attempts,
+                      ROUND(AVG(qa.score * 100.0 / NULLIF(qa.total, 0)), 1) AS avg_percent
+               FROM lessons l
+               JOIN courses c ON c.id = l.course_id
+               JOIN quiz_attempts qa ON qa.lesson_id = l.id
+               WHERE qa.total > 0
+               GROUP BY l.id
+               ORDER BY avg_percent ASC, attempts DESC
+               LIMIT 10"""
+        ).fetchall()
+        conn.close()
+        self._ok({
+            "courses": out,
+            "weakest_lessons": [row_to_dict(r) for r in weakest],
+        })
+
+    def api_admin_lesson_content(self, lesson_id):
+        """Full editable lesson content for the admin: the lesson row,
+        its explanation/flowchart/video, and every quiz question (with
+        answers) and task (with expected answers)."""
+        if not self._require_admin():
+            return
+        conn = db()
+        lesson = conn.execute(
+            """SELECT l.*, c.title AS course_title FROM lessons l
+               JOIN courses c ON c.id = l.course_id WHERE l.id = ?""",
+            (lesson_id,)).fetchone()
+        if not lesson:
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        content = conn.execute(
+            "SELECT * FROM lesson_content WHERE lesson_id = ?",
+            (lesson_id,)).fetchone()
+        quizzes = conn.execute(
+            """SELECT id, question, options_json, answer_index, explanation,
+                      order_index FROM quizzes WHERE lesson_id = ?
+               ORDER BY order_index, id""", (lesson_id,)).fetchall()
+        tasks = conn.execute(
+            """SELECT * FROM tasks WHERE lesson_id = ?
+               ORDER BY order_index, id""", (lesson_id,)).fetchall()
+        conn.close()
+        self._ok({
+            "lesson": row_to_dict(lesson),
+            "content": row_to_dict(content) or {
+                "lesson_id": lesson_id, "body": "", "flowchart_title": None,
+                "flowchart_json": None, "video_id": None, "video_title": None},
+            "quizzes": [row_to_dict(r) for r in quizzes],
+            "tasks": [row_to_dict(r) for r in tasks],
+        })
+
+    def _validate_flowchart(self, raw):
+        """Return (clean_json_string_or_None, error). A flowchart is
+        {"nodes": [{id, label, kind}], "edges": [{from, to, label?}]}:
+        node ids must be unique, kinds known, edges must point at
+        existing nodes, decisions need labelled Yes/No edges."""
+        if raw is None or raw == "":
+            return None, None
+        try:
+            fc = json.loads(raw) if isinstance(raw, str) else raw
+        except (ValueError, TypeError):
+            return None, "flowchart_json must be valid JSON"
+        if not isinstance(fc, dict):
+            return None, "flowchart must be an object with nodes and edges"
+        nodes = fc.get("nodes") or []
+        edges = fc.get("edges") or []
+        if not isinstance(nodes, list) or not isinstance(edges, list):
+            return None, "flowchart nodes and edges must be arrays"
+        if not 1 <= len(nodes) <= 20:
+            return None, "flowchart must have 1-20 nodes"
+        if len(edges) > 40:
+            return None, "flowchart must have at most 40 edges"
+        ids = set()
+        for n in nodes:
+            if not isinstance(n, dict) or not n.get("id") or not n.get("label"):
+                return None, "every flowchart node needs an id and a label"
+            if n["id"] in ids:
+                return None, "flowchart node ids must be unique"
+            if n.get("kind") not in ("start", "end", "process", "decision",
+                                     "input", "output"):
+                return None, ("flowchart node kind must be start, end, "
+                              "process, decision, input or output")
+            if len(str(n["label"])) > 200:
+                return None, "flowchart node labels must be at most 200 characters"
+            ids.add(n["id"])
+        for e in edges:
+            if not isinstance(e, dict) or e.get("from") not in ids \
+                    or e.get("to") not in ids:
+                return None, "flowchart edges must point at existing nodes"
+        return json.dumps(fc), None
+
+    def api_admin_lesson_content_update(self, lesson_id):
+        """Update a lesson's explanation body, flowchart and video."""
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM lessons WHERE id = ?",
+                            (lesson_id,)).fetchone():
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        clean = {}
+        if "body" in body:
+            text = body.get("body") or ""
+            if not isinstance(text, str) or len(text) > 100000:
+                conn.close()
+                self._err(400, "body must be a string of at most 100000 characters")
+                return
+            clean["body"] = text
+        if "flowchart_title" in body:
+            title = (body.get("flowchart_title") or "").strip()
+            if len(title) > 200:
+                conn.close()
+                self._err(400, "flowchart_title must be at most 200 characters")
+                return
+            clean["flowchart_title"] = title or None
+        if "flowchart_json" in body:
+            fc, err = self._validate_flowchart(body.get("flowchart_json"))
+            if err:
+                conn.close()
+                self._err(400, err)
+                return
+            clean["flowchart_json"] = fc
+        if "video_id" in body:
+            vid = (body.get("video_id") or "").strip()
+            if vid and not re.fullmatch(r"[A-Za-z0-9_-]{11}", vid):
+                conn.close()
+                self._err(400, "video_id must be a valid 11-character YouTube video ID")
+                return
+            clean["video_id"] = vid or None
+        if "video_title" in body:
+            title = (body.get("video_title") or "").strip()
+            if len(title) > 200:
+                conn.close()
+                self._err(400, "video_title must be at most 200 characters")
+                return
+            clean["video_title"] = title or None
+        if not clean:
+            conn.close()
+            self._err(400, "No valid fields to update")
+            return
+        cols = ["body", "flowchart_title", "flowchart_json",
+                "video_id", "video_title"]
+        conn.execute(
+            """INSERT INTO lesson_content (lesson_id, body, flowchart_title,
+                                          flowchart_json, video_id, video_title)
+               VALUES (?, '', NULL, NULL, NULL, NULL)
+               ON CONFLICT(lesson_id) DO NOTHING""", (lesson_id,))
+        sets = ", ".join(f"{k} = ?" for k in clean)
+        conn.execute(f"UPDATE lesson_content SET {sets} WHERE lesson_id = ?",
+                     list(clean.values()) + [lesson_id])
+        conn.commit()
+        row = conn.execute(
+            "SELECT * FROM lesson_content WHERE lesson_id = ?",
+            (lesson_id,)).fetchone()
+        conn.close()
+        self._ok({"content": row_to_dict(row)})
+
+    def _validate_quiz(self, body):
+        """Return (clean_dict, error) for a quiz question."""
+        clean = {}
+        if "question" in body:
+            q = (body.get("question") or "").strip()
+            if not q or len(q) > 1000:
+                return None, "question is required and at most 1000 characters"
+            clean["question"] = q
+        if "options" in body:
+            opts = body.get("options")
+            if not isinstance(opts, list) or len(opts) != 4:
+                return None, "options must be an array of exactly 4 strings"
+            opts = [(o or "").strip() for o in opts]
+            if any(not isinstance(o, str) or not o or len(o) > 500 for o in opts):
+                return None, ("every option must be a non-empty string "
+                              "of at most 500 characters")
+            clean["options_json"] = json.dumps(opts)
+        if "answer_index" in body:
+            ans = body.get("answer_index")
+            if isinstance(ans, bool) or not isinstance(ans, int) \
+                    or ans not in (0, 1, 2, 3):
+                return None, "answer_index must be 0, 1, 2 or 3"
+            clean["answer_index"] = ans
+        if "explanation" in body:
+            expl = (body.get("explanation") or "").strip()
+            if len(expl) > 2000:
+                return None, "explanation must be at most 2000 characters"
+            clean["explanation"] = expl
+        if "order_index" in body:
+            n = _positive_int(body.get("order_index"))
+            if n is None and body.get("order_index") not in (0, "0"):
+                return None, "order_index must be a non-negative integer"
+            clean["order_index"] = int(body.get("order_index"))
+        return clean, None
+
+    def api_admin_quiz_add(self, lesson_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        clean, err = self._validate_quiz(body)
+        if err:
+            self._err(400, err)
+            return
+        for f in ("question", "options_json", "answer_index"):
+            if f not in clean:
+                self._err(400, f"{f} is required")
+                return
+        conn = db()
+        if not conn.execute("SELECT id FROM lessons WHERE id = ?",
+                            (lesson_id,)).fetchone():
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        cur = conn.execute(
+            """INSERT INTO quizzes (lesson_id, question, options_json,
+                                    answer_index, explanation, order_index)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (lesson_id, clean["question"], clean["options_json"],
+             clean["answer_index"], clean.get("explanation", ""),
+             clean.get("order_index", 0)))
+        conn.commit()
+        row = conn.execute("SELECT * FROM quizzes WHERE id = ?",
+                           (cur.lastrowid,)).fetchone()
+        conn.close()
+        self._ok({"quiz": row_to_dict(row)}, status=201)
+
+    def api_admin_quiz_update(self, quiz_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        clean, err = self._validate_quiz(body)
+        if err:
+            self._err(400, err)
+            return
+        if not clean:
+            self._err(400, "No valid fields to update")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM quizzes WHERE id = ?",
+                            (quiz_id,)).fetchone():
+            conn.close()
+            self._err(404, "Quiz question not found")
+            return
+        sets = ", ".join(f"{k} = ?" for k in clean)
+        conn.execute(f"UPDATE quizzes SET {sets} WHERE id = ?",
+                     list(clean.values()) + [quiz_id])
+        conn.commit()
+        row = conn.execute("SELECT * FROM quizzes WHERE id = ?",
+                           (quiz_id,)).fetchone()
+        conn.close()
+        self._ok({"quiz": row_to_dict(row)})
+
+    def api_admin_quiz_delete(self, quiz_id):
+        if not self._require_admin():
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM quizzes WHERE id = ?",
+                            (quiz_id,)).fetchone():
+            conn.close()
+            self._err(404, "Quiz question not found")
+            return
+        conn.execute("DELETE FROM quizzes WHERE id = ?", (quiz_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"deleted": quiz_id})
+
+    def _validate_task(self, body):
+        """Return (clean_dict, error) for a practice task."""
+        clean = {}
+        if "type" in body:
+            t = (body.get("type") or "").strip()
+            if t not in ("predict", "fix", "fill", "trace", "project"):
+                return None, ("type must be predict, fix, fill, trace "
+                              "or project")
+            clean["type"] = t
+        if "title" in body:
+            title = (body.get("title") or "").strip()
+            if not title or len(title) > 200:
+                return None, "title is required and at most 200 characters"
+            clean["title"] = title
+        if "prompt" in body:
+            prompt = (body.get("prompt") or "").strip()
+            if not prompt or len(prompt) > 5000:
+                return None, "prompt is required and at most 5000 characters"
+            clean["prompt"] = prompt
+        for f in ("code", "expected", "answer", "hint"):
+            if f in body:
+                value = body.get(f) or ""
+                if not isinstance(value, str) or len(value) > 5000:
+                    return None, f"{f} must be a string of at most 5000 characters"
+                clean[f] = value
+        if "order_index" in body:
+            if body.get("order_index") not in (0, "0") \
+                    and _positive_int(body.get("order_index")) is None:
+                return None, "order_index must be a non-negative integer"
+            clean["order_index"] = int(body.get("order_index"))
+        return clean, None
+
+    def api_admin_task_add(self, lesson_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        clean, err = self._validate_task(body)
+        if err:
+            self._err(400, err)
+            return
+        for f in ("type", "title", "prompt"):
+            if f not in clean:
+                self._err(400, f"{f} is required")
+                return
+        conn = db()
+        if not conn.execute("SELECT id FROM lessons WHERE id = ?",
+                            (lesson_id,)).fetchone():
+            conn.close()
+            self._err(404, "Lesson not found")
+            return
+        cur = conn.execute(
+            """INSERT INTO tasks (lesson_id, type, title, prompt, code,
+                                  expected, answer, hint, order_index)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (lesson_id, clean["type"], clean["title"], clean["prompt"],
+             clean.get("code", ""), clean.get("expected", ""),
+             clean.get("answer", ""), clean.get("hint", ""),
+             clean.get("order_index", 0)))
+        conn.commit()
+        row = conn.execute("SELECT * FROM tasks WHERE id = ?",
+                           (cur.lastrowid,)).fetchone()
+        conn.close()
+        self._ok({"task": row_to_dict(row)}, status=201)
+
+    def api_admin_task_update(self, task_id):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        clean, err = self._validate_task(body)
+        if err:
+            self._err(400, err)
+            return
+        if not clean:
+            self._err(400, "No valid fields to update")
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM tasks WHERE id = ?",
+                            (task_id,)).fetchone():
+            conn.close()
+            self._err(404, "Task not found")
+            return
+        sets = ", ".join(f"{k} = ?" for k in clean)
+        conn.execute(f"UPDATE tasks SET {sets} WHERE id = ?",
+                     list(clean.values()) + [task_id])
+        conn.commit()
+        row = conn.execute("SELECT * FROM tasks WHERE id = ?",
+                           (task_id,)).fetchone()
+        conn.close()
+        self._ok({"task": row_to_dict(row)})
+
+    def api_admin_task_delete(self, task_id):
+        if not self._require_admin():
+            return
+        conn = db()
+        if not conn.execute("SELECT id FROM tasks WHERE id = ?",
+                            (task_id,)).fetchone():
+            conn.close()
+            self._err(404, "Task not found")
+            return
+        conn.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"deleted": task_id})
+
     def api_cart_get(self):
         user = self._require_user()
         if not user:
@@ -1951,6 +2709,570 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._err(404, "Course not in wishlist")
             return
         self._ok({"message": "Removed from wishlist"})
+
+    # -- professional LMS: XP / streak / badges / leaderboard ---------
+    def _gamification(self, conn, user_id):
+        """XP, streak and badges computed from existing activity data.
+
+        XP: lesson 10, task 5, quiz >=80% best-per-lesson 10 (once per
+        lesson), certificate 50. No separate XP table - this is always
+        consistent with the underlying progress rows.
+        """
+        lessons = conn.execute(
+            "SELECT lesson_id, completed_at FROM lesson_progress"
+            " WHERE user_id = ? ORDER BY completed_at, id",
+            (user_id,)).fetchall()
+        tasks = conn.execute(
+            """SELECT tc.task_id, tc.completed_at FROM task_completions tc
+               WHERE tc.user_id = ? ORDER BY tc.completed_at, tc.id""",
+            (user_id,)).fetchall()
+        quizzes = conn.execute(
+            "SELECT lesson_id, score, total, taken_at FROM quiz_attempts"
+            " WHERE user_id = ? ORDER BY taken_at, id",
+            (user_id,)).fetchall()
+        certs = conn.execute(
+            "SELECT course_id, issued_at FROM certificates"
+            " WHERE user_id = ? ORDER BY issued_at, id",
+            (user_id,)).fetchall()
+        # best quiz percent per lesson
+        best = {}
+        for q in quizzes:
+            if q["total"]:
+                pct = q["score"] * 100.0 / q["total"]
+                if q["lesson_id"] not in best or pct > best[q["lesson_id"]][0]:
+                    best[q["lesson_id"]] = (pct, q["taken_at"])
+        quiz_bonus = sum(1 for pct, _ in best.values() if pct >= 80) * 10
+        xp = len(lessons) * 10 + len(tasks) * 5 + quiz_bonus + len(certs) * 50
+        avg_quiz = (round(sum(p for p, _ in best.values()) / len(best), 1)
+                    if best else 0.0)
+        # streak: distinct activity dates, consecutive days ending
+        # today or yesterday (DB timestamps are UTC).
+        days = set()
+        for rows, col in ((lessons, "completed_at"), (quizzes, "taken_at"),
+                          (tasks, "completed_at")):
+            for r in rows:
+                try:
+                    days.add(str(r[col])[:10])
+                except Exception:
+                    pass
+        streak = 0
+        today = date.today()
+        cur = today if today.isoformat() in days else today - timedelta(days=1)
+        if cur.isoformat() in days:
+            while cur.isoformat() in days:
+                streak += 1
+                cur -= timedelta(days=1)
+        def _nth(rows, col, n):
+            return rows[n - 1][col] if len(rows) >= n else None
+        quiz_master_at = None
+        for q in quizzes:
+            if q["total"] and q["score"] * 100.0 / q["total"] >= 80:
+                quiz_master_at = q["taken_at"]
+                break
+        badges = [
+            {"id": "first-lesson", "title": "First Steps",
+             "description": "Complete your first lesson",
+             "earned": len(lessons) >= 1,
+             "earned_at": _nth(lessons, "completed_at", 1)},
+            {"id": "5-lessons", "title": "On a Roll",
+             "description": "Complete 5 lessons",
+             "earned": len(lessons) >= 5,
+             "earned_at": _nth(lessons, "completed_at", 5)},
+            {"id": "10-lessons", "title": "Dedicated Learner",
+             "description": "Complete 10 lessons",
+             "earned": len(lessons) >= 10,
+             "earned_at": _nth(lessons, "completed_at", 10)},
+            {"id": "quiz-master", "title": "Quiz Master",
+             "description": "Score 80% or more on any quiz",
+             "earned": quiz_master_at is not None,
+             "earned_at": quiz_master_at},
+            {"id": "task-finisher", "title": "Practice Pro",
+             "description": "Finish 5 practice tasks",
+             "earned": len(tasks) >= 5,
+             "earned_at": _nth(tasks, "completed_at", 5)},
+            {"id": "course-finisher", "title": "Course Finisher",
+             "description": "Earn a certificate by finishing a course",
+             "earned": len(certs) >= 1,
+             "earned_at": certs[0]["issued_at"] if certs else None},
+            {"id": "streak-3", "title": "3-Day Streak",
+             "description": "Learn 3 days in a row",
+             "earned": streak >= 3,
+             "earned_at": today.isoformat() if streak >= 3 else None},
+            {"id": "streak-7", "title": "7-Day Streak",
+             "description": "Learn 7 days in a row",
+             "earned": streak >= 7,
+             "earned_at": today.isoformat() if streak >= 7 else None},
+        ]
+        return {"xp": xp, "level": xp // 200 + 1, "streak_days": streak,
+                "lessons_completed": len(lessons), "tasks_done": len(tasks),
+                "quizzes_taken": len(quizzes), "avg_quiz_percent": avg_quiz,
+                "certificates_count": len(certs), "badges": badges,
+                "quiz_bonus_lessons": len([1 for p, _ in best.values() if p >= 80])}
+
+    def _recent_activity(self, conn, user_id):
+        events = []
+        for r in conn.execute(
+                """SELECT lp.completed_at AS at, l.title AS lesson_title,
+                          c.title AS course_title, l.course_id AS course_id
+                   FROM lesson_progress lp JOIN lessons l ON l.id = lp.lesson_id
+                   JOIN courses c ON c.id = l.course_id
+                   WHERE lp.user_id = ?""", (user_id,)).fetchall():
+            events.append({"type": "lesson", "at": r["at"],
+                           "text": f"Completed lesson '{r['lesson_title']}'",
+                           "course_title": r["course_title"],
+                           "course_id": r["course_id"]})
+        for r in conn.execute(
+                """SELECT qa.taken_at AS at, qa.score, qa.total,
+                          l.title AS lesson_title, c.title AS course_title,
+                          l.course_id AS course_id
+                   FROM quiz_attempts qa JOIN lessons l ON l.id = qa.lesson_id
+                   JOIN courses c ON c.id = l.course_id
+                   WHERE qa.user_id = ?""", (user_id,)).fetchall():
+            pct = round(r["score"] * 100 / r["total"]) if r["total"] else 0
+            events.append({"type": "quiz", "at": r["at"],
+                           "text": f"Quiz on '{r['lesson_title']}': {pct}%",
+                           "course_title": r["course_title"],
+                           "course_id": r["course_id"]})
+        for r in conn.execute(
+                """SELECT tc.completed_at AS at, t.title AS task_title,
+                          l.title AS lesson_title, c.title AS course_title,
+                          l.course_id AS course_id
+                   FROM task_completions tc JOIN tasks t ON t.id = tc.task_id
+                   JOIN lessons l ON l.id = t.lesson_id
+                   JOIN courses c ON c.id = l.course_id
+                   WHERE tc.user_id = ?""", (user_id,)).fetchall():
+            events.append({"type": "task", "at": r["at"],
+                           "text": f"Finished task '{r['task_title']}'",
+                           "course_title": r["course_title"],
+                           "course_id": r["course_id"]})
+        for r in conn.execute(
+                """SELECT cert.issued_at AS at, c.title AS course_title,
+                          c.id AS course_id, cert.certificate_code AS code
+                   FROM certificates cert JOIN courses c ON c.id = cert.course_id
+                   WHERE cert.user_id = ?""", (user_id,)).fetchall():
+            events.append({"type": "certificate", "at": r["at"],
+                           "text": f"Earned certificate for '{r['course_title']}' ({r['code']})",
+                           "course_title": r["course_title"],
+                           "course_id": r["course_id"]})
+        events.sort(key=lambda e: e["at"] or "", reverse=True)
+        return events[:8]
+
+    @staticmethod
+    def _public_name(name):
+        parts = (name or "Learner").split()
+        if len(parts) >= 2:
+            return f"{parts[0]} {parts[-1][0]}."
+        return parts[0]
+
+    def api_me_dashboard(self):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        g = self._gamification(conn, user["id"])
+        enr = conn.execute(
+            """SELECT e.progress_percent, c.id AS course_id, c.title
+               FROM enrollments e JOIN courses c ON c.id = e.course_id
+               WHERE e.user_id = ? ORDER BY e.enrolled_at DESC""",
+            (user["id"],)).fetchall()
+        continue_learning = []
+        completed = 0
+        for e in enr:
+            if e["progress_percent"] >= 100:
+                completed += 1
+            nxt = conn.execute(
+                """SELECT l.id, l.title FROM lessons l WHERE l.course_id = ?
+                     AND NOT EXISTS (SELECT 1 FROM lesson_progress lp
+                       WHERE lp.user_id = ? AND lp.lesson_id = l.id)
+                   ORDER BY l.order_index, l.id LIMIT 1""",
+                (e["course_id"], user["id"])).fetchone()
+            continue_learning.append({
+                "course_id": e["course_id"], "title": e["title"],
+                "progress_percent": e["progress_percent"],
+                "next_lesson_id": nxt["id"] if nxt else None,
+                "next_lesson_title": nxt["title"] if nxt else None})
+        recent = self._recent_activity(conn, user["id"])
+        conn.close()
+        self._ok({"user": user, **g,
+                  "enrolled_count": len(enr), "completed_courses": completed,
+                  "continue_learning": continue_learning,
+                  "recent_activity": recent})
+
+    def api_leaderboard(self):
+        conn = db()
+        users = conn.execute("SELECT id, name FROM users").fetchall()
+        rows = []
+        for u in users:
+            g = self._gamification(conn, u["id"])
+            rows.append({"name": self._public_name(u["name"]), "xp": g["xp"],
+                         "lessons_completed": g["lessons_completed"],
+                         "certificates": g["certificates_count"]})
+        conn.close()
+        rows.sort(key=lambda r: (-r["xp"], -r["lessons_completed"], r["name"]))
+        for i, r in enumerate(rows[:20], start=1):
+            r["rank"] = i
+        self._ok({"leaderboard": rows[:20]})
+
+    def api_announcements(self):
+        conn = db()
+        rows = conn.execute(
+            "SELECT id, title, body, created_at FROM announcements"
+            " ORDER BY id DESC LIMIT 10").fetchall()
+        conn.close()
+        self._ok({"announcements": [row_to_dict(r) for r in rows]})
+
+    def api_learning_paths(self):
+        conn = db()
+        by_title = {r["title"]: row_to_dict(r) for r in
+                    conn.execute("SELECT * FROM courses").fetchall()}
+        conn.close()
+        def pick(title):
+            c = by_title.get(title)
+            return ({"id": c["id"], "title": c["title"], "level": c["level"],
+                     "duration_hours": c["duration_hours"]}
+                    if c else None)
+        def find_like(needle):
+            for title, c in by_title.items():
+                if needle.lower() in title.lower():
+                    return {"id": c["id"], "title": c["title"],
+                            "level": c["level"],
+                            "duration_hours": c["duration_hours"]}
+            return None
+        c_course = find_like("C Programming")
+        dsa_course = find_like("Data Structures")
+        foundations = [c for c in (c_course, dsa_course) if c]
+        if len(foundations) < 2:
+            foundations = [c for c in (pick("Python Programming Masterclass"),
+                                       pick("Data Science with SQL & Python")) if c]
+        defs = [
+            ("python-developer", "Python Developer",
+             "From your first Python program to data work and full-stack web apps.",
+             ["Python Programming Masterclass", "Data Science with SQL & Python",
+              "Django Full-Stack Web Development"]),
+            ("web-developer", "Web Developer",
+             "Build modern websites and web apps, from HTML and JavaScript to React and TypeScript.",
+             ["Complete Web Development Bootcamp",
+              "JavaScript: From Beginner to Advanced",
+              "React - Build Modern Web Apps",
+              "TypeScript: Static Typing for JavaScript"]),
+            ("ai-ml-engineer", "AI & ML Engineer",
+             "Python, data and machine learning, all the way to deep learning.",
+             ["Python Programming Masterclass", "Machine Learning with Python",
+              "Deep Learning & Neural Networks", "Data Science with SQL & Python"]),
+            ("c-dsa-foundations", "C & DSA Foundations",
+             "Master C and data structures & algorithms - the foundation of every technical interview.",
+             None),
+        ]
+        paths = []
+        for slug, title, desc, titles in defs:
+            courses = ([c for c in (pick(t) for t in titles) if c]
+                       if titles is not None else foundations)
+            paths.append({"slug": slug, "title": title, "description": desc,
+                          "course_count": len(courses),
+                          "duration_hours": round(sum(c["duration_hours"] or 0
+                                                      for c in courses), 1),
+                          "courses": [{"id": c["id"], "title": c["title"],
+                                       "level": c["level"]} for c in courses]})
+        self._ok({"paths": paths})
+
+    # -- notes / bookmarks / discussions -------------------------------
+    def api_lesson_notes_get(self, lesson_id):
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to view your notes")
+            return
+        conn = db()
+        rows = conn.execute(
+            "SELECT id, note, created_at FROM lesson_notes"
+            " WHERE user_id = ? AND lesson_id = ? ORDER BY id DESC",
+            (user["id"], lesson_id)).fetchall()
+        conn.close()
+        self._ok({"notes": [row_to_dict(r) for r in rows]})
+
+    def api_lesson_notes_post(self, lesson_id):
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to add a note")
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        note = (body.get("note") or "").strip()
+        if not note:
+            self._err(400, "note is required")
+            return
+        if len(note) > 5000:
+            self._err(400, "note must be at most 5000 characters")
+            return
+        conn = db()
+        cur = conn.execute(
+            "INSERT INTO lesson_notes (user_id, lesson_id, note) VALUES (?, ?, ?)",
+            (user["id"], lesson_id, note))
+        conn.commit()
+        nid = cur.lastrowid
+        conn.close()
+        self._ok({"note_id": nid, "message": "Note saved"}, status=201)
+
+    def api_note_delete(self, note_id):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        row = conn.execute("SELECT id, user_id FROM lesson_notes WHERE id = ?",
+                           (note_id,)).fetchone()
+        if not row:
+            conn.close()
+            self._err(404, "Note not found")
+            return
+        if row["user_id"] != user["id"]:
+            conn.close()
+            self._err(403, "You can only delete your own notes")
+            return
+        conn.execute("DELETE FROM lesson_notes WHERE id = ?", (note_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"deleted": int(note_id)})
+
+    def api_lesson_bookmark_add(self, lesson_id):
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to bookmark a lesson")
+            return
+        conn = db()
+        conn.execute("INSERT OR IGNORE INTO lesson_bookmarks (user_id, lesson_id)"
+                     " VALUES (?, ?)", (user["id"], lesson_id))
+        conn.commit()
+        conn.close()
+        self._ok({"bookmarked": True, "lesson_id": int(lesson_id)}, status=201)
+
+    def api_lesson_bookmark_del(self, lesson_id):
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to remove a bookmark")
+            return
+        conn = db()
+        cur = conn.execute(
+            "DELETE FROM lesson_bookmarks WHERE user_id = ? AND lesson_id = ?",
+            (user["id"], lesson_id))
+        conn.commit()
+        deleted = cur.rowcount
+        conn.close()
+        if not deleted:
+            self._err(404, "Bookmark not found")
+            return
+        self._ok({"bookmarked": False, "lesson_id": int(lesson_id)})
+
+    def api_me_bookmarks(self):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT b.id, b.lesson_id, b.created_at, l.title AS lesson_title,
+                      l.course_id, c.title AS course_title
+               FROM lesson_bookmarks b JOIN lessons l ON l.id = b.lesson_id
+               JOIN courses c ON c.id = l.course_id
+               WHERE b.user_id = ? ORDER BY b.id DESC""",
+            (user["id"],)).fetchall()
+        conn.close()
+        self._ok({"bookmarks": [row_to_dict(r) for r in rows]})
+
+    def _discussions_tree(self, conn, lesson_id):
+        rows = conn.execute(
+            """SELECT d.id, d.user_id, d.parent_id, d.body, d.created_at,
+                      u.name AS user_name
+               FROM discussions d JOIN users u ON u.id = d.user_id
+               WHERE d.lesson_id = ? ORDER BY d.id""",
+            (lesson_id,)).fetchall()
+        items = []
+        by_id = {}
+        for r in rows:
+            d = row_to_dict(r)
+            d["user_name"] = self._public_name(d.pop("user_name"))
+            d["replies"] = []
+            by_id[d["id"]] = d
+            items.append(d)
+        top = []
+        for d in items:
+            if d["parent_id"] and d["parent_id"] in by_id:
+                by_id[d["parent_id"]]["replies"].append(d)
+            else:
+                top.append(d)
+        return top
+
+    def api_lesson_discussions_get(self, lesson_id):
+        lesson, _user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        conn = db()
+        tree = self._discussions_tree(conn, lesson_id)
+        conn.close()
+        self._ok({"discussions": tree})
+
+    def api_lesson_discussions_post(self, lesson_id):
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to ask a question")
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        text = (body.get("body") or "").strip()
+        if not text:
+            self._err(400, "body is required")
+            return
+        if len(text) > 2000:
+            self._err(400, "body must be at most 2000 characters")
+            return
+        conn = db()
+        cur = conn.execute(
+            "INSERT INTO discussions (user_id, lesson_id, body) VALUES (?, ?, ?)",
+            (user["id"], lesson_id, text))
+        conn.commit()
+        did = cur.lastrowid
+        conn.close()
+        self._ok({"discussion_id": did, "message": "Question posted"}, status=201)
+
+    def api_discussion_reply(self, discussion_id):
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        text = (body.get("body") or "").strip()
+        if not text:
+            self._err(400, "body is required")
+            return
+        if len(text) > 2000:
+            self._err(400, "body must be at most 2000 characters")
+            return
+        conn = db()
+        parent = conn.execute(
+            "SELECT id, lesson_id, parent_id FROM discussions WHERE id = ?",
+            (discussion_id,)).fetchone()
+        if not parent:
+            conn.close()
+            self._err(404, "Discussion not found")
+            return
+        # Replies always attach to the top-level question, keeping
+        # threads one level deep.
+        top_id = parent["parent_id"] or parent["id"]
+        lesson = conn.execute(
+            "SELECT id, course_id, is_preview FROM lessons WHERE id = ?",
+            (parent["lesson_id"],)).fetchone()
+        if not lesson["is_preview"]:
+            enr = conn.execute(
+                "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+                (user["id"], lesson["course_id"])).fetchone()
+            if not enr:
+                conn.close()
+                self._err(403, "You must be enrolled in this course to reply")
+                return
+        cur = conn.execute(
+            "INSERT INTO discussions (user_id, lesson_id, parent_id, body)"
+            " VALUES (?, ?, ?, ?)",
+            (user["id"], parent["lesson_id"], top_id, text))
+        conn.commit()
+        rid = cur.lastrowid
+        conn.close()
+        self._ok({"discussion_id": rid, "message": "Reply posted"}, status=201)
+
+    # -- admin: announcements + discussions ---------------------------
+    def api_admin_announcements(self):
+        if not self._require_admin():
+            return
+        conn = db()
+        rows = conn.execute(
+            "SELECT id, title, body, created_at FROM announcements"
+            " ORDER BY id DESC").fetchall()
+        conn.close()
+        self._ok({"announcements": [row_to_dict(r) for r in rows]})
+
+    def api_admin_announcement_create(self):
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        title = (body.get("title") or "").strip()
+        text = (body.get("body") or "").strip()
+        if not title:
+            self._err(400, "title is required")
+            return
+        if len(title) > 200:
+            self._err(400, "title must be at most 200 characters")
+            return
+        if not text:
+            self._err(400, "body is required")
+            return
+        if len(text) > 5000:
+            self._err(400, "body must be at most 5000 characters")
+            return
+        conn = db()
+        cur = conn.execute("INSERT INTO announcements (title, body) VALUES (?, ?)",
+                           (title, text))
+        conn.commit()
+        aid = cur.lastrowid
+        conn.close()
+        self._ok({"announcement_id": aid, "message": "Announcement posted"}, status=201)
+
+    def api_admin_announcement_delete(self, announcement_id):
+        if not self._require_admin():
+            return
+        conn = db()
+        cur = conn.execute("DELETE FROM announcements WHERE id = ?",
+                           (announcement_id,))
+        conn.commit()
+        deleted = cur.rowcount
+        conn.close()
+        if not deleted:
+            self._err(404, "Announcement not found")
+            return
+        self._ok({"deleted": int(announcement_id)})
+
+    def api_admin_discussions(self):
+        if not self._require_admin():
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT d.id, d.body, d.created_at, d.parent_id,
+                      u.name AS user_name, l.title AS lesson_title,
+                      c.title AS course_title
+               FROM discussions d JOIN users u ON u.id = d.user_id
+               JOIN lessons l ON l.id = d.lesson_id
+               JOIN courses c ON c.id = l.course_id
+               ORDER BY d.id DESC LIMIT 50""").fetchall()
+        conn.close()
+        self._ok({"discussions": [row_to_dict(r) for r in rows]})
+
+    def api_admin_discussion_delete(self, discussion_id):
+        if not self._require_admin():
+            return
+        conn = db()
+        cur = conn.execute("DELETE FROM discussions WHERE id = ?",
+                           (discussion_id,))
+        conn.commit()
+        deleted = cur.rowcount
+        conn.close()
+        if not deleted:
+            self._err(404, "Discussion not found")
+            return
+        self._ok({"deleted": int(discussion_id)})
 
 
 def main():

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LearnHub announcements — new courses, learning paths, certificates and platform updates.">
+    <meta property="og:title" content="Announcements - LearnHub">
+    <meta property="og:description" content="News and updates from LearnHub.">
+    <meta property="og:type" content="website">
+    <title>Announcements - LearnHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="learning-paths.html" class="nav-link">Learning Paths</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+        </nav>
+        <div class="nav-actions"><a href="my-courses.html" class="nav-link">My Courses</a></div>
+    </div>
+</header>
+<main class="section">
+    <div class="container">
+        <span class="section-tag">Announcements</span>
+        <h1>Announcements</h1>
+        <p>News, new courses and platform updates from LearnHub.</p>
+        <div id="announceRoot"><p>Loading announcements…</p></div>
+    </div>
+</main>
+<footer class="footer"><div class="container footer-grid">
+    <div class="footer-column"><a href="index.html" class="footer-logo">Learn<span>Hub</span></a><p>Learn new skills and build your future.</p></div>
+    <div class="footer-column"><h3>Quick Links</h3><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="dashboard.html">Dashboard</a><a href="learning-paths.html">Learning Paths</a><a href="instructors.html">Instructors</a></div>
+    <div class="footer-column"><h3>Support</h3><a href="help.html">Help</a><a href="announcements.html">Announcements</a><a href="faq.html">FAQ</a><a href="terms.html">Terms</a><a href="privacy-policy.html">Privacy Policy</a></div>
+</div><div class="footer-bottom"><div class="container"><p>© 2026 LearnHub. All Rights Reserved.</p></div></div></footer>
+<script src="js/api.js"></script>
+<script>
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    async function load() {
+        var root = document.getElementById("announceRoot");
+        try {
+            var ann = await LearnHubAPI.getAnnouncements();
+            root.innerHTML = ann.length ? ann.map(function (a) {
+                return '<article class="announce-card"><h2>' + esc(a.title) + '</h2><p>' + esc(a.body) + '</p><small>' + esc((a.created_at || "").slice(0, 10)) + '</small></article>';
+            }).join("") : "<p>No announcements yet.</p>";
+        } catch (e) { root.innerHTML = "<p>Announcements are unavailable right now: " + esc(e.message) + "</p>"; }
+    }
+    document.addEventListener("DOMContentLoaded", load);
+})();
+</script>
+</body>
+</html>

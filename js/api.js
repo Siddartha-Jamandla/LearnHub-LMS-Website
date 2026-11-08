@@ -304,7 +304,8 @@
         // backend's API_SECRET env var), passed as ?key=.
         async _admin(method, path, key, body) {
             if (!key) throw new Error("Admin key is required");
-            const res = await fetch(API_BASE + path + "?key=" + encodeURIComponent(key), {
+            const sep = path.includes("?") ? "&" : "?";
+            const res = await fetch(API_BASE + path + sep + "key=" + encodeURIComponent(key), {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: body ? JSON.stringify(body) : undefined,
@@ -343,6 +344,163 @@
             // (orders + enrolment value) and the 5 most popular courses
             // by enrolment count.
             return this._admin("GET", "/api/admin/stats", key);
+        },
+
+        adminOverview(key) {
+            // Dashboard overview: totals, popular courses, recent
+            // enrolments and recently registered users.
+            return this._admin("GET", "/api/admin/overview", key);
+        },
+
+        adminUsers(key, q, page) {
+            const qs = new URLSearchParams();
+            if (q) qs.set("q", q);
+            if (page) qs.set("page", page);
+            const s = qs.toString();
+            return this._admin("GET", "/api/admin/users" + (s ? "?" + s : ""), key);
+        },
+
+        adminUser(key, id) {
+            return this._admin("GET", `/api/admin/users/${id}`, key);
+        },
+
+        adminOrders(key, page) {
+            const s = page ? "?page=" + page : "";
+            return this._admin("GET", "/api/admin/orders" + s, key);
+        },
+
+        adminCertificates(key, q, page) {
+            const qs = new URLSearchParams();
+            if (q) qs.set("q", q);
+            if (page) qs.set("page", page);
+            const s = qs.toString();
+            return this._admin("GET", "/api/admin/certificates" + (s ? "?" + s : ""), key);
+        },
+
+        adminAnalytics(key) {
+            // Per-course learning analytics + weakest lessons.
+            return this._admin("GET", "/api/admin/analytics", key);
+        },
+
+        adminLessonContent(key, lessonId) {
+            // Full editable lesson content: body, flowchart, video,
+            // quiz questions (with answers) and tasks (with solutions).
+            return this._admin("GET", `/api/admin/lessons/${lessonId}/content`, key);
+        },
+
+        adminUpdateLessonContent(key, lessonId, fields) {
+            return this._admin("PUT", `/api/admin/lessons/${lessonId}/content`, key, fields);
+        },
+
+        adminAddQuiz(key, lessonId, question) {
+            return this._admin("POST", `/api/admin/lessons/${lessonId}/quiz`, key, question);
+        },
+
+        adminUpdateQuiz(key, id, fields) {
+            return this._admin("PUT", `/api/admin/quiz/${id}`, key, fields);
+        },
+
+        adminDeleteQuiz(key, id) {
+            return this._admin("DELETE", `/api/admin/quiz/${id}`, key);
+        },
+
+        adminAddTask(key, lessonId, task) {
+            return this._admin("POST", `/api/admin/lessons/${lessonId}/tasks`, key, task);
+        },
+
+        adminUpdateTask(key, id, fields) {
+            return this._admin("PUT", `/api/admin/tasks/${id}`, key, fields);
+        },
+
+        adminDeleteTask(key, id) {
+            return this._admin("DELETE", `/api/admin/tasks/${id}`, key);
+        },
+
+        /* ---------------- professional LMS: dashboard / paths / social ---------------- */
+        async getDashboard() {
+            const d = await request("GET", "/api/me/dashboard", null, true);
+            return d;
+        },
+
+        async getLeaderboard() {
+            const d = await request("GET", "/api/leaderboard");
+            return d.leaderboard;
+        },
+
+        async getAnnouncements() {
+            const d = await request("GET", "/api/announcements");
+            return d.announcements;
+        },
+
+        async getLearningPaths() {
+            const d = await request("GET", "/api/learning-paths");
+            return d.paths;
+        },
+
+        async getNotes(lessonId) {
+            const d = await request("GET", `/api/lessons/${lessonId}/notes`, null, true);
+            return d.notes;
+        },
+
+        async addNote(lessonId, note) {
+            const d = await request("POST", `/api/lessons/${lessonId}/notes`, { note }, true);
+            return d;
+        },
+
+        async deleteNote(noteId) {
+            return request("DELETE", `/api/notes/${noteId}`, null, true);
+        },
+
+        async bookmarkLesson(lessonId) {
+            return request("POST", `/api/lessons/${lessonId}/bookmark`, null, true);
+        },
+
+        async unbookmarkLesson(lessonId) {
+            return request("DELETE", `/api/lessons/${lessonId}/bookmark`, null, true);
+        },
+
+        async toggleBookmark(lessonId, currentlyBookmarked) {
+            return currentlyBookmarked
+                ? this.unbookmarkLesson(lessonId)
+                : this.bookmarkLesson(lessonId);
+        },
+
+        async getBookmarks() {
+            const d = await request("GET", "/api/me/bookmarks", null, true);
+            return d.bookmarks;
+        },
+
+        async getDiscussions(lessonId) {
+            const d = await request("GET", `/api/lessons/${lessonId}/discussions`);
+            return d.discussions;
+        },
+
+        async postDiscussion(lessonId, body) {
+            return request("POST", `/api/lessons/${lessonId}/discussions`, { body }, true);
+        },
+
+        async replyDiscussion(discussionId, body) {
+            return request("POST", `/api/discussions/${discussionId}/reply`, { body }, true);
+        },
+
+        adminAnnouncements(key) {
+            return this._admin("GET", "/api/admin/announcements", key);
+        },
+
+        adminCreateAnnouncement(key, announcement) {
+            return this._admin("POST", "/api/admin/announcements", key, announcement);
+        },
+
+        adminDeleteAnnouncement(key, id) {
+            return this._admin("DELETE", `/api/admin/announcements/${id}`, key);
+        },
+
+        adminDiscussions(key) {
+            return this._admin("GET", "/api/admin/discussions", key);
+        },
+
+        adminDeleteDiscussion(key, id) {
+            return this._admin("DELETE", `/api/admin/discussions/${id}`, key);
         },
 
         /* ---------------- wishlist ---------------- */

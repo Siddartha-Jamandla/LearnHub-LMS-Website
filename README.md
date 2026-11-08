@@ -105,14 +105,12 @@ from `/api/register` or `/api/login`).
 
 Admin endpoints are gated on the shared secret: pass it as `?key=<API_SECRET>`
 (the same value as the backend's `API_SECRET` env var) or as the
-`X-Admin-Key` header. The admin UI at [`admin.html`](admin.html) (also linked
-in the footer) talks to these endpoints and keeps the key in
-`sessionStorage`. It also has a **Platform stats** dashboard at the top of
-the page: a "Load stats" button calls `GET /api/admin/stats` and renders
-total users, courses and enrollments, revenue (orders + enrollment value),
-and a table of the 5 most popular courses. It loads automatically when a key
-is already saved for the tab, and shows a clear error when the key is missing
-or invalid.
+`X-Admin-Key` header. There is no admin username/password account — the key
+is the login. The admin UI at [`admin.html`](admin.html) (also linked
+in the footer) is a full dashboard with a sidebar — Dashboard, Courses,
+Lessons & Content, Users, Learning, Orders, Certificates — and keeps the key
+in `sessionStorage`. It loads automatically when a key is already saved for
+the tab, and shows a clear error when the key is missing or invalid.
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -123,6 +121,20 @@ or invalid.
 | PUT | `/api/admin/lessons/:id` | Update lesson fields → 404 if missing |
 | DELETE | `/api/admin/lessons/:id` | 404 if missing; learner progress rows cascade |
 | GET | `/api/admin/stats` | User/course/enrolment counts, revenue (completed order totals + course price × enrolments), and the 5 most popular courses by enrolment count |
+| GET | `/api/admin/overview` | Dashboard overview: totals (users, courses, lessons, enrolments, revenue, quiz attempts, avg quiz score, certificates), popular courses, 10 recent enrolments, 10 recent users |
+| GET | `/api/admin/users?q=&page=` | Searchable user list (enrolments, certificates, avg quiz score) — paged |
+| GET | `/api/admin/users/:id` | One learner: enrolments with progress, quiz average, tasks done and certificate code |
+| GET | `/api/admin/orders?page=` | Orders (newest first) with buyer + revenue totals and per-course revenue |
+| GET | `/api/admin/certificates?q=&page=` | All issued certificates with student, course and verification code |
+| GET | `/api/admin/analytics` | Per-course enrolments, avg quiz score and task completion rate, plus the 10 weakest lessons (lowest avg quiz score) |
+| GET | `/api/admin/lessons/:id/content` | Full editable lesson content: explanation body, flowchart, video, all MCQs (with answers) and tasks (with solutions) |
+| PUT | `/api/admin/lessons/:id/content` | Update body / flowchart (validated nodes/edges) / video (11-char YouTube ID) |
+| POST | `/api/admin/lessons/:id/quiz` | Add MCQ `{question*, options* (exactly 4), answer_index* (0-3), explanation?, order_index?}` → 201 |
+| PUT | `/api/admin/quiz/:id` | Update an MCQ → 404 if missing |
+| DELETE | `/api/admin/quiz/:id` | Delete an MCQ → 404 if missing |
+| POST | `/api/admin/lessons/:id/tasks` | Add task `{type* (predict/fix/fill/trace/project), title*, prompt*, code?, expected?, answer?, hint?}` → 201 |
+| PUT | `/api/admin/tasks/:id` | Update a task → 404 if missing |
+| DELETE | `/api/admin/tasks/:id` | Delete a task → 404 if missing |
 
 Example:
 
@@ -269,3 +281,16 @@ built from these, with zero third-party dependencies.
 
 See [TEST_RESULTS.md](TEST_RESULTS.md) for the verified local test run
 (health, courses, register → login → cart → checkout → progress).
+
+## Professional LMS features (8 Nov 2026)
+
+The upgrade that turns LearnHub into a full professional LMS — still Python stdlib + SQLite + vanilla JS, no new dependencies:
+
+- **Student dashboard** (`dashboard.html`, `GET /api/me/dashboard`): XP and level (200 XP per level), daily streak, stat cards, Continue Learning with next-lesson links, badges, recent activity, bookmarks. Works signed-out too (leaderboard + announcements still show).
+- **XP / streak / badges** (computed from existing data, no XP table): lesson +10 XP, task +5 XP, quiz ≥80% best-per-lesson +10 XP bonus, certificate +50 XP. Badges: First Steps, On a Roll (5 lessons), Dedicated Learner (10 lessons), Quiz Master, Practice Pro (5 tasks), Course Finisher, 3- and 7-day streaks.
+- **Leaderboard** (`GET /api/leaderboard`, top 20, first name + last initial only).
+- **Learning paths** (`learning-paths.html`, `GET /api/learning-paths`): Python Developer, Web Developer, AI & ML Engineer, C & DSA Foundations — resolved live by course title, never hardcoded ids.
+- **Announcements** (`announcements.html`, `GET /api/announcements`; admin `GET/POST/DELETE /api/admin/announcements`): 3 starter announcements seeded on fresh and existing DBs.
+- **Lesson notes, bookmarks, Q&A**: `GET/POST /api/lessons/:id/notes`, `DELETE /api/notes/:id`, `POST/DELETE /api/lessons/:id/bookmark`, `GET /api/me/bookmarks`, `GET/POST /api/lessons/:id/discussions`, `POST /api/discussions/:id/reply`; admin moderation at `GET /api/admin/discussions`, `DELETE /api/admin/discussions/:id` (admin.html → Announcements / Discussions tabs). Lesson pages show a bookmark button, a My Notes panel, a discussion thread, Prev/Next navigation and "+10 XP" on Mark complete.
+- **New pages**: `dashboard.html`, `learning-paths.html`, `instructors.html` (built only from real `/api/courses` data — no invented bios), `announcements.html`, `help.html`, `terms.html`, `privacy-policy.html`, plus `sitemap.xml` and `robots.txt`.
+- **JS client** (`js/api.js`): `getDashboard`, `getLeaderboard`, `getAnnouncements`, `getLearningPaths`, `getNotes`/`addNote`/`deleteNote`, `bookmarkLesson`/`unbookmarkLesson`/`toggleBookmark`/`getBookmarks`, `getDiscussions`/`postDiscussion`/`replyDiscussion`, `adminAnnouncements`/`adminCreateAnnouncement`/`adminDeleteAnnouncement`, `adminDiscussions`/`adminDeleteDiscussion`.

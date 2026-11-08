@@ -14,6 +14,26 @@ import sqlite3
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("DB_PATH", os.path.join(BASE_DIR, "learnhub.db"))
 
+ANNOUNCEMENTS = [
+    ("Welcome to the new LearnHub dashboard",
+     "Your learning is now in one place: XP, streaks, badges, your leaderboard rank and everything you are working on. Sign in and open your Dashboard to see your progress."),
+    ("New: Python, C, DSA, Java & SQL learning paths are live",
+     "Follow a guided path instead of picking courses one by one. Open Learning Paths from the menu and start with the path that matches your goal."),
+    ("Certificates are now verifiable - share your LH- code with recruiters",
+     "Every certificate has a unique LH- code. Anyone can verify it at certificate.html - share the code on your resume or LinkedIn."),
+]
+
+
+def _seed_announcements(conn):
+    """Insert the 3 starter announcements once (idempotent)."""
+    n = conn.execute("SELECT COUNT(*) FROM announcements").fetchone()[0]
+    if n == 0:
+        for title, body in ANNOUNCEMENTS:
+            conn.execute("INSERT INTO announcements (title, body) VALUES (?, ?)",
+                         (title, body))
+        conn.commit()
+
+
 COURSES = [
     {
         "title": "Complete Web Development Bootcamp",
@@ -162,6 +182,7 @@ def main():
     existing = conn.execute("SELECT COUNT(*) FROM courses").fetchone()[0]
     if existing:
         print(f"[seed] database already has {existing} course(s) - skipping base seed.")
+        _seed_announcements(conn)
         conn.close()
         _load_learning_content()
         return
@@ -198,6 +219,7 @@ def main():
                GROUP BY l2.course_id
            )""")
     conn.commit()
+    _seed_announcements(conn)
     conn.close()
     print(f"[seed] done: {len(COURSES)} courses, {total_lessons} lessons -> {DB_PATH} "
           f"({'new db' if fresh else 'existing db'})")
