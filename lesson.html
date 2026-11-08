@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson - LearnHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link active">Courses</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="wishlist.html" class="nav-icon">♡</a>
+            <a href="cart.html" class="nav-icon">🛒<span id="cart-count" class="cart-count">0</span></a>
+            <a href="my-courses.html" class="nav-link">My Courses</a>
+        </div>
+    </div>
+</header>
+
+<main class="section">
+    <div class="container lesson-page" id="lessonRoot">
+        <p>Loading lesson…</p>
+    </div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/flowchart.js"></script>
+<script src="js/tutor.js"></script>
+
+<script>
+(function () {
+    "use strict";
+    var root = document.getElementById("lessonRoot");
+    var params = new URLSearchParams(window.location.search);
+    var lessonId = params.get("id");
+    if (!lessonId) {
+        root.innerHTML = '<div class="empty-state"><h2>No lesson selected</h2>' +
+            '<a href="courses.html" class="btn btn-primary">Browse Courses</a></div>';
+        return;
+    }
+
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
+
+    function showError(msg) {
+        root.innerHTML = '<div class="empty-state"><h2>Could not open this lesson</h2>' +
+            '<p>' + esc(msg) + '</p>' +
+            '<a href="courses.html" class="btn btn-primary">Browse Courses</a> ' +
+            '<a href="login.html" class="btn btn-outline">Sign In</a></div>';
+    }
+
+    function taskTypeLabel(type) {
+        return {
+            predict: "🔮 Predict the output",
+            fix: "🐛 Fix the bug",
+            fill: "✏️ Fill in the blank",
+            trace: "🔍 Trace the code",
+            project: "🚀 Mini project"
+        }[type] || type;
+    }
+
+    async function load() {
+        var lesson;
+        try {
+            lesson = await LearnHubAPI.getLesson(lessonId);
+        } catch (e) {
+            showError(e.message);
+            return;
+        }
+        var content = lesson.content || {};
+        var courseId = lesson.course_id;
+
+        // --- page skeleton ---
+        var html = '<p><a href="course-details.html?id=' + courseId + '">&larr; Back to ' +
+            esc(lesson.course_title || "course") + '</a></p>' +
+            '<span class="section-tag">' + esc(lesson.course_title || "") + '</span>' +
+            '<h1>' + esc(lesson.title) + '</h1>' +
+            '<p><small>' + (lesson.duration_minutes || 0) + ' min' +
+            (lesson.is_preview ? ' &nbsp;•&nbsp; <span class="preview-badge">free preview</span>' : '') +
+            '</small></p>';
+
+        if (content.video_id) {
+            html += '<div class="lesson-video"><h2>🎥 Watch</h2>' +
+                '<p><small>' + esc(content.video_title || "Free tutorial video") + '</small></p>' +
+                '<iframe width="100%" height="360" src="https://www.youtube-nocookie.com/embed/' +
+                esc(content.video_id) + '" title="' + esc(content.video_title || "Lesson video") + '" ' +
+                'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+                'gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+        }
+
+        if (content.body) {
+            html += '<div class="lesson-body">' + content.body + '</div>';
+        } else {
+            html += '<p class="lesson-body">Lesson content is being prepared for this lesson.</p>';
+        }
+
+        if (content.flowchart) {
+            html += '<div class="lesson-flowchart"><h2>🧭 Flowchart: ' +
+                esc(content.flowchart_title || content.flowchart.title || "How it works") + '</h2>' +
+                '<p><small>Follow the steps — this is the logic behind the lesson.</small></p>' +
+                '<div id="flowchartBox"></div></div>';
+        }
+
+        html += '<div class="lesson-quiz"><h2>📝 Quiz — check what you learned</h2>' +
+            '<div id="quizBox"><p>Loading quiz…</p></div></div>';
+
+        html += '<div class="lesson-tasks"><h2>💪 Practice tasks</h2>' +
+            '<div id="taskBox"><p>Loading tasks…</p></div></div>';
+
+        html += '<div class="lesson-actions">' +
+            '<button type="button" class="btn btn-primary" id="completeBtn">✓ Mark lesson complete</button> ' +
+            '<span id="completeNote"></span></div>' +
+            '<div class="lesson-nav" id="lessonNav"></div>';
+
+        root.innerHTML = html;
+
+        if (content.flowchart) {
+            LearnHubFlowchart.render(
+                document.getElementById("flowchartBox"), content.flowchart);
+        }
+
+        LearnHubTutor.init({ courseId: courseId, lessonId: Number(lessonId) });
+
+        loadQuiz();
+        loadTasks();
+        loadNav(courseId);
+
+        document.getElementById("completeBtn").addEventListener("click", async function () {
+            var note = document.getElementById("completeNote");
+            try {
+                var res = await LearnHubAPI.completeLesson(lessonId);
+                note.textContent = "✓ Completed — " + res.progress_percent + "% of the course done." +
+                    (res.certificate ? " 🎉 Certificate ready: certificate.html?id=" + res.certificate.id : "");
+                this.disabled = true;
+            } catch (e) {
+                note.textContent = "Could not mark complete: " + e.message +
+                    " (sign in and enrol in this course first).";
+            }
+        });
+    }
+
+    async function loadQuiz() {
+        var box = document.getElementById("quizBox");
+        var questions;
+        try {
+            questions = await LearnHubAPI.getLessonQuiz(lessonId);
+        } catch (e) {
+            box.innerHTML = "<p>Quiz is not available right now: " + esc(e.message) + "</p>";
+            return;
+        }
+        if (!questions.length) {
+            box.innerHTML = "<p>No quiz questions for this lesson yet.</p>";
+            return;
+        }
+        box.innerHTML = questions.map(function (q, qi) {
+            return '<div class="quiz-q" data-qid="' + q.id + '">' +
+                '<p><strong>Q' + (qi + 1) + '. ' + esc(q.question) + '</strong></p>' +
+                q.options.map(function (opt, oi) {
+                    return '<label class="quiz-opt"><input type="radio" name="q' + q.id +
+                        '" value="' + oi + '"> ' + esc(opt) + '</label>';
+                }).join("") +
+                '<div class="quiz-feedback"></div></div>';
+        }).join("") +
+            '<button type="button" class="btn btn-primary" id="quizSubmit">Submit quiz</button> ' +
+            '<span id="quizScore"></span>';
+
+        document.getElementById("quizSubmit").addEventListener("click", async function () {
+            var answers = {};
+            questions.forEach(function (q) {
+                var picked = box.querySelector('input[name="q' + q.id + '"]:checked');
+                if (picked) answers[q.id] = Number(picked.value);
+            });
+            var scoreEl = document.getElementById("quizScore");
+            try {
+                var res = await LearnHubAPI.submitQuiz(lessonId, answers);
+                scoreEl.textContent = "You scored " + res.score + " / " + res.total +
+                    " (" + res.percent + "%)";
+                res.results.forEach(function (r) {
+                    var card = box.querySelector('[data-qid="' + r.question_id + '"] .quiz-feedback');
+                    if (!card) return;
+                    card.innerHTML = (r.correct ? '<p class="quiz-correct">✓ Correct!</p>'
+                        : '<p class="quiz-wrong">✗ Correct answer: ' + esc(r.options[r.correct_index]) + '</p>') +
+                        '<p><small>Why: ' + esc(r.explanation) + '</small></p>';
+                });
+                this.disabled = true;
+            } catch (e) {
+                scoreEl.textContent = "Could not submit: " + e.message + " (sign in first).";
+            }
+        });
+    }
+
+    async function loadTasks() {
+        var box = document.getElementById("taskBox");
+        var tasks;
+        try {
+            tasks = await LearnHubAPI.getLessonTasks(lessonId);
+        } catch (e) {
+            box.innerHTML = "<p>Tasks are not available right now: " + esc(e.message) + "</p>";
+            return;
+        }
+        if (!tasks.length) {
+            box.innerHTML = "<p>No practice tasks for this lesson yet.</p>";
+            return;
+        }
+        box.innerHTML = tasks.map(function (t) {
+            var inputHtml = (t.type === "fix" || t.type === "project")
+                ? '<textarea rows="6" class="task-input" placeholder="' +
+                  (t.type === "project" ? "Write your plan / paste your code here…" : "Paste your fixed code here…") +
+                  '"></textarea>'
+                : '<input type="text" class="task-input" placeholder="Type your answer…">';
+            return '<div class="task-card" data-tid="' + t.id + '">' +
+                '<p><span class="task-type">' + esc(taskTypeLabel(t.type)) + '</span>' +
+                (t.completed ? ' <span class="preview-badge">✓ done</span>' : '') + '</p>' +
+                '<p><strong>' + esc(t.title) + '</strong></p>' +
+                '<p>' + esc(t.prompt) + '</p>' +
+                (t.code ? '<pre><code>' + esc(t.code) + '</code></pre>' : "") +
+                inputHtml +
+                '<div class="task-actions">' +
+                '<button type="button" class="btn btn-primary task-check">' +
+                (t.type === "fix" || t.type === "project" ? "Submit & compare" : "Check answer") +
+                '</button> ' +
+                '<button type="button" class="btn btn-outline task-hint-btn">💡 Hint</button>' +
+                '</div>' +
+                '<p class="task-hint" hidden>' + esc(t.hint) + '</p>' +
+                '<div class="task-result"></div></div>';
+        }).join("");
+
+        box.querySelectorAll(".task-card").forEach(function (card) {
+            var tid = card.dataset.tid;
+            card.querySelector(".task-hint-btn").addEventListener("click", function () {
+                var hint = card.querySelector(".task-hint");
+                hint.hidden = !hint.hidden;
+                LearnHubTutor.setTask(Number(tid));
+            });
+            card.querySelector(".task-check").addEventListener("click", async function () {
+                var input = card.querySelector(".task-input");
+                var result = card.querySelector(".task-result");
+                try {
+                    var res = await LearnHubAPI.completeTask(tid, input.value);
+                    result.innerHTML =
+                        (res.correct === null
+                            ? '<p class="quiz-correct">✓ Submitted — compare with the model answer below.</p>'
+                            : res.correct
+                                ? '<p class="quiz-correct">✓ Correct — well done!</p>'
+                                : '<p class="quiz-wrong">✗ Not quite — the expected answer is shown so you can learn from it.</p>') +
+                        '<p><strong>Expected:</strong></p><pre><code>' + esc(res.expected) + '</code></pre>' +
+                        '<p><small>' + esc(res.answer) + '</small></p>';
+                    if (res.completed) {
+                        var badge = card.querySelector(".preview-badge");
+                        if (!badge) {
+                            card.querySelector(".task-type").insertAdjacentHTML("afterend",
+                                ' <span class="preview-badge">✓ done</span>');
+                        }
+                    }
+                } catch (e) {
+                    result.innerHTML = "<p>Could not check: " + esc(e.message) +
+                        " (sign in and enrol first).</p>";
+                }
+            });
+        });
+    }
+
+    async function loadNav(courseId) {
+        var nav = document.getElementById("lessonNav");
+        try {
+            var lessons = await LearnHubAPI.getLessons(courseId);
+            var idx = lessons.findIndex(function (l) { return String(l.id) === String(lessonId); });
+            if (idx < 0) return;
+            var prev = lessons[idx - 1], next = lessons[idx + 1];
+            nav.innerHTML =
+                (prev ? '<a href="lesson.html?id=' + prev.id + '" class="btn btn-outline">&larr; ' + esc(prev.title) + '</a> ' : "") +
+                (next ? '<a href="lesson.html?id=' + next.id + '" class="btn btn-primary">' + esc(next.title) + ' &rarr;</a>' : "");
+        } catch (e) { /* navigation is optional */ }
+    }
+
+    document.addEventListener("DOMContentLoaded", load);
+})();
+</script>
+
+</body>
+</html>

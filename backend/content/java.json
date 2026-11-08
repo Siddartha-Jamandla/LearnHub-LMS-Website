@@ -1,0 +1,1499 @@
+{
+  "course": {
+    "match_title": null,
+    "title": "Java Programming Masterclass",
+    "description": "Learn Java from scratch - setup, core syntax, object-oriented programming, collections, file I/O, and a complete Library Management System mini project.",
+    "category": "Programming",
+    "price": 999,
+    "instructor": "Sarah Williams",
+    "duration_hours": 18,
+    "level": "Beginner",
+    "image_url": "assets/images/course2.svg"
+  },
+  "lessons": [
+    {
+      "title": "Java Setup & Your First Program",
+      "duration_minutes": 35,
+      "is_preview": 1,
+      "body": "<h3>What is Java?</h3><p>Java is a popular, general-purpose programming language used to build Android apps, web backends, games and enterprise software. It is platform independent: you write code once and run it anywhere a Java Virtual Machine (JVM) exists.</p><h3>Step 1: Install the JDK</h3><p>Download and install the Java Development Kit (JDK) from the official Oracle or OpenJDK website. The JDK includes the compiler (<code>javac</code>) and the runtime (<code>java</code>). Check your install in a terminal:</p><pre><code>java -version\njavac -version</code></pre><p>Both commands should print a version number such as 17 or 21.</p><h3>Step 2: Write your first program</h3><p>Create a file named <code>HelloWorld.java</code>. The file name must match the public class name exactly, including capital letters.</p><pre><code>public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, Java!\");\n    }\n}</code></pre><p>Every Java program starts running from the <code>main</code> method. <code>System.out.println</code> prints text to the screen and then moves to a new line.</p><h3>Step 3: Compile and run</h3><p>Compile the source file into bytecode, then run it:</p><pre><code>javac HelloWorld.java\njava HelloWorld</code></pre><p><code>javac</code> creates <code>HelloWorld.class</code>. <code>java</code> runs that class file (note: no <code>.class</code> in the run command). You should see <code>Hello, Java!</code> printed.</p><h3>Key points</h3><ul><li>Install the JDK, which contains both the compiler (javac) and the runtime (java).</li><li>The file name must match the public class name exactly.</li><li>Every program starts at public static void main(String[] args).</li><li>Compile with javac, run with java, and every statement ends with a semicolon.</li></ul>",
+      "flowchart": null,
+      "video": {
+        "id": "eIrMbAQSU34",
+        "title": "Java Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which command compiles a Java source file?",
+          "options": [
+            "java HelloWorld.java",
+            "javac HelloWorld.java",
+            "compile HelloWorld.java",
+            "run HelloWorld.java"
+          ],
+          "answer": 1,
+          "why": "javac is the Java compiler; it turns .java source files into .class bytecode files."
+        },
+        {
+          "q": "What is the entry point of every Java program?",
+          "options": [
+            "public void start()",
+            "static void run()",
+            "main()",
+            "public static void main(String[] args)"
+          ],
+          "answer": 3,
+          "why": "The JVM looks for exactly public static void main(String[] args) and starts execution there."
+        },
+        {
+          "q": "If your public class is named HelloWorld, what must the file be called?",
+          "options": [
+            "Main.java",
+            "HelloWorld.class",
+            "hello.java",
+            "HelloWorld.java"
+          ],
+          "answer": 3,
+          "why": "A public class must live in a file with the same name, including matching capital letters, ending in .java."
+        },
+        {
+          "q": "What does System.out.println(\"Hi\") do?",
+          "options": [
+            "Saves Hi to a file",
+            "Reads input from the keyboard",
+            "Prints Hi and moves to a new line",
+            "Prints Hi without a new line"
+          ],
+          "answer": 2,
+          "why": "println prints the text and then a newline, so the next output starts on a fresh line."
+        },
+        {
+          "q": "What does JDK stand for?",
+          "options": [
+            "Java Development Kit",
+            "Java Debugging Kernel",
+            "Java Document Kit",
+            "Java Deployment Key"
+          ],
+          "answer": 0,
+          "why": "The Java Development Kit bundles the compiler, runtime and tools needed to write and run Java."
+        },
+        {
+          "q": "What file does javac produce from HelloWorld.java?",
+          "options": [
+            "HelloWorld.exe",
+            "HelloWorld.class",
+            "HelloWorld.jar",
+            "HelloWorld.txt"
+          ],
+          "answer": 1,
+          "why": "The compiler produces bytecode in a .class file, which the JVM then runs."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, Java!\");\n    }\n}",
+          "expected": "Hello, Java!",
+          "answer": "main runs first and println outputs the exact text Hello, Java! followed by a newline.",
+          "hint": "println prints exactly what is inside the quotes."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the missing semicolon",
+          "prompt": "This program will not compile. Find and fix the bug.",
+          "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\")\n    }\n}",
+          "expected": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
+          "answer": "Every Java statement must end with a semicolon. The println line was missing one, so javac reports an error.",
+          "hint": "Check the end of each statement inside main."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the main method",
+          "prompt": "Complete the missing words so this program compiles and runs.",
+          "code": "public class Hello {\n    public ___ main(String[] args) {\n        System.out.println(\"Hi\");\n    }\n}",
+          "expected": "static void",
+          "answer": "The entry point must be declared public static void main(String[] args).",
+          "hint": "The JVM needs a static method that returns nothing."
+        }
+      ]
+    },
+    {
+      "title": "Variables, Data Types & Operators",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Variables</h3><p>A variable is a named box that stores a value. You declare it with a type, a name, and optionally a starting value.</p><pre><code>int age = 21;\ndouble price = 99.50;\nboolean isStudent = true;\nchar grade = 'A';\nString name = \"Siddartha\";</code></pre><h3>Primitive data types</h3><p><code>int</code> stores whole numbers, <code>double</code> stores decimals, <code>boolean</code> stores <code>true</code> or <code>false</code>, and <code>char</code> stores a single character in single quotes. <code>String</code> is not a primitive type - it is a class - and its values use double quotes.</p><h3>Operators</h3><p>Java has arithmetic operators (<code>+ - * / %</code>), assignment operators (<code>= += -=</code>) and comparison operators (<code>== != &lt; &gt;</code>). Watch out for integer division:</p><pre><code>public class Variables {\n    public static void main(String[] args) {\n        int age = 21;\n        String name = \"Siddartha\";\n        System.out.println(name + \" is \" + age);\n        System.out.println(7 / 2);   // prints 3, not 3.5\n        System.out.println(7.0 / 2); // prints 3.5\n        System.out.println(10 % 3);  // prints 1 (remainder)\n    }\n}</code></pre><p>When both operands of <code>/</code> are ints, Java drops the fractional part. Make one operand a double to get a decimal result. The <code>%</code> operator gives the remainder after division.</p><h3>Key points</h3><ul><li>Declare a variable with a type, a name, and a value: int age = 21;</li><li>int is for whole numbers, double for decimals, boolean for true/false, char for one character.</li><li>String values use double quotes; char values use single quotes.</li><li>7 / 2 is 3 in Java because int division drops the fraction - use 7.0 / 2 for 3.5.</li><li>% gives the remainder, so 10 % 3 is 1.</li></ul>",
+      "flowchart": {
+        "title": "Picking the right data type",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "What kind of value?",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Whole number?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Use int",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Decimal number?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Use double",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "True or false?",
+            "kind": "decision"
+          },
+          {
+            "id": "n8",
+            "label": "Use boolean, char or String",
+            "kind": "process"
+          },
+          {
+            "id": "n9",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "Yes"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n9"
+          },
+          {
+            "from": "n6",
+            "to": "n9"
+          },
+          {
+            "from": "n8",
+            "to": "n9"
+          }
+        ]
+      },
+      "video": {
+        "id": "grEKMHGYyns",
+        "title": "Learn Java 8 - Full Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does 7 / 2 print in Java?",
+          "options": [
+            "4",
+            "2",
+            "3.5",
+            "3"
+          ],
+          "answer": 3,
+          "why": "Both operands are ints, so Java performs integer division and drops the .5, giving 3."
+        },
+        {
+          "q": "Which type stores true or false?",
+          "options": [
+            "String",
+            "int",
+            "char",
+            "boolean"
+          ],
+          "answer": 3,
+          "why": "boolean is the type for the two values true and false."
+        },
+        {
+          "q": "Which line correctly declares a decimal price?",
+          "options": [
+            "int price = 9.99;",
+            "double price = 9.99;",
+            "char price = 9.99;",
+            "boolean price = 9.99;"
+          ],
+          "answer": 1,
+          "why": "double stores decimal numbers; int cannot hold 9.99 and the other types are for characters and true/false."
+        },
+        {
+          "q": "What is the value of x after int x = 5; x += 3;?",
+          "options": [
+            "3",
+            "8",
+            "15",
+            "5"
+          ],
+          "answer": 1,
+          "why": "x += 3 is shorthand for x = x + 3, so 5 + 3 = 8."
+        },
+        {
+          "q": "What is 10 % 3 in Java?",
+          "options": [
+            "0",
+            "3.33",
+            "3",
+            "1"
+          ],
+          "answer": 3,
+          "why": "% gives the remainder: 10 divided by 3 is 3 remainder 1."
+        },
+        {
+          "q": "Which is a valid String declaration?",
+          "options": [
+            "String name = Sid;",
+            "String name = 'Sid';",
+            "string name = \"Sid\";",
+            "String name = \"Sid\";"
+          ],
+          "answer": 3,
+          "why": "String is a capitalised class name and its value must be in double quotes."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "int a = 7;\nint b = 2;\nSystem.out.println(a / b);\nSystem.out.println(a % b);",
+          "expected": "3\n1",
+          "answer": "a / b is integer division, so 7 / 2 = 3. a % b is the remainder, 7 % 2 = 1.",
+          "hint": "Remember: int / int drops the fraction, and % gives the remainder."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the type mismatch",
+          "prompt": "This line will not compile. Fix it.",
+          "code": "int age = \"21\";",
+          "expected": "int age = 21;",
+          "answer": "An int variable cannot hold a String. Remove the quotes so 21 is an integer literal, not text.",
+          "hint": "Check whether the value on the right matches the declared type."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the variable",
+          "prompt": "Trace the value of x step by step.",
+          "code": "int x = 5;\nx = x * 2;\nx = x + 3;\nSystem.out.println(x);",
+          "expected": "x = 5, then x = 10 after x * 2, then x = 13 after + 3, prints 13",
+          "answer": "Start with x = 5. x * 2 makes it 10. Adding 3 makes it 13, which is what println shows.",
+          "hint": "Work through the lines one at a time, updating x each time."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the variable",
+          "prompt": "Complete the declaration so price holds 9.99.",
+          "code": "double ___ = 9.99;",
+          "expected": "price",
+          "answer": "Any valid name works; price is the natural name for a decimal price variable.",
+          "hint": "The blank is the variable name - pick a clear one."
+        }
+      ]
+    },
+    {
+      "title": "Conditionals & Loops",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>if, else if, else</h3><p>Conditionals let your program choose a path. Java checks each condition from top to bottom and runs the first branch that is true.</p><pre><code>int marks = 75;\nif (marks >= 90) {\n    System.out.println(\"Grade A\");\n} else if (marks >= 60) {\n    System.out.println(\"Grade B\");\n} else {\n    System.out.println(\"Grade C\");\n}</code></pre><p>Here 75 is not >= 90 but is >= 60, so it prints Grade B.</p><h3>Comparing strings</h3><p>Use <code>.equals()</code> to compare string contents. The <code>==</code> operator compares whether two variables refer to the same object, which is not the same as having equal text, so <code>==</code> on strings is unreliable.</p><pre><code>String answer = \"yes\";\nif (answer.equals(\"yes\")) {\n    System.out.println(\"Confirmed\");\n}</code></pre><h3>Loops</h3><p>A <code>for</code> loop repeats a known number of times. A <code>while</code> loop repeats while a condition stays true, and a <code>do-while</code> loop always runs at least once because the condition is checked at the end.</p><pre><code>public class Grades {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 3; i++) {\n            System.out.println(\"Count: \" + i);\n        }\n        int n = 1;\n        while (n <= 3) {\n            System.out.println(\"While: \" + n);\n            n++;\n        }\n    }\n}</code></pre><p>The for loop prints Count: 1, Count: 2, Count: 3. The while loop does the same with While: as the prefix. Use <code>break</code> to exit a loop early.</p><h3>Key points</h3><ul><li>if / else if / else runs the first branch whose condition is true.</li><li>Compare string contents with .equals(), never with ==.</li><li>for loops suit a known number of repetitions; while loops suit an unknown number.</li><li>do-while always runs at least once because its condition is checked last.</li><li>break exits a loop early.</li></ul>",
+      "flowchart": {
+        "title": "How an if-else decides a grade",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read marks",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "marks >= 90?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Print Grade A",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "marks >= 60?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Print Grade B",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "Print Grade C",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n8"
+          },
+          {
+            "from": "n6",
+            "to": "n8"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "eIrMbAQSU34",
+        "title": "Java Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What is the correct way to check if two strings have the same text?",
+          "options": [
+            "str1 == str2",
+            "str1.equals(str2)",
+            "str1 = str2",
+            "str1.compare(str2)"
+          ],
+          "answer": 1,
+          "why": ".equals() compares the contents of strings; == compares object references, which can be false even for equal text."
+        },
+        {
+          "q": "How many times does for (int i = 0; i < 3; i++) run its body?",
+          "options": [
+            "3",
+            "4",
+            "Forever",
+            "2"
+          ],
+          "answer": 0,
+          "why": "i takes the values 0, 1 and 2, then the condition i < 3 fails at 3, so the body runs 3 times."
+        },
+        {
+          "q": "How is a do-while loop different from a while loop?",
+          "options": [
+            "It has no condition",
+            "It only works with numbers",
+            "It can never end",
+            "It runs its body at least once"
+          ],
+          "answer": 3,
+          "why": "do-while checks its condition after the body, so the body always executes once even if the condition starts false."
+        },
+        {
+          "q": "What does break do inside a loop?",
+          "options": [
+            "Pauses the program",
+            "Skips one iteration",
+            "Exits the loop immediately",
+            "Restarts the loop"
+          ],
+          "answer": 2,
+          "why": "break jumps out of the enclosing loop at once; continue is the keyword that skips to the next iteration."
+        },
+        {
+          "q": "In if (marks >= 60) { ... } else { ... }, which branch runs when marks is 75?",
+          "options": [
+            "The else branch",
+            "The if branch",
+            "Both branches",
+            "Neither branch"
+          ],
+          "answer": 1,
+          "why": "75 >= 60 is true, so the if branch runs and the else branch is skipped."
+        },
+        {
+          "q": "What is wrong with if (x = 5)?",
+          "options": [
+            "It assigns 5 to x instead of comparing",
+            "It compares x with 5 correctly",
+            "It is missing a semicolon",
+            "Nothing, it checks equality"
+          ],
+          "answer": 0,
+          "why": "A single = assigns the value 5 to x; comparison needs ==. In Java this does not even compile for an int condition."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "for (int i = 1; i <= 3; i++) {\n    System.out.println(\"Count: \" + i);\n}",
+          "expected": "Count: 1\nCount: 2\nCount: 3",
+          "answer": "i starts at 1 and the loop runs while i <= 3, printing Count: 1, then 2, then 3, before i becomes 4 and stops.",
+          "hint": "Count how many values i takes from 1 to 3."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the comparison",
+          "prompt": "This condition does not compare - it assigns. Fix it.",
+          "code": "int x = 5;\nif (x = 5) {\n    System.out.println(\"x is five\");\n}",
+          "expected": "int x = 5;\nif (x == 5) {\n    System.out.println(\"x is five\");\n}",
+          "answer": "A single = assigns 5 to x and the if then has no boolean to test, so it fails to compile. == compares x with 5 and gives true.",
+          "hint": "Comparison needs two equals signs."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the while loop",
+          "prompt": "Trace i step by step until the loop ends.",
+          "code": "int i = 0;\nwhile (i < 3) {\n    i++;\n}\nSystem.out.println(i);",
+          "expected": "i = 0, check 0 < 3 true, i = 1, check 1 < 3 true, i = 2, check 2 < 3 true, i = 3, check 3 < 3 false, prints 3",
+          "answer": "Each pass checks i < 3 before incrementing. After three increments i is 3, the check fails, and 3 is printed.",
+          "hint": "Follow the flowchart: check the condition, then run the body, then check again."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the loop condition",
+          "prompt": "Complete the for header so the loop runs exactly 3 times.",
+          "code": "for (int i = 0; i ___ 3; i++) {\n    System.out.println(i);\n}",
+          "expected": "<",
+          "answer": "With i starting at 0, i < 3 gives the values 0, 1, 2 - exactly three runs. Using <= would give four.",
+          "hint": "Starting at 0, which operator gives exactly three values?"
+        }
+      ]
+    },
+    {
+      "title": "Methods & Arrays",
+      "duration_minutes": 60,
+      "is_preview": 0,
+      "body": "<h3>Methods</h3><p>A method is a named block of code that does one job. It can take inputs (parameters) and return a result. Methods keep your code organised and reusable.</p><pre><code>public static int sum(int[] numbers) {\n    int total = 0;\n    for (int i = 0; i < numbers.length; i++) {\n        total += numbers[i];\n    }\n    return total;\n}</code></pre><p><code>public static</code> means the method belongs to the class and can be called without creating an object. <code>int</code> is the return type - the method gives back an int. <code>void</code> would mean it returns nothing.</p><h3>Arrays</h3><p>An array stores a fixed number of values of the same type. Indexing starts at 0, so the first element is index 0 and the last is index <code>length - 1</code>.</p><pre><code>public class ArraysDemo {\n    public static int sum(int[] numbers) {\n        int total = 0;\n        for (int i = 0; i < numbers.length; i++) {\n            total += numbers[i];\n        }\n        return total;\n    }\n\n    public static void main(String[] args) {\n        int[] marks = {80, 90, 70};\n        System.out.println(\"Total: \" + sum(marks));\n        System.out.println(\"First mark: \" + marks[0]);\n        System.out.println(\"How many: \" + marks.length);\n    }\n}</code></pre><p>This prints Total: 240, First mark: 80, How many: 3. Notice the loop condition is <code>i &lt; marks.length</code> - using <code>&lt;=</code> would try to read index 3, which does not exist, and crash with an ArrayIndexOutOfBoundsException.</p><h3>Key points</h3><ul><li>A method has a return type, a name, parameters, and a body; void means it returns nothing.</li><li>static methods can be called from main without creating an object.</li><li>Arrays hold a fixed number of values of one type; indexing starts at 0.</li><li>Use array.length and loop with i &lt; length to avoid going past the end.</li><li>Reading past the last index throws ArrayIndexOutOfBoundsException.</li></ul>",
+      "flowchart": {
+        "title": "Accessing an array element safely",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Get index to read",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "index < array.length?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Return array[index]",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Throw ArrayIndexOutOfBoundsException",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n6"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          }
+        ]
+      },
+      "video": {
+        "id": "grEKMHGYyns",
+        "title": "Learn Java 8 - Full Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Given int[] nums = {1, 2, 3}; what is nums[1]?",
+          "options": [
+            "3",
+            "0",
+            "1",
+            "2"
+          ],
+          "answer": 3,
+          "why": "Array indexing starts at 0, so index 1 is the second element, which is 2."
+        },
+        {
+          "q": "What is nums.length for int[] nums = {1, 2, 3};?",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "answer": 2,
+          "why": "length is the number of elements in the array, which is 3."
+        },
+        {
+          "q": "What happens when you read nums[3] from int[] nums = {1, 2, 3};?",
+          "options": [
+            "It returns 0",
+            "It returns null",
+            "It throws ArrayIndexOutOfBoundsException",
+            "It wraps around to nums[0]"
+          ],
+          "answer": 2,
+          "why": "Valid indexes are 0 to 2; index 3 is past the end, so Java throws ArrayIndexOutOfBoundsException."
+        },
+        {
+          "q": "What does a void return type mean for a method?",
+          "options": [
+            "It returns nothing",
+            "It returns null",
+            "It never runs",
+            "It returns 0"
+          ],
+          "answer": 0,
+          "why": "void means the method performs an action and gives back no value."
+        },
+        {
+          "q": "Why can main call a static method directly?",
+          "options": [
+            "Static methods run first",
+            "Static methods cannot take parameters",
+            "Static methods need no object",
+            "Static methods are always public"
+          ],
+          "answer": 2,
+          "why": "A static method belongs to the class itself, so it can be called without creating an object of the class."
+        },
+        {
+          "q": "What is args in public static void main(String[] args)?",
+          "options": [
+            "The program's return value",
+            "The program's file name",
+            "An array of command-line arguments",
+            "The list of imported classes"
+          ],
+          "answer": 2,
+          "why": "args is a String array holding any words typed after the class name on the command line."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "int[] marks = {80, 90, 70};\nint total = 0;\nfor (int i = 0; i < marks.length; i++) {\n    total += marks[i];\n}\nSystem.out.println(total);\nSystem.out.println(marks[0]);",
+          "expected": "240\n80",
+          "answer": "The loop adds 80 + 90 + 70 = 240, and marks[0] is the first element, 80.",
+          "hint": "Add the three elements and remember indexing starts at 0."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the off-by-one error",
+          "prompt": "This loop crashes. Fix it.",
+          "code": "int[] marks = {80, 90, 70};\nfor (int i = 0; i <= marks.length; i++) {\n    System.out.println(marks[i]);\n}",
+          "expected": "int[] marks = {80, 90, 70};\nfor (int i = 0; i < marks.length; i++) {\n    System.out.println(marks[i]);\n}",
+          "answer": "marks.length is 3 but the last valid index is 2. With <= the loop tries marks[3] and throws ArrayIndexOutOfBoundsException; < stops at index 2.",
+          "hint": "The last valid index is length - 1."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the return type",
+          "prompt": "Complete the method header so it can return an int total.",
+          "code": "public static ___ sum(int[] numbers) {\n    int total = 0;\n    for (int n : numbers) {\n        total += n;\n    }\n    return total;\n}",
+          "expected": "int",
+          "answer": "The method returns total, which is an int, so its return type must be int.",
+          "hint": "What type is the value after return?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the array sum",
+          "prompt": "Trace total step by step.",
+          "code": "int[] marks = {80, 90, 70};\nint total = 0;\nfor (int i = 0; i < marks.length; i++) {\n    total += marks[i];\n}",
+          "expected": "total = 0, i = 0 adds 80, total = 80, i = 1 adds 90, total = 170, i = 2 adds 70, total = 240",
+          "answer": "Each loop pass adds one element: 0 + 80 = 80, then + 90 = 170, then + 70 = 240, and the loop ends when i reaches 3.",
+          "hint": "Walk the loop one index at a time, updating total."
+        }
+      ]
+    },
+    {
+      "title": "Object-Oriented Programming in Java",
+      "duration_minutes": 70,
+      "is_preview": 0,
+      "body": "<h3>Classes and objects</h3><p>A class is a blueprint; an object is a real thing built from it. A class holds fields (data) and methods (behaviour). You create an object with the <code>new</code> keyword, which runs a constructor.</p><pre><code>public class Student {\n    private String name;\n    private int age;\n\n    public Student(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n\n    public String getName() {\n        return name;\n    }\n\n    public void introduce() {\n        System.out.println(\"Hi, I am \" + name + \", age \" + age);\n    }\n}</code></pre><h3>Constructors and this</h3><p>A constructor has the same name as the class and no return type - not even void. It runs once when the object is created. Inside it, <code>this.name</code> means the object's own field, which lets you tell it apart from the parameter also called <code>name</code>.</p><pre><code>public class Main {\n    public static void main(String[] args) {\n        Student s = new Student(\"Sid\", 21);\n        s.introduce();\n        System.out.println(s.getName());\n    }\n}</code></pre><p>This prints \"Hi, I am Sid, age 21\" and then \"Sid\". Each object keeps its own copy of the fields, so two Student objects can hold different names.</p><h3>Encapsulation</h3><p>Marking fields <code>private</code> hides them from outside code. Other classes then use public getters (and setters) to read or change them. This protects the data - nobody can set a negative age directly, for example.</p><h3>Key points</h3><ul><li>A class is a blueprint; an object is created from it with new.</li><li>A constructor has the class name and no return type; it runs when the object is created.</li><li>this.field refers to the object's own field, not a same-named parameter.</li><li>private fields plus public getters and setters is called encapsulation.</li><li>Each object keeps its own copy of the fields.</li></ul>",
+      "flowchart": {
+        "title": "Creating and using an object",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Call new Student(...)",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Need custom values?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Run constructor with values",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Run default constructor",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Object is ready",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Call methods on the object",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n6"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "eIrMbAQSU34",
+        "title": "Java Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which keyword creates an object from a class?",
+          "options": [
+            "class",
+            "new",
+            "object",
+            "create"
+          ],
+          "answer": 1,
+          "why": "new allocates the object and runs its constructor, for example new Student(\"Sid\", 21)."
+        },
+        {
+          "q": "What must a constructor's name be?",
+          "options": [
+            "The same as the class name",
+            "Always main",
+            "The same as the first field",
+            "Any name you like"
+          ],
+          "answer": 0,
+          "why": "A constructor is identified by having exactly the class name and no return type."
+        },
+        {
+          "q": "Can code in another class read a private field directly?",
+          "options": [
+            "Yes, if it uses new",
+            "Only from main",
+            "Yes, always",
+            "No, it must use a public getter"
+          ],
+          "answer": 3,
+          "why": "private hides the field outside its own class; a public getter method is the controlled way to read it."
+        },
+        {
+          "q": "Which line correctly defines a class named Student?",
+          "options": [
+            "public Student() { }",
+            "class Student { }",
+            "Student class { }",
+            "new Student { }"
+          ],
+          "answer": 1,
+          "why": "A class is declared with the keyword class followed by its name and a body in braces."
+        },
+        {
+          "q": "What does this.name refer to inside a class?",
+          "options": [
+            "A static variable",
+            "The object's own name field",
+            "The class name",
+            "The method's parameter"
+          ],
+          "answer": 1,
+          "why": "this points to the current object, so this.name is the object's field, distinct from a parameter also called name."
+        },
+        {
+          "q": "How many objects does Student a = new Student(\"Sid\", 21); Student b = new Student(\"Anu\", 20); create?",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "0"
+          ],
+          "answer": 1,
+          "why": "Each new expression creates a separate object, so two news make two independent Student objects."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "Student s = new Student(\"Sid\", 21);\ns.introduce();",
+          "expected": "Hi, I am Sid, age 21",
+          "answer": "new runs the constructor, storing Sid and 21 in the object's fields, and introduce() prints them.",
+          "hint": "Follow the constructor: what values do the fields get?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix the constructor",
+          "prompt": "This class will not compile. Fix it.",
+          "code": "public class Student {\n    private String name;\n\n    public student(String name) {\n        this.name = name;\n    }\n}",
+          "expected": "public class Student {\n    private String name;\n\n    public Student(String name) {\n        this.name = name;\n    }\n}",
+          "answer": "A constructor must be spelled exactly like the class name, with a capital S. A lowercase student looks like a method with no return type, which is a compile error.",
+          "hint": "Constructors must match the class name exactly, including capitals."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the object creation",
+          "prompt": "Complete the line so a new Student object is created.",
+          "code": "Student s = ___ Student(\"Sid\", 21);",
+          "expected": "new",
+          "answer": "The new keyword allocates the object and calls the constructor.",
+          "hint": "Which keyword runs the constructor?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace two objects",
+          "prompt": "Trace the fields of a and b and the output.",
+          "code": "Student a = new Student(\"Sid\", 21);\nStudent b = new Student(\"Anu\", 20);\na.introduce();\nb.introduce();",
+          "expected": "a.name = Sid, a.age = 21, b.name = Anu, b.age = 20, prints 'Hi, I am Sid, age 21' then 'Hi, I am Anu, age 20'",
+          "answer": "Each new creates its own object with its own fields, so a and b keep different names and ages, and each introduce() prints its own values.",
+          "hint": "Objects do not share fields - trace each one separately."
+        }
+      ]
+    },
+    {
+      "title": "Strings, Collections & Exception Handling",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Strings</h3><p>Strings are objects with useful methods. Remember strings are immutable - methods like <code>toUpperCase()</code> return a new string instead of changing the original.</p><pre><code>String word = \"Java\";\nSystem.out.println(word.length());       // 4\nSystem.out.println(word.toUpperCase());  // JAVA\nSystem.out.println(word.charAt(0));      // J\nSystem.out.println(\"java\".equals(\"Java\")); // false</code></pre><p><code>length()</code> counts characters, <code>charAt(0)</code> gives the first character, and <code>equals()</code> compares contents case-sensitively - \"java\" and \"Java\" are not equal.</p><h3>ArrayList</h3><p>Unlike arrays, an <code>ArrayList</code> can grow. It holds objects, so use wrapper types like <code>Integer</code> for numbers.</p><pre><code>import java.util.ArrayList;\n\nArrayList&lt;String&gt; names = new ArrayList&lt;&gt;();\nnames.add(\"Sid\");\nnames.add(\"Anu\");\nSystem.out.println(names.size()); // 2\nSystem.out.println(names.get(0)); // Sid</code></pre><h3>Exceptions and try-catch</h3><p>An exception is a runtime error, such as dividing by zero or parsing bad input. Wrap risky code in <code>try</code> and handle the problem in <code>catch</code> so the program keeps running.</p><pre><code>public class StringsDemo {\n    public static void main(String[] args) {\n        try {\n            int n = Integer.parseInt(\"abc\");\n            System.out.println(n);\n        } catch (NumberFormatException e) {\n            System.out.println(\"Not a number!\");\n        } finally {\n            System.out.println(\"Done\");\n        }\n    }\n}</code></pre><p><code>parseInt(\"abc\")</code> throws NumberFormatException, the catch block prints \"Not a number!\", and the <code>finally</code> block always runs, printing \"Done\".</p><h3>Key points</h3><ul><li>String methods include length(), charAt(), toUpperCase(), substring() and equals(); strings are immutable.</li><li>Compare string contents with .equals() - it is case-sensitive.</li><li>ArrayList grows as you add items; use add(), get() and size().</li><li>try-catch lets a program survive a runtime error instead of crashing.</li><li>finally always runs, even when an exception is thrown.</li></ul>",
+      "flowchart": {
+        "title": "How try-catch handles an error",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Run code in try block",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Exception thrown?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Run catch block",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Continue normally",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Run finally block",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n6"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "grEKMHGYyns",
+        "title": "Learn Java 8 - Full Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does \"Java\".length() return?",
+          "options": [
+            "5",
+            "0",
+            "3",
+            "4"
+          ],
+          "answer": 3,
+          "why": "length() counts the characters J, a, v, a - four in total."
+        },
+        {
+          "q": "What does \"java\".equals(\"Java\") return?",
+          "options": [
+            "It returns 0",
+            "true",
+            "false",
+            "It throws an error"
+          ],
+          "answer": 2,
+          "why": "equals() is case-sensitive, and the lowercase j differs from the capital J."
+        },
+        {
+          "q": "After list.add(\"A\"); what is list.size() for a new empty ArrayList?",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "It throws an error"
+          ],
+          "answer": 1,
+          "why": "An empty list has size 0; adding one element makes the size 1."
+        },
+        {
+          "q": "Which block always runs, even if an exception is thrown?",
+          "options": [
+            "catch",
+            "finally",
+            "throw",
+            "try"
+          ],
+          "answer": 1,
+          "why": "finally is designed for cleanup code that must run whether or not an exception occurred."
+        },
+        {
+          "q": "What does Integer.parseInt(\"12\") return?",
+          "options": [
+            "An error",
+            "12.0",
+            "12 as an int",
+            "\"12\" as a String"
+          ],
+          "answer": 2,
+          "why": "parseInt converts the text 12 into the integer value 12."
+        },
+        {
+          "q": "What does \"Hello\".substring(1, 3) return?",
+          "options": [
+            "\"He\"",
+            "\"Hel\"",
+            "\"el\"",
+            "\"ell\""
+          ],
+          "answer": 2,
+          "why": "substring(1, 3) takes characters at indexes 1 and 2, which are e and l; the end index is exclusive."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "String a = \"Java\";\nString b = \"java\";\nSystem.out.println(a.equals(b));\nSystem.out.println(a.length());",
+          "expected": "false\n4",
+          "answer": "equals is case-sensitive so Java and java differ, giving false; length counts 4 characters.",
+          "hint": "Check the capital J in the first string versus the small j in the second."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the crash",
+          "prompt": "This program crashes on bad input. Fix it so it prints a friendly message instead.",
+          "code": "int x = 10 / 0;\nSystem.out.println(x);",
+          "expected": "try {\n    int x = 10 / 0;\n    System.out.println(x);\n} catch (ArithmeticException e) {\n    System.out.println(\"Cannot divide by zero\");\n}",
+          "answer": "Dividing by zero throws ArithmeticException at runtime. Wrapping the division in try and catching ArithmeticException lets the program print a message instead of crashing.",
+          "hint": "Which exception does division by zero throw, and how do you catch it?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the catch",
+          "prompt": "Complete the missing keyword so the error is handled.",
+          "code": "try {\n    int n = Integer.parseInt(\"abc\");\n} ___ (NumberFormatException e) {\n    System.out.println(\"Not a number!\");\n}",
+          "expected": "catch",
+          "answer": "A catch block follows try and names the exception type it handles, here NumberFormatException.",
+          "hint": "The block that handles the exception starts with this keyword."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the ArrayList",
+          "prompt": "Trace the size of the list and what is printed.",
+          "code": "ArrayList<String> list = new ArrayList<>();\nlist.add(\"A\");\nlist.add(\"B\");\nSystem.out.println(list.size());\nSystem.out.println(list.get(1));",
+          "expected": "size starts 0, after add A size 1, after add B size 2, prints 2 then B",
+          "answer": "Each add grows the list by one. After two adds the size is 2, and get(1) returns the second element, B.",
+          "hint": "Count the adds, then remember get() uses 0-based indexes."
+        }
+      ]
+    },
+    {
+      "title": "File I/O & Mini Patterns",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Writing a file</h3><p>Java can read and write files. <code>PrintWriter</code> writes text, and wrapping it in try-with-resources closes the file automatically, even if an error occurs.</p><pre><code>import java.io.PrintWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class FileDemo {\n    public static void main(String[] args) {\n        try (PrintWriter out = new PrintWriter(new FileWriter(\"notes.txt\"))) {\n            out.println(\"Hello, file!\");\n        } catch (IOException e) {\n            System.out.println(\"Could not write file\");\n        }\n    }\n}</code></pre><p>File operations can fail - a disk may be full or a folder may not exist - so Java forces you to handle <code>IOException</code> with a try-catch or a throws declaration.</p><h3>Reading a file</h3><p>Use a <code>Scanner</code> on a <code>File</code> object and loop while <code>hasNextLine()</code> is true. Each call to <code>nextLine()</code> returns one line of text.</p><pre><code>import java.io.File;\nimport java.io.FileNotFoundException;\nimport java.util.Scanner;\n\ntry (Scanner in = new Scanner(new File(\"notes.txt\"))) {\n    while (in.hasNextLine()) {\n        System.out.println(in.nextLine());\n    }\n} catch (FileNotFoundException e) {\n    System.out.println(\"File not found\");\n}</code></pre><h3>Mini patterns with nested loops</h3><p>Nested loops build patterns. The outer loop picks the row; the inner loop prints the stars for that row.</p><pre><code>for (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= i; j++) {\n        System.out.print(\"*\");\n    }\n    System.out.println();\n}</code></pre><p>Row 1 prints 1 star, row 2 prints 2, row 3 prints 3:</p><pre><code>*\n**\n***</code></pre><h3>Key points</h3><ul><li>PrintWriter writes text to a file; Scanner reads it back line by line.</li><li>try-with-resources closes the file automatically - no manual close needed.</li><li>File work throws IOException or FileNotFoundException, so handle it with try-catch.</li><li>Nested loops make patterns: the outer loop is the row, the inner loop is the columns.</li><li>System.out.print() stays on the same line; println() moves to the next line.</li></ul>",
+      "flowchart": {
+        "title": "Reading a file line by line",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Open the file",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "More lines?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Read and print one line",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Close the file",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n3"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          }
+        ]
+      },
+      "video": {
+        "id": "eIrMbAQSU34",
+        "title": "Java Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which class writes text to a file in Java?",
+          "options": [
+            "Scanner",
+            "PrintWriter",
+            "ArrayList",
+            "System"
+          ],
+          "answer": 1,
+          "why": "PrintWriter has println methods that write text into a file; Scanner reads instead."
+        },
+        {
+          "q": "What does try-with-resources do automatically?",
+          "options": [
+            "Closes the resource",
+            "Catches all exceptions",
+            "Creates the file",
+            "Deletes the file"
+          ],
+          "answer": 0,
+          "why": "A resource declared in the try header is closed automatically when the block ends, even on error."
+        },
+        {
+          "q": "In the star pattern, what does the outer loop control?",
+          "options": [
+            "The file name",
+            "The column width",
+            "The number of stars in a row",
+            "The row number"
+          ],
+          "answer": 3,
+          "why": "Each pass of the outer loop is one row; the inner loop decides how many stars that row gets."
+        },
+        {
+          "q": "Which exception is thrown when Scanner cannot find the file to read?",
+          "options": [
+            "NullPointerException",
+            "IOException",
+            "FileNotFoundException",
+            "NumberFormatException"
+          ],
+          "answer": 2,
+          "why": "Opening a missing file with Scanner throws FileNotFoundException, a subclass of IOException."
+        },
+        {
+          "q": "What does Files.readAllLines(path) return?",
+          "options": [
+            "A single String",
+            "A List of Strings, one per line",
+            "An int count of lines",
+            "A Scanner"
+          ],
+          "answer": 1,
+          "why": "readAllLines reads the whole file and returns each line as one element of a List<String>."
+        },
+        {
+          "q": "Which inner loop prints 1 star on row 1, 2 stars on row 2, and 3 on row 3?",
+          "options": [
+            "for (int j = 1; j <= i; j++)",
+            "for (int j = 1; j < i; j++)",
+            "for (int j = i; j <= 3; j++)",
+            "for (int j = 1; j <= 3; j++)"
+          ],
+          "answer": 0,
+          "why": "j <= i makes the inner loop run i times, so row i gets exactly i stars."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this pattern code print?",
+          "code": "for (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= i; j++) {\n        System.out.print(\"*\");\n    }\n    System.out.println();\n}",
+          "expected": "*\n**\n***",
+          "answer": "Row 1 runs the inner loop once (1 star), row 2 twice (2 stars), row 3 three times (3 stars), each followed by a newline.",
+          "hint": "The inner loop runs i times for each row."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the resource leak",
+          "prompt": "This code writes a file but never closes it. Fix it.",
+          "code": "PrintWriter out = new PrintWriter(new FileWriter(\"notes.txt\"));\nout.println(\"Hello\");",
+          "expected": "try (PrintWriter out = new PrintWriter(new FileWriter(\"notes.txt\"))) {\n    out.println(\"Hello\");\n} catch (IOException e) {\n    System.out.println(\"Could not write file\");\n}",
+          "answer": "An unclosed writer can lose data and leak a file handle. try-with-resources closes it automatically, and the catch handles the IOException that FileWriter can throw.",
+          "hint": "Which construct closes a resource automatically?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the pattern bound",
+          "prompt": "Complete the inner loop so row i prints i stars.",
+          "code": "for (int i = 1; i <= 3; i++) {\n    for (int j = 1; j ___ i; j++) {\n        System.out.print(\"*\");\n    }\n    System.out.println();\n}",
+          "expected": "<=",
+          "answer": "j <= i runs the inner loop exactly i times, giving i stars on row i.",
+          "hint": "Row 1 needs one star, so the loop must run when j equals i."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the pattern loops",
+          "prompt": "Trace i and j for the first two rows.",
+          "code": "for (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= i; j++) {\n        System.out.print(\"*\");\n    }\n    System.out.println();\n}",
+          "expected": "i = 1, j runs 1, prints *, newline; i = 2, j runs 1 then 2, prints **, newline; i = 3 prints ***",
+          "answer": "With i = 1 the inner loop runs once, with i = 2 it runs twice, and with i = 3 three times, building the triangle row by row.",
+          "hint": "For each outer value, list the inner values."
+        }
+      ]
+    },
+    {
+      "title": "Mini Project: Library Management System",
+      "duration_minutes": 90,
+      "is_preview": 0,
+      "body": "<h3>The project</h3><p>You will build a console Library Management System that stores books, lets a user add a book, search by title, issue a book, return it, and list all books. It combines everything in this course: classes, ArrayList, loops, conditionals, strings and Scanner input.</p><h3>Step 1: The Book class</h3><p>Each book has a title and an availability flag. Fields stay private and are reached through getters and a setter.</p><pre><code>public class Book {\n    private String title;\n    private boolean available;\n\n    public Book(String title) {\n        this.title = title;\n        this.available = true;\n    }\n\n    public String getTitle() {\n        return title;\n    }\n\n    public boolean isAvailable() {\n        return available;\n    }\n\n    public void setAvailable(boolean available) {\n        this.available = available;\n    }\n}</code></pre><h3>Step 2: The library and the menu</h3><p>An <code>ArrayList&lt;Book&gt;</code> holds every book. A <code>while</code> loop shows a menu until the user chooses exit, and a <code>switch</code> runs the chosen action.</p><pre><code>import java.util.ArrayList;\nimport java.util.Scanner;\n\npublic class Library {\n    public static void main(String[] args) {\n        ArrayList&lt;Book&gt; books = new ArrayList&lt;&gt;();\n        Scanner scanner = new Scanner(System.in);\n        int choice = 0;\n        while (choice != 5) {\n            System.out.println(\"1. Add book  2. Search  3. Issue  4. List books  5. Exit\");\n            choice = scanner.nextInt();\n            scanner.nextLine();\n            switch (choice) {\n                case 1:\n                    System.out.print(\"Title: \");\n                    books.add(new Book(scanner.nextLine()));\n                    break;\n                case 4:\n                    for (Book b : books) {\n                        System.out.println(b.getTitle() + \" - available: \" + b.isAvailable());\n                    }\n                    break;\n            }\n        }\n        scanner.close();\n    }\n}</code></pre><h3>Step 3: Searching and issuing</h3><p>To search, loop through the books and compare titles with <code>.equals()</code> - never <code>==</code>. To issue a book, check <code>isAvailable()</code> first, then call <code>setAvailable(false)</code>. Returning a book sets it back to <code>true</code>.</p><h3>Key points</h3><ul><li>Model each book as a Book object with a title and an available flag.</li><li>Store all books in an ArrayList&lt;Book&gt; so the library can grow.</li><li>A while loop plus a switch makes a menu that runs until the user exits.</li><li>Compare titles with .equals(), not ==.</li><li>Issue a book only when isAvailable() is true, then set it to false.</li></ul>",
+      "flowchart": {
+        "title": "Library menu flow",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Show menu",
+            "kind": "output"
+          },
+          {
+            "id": "n3",
+            "label": "Read choice",
+            "kind": "input"
+          },
+          {
+            "id": "n4",
+            "label": "Choice is Exit?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Run chosen action (add/search/issue/list)",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Book available to issue?",
+            "kind": "decision"
+          },
+          {
+            "id": "n7",
+            "label": "Mark book as issued",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "Show 'not available'",
+            "kind": "output"
+          },
+          {
+            "id": "n9",
+            "label": "Close scanner and end",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n9",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7",
+            "label": "Yes"
+          },
+          {
+            "from": "n6",
+            "to": "n8",
+            "label": "No"
+          },
+          {
+            "from": "n7",
+            "to": "n2"
+          },
+          {
+            "from": "n8",
+            "to": "n2"
+          }
+        ]
+      },
+      "video": {
+        "id": "grEKMHGYyns",
+        "title": "Learn Java 8 - Full Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which collection is the best fit for storing the library's books?",
+          "options": [
+            "String",
+            "boolean[]",
+            "int[]",
+            "ArrayList<Book>"
+          ],
+          "answer": 3,
+          "why": "The library grows as books are added, and ArrayList<Book> holds Book objects and can grow; a fixed int array cannot."
+        },
+        {
+          "q": "How should you check whether a book's title matches the search text?",
+          "options": [
+            "title.compare(search)",
+            "title == search",
+            "title.equals(search)",
+            "title = search"
+          ],
+          "answer": 2,
+          "why": "equals() compares string contents; == compares references and can miss a match."
+        },
+        {
+          "q": "Which loop keeps the menu running until the user chooses Exit?",
+          "options": [
+            "for loop",
+            "while loop with an exit condition",
+            "A single if",
+            "do-while with no condition"
+          ],
+          "answer": 1,
+          "why": "A while loop repeats the menu while the choice is not Exit, which is exactly the repeated-until-exit behaviour needed."
+        },
+        {
+          "q": "What type should a book's availability field be?",
+          "options": [
+            "int",
+            "boolean",
+            "char",
+            "String"
+          ],
+          "answer": 1,
+          "why": "Availability is a yes/no state, which is exactly what boolean models."
+        },
+        {
+          "q": "How do you mark a book as issued using the Book class?",
+          "options": [
+            "book.getTitle();",
+            "book = null;",
+            "book.available = false;",
+            "book.setAvailable(false);"
+          ],
+          "answer": 3,
+          "why": "available is private, so outside code must use the public setter setAvailable(false)."
+        },
+        {
+          "q": "Why is Book a separate class instead of storing titles in plain strings?",
+          "options": [
+            "It avoids using loops",
+            "It makes the code shorter",
+            "Each book bundles its title and availability together",
+            "Strings cannot be stored in a list"
+          ],
+          "answer": 2,
+          "why": "A Book object keeps a title and its availability together, so the library can track each book's state instead of just a list of names."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "Book b = new Book(\"Java Basics\");\nSystem.out.println(b.isAvailable());\nb.setAvailable(false);\nSystem.out.println(b.isAvailable());",
+          "expected": "true\nfalse",
+          "answer": "A new book starts available, so isAvailable() prints true. setAvailable(false) marks it issued, so the second print is false.",
+          "hint": "What value does the constructor give available?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix the search",
+          "prompt": "This search never finds a book that is actually there. Fix it.",
+          "code": "for (Book book : books) {\n    if (book.getTitle() == title) {\n        System.out.println(\"Found: \" + book.getTitle());\n    }\n}",
+          "expected": "for (Book book : books) {\n    if (book.getTitle().equals(title)) {\n        System.out.println(\"Found: \" + book.getTitle());\n    }\n}",
+          "answer": "== compares object references, and the searched title is usually a different String object than the stored one, so the test fails even when the text matches. equals() compares the text itself.",
+          "hint": "How do you compare string contents in Java?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the book list",
+          "prompt": "Complete the line that creates the list of books.",
+          "code": "ArrayList<Book> books = new ___<>();",
+          "expected": "ArrayList",
+          "answer": "The list is declared as ArrayList<Book>, so it is created with new ArrayList<>().",
+          "hint": "The type on the right must match the declaration on the left."
+        },
+        {
+          "type": "project",
+          "title": "Build the Library Management System",
+          "prompt": "Build the complete console Library Management System: a Book class (title, available flag, constructor, getters, setter) and a Library main program with a menu loop. The menu must support: 1. Add book, 2. Search by title, 3. Issue a book, 4. Return a book, 5. List all books with availability, 6. Exit. Use an ArrayList<Book>, compare titles with .equals(), refuse to issue a book that is already issued, and close the Scanner when the program ends.",
+          "code": "",
+          "expected": "Deliverable checklist: Book.java compiles with private fields, constructor, getters and setter; Library.java compiles and runs; menu repeats until Exit; adding a book then listing shows it as available; searching finds it by exact title; issuing it flips it to not available and issuing again is refused; returning it makes it available again; no == used for string comparison; Scanner is closed.",
+          "answer": "Start with the Book class from this lesson, then build the Library main program one menu option at a time: add first, then list, then search with .equals(), then issue guarded by isAvailable(), then return. Test each option before adding the next.",
+          "hint": "Build one menu option at a time and test it before moving on."
+        }
+      ]
+    }
+  ]
+}

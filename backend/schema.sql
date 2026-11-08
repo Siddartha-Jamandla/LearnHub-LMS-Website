@@ -117,3 +117,77 @@ CREATE TABLE IF NOT EXISTS certificates (
 );
 
 CREATE INDEX IF NOT EXISTS idx_certificates_user ON certificates(user_id);
+
+-- ------------------------------------------------------------------
+-- Learning content: real lessons, quizzes, tasks and the tutor KB.
+-- Seeded from backend/content/*.json by backend/seed_content.py.
+-- ------------------------------------------------------------------
+
+-- Rich lesson content: teachable explanation (HTML fragment), an
+-- optional logic flowchart (nodes/edges JSON, rendered client-side
+-- as inline SVG) and one free YouTube tutorial video (verified ID).
+CREATE TABLE IF NOT EXISTS lesson_content (
+    lesson_id       INTEGER PRIMARY KEY REFERENCES lessons(id) ON DELETE CASCADE,
+    body            TEXT NOT NULL DEFAULT '',
+    flowchart_title TEXT,
+    flowchart_json  TEXT,              -- {"nodes": [...], "edges": [...]} or NULL
+    video_id        TEXT,              -- verified YouTube video ID or NULL
+    video_title     TEXT
+);
+
+-- Per-lesson MCQ quiz questions. options_json is a JSON array of
+-- exactly 4 strings; answer_index is 0-3; explanation says WHY.
+CREATE TABLE IF NOT EXISTS quizzes (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    lesson_id    INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    question     TEXT NOT NULL,
+    options_json TEXT NOT NULL,
+    answer_index INTEGER NOT NULL CHECK (answer_index BETWEEN 0 AND 3),
+    explanation  TEXT NOT NULL DEFAULT '',
+    order_index  INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_quizzes_lesson ON quizzes(lesson_id);
+
+-- One row per quiz submission. answers_json maps question id -> the
+-- option index the learner picked, so results can be reviewed.
+CREATE TABLE IF NOT EXISTS quiz_attempts (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id    INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    score        INTEGER NOT NULL,
+    total        INTEGER NOT NULL,
+    answers_json TEXT NOT NULL DEFAULT '{}',
+    taken_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_user_lesson
+    ON quiz_attempts(user_id, lesson_id);
+
+-- Practice tasks: predict the output, fix the bug, fill in the blank,
+-- trace the code, or a mini-project (one per course, last lesson).
+CREATE TABLE IF NOT EXISTS tasks (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    lesson_id   INTEGER NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    type        TEXT NOT NULL,         -- predict | fix | fill | trace | project
+    title       TEXT NOT NULL,
+    prompt      TEXT NOT NULL,
+    code        TEXT NOT NULL DEFAULT '',
+    expected    TEXT NOT NULL DEFAULT '',
+    answer      TEXT NOT NULL DEFAULT '',
+    hint        TEXT NOT NULL DEFAULT '',
+    order_index INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_tasks_lesson ON tasks(lesson_id);
+
+CREATE TABLE IF NOT EXISTS task_completions (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    task_id      INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    completed_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, task_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_task_completions_user
+    ON task_completions(user_id);

@@ -1,0 +1,1550 @@
+{
+  "course": {
+    "match_title": null,
+    "title": "SQL Essentials: Queries to Databases",
+    "description": "Learn SQL from zero: query real tables, filter and sort data, join tables, aggregate results, and safely change data — finishing with a complete college database project.",
+    "category": "Data Science",
+    "price": 799,
+    "instructor": "Kavya Nair",
+    "duration_hours": 12,
+    "level": "Beginner",
+    "image_url": "assets/images/course6.svg"
+  },
+  "lessons": [
+    {
+      "title": "Databases, Tables & Your First SELECT",
+      "duration_minutes": 40,
+      "is_preview": 1,
+      "body": "<h3>What is a database?</h3><p>A database is an organised collection of data. A relational database stores data in <b>tables</b>. A table has <b>columns</b> (the fields, like name and age) and <b>rows</b> (one record per row). SQL — Structured Query Language — is the language we use to ask the database questions.</p><h3>Our sample table</h3><p>We will use this students table in every lesson:</p><table><tr><th>id</th><th>name</th><th>age</th><th>city</th><th>marks</th></tr><tr><td>1</td><td>Aarav</td><td>20</td><td>Hyderabad</td><td>85</td></tr><tr><td>2</td><td>Priya</td><td>21</td><td>Warangal</td><td>92</td></tr><tr><td>3</td><td>Rahul</td><td>19</td><td>Hyderabad</td><td>78</td></tr><tr><td>4</td><td>Sneha</td><td>22</td><td>Chennai</td><td>88</td></tr></table><h3>Your first query</h3><p>SELECT picks columns, FROM picks the table. The star means all columns. Every SQL statement ends with a semicolon.</p><pre><code>SELECT * FROM students;</code></pre><p>To pick only some columns, list them by name:</p><pre><code>SELECT name, marks FROM students;</code></pre><p>This returns the name and marks of all four students. Use AS to rename a column in the result, and DISTINCT to remove duplicate values:</p><pre><code>SELECT DISTINCT city FROM students;</code></pre><p>This returns Hyderabad, Warangal and Chennai — Hyderabad appears once, even though two students live there.</p><p><b>Video:</b> watch the opening part of the full-course video, where databases, tables and the first SELECT queries are introduced.</p><h3>Key points</h3><ul><li>A table is made of columns (fields) and rows (records).</li><li>SELECT chooses columns, FROM chooses the table.</li><li>SELECT * returns every column; listing column names returns only those.</li><li>DISTINCT removes duplicate values from the result.</li><li>Every SQL statement ends with a semicolon.</li></ul>",
+      "flowchart": {
+        "title": "How a SELECT query executes",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read the query",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Table students exists?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Show error: table not found",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Pick the requested columns",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Return the rows",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n7"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does SQL stand for?",
+          "options": [
+            "Standard Question Language",
+            "Sequential Query Language",
+            "Structured Query Language",
+            "Simple Query Language"
+          ],
+          "answer": 2,
+          "why": "SQL stands for Structured Query Language — the standard language for talking to relational databases."
+        },
+        {
+          "q": "Which statement retrieves every column from the students table?",
+          "options": [
+            "SELECT students;",
+            "SELECT * FROM students;",
+            "SELECT ALL students;",
+            "GET * FROM students;"
+          ],
+          "answer": 1,
+          "why": "SELECT * FROM students; selects all columns (*) from the students table."
+        },
+        {
+          "q": "In a table, a single row is also called a...",
+          "options": [
+            "Field",
+            "Record",
+            "Column",
+            "Key"
+          ],
+          "answer": 1,
+          "why": "Each row holds the data of one thing — one student — so it is called a record. Columns are the fields."
+        },
+        {
+          "q": "Which keyword returns only unique values?",
+          "options": [
+            "DIFFERENT",
+            "DISTINCT",
+            "ONLY",
+            "UNIQUE"
+          ],
+          "answer": 1,
+          "why": "DISTINCT removes duplicate values from the result, so each value appears once."
+        },
+        {
+          "q": "What does SELECT name FROM students; return?",
+          "options": [
+            "The whole table",
+            "Only the names that are unique",
+            "Only the first student's name",
+            "Only the name column, for every row"
+          ],
+          "answer": 3,
+          "why": "Listing a column name returns just that column, but for all four rows."
+        },
+        {
+          "q": "Which of these is correct SQL syntax?",
+          "options": [
+            "SELECT name, age students;",
+            "SELECT name age FROM students;",
+            "SELECT name, age FROM students;",
+            "SELECT FROM students name, age;"
+          ],
+          "answer": 2,
+          "why": "Column names are separated by commas and the table name follows FROM."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the result rows",
+          "prompt": "What rows does this query return from the students table?",
+          "code": "SELECT name FROM students WHERE marks > 80;",
+          "expected": "Aarav\nPriya\nSneha",
+          "answer": "marks > 80 keeps Aarav (85), Priya (92) and Sneha (88). Rahul has 78, so he is left out.",
+          "hint": "Check each student's marks against 80, one row at a time."
+        },
+        {
+          "type": "fill",
+          "title": "Complete the query",
+          "prompt": "Fill in the blank so the query returns every column of every student.",
+          "code": "SELECT ___ FROM students;",
+          "expected": "*",
+          "answer": "The star (*) means all columns.",
+          "hint": "One character means all columns."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the broken query",
+          "prompt": "This query has two spelling mistakes. Fix it.",
+          "code": "SELCT name FORM students;",
+          "expected": "SELECT name FROM students;",
+          "answer": "SELCT should be SELECT and FORM should be FROM. SQL keywords must be spelled exactly, or the database reports a syntax error.",
+          "hint": "Check the spelling of the two keywords."
+        }
+      ]
+    },
+    {
+      "title": "Filtering with WHERE & Sorting with ORDER BY",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Filtering rows with WHERE</h3><p>WHERE keeps only the rows that match a condition. The condition is checked for every row, one at a time.</p><pre><code>SELECT name FROM students WHERE marks >= 90;</code></pre><p>Comparison operators: = (equal), &lt;&gt; (not equal), &gt;, &lt;, &gt;=, &lt;=. Combine conditions with AND (both must be true), OR (at least one must be true) and NOT.</p><pre><code>SELECT name FROM students WHERE city = 'Hyderabad' AND marks >= 80;</code></pre><p>String values go in single quotes. Numbers do not need quotes.</p><h3>Handy WHERE patterns</h3><p>BETWEEN includes both ends. IN checks a list. LIKE matches a pattern, where % means any characters. IS NULL finds missing values — never use = NULL, because NULL means unknown and never equals anything.</p><pre><code>SELECT name FROM students WHERE marks BETWEEN 80 AND 90;\nSELECT name FROM students WHERE city IN ('Hyderabad', 'Chennai');\nSELECT name FROM students WHERE name LIKE 'A%';\nSELECT name FROM students WHERE city IS NULL;</code></pre><p>LIKE 'A%' finds names starting with A, so it returns Aarav.</p><h3>Sorting with ORDER BY</h3><p>ORDER BY sorts the result. ASC is ascending (smallest first, the default) and DESC is descending (largest first). You can sort by more than one column.</p><pre><code>SELECT name, marks FROM students ORDER BY marks DESC;</code></pre><p>This returns Priya (92), Sneha (88), Aarav (85), Rahul (78). Add LIMIT to keep only the first few rows:</p><pre><code>SELECT name, marks FROM students ORDER BY marks DESC LIMIT 2;</code></pre><p><b>Video:</b> watch the part of the full-course video that covers WHERE clauses, comparison operators and ORDER BY.</p><h3>Key points</h3><ul><li>WHERE filters rows before they are returned; it runs row by row.</li><li>Use single quotes for strings, no quotes for numbers.</li><li>AND needs all conditions true; OR needs at least one true.</li><li>BETWEEN includes both ends; LIKE uses % as a wildcard.</li><li>Use IS NULL to test for missing values, never = NULL.</li><li>ORDER BY ... DESC sorts largest first; LIMIT keeps only the top rows.</li></ul>",
+      "flowchart": {
+        "title": "How WHERE filters rows",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read the WHERE condition",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Take the next row",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Row matches the condition?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Keep the row",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Skip the row",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "More rows left?",
+            "kind": "decision"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n7"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n3",
+            "label": "Yes"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "No"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which students does WHERE marks >= 90 return?",
+          "options": [
+            "Priya only",
+            "Priya and Sneha",
+            "Aarav and Priya",
+            "All four students"
+          ],
+          "answer": 0,
+          "why": "Only Priya has marks of 90 or more (92). Sneha has 88, so she is excluded."
+        },
+        {
+          "q": "Which condition finds names that start with the letter A?",
+          "options": [
+            "name LIKE '%A'",
+            "name LIKE '%A%'",
+            "name = 'A%'",
+            "name LIKE 'A%'"
+          ],
+          "answer": 3,
+          "why": "% matches any characters after A, so 'A%' means starts with A. '%A' would mean ends with A."
+        },
+        {
+          "q": "What is the first row of SELECT name FROM students ORDER BY marks DESC;?",
+          "options": [
+            "Sneha",
+            "Priya",
+            "Rahul",
+            "Aarav"
+          ],
+          "answer": 1,
+          "why": "DESC sorts largest first, and Priya has the highest marks (92)."
+        },
+        {
+          "q": "Which students does WHERE marks BETWEEN 80 AND 90 return?",
+          "options": [
+            "Rahul and Aarav",
+            "Aarav and Sneha",
+            "Priya and Sneha",
+            "Aarav only"
+          ],
+          "answer": 1,
+          "why": "BETWEEN includes both ends, so 85 and 88 qualify. Priya (92) is above 90 and Rahul (78) is below 80."
+        },
+        {
+          "q": "What does AND do when joining two conditions?",
+          "options": [
+            "At least one condition must be true",
+            "Both conditions must be true",
+            "Neither condition may be true",
+            "It adds the two values together"
+          ],
+          "answer": 1,
+          "why": "AND is true only when every condition joined by it is true. OR is the one that needs just one true condition."
+        },
+        {
+          "q": "How do you find students whose city is not recorded?",
+          "options": [
+            "WHERE city IS NULL",
+            "WHERE city = 'NULL'",
+            "WHERE city LIKE NULL",
+            "WHERE city = NULL"
+          ],
+          "answer": 0,
+          "why": "NULL means unknown, and nothing equals NULL — not even NULL itself — so the special test IS NULL is required."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the result rows",
+          "prompt": "What rows does this query return, and in what order?",
+          "code": "SELECT name FROM students WHERE city = 'Hyderabad' ORDER BY marks DESC;",
+          "expected": "Aarav\nRahul",
+          "answer": "WHERE keeps only the Hyderabad students (Aarav and Rahul), then ORDER BY marks DESC puts Aarav (85) before Rahul (78).",
+          "hint": "Filter first, then sort what is left."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the broken query",
+          "prompt": "This query should return students with marks of 85 or more, but it fails. Fix it.",
+          "code": "SELECT name FROM students WHERE marks => 85;",
+          "expected": "SELECT name FROM students WHERE marks >= 85;",
+          "answer": "The operator is written backwards. The correct greater-than-or-equal operator is >=, not =>.",
+          "hint": "The arrow points the wrong way — the greater-than sign comes first."
+        },
+        {
+          "type": "fill",
+          "title": "Complete the query",
+          "prompt": "Fill in the blank so the query returns students aged 20, 21 or 22.",
+          "code": "SELECT name FROM students WHERE age BETWEEN 20 ___ 22;",
+          "expected": "AND",
+          "answer": "BETWEEN always takes two values joined by AND: BETWEEN 20 AND 22.",
+          "hint": "BETWEEN needs a word between its two numbers."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the WHERE filter",
+          "prompt": "Trace how the database runs this query, row by row.",
+          "code": "SELECT name FROM students WHERE marks >= 85;",
+          "expected": "Row 1 Aarav (85): 85 >= 85 is true, keep. Row 2 Priya (92): 92 >= 85 is true, keep. Row 3 Rahul (78): 78 >= 85 is false, skip. Row 4 Sneha (88): 88 >= 85 is true, keep. Result: Aarav, Priya, Sneha.",
+          "answer": "Following the flowchart: the database reads the condition, takes each row in turn, tests marks >= 85, keeps the row on Yes and skips it on No, then moves to the next row until none are left.",
+          "hint": "Test the condition against each student's marks in order."
+        }
+      ]
+    },
+    {
+      "title": "Aggregate Functions & GROUP BY",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>One answer from many rows</h3><p>Aggregate functions take many rows and return a single value: COUNT counts rows, SUM adds values, AVG finds the mean, MIN and MAX find the smallest and largest.</p><pre><code>SELECT COUNT(*) AS total_students, AVG(marks) AS avg_marks FROM students;</code></pre><p>This returns total_students 4 and avg_marks 85.75, because (85 + 92 + 78 + 88) / 4 = 343 / 4 = 85.75.</p><h3>COUNT(*) vs COUNT(column)</h3><p>COUNT(*) counts every row, even rows where a column is empty (NULL). COUNT(marks) counts only rows where marks has a value — it skips NULLs. In our table there are no NULLs, so both give 4, but the difference matters as soon as a value is missing.</p><h3>GROUP BY: aggregates per group</h3><p>GROUP BY splits the rows into groups first, then the aggregate runs inside each group.</p><pre><code>SELECT city, COUNT(*) AS total FROM students GROUP BY city;</code></pre><p>This returns one row per city: Hyderabad 2, Warangal 1, Chennai 1.</p><h3>WHERE vs HAVING</h3><p>WHERE filters individual rows <b>before</b> grouping. HAVING filters whole groups <b>after</b> grouping — it is the only place you can test an aggregate like COUNT(*) &gt; 1.</p><pre><code>SELECT city, COUNT(*) AS total FROM students GROUP BY city HAVING COUNT(*) > 1;</code></pre><p>This returns only Hyderabad, with total 2. A common mistake is writing WHERE COUNT(*) &gt; 1 — that fails, because WHERE runs before the counting happens.</p><p><b>Video:</b> watch the part of the full-course video that covers aggregate functions, GROUP BY and HAVING.</p><h3>Key points</h3><ul><li>COUNT, SUM, AVG, MIN and MAX collapse many rows into one value.</li><li>COUNT(*) counts all rows; COUNT(column) skips NULL values in that column.</li><li>GROUP BY creates one result row per group, then aggregates inside each group.</li><li>WHERE filters rows before grouping; HAVING filters groups after grouping.</li><li>Never test an aggregate in WHERE — use HAVING instead.</li></ul>",
+      "flowchart": {
+        "title": "How GROUP BY aggregates rows",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read the query",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Group rows by city",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Compute COUNT and AVG for each group",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "HAVING condition present?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Apply the HAVING filter to groups",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Return the group results",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does COUNT(*) count?",
+          "options": [
+            "Only the first row",
+            "Only distinct values",
+            "Only rows where every column has a value",
+            "All rows, including rows with NULL values"
+          ],
+          "answer": 3,
+          "why": "COUNT(*) counts rows, not values, so it counts every row even if some columns are NULL."
+        },
+        {
+          "q": "What is AVG(marks) for our students table?",
+          "options": [
+            "343",
+            "85",
+            "85.75",
+            "86"
+          ],
+          "answer": 2,
+          "why": "85 + 92 + 78 + 88 = 343, and 343 / 4 = 85.75."
+        },
+        {
+          "q": "Which clause filters groups after they have been formed?",
+          "options": [
+            "WHERE",
+            "HAVING",
+            "ORDER BY",
+            "LIMIT"
+          ],
+          "answer": 1,
+          "why": "HAVING runs after GROUP BY and tests whole groups, for example HAVING COUNT(*) > 1. WHERE runs before grouping."
+        },
+        {
+          "q": "What is SUM(marks) for our students table?",
+          "options": [
+            "85.75",
+            "92",
+            "340",
+            "343"
+          ],
+          "answer": 3,
+          "why": "85 + 92 + 78 + 88 = 343."
+        },
+        {
+          "q": "Which query is valid standard SQL?",
+          "options": [
+            "SELECT city FROM students HAVING COUNT(*) > 1;",
+            "SELECT COUNT(*) FROM students GROUP BY marks;",
+            "SELECT city, COUNT(*) FROM students;",
+            "SELECT city, COUNT(*) FROM students GROUP BY city;"
+          ],
+          "answer": 3,
+          "why": "When you select city alongside an aggregate, city must appear in GROUP BY. The first option mixes a plain column with an aggregate and no GROUP BY, which standard SQL rejects."
+        },
+        {
+          "q": "What is the difference between COUNT(*) and COUNT(marks)?",
+          "options": [
+            "COUNT(marks) counts distinct values only",
+            "There is no difference",
+            "COUNT(marks) skips rows where marks is NULL, COUNT(*) does not",
+            "COUNT(*) skips NULL rows, COUNT(marks) does not"
+          ],
+          "answer": 2,
+          "why": "COUNT(column) counts only non-NULL values in that column, while COUNT(*) counts every row."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the result rows",
+          "prompt": "What rows does this query return?",
+          "code": "SELECT city, COUNT(*) AS total FROM students GROUP BY city;",
+          "expected": "Chennai | 1\nHyderabad | 2\nWarangal | 1",
+          "answer": "The rows split into three groups by city: Chennai has Sneha (1), Hyderabad has Aarav and Rahul (2), Warangal has Priya (1). The order of the groups is not guaranteed without ORDER BY.",
+          "hint": "Group the four students by their city first, then count each group."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the broken query",
+          "prompt": "This query should return only cities with more than one student, but it is missing something. Fix it.",
+          "code": "SELECT city, COUNT(*) AS total FROM students HAVING COUNT(*) > 1;",
+          "expected": "SELECT city, COUNT(*) AS total FROM students GROUP BY city HAVING COUNT(*) > 1;",
+          "answer": "HAVING filters groups, but no groups were created. Adding GROUP BY city creates one group per city, and then HAVING COUNT(*) > 1 keeps only Hyderabad.",
+          "hint": "HAVING needs groups to filter — what clause creates them?"
+        },
+        {
+          "type": "fill",
+          "title": "Complete the query",
+          "prompt": "Fill in the blank so the average marks are shown under the name avg_marks.",
+          "code": "SELECT AVG(marks) ___ avg_marks FROM students;",
+          "expected": "AS",
+          "answer": "AS gives the result column a name: AVG(marks) AS avg_marks.",
+          "hint": "The keyword that renames a result column is two letters."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the GROUP BY execution",
+          "prompt": "Trace how the database runs this query step by step.",
+          "code": "SELECT city, COUNT(*) AS total FROM students GROUP BY city HAVING COUNT(*) > 1;",
+          "expected": "Step 1: group the 4 rows by city — Hyderabad (Aarav, Rahul), Warangal (Priya), Chennai (Sneha). Step 2: COUNT each group — Hyderabad 2, Warangal 1, Chennai 1. Step 3: HAVING COUNT(*) > 1 keeps only Hyderabad. Result: Hyderabad | 2.",
+          "answer": "Following the flowchart: rows are grouped first, aggregates are computed per group, then the HAVING filter drops the groups of size 1, leaving only Hyderabad.",
+          "hint": "Group, then count, then filter the groups."
+        }
+      ]
+    },
+    {
+      "title": "Joins: INNER, LEFT, RIGHT & FULL",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>Why join?</h3><p>Real data lives in several tables. To answer one question we often need columns from two tables at once — a join matches rows from one table to rows in another. We add a second table, enrollments, which records which course each student takes:</p><table><tr><th>student_id</th><th>course</th><th>grade</th></tr><tr><td>1</td><td>SQL</td><td>A</td></tr><tr><td>1</td><td>Python</td><td>B</td></tr><tr><td>2</td><td>SQL</td><td>A</td></tr><tr><td>3</td><td>Python</td><td>C</td></tr></table><p>Note that Sneha (id 4) has no enrollment row.</p><h3>INNER JOIN: matches only</h3><p>INNER JOIN returns only rows that have a match in both tables. The ON clause says how rows match.</p><pre><code>SELECT students.name, enrollments.course FROM students INNER JOIN enrollments ON students.id = enrollments.student_id;</code></pre><p>This returns 4 rows: Aarav-SQL, Aarav-Python, Priya-SQL, Rahul-Python. Sneha is missing because she has no enrollment. Writing just JOIN means INNER JOIN.</p><h3>LEFT JOIN: keep every row from the left table</h3><p>LEFT JOIN returns all rows from the left table (students), even when there is no match. Unmatched rows get NULL for the right table's columns.</p><pre><code>SELECT students.name, enrollments.course FROM students LEFT JOIN enrollments ON students.id = enrollments.student_id;</code></pre><p>This returns 5 rows — the same 4 as above, plus Sneha with a NULL course. That NULL is the key signal: it tells you Sneha has no enrollment.</p><h3>RIGHT and FULL joins</h3><p>RIGHT JOIN is the mirror image: it keeps every row from the right table. FULL JOIN keeps every row from both tables, filling NULLs wherever there is no match. In practice LEFT JOIN covers most needs — you can always swap the table order instead of using RIGHT JOIN.</p><p>Always qualify columns with the table name (students.id) when both tables have a column with the same name, or the database reports an ambiguous column error.</p><p><b>Video:</b> watch the part of the full-course video that covers joins, including INNER and LEFT JOIN examples.</p><h3>Key points</h3><ul><li>INNER JOIN returns only rows with a match in both tables.</li><li>LEFT JOIN keeps every row from the left table and fills NULLs where there is no match.</li><li>RIGHT JOIN mirrors LEFT JOIN; FULL JOIN keeps all rows from both tables.</li><li>ON states how rows match; it is not a filter like WHERE.</li><li>A NULL from a LEFT JOIN means no matching row existed.</li><li>Qualify shared column names with the table name to avoid ambiguity.</li></ul>",
+      "flowchart": {
+        "title": "How a JOIN matches rows",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read both tables",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Take the next student row",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Matching enrollment row?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Combine into one result row",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Skip the student (INNER JOIN)",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "More students?",
+            "kind": "decision"
+          },
+          {
+            "id": "n8",
+            "label": "Return the joined rows",
+            "kind": "output"
+          },
+          {
+            "id": "n9",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n7"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n3",
+            "label": "Yes"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "No"
+          },
+          {
+            "from": "n8",
+            "to": "n9"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does an INNER JOIN return?",
+          "options": [
+            "All rows from both tables",
+            "Only rows with a match in both tables",
+            "Only rows with no match",
+            "All rows from the left table"
+          ],
+          "answer": 1,
+          "why": "INNER JOIN keeps a row only when the ON condition finds a matching row in the other table."
+        },
+        {
+          "q": "In the LEFT JOIN of students to enrollments, what appears for Sneha's course?",
+          "options": [
+            "Python",
+            "NULL",
+            "An empty string",
+            "SQL"
+          ],
+          "answer": 1,
+          "why": "Sneha has no enrollment row, so LEFT JOIN keeps her row and fills the enrollments columns with NULL."
+        },
+        {
+          "q": "Which join returns every student, even those with no enrollments?",
+          "options": [
+            "CROSS JOIN",
+            "SELF JOIN",
+            "INNER JOIN",
+            "LEFT JOIN"
+          ],
+          "answer": 3,
+          "why": "LEFT JOIN keeps all rows from the left table (students) and fills NULLs where the right table has no match."
+        },
+        {
+          "q": "What does the ON clause do in a join?",
+          "options": [
+            "Limits the number of rows returned",
+            "Filters the final result like WHERE",
+            "Tells the database how rows from the two tables match",
+            "Sorts the joined rows"
+          ],
+          "answer": 2,
+          "why": "ON defines the matching rule, such as students.id = enrollments.student_id. Filtering the result is WHERE's job."
+        },
+        {
+          "q": "How many rows does the INNER JOIN of students and enrollments return?",
+          "options": [
+            "3",
+            "4",
+            "5",
+            "7"
+          ],
+          "answer": 1,
+          "why": "There are 4 enrollment rows and each one matches a student: Aarav twice, Priya once, Rahul once. Sneha has no enrollment, so she adds nothing."
+        },
+        {
+          "q": "How do you find students who have NO enrollments?",
+          "options": [
+            "LEFT JOIN enrollments and check enrollments.student_id IS NULL",
+            "RIGHT JOIN enrollments and check name IS NULL",
+            "SELECT name FROM enrollments WHERE course IS NULL",
+            "INNER JOIN enrollments and check course = NULL"
+          ],
+          "answer": 0,
+          "why": "LEFT JOIN keeps unmatched students with NULL enrollment columns, and IS NULL finds exactly those rows."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the result rows",
+          "prompt": "What rows does this INNER JOIN return?",
+          "code": "SELECT students.name, enrollments.course FROM students INNER JOIN enrollments ON students.id = enrollments.student_id;",
+          "expected": "Aarav | SQL\nAarav | Python\nPriya | SQL\nRahul | Python",
+          "answer": "Each enrollment row matches one student: Aarav matches twice (SQL and Python), Priya once (SQL), Rahul once (Python). Sneha has no enrollment, so INNER JOIN drops her.",
+          "hint": "Match each enrollment row to its student by student_id."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the broken query",
+          "prompt": "This query fails with an ambiguous column error. Fix it.",
+          "code": "SELECT name, course FROM students JOIN enrollments ON id = student_id;",
+          "expected": "SELECT students.name, enrollments.course FROM students JOIN enrollments ON students.id = enrollments.student_id;",
+          "answer": "Both tables have a column called id, so plain id is ambiguous. Qualifying it as students.id tells the database exactly which column to use.",
+          "hint": "Two tables both have an id column — say which table you mean."
+        },
+        {
+          "type": "fill",
+          "title": "Complete the query",
+          "prompt": "Fill in the blank so the ON clause states how the tables match.",
+          "code": "SELECT name FROM students LEFT JOIN enrollments ___ students.id = enrollments.student_id;",
+          "expected": "ON",
+          "answer": "The ON keyword introduces the matching condition of a join.",
+          "hint": "The keyword that introduces a join's matching condition is two letters."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the JOIN matching",
+          "prompt": "Trace how the INNER JOIN runs, student by student.",
+          "code": "SELECT students.name, enrollments.course FROM students INNER JOIN enrollments ON students.id = enrollments.student_id;",
+          "expected": "Aarav (id 1): matches SQL and Python, 2 result rows. Priya (id 2): matches SQL, 1 result row. Rahul (id 3): matches Python, 1 result row. Sneha (id 4): no match, skipped. Total: 4 rows.",
+          "answer": "Following the flowchart: for each student the database looks for enrollment rows with the same student_id, combines each match into a result row, and skips students with no match.",
+          "hint": "Go student by student and count their matching enrollment rows."
+        }
+      ]
+    },
+    {
+      "title": "Subqueries & Set Operations",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>What is a subquery?</h3><p>A subquery is a query inside another query. The inner query runs first, and its result is used by the outer query. Subqueries go in parentheses.</p><pre><code>SELECT name FROM students WHERE marks > (SELECT AVG(marks) FROM students);</code></pre><p>Step 1: the inner query computes AVG(marks) = 85.75. Step 2: the outer query becomes WHERE marks &gt; 85.75, which returns Priya (92) and Sneha (88).</p><h3>Subqueries with IN and EXISTS</h3><p>When the inner query returns a list of values, use IN. This finds students who take the SQL course:</p><pre><code>SELECT name FROM students WHERE id IN (SELECT student_id FROM enrollments WHERE course = 'SQL');</code></pre><p>This returns Aarav and Priya. EXISTS is different: it only checks whether the inner query returns at least one row, and is often the fastest way to test for existence.</p><pre><code>SELECT name FROM students s WHERE EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = s.id);</code></pre><h3>Set operations: UNION, INTERSECT, EXCEPT</h3><p>UNION stacks the results of two queries into one. UNION removes duplicate rows; UNION ALL keeps them. Both queries must return the same number of columns, with compatible types.</p><pre><code>SELECT name FROM students WHERE city = 'Hyderabad' UNION SELECT name FROM students WHERE marks >= 90;</code></pre><p>This returns Aarav, Rahul and Priya — the Hyderabad students plus the high scorers, with no duplicates. INTERSECT returns only rows in both results, and EXCEPT returns rows in the first result but not the second.</p><p><b>Video:</b> watch the part of the full-course video that covers subqueries and combining query results.</p><h3>Key points</h3><ul><li>A subquery runs first; its result feeds the outer query.</li><li>A subquery used with &gt;, &lt; or = must return a single value.</li><li>Use IN when the subquery returns a list of values.</li><li>EXISTS tests whether the subquery returns at least one row.</li><li>UNION removes duplicates; UNION ALL keeps them.</li><li>UNION, INTERSECT and EXCEPT need the same number of columns on both sides.</li></ul>",
+      "flowchart": {
+        "title": "How a subquery executes",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read the outer query",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Run the inner subquery first",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Subquery returned a value?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Use the value in the outer WHERE",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Return no rows",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n7"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does SELECT name FROM students WHERE marks > (SELECT AVG(marks) FROM students); return?",
+          "options": [
+            "Priya only",
+            "All four students",
+            "Aarav and Priya",
+            "Priya and Sneha"
+          ],
+          "answer": 3,
+          "why": "AVG(marks) is 85.75, and only Priya (92) and Sneha (88) score above it."
+        },
+        {
+          "q": "What is the difference between UNION and UNION ALL?",
+          "options": [
+            "There is no difference",
+            "UNION sorts, UNION ALL does not",
+            "UNION removes duplicate rows, UNION ALL keeps them",
+            "UNION is faster on large tables"
+          ],
+          "answer": 2,
+          "why": "UNION de-duplicates the combined result; UNION ALL simply stacks the rows, duplicates included."
+        },
+        {
+          "q": "A subquery used with marks > (...) must return...",
+          "options": [
+            "A list of values",
+            "Exactly one value",
+            "A whole table",
+            "At least two values"
+          ],
+          "answer": 1,
+          "why": "A comparison like > needs one value to compare against. A list of values needs IN instead."
+        },
+        {
+          "q": "Which students does WHERE id IN (SELECT student_id FROM enrollments WHERE course = 'SQL') return?",
+          "options": [
+            "Aarav and Rahul",
+            "Priya and Rahul",
+            "All four students",
+            "Aarav and Priya"
+          ],
+          "answer": 3,
+          "why": "The subquery returns student_id 1 and 2 (Aarav and Priya take SQL), so IN keeps exactly those two students."
+        },
+        {
+          "q": "What does EXISTS check?",
+          "options": [
+            "Whether two tables are equal",
+            "Whether a column is unique",
+            "Whether a value is NULL",
+            "Whether the subquery returns at least one row"
+          ],
+          "answer": 3,
+          "why": "EXISTS is true when the inner query finds at least one matching row, and false otherwise."
+        },
+        {
+          "q": "What does INTERSECT return?",
+          "options": [
+            "Rows with no duplicates",
+            "All rows from both queries",
+            "Only rows that appear in both query results",
+            "Rows in the first result but not the second"
+          ],
+          "answer": 2,
+          "why": "INTERSECT is the overlap: only rows present in both results survive."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the result rows",
+          "prompt": "What rows does this query return?",
+          "code": "SELECT name FROM students WHERE marks > (SELECT AVG(marks) FROM students);",
+          "expected": "Priya\nSneha",
+          "answer": "The subquery runs first and returns AVG(marks) = 85.75. The outer query then keeps marks above 85.75: Priya (92) and Sneha (88). Aarav (85) is just below the average.",
+          "hint": "Compute the average first, then compare each student's marks to it."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the broken query",
+          "prompt": "This query fails with a syntax error. Fix it.",
+          "code": "SELECT name FROM students WHERE marks > SELECT AVG(marks) FROM students;",
+          "expected": "SELECT name FROM students WHERE marks > (SELECT AVG(marks) FROM students);",
+          "answer": "A subquery must be wrapped in parentheses. Without them the database cannot tell where the inner query starts and ends.",
+          "hint": "A subquery always needs something around it."
+        },
+        {
+          "type": "fill",
+          "title": "Complete the query",
+          "prompt": "Fill in the blank so the query returns students who take the SQL course.",
+          "code": "SELECT name FROM students WHERE id IN (SELECT student_id FROM enrollments WHERE course ___ 'SQL');",
+          "expected": "=",
+          "answer": "The subquery filters enrollments to course = 'SQL', and IN matches students whose id appears in that list.",
+          "hint": "A single character compares the course to the string 'SQL'."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the subquery execution",
+          "prompt": "Trace how the database runs this query step by step.",
+          "code": "SELECT name FROM students WHERE marks > (SELECT AVG(marks) FROM students);",
+          "expected": "Step 1: run the inner query — AVG(marks) = (85 + 92 + 78 + 88) / 4 = 85.75. Step 2: rewrite the outer query as WHERE marks > 85.75. Step 3: test each row — Aarav 85 no, Priya 92 yes, Rahul 78 no, Sneha 88 yes. Result: Priya, Sneha.",
+          "answer": "Following the flowchart: the inner query always runs first, its single value is handed to the outer WHERE, and then the outer query filters rows normally.",
+          "hint": "Inner query first, then the outer filter."
+        }
+      ]
+    },
+    {
+      "title": "INSERT, UPDATE & DELETE Safely",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Adding rows with INSERT</h3><p>INSERT adds new rows. Always list the columns so the values cannot land in the wrong place.</p><pre><code>INSERT INTO students (id, name, age, city, marks) VALUES (5, 'Kiran', 20, 'Hyderabad', 81);</code></pre><p>Each value must match its column: numbers without quotes, strings in single quotes.</p><h3>Changing rows with UPDATE</h3><p>UPDATE changes existing rows. The WHERE clause decides which rows change — and it is the most important part of the statement.</p><pre><code>UPDATE students SET marks = 90 WHERE id = 1;</code></pre><p>This changes only Aarav's marks to 90. Without the WHERE clause, UPDATE students SET marks = 90; would set every student's marks to 90. That is the classic SQL disaster, and it happens to experienced developers too.</p><h3>Removing rows with DELETE</h3><p>DELETE removes rows, and again WHERE decides which ones.</p><pre><code>DELETE FROM students WHERE id = 4;</code></pre><p>This removes only Sneha. DELETE FROM students; with no WHERE removes every row in the table — the table itself survives, but it is empty.</p><h3>The safe habit</h3><p>Before any UPDATE or DELETE, run the same condition as a SELECT first and check the rows it returns. That preview is exactly the set of rows you are about to change. For extra safety, wrap risky changes in a transaction: BEGIN starts it, COMMIT saves it, and ROLLBACK undoes everything since BEGIN — but only before you commit.</p><pre><code>SELECT * FROM students WHERE id = 4;\nDELETE FROM students WHERE id = 4;</code></pre><p><b>Video:</b> watch the part of the full-course video that covers INSERT, UPDATE and DELETE statements.</p><h3>Key points</h3><ul><li>INSERT adds rows; list the columns so values land in the right place.</li><li>UPDATE ... SET changes rows; WHERE decides which rows change.</li><li>DELETE removes rows; without WHERE it removes every row in the table.</li><li>Always preview with SELECT using the same WHERE before an UPDATE or DELETE.</li><li>BEGIN, COMMIT and ROLLBACK let you undo changes — but only before COMMIT.</li></ul>",
+      "flowchart": {
+        "title": "Safe UPDATE and DELETE flow",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Write the UPDATE or DELETE",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Has a WHERE clause?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Stop and add a WHERE clause",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Preview with SELECT and the same WHERE",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Preview rows look correct?",
+            "kind": "decision"
+          },
+          {
+            "id": "n7",
+            "label": "Fix the WHERE clause",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "Run the UPDATE or DELETE",
+            "kind": "process"
+          },
+          {
+            "id": "n9",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n3"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n8",
+            "label": "Yes"
+          },
+          {
+            "from": "n6",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n7",
+            "to": "n5"
+          },
+          {
+            "from": "n8",
+            "to": "n9"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does DELETE FROM students; do (with no WHERE clause)?",
+          "options": [
+            "Deletes only the first row",
+            "Deletes all rows in the table",
+            "Deletes the table itself",
+            "Nothing — it is a syntax error"
+          ],
+          "answer": 1,
+          "why": "DELETE without WHERE matches every row, so the whole table is emptied. The table structure itself remains."
+        },
+        {
+          "q": "Which rows does UPDATE students SET marks = 90 WHERE id = 1; change?",
+          "options": [
+            "Only Aarav's row",
+            "Only rows with marks 90",
+            "No rows",
+            "All rows"
+          ],
+          "answer": 0,
+          "why": "WHERE id = 1 matches exactly one row — Aarav, whose id is 1."
+        },
+        {
+          "q": "What is the safest first step before running an UPDATE or DELETE?",
+          "options": [
+            "Delete a backup copy first",
+            "Add LIMIT 1 to the statement",
+            "Run the same WHERE as a SELECT and check the rows",
+            "Run it twice to be sure"
+          ],
+          "answer": 2,
+          "why": "The SELECT preview shows exactly which rows the WHERE matches, so you see the damage before you cause it."
+        },
+        {
+          "q": "Which INSERT is valid for our students table?",
+          "options": [
+            "INSERT INTO students SET id = 5, name = 'Kiran';",
+            "INSERT INTO students (id, name) VALUES (5, 'Kiran', 20, 'Hyderabad', 81);",
+            "INSERT INTO students (id, name, age, city, marks) VALUES (5, 'Kiran', 20, 'Hyderabad', 81);",
+            "INSERT students (5, 'Kiran', 20, 'Hyderabad', 81);"
+          ],
+          "answer": 2,
+          "why": "The correct form names the table, lists the columns, and gives one value per column. The first option lists 2 columns but gives 5 values, which is an error."
+        },
+        {
+          "q": "After you run COMMIT, can ROLLBACK still undo the change?",
+          "options": [
+            "Yes, always",
+            "Yes, within one hour",
+            "No — COMMIT makes the change permanent",
+            "Only for DELETE, not UPDATE"
+          ],
+          "answer": 2,
+          "why": "COMMIT saves the transaction permanently. ROLLBACK only undoes changes made since the last BEGIN that have not been committed."
+        },
+        {
+          "q": "How many rows does UPDATE students SET city = 'Secunderabad' WHERE city = 'Hyderabad'; change?",
+          "options": [
+            "2",
+            "3",
+            "4",
+            "1"
+          ],
+          "answer": 0,
+          "why": "Two students live in Hyderabad — Aarav and Rahul — so exactly those two rows change."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the result rows",
+          "prompt": "After this UPDATE runs, what does the SELECT return?",
+          "code": "UPDATE students SET marks = 95 WHERE id = 2;\nSELECT name, marks FROM students WHERE marks >= 90;",
+          "expected": "Priya | 95",
+          "answer": "The UPDATE sets Priya's marks (id 2) from 92 to 95. The SELECT then finds only Priya at 90 or above — Sneha has 88, Aarav 85, Rahul 78.",
+          "hint": "First work out what the UPDATE changes, then apply the SELECT filter to the new values."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the dangerous query",
+          "prompt": "This UPDATE was meant to change only Rahul's marks, but it is dangerous. Fix it.",
+          "code": "UPDATE students SET marks = 100;",
+          "expected": "UPDATE students SET marks = 100 WHERE id = 3;",
+          "answer": "Without WHERE, the UPDATE changes every student's marks to 100. Adding WHERE id = 3 limits it to Rahul, the only student with id 3.",
+          "hint": "The bug is what is missing — which clause limits the rows?"
+        },
+        {
+          "type": "fill",
+          "title": "Complete the query",
+          "prompt": "Fill in the blank so the DELETE removes only Sneha (id 4).",
+          "code": "DELETE FROM students WHERE id = ___;",
+          "expected": "4",
+          "answer": "WHERE id = 4 matches exactly Sneha's row.",
+          "hint": "Sneha's id in the sample table is 4."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the safe UPDATE flow",
+          "prompt": "Trace the safe steps for changing Rahul's marks to 80.",
+          "code": "UPDATE students SET marks = 80 WHERE id = 3;",
+          "expected": "Step 1: the statement has a WHERE clause, so continue. Step 2: preview with SELECT * FROM students WHERE id = 3 — returns Rahul only, correct. Step 3: run the UPDATE. Step 4: verify — Rahul's marks are now 80, nobody else changed.",
+          "answer": "Following the flowchart: check for WHERE, preview the same condition with SELECT, confirm the preview shows only Rahul, then run the UPDATE and verify.",
+          "hint": "Follow the flowchart: WHERE check, preview, confirm, run."
+        }
+      ]
+    },
+    {
+      "title": "Indexes, Constraints & Keys",
+      "duration_minutes": 45,
+      "is_preview": 0,
+      "body": "<h3>Keys: identifying rows</h3><p>A <b>primary key</b> uniquely identifies each row: it must be unique and never NULL. In students, id is the primary key. A <b>foreign key</b> is a column that points at another table's primary key — enrollments.student_id is a foreign key pointing at students.id, which guarantees every enrollment belongs to a real student.</p><pre><code>CREATE TABLE students (\n  id INT PRIMARY KEY,\n  name VARCHAR(50) NOT NULL,\n  age INT CHECK (age >= 16),\n  city VARCHAR(50),\n  marks INT CHECK (marks BETWEEN 0 AND 100)\n);</code></pre><h3>Constraints: rules the database enforces</h3><p>Constraints are rules that the database checks on every INSERT and UPDATE, so bad data can never get in: NOT NULL (the column must have a value), UNIQUE (no two rows may share the value), and CHECK (the value must satisfy a condition, like marks between 0 and 100). A row that breaks a rule is rejected with an error — nothing is silently stored.</p><pre><code>INSERT INTO students (id, name, age, city, marks) VALUES (5, 'Kiran', 20, 'Hyderabad', 105);</code></pre><p>This INSERT fails, because 105 breaks the CHECK rule marks BETWEEN 0 AND 100. No row is added.</p><h3>Indexes: speed for lookups</h3><p>An index is like the index at the back of a textbook: the database keeps a sorted shortcut to a column, so finding rows by that column is fast instead of scanning the whole table.</p><pre><code>CREATE INDEX idx_city ON students (city);</code></pre><p>Create indexes on columns you filter or join on often, such as city or student_id. The trade-off: every INSERT, UPDATE and DELETE must also update the index, so too many indexes slow down writes. Index the columns you search, not every column.</p><p><b>Video:</b> watch the part of the full-course video that covers creating tables, keys and constraints.</p><h3>Key points</h3><ul><li>A primary key is unique and never NULL; it identifies each row.</li><li>A foreign key must match a real row in the referenced table.</li><li>NOT NULL, UNIQUE and CHECK are rules the database enforces on every write.</li><li>A row that breaks a constraint is rejected with an error.</li><li>Indexes speed up lookups on a column but slow down writes.</li><li>Index columns you filter or join on often — not every column.</li></ul>",
+      "flowchart": {
+        "title": "How constraints check an INSERT",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "New row to insert",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Primary key already used?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Reject: duplicate key",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Required fields filled?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Reject: missing value",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "CHECK rules pass?",
+            "kind": "decision"
+          },
+          {
+            "id": "n8",
+            "label": "Reject: value out of range",
+            "kind": "output"
+          },
+          {
+            "id": "n9",
+            "label": "Insert the row",
+            "kind": "process"
+          },
+          {
+            "id": "n10",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n10"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n10"
+          },
+          {
+            "from": "n7",
+            "to": "n9",
+            "label": "Yes"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "No"
+          },
+          {
+            "from": "n8",
+            "to": "n10"
+          },
+          {
+            "from": "n9",
+            "to": "n10"
+          }
+        ]
+      },
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What must be true of a primary key?",
+          "options": [
+            "It must be the first column",
+            "It can repeat across rows",
+            "It must be unique and never NULL",
+            "It must be a number"
+          ],
+          "answer": 2,
+          "why": "A primary key identifies one row, so it can never repeat and can never be missing (NULL)."
+        },
+        {
+          "q": "What does a foreign key guarantee?",
+          "options": [
+            "The value is unique",
+            "The column is indexed",
+            "The value exists as a primary key in the referenced table",
+            "The column can never be NULL"
+          ],
+          "answer": 2,
+          "why": "A foreign key points at another table's primary key, so the database rejects values with no matching row there."
+        },
+        {
+          "q": "What is the main benefit of an index on the city column?",
+          "options": [
+            "Faster INSERT statements",
+            "Faster lookups and filters on city",
+            "Smaller table size",
+            "Automatic sorting of the table"
+          ],
+          "answer": 1,
+          "why": "An index is a shortcut the database uses to find rows by that column without scanning the whole table."
+        },
+        {
+          "q": "With CHECK (marks BETWEEN 0 AND 100), what happens to an INSERT with marks 105?",
+          "options": [
+            "It stores the row with a warning",
+            "It is rejected with an error and no row is added",
+            "It stores 105 and flags the row",
+            "It stores 100 instead"
+          ],
+          "answer": 1,
+          "why": "A CHECK constraint is enforced on every write: a value outside 0–100 is rejected and the row is not stored."
+        },
+        {
+          "q": "Which column is the best primary key for the students table?",
+          "options": [
+            "id",
+            "marks",
+            "name",
+            "city"
+          ],
+          "answer": 0,
+          "why": "id is unique for every student and never changes. Names can repeat, and city and marks repeat too."
+        },
+        {
+          "q": "What is the trade-off of creating many indexes?",
+          "options": [
+            "Queries return wrong results",
+            "Reads get slower",
+            "Writes get slower because each index must be updated",
+            "The table loses rows"
+          ],
+          "answer": 2,
+          "why": "Every INSERT, UPDATE and DELETE must update each index, so too many indexes slow down writes even while reads get faster."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the outcome",
+          "prompt": "What happens when this INSERT runs against the students table with CHECK (marks BETWEEN 0 AND 100)?",
+          "code": "INSERT INTO students (id, name, age, city, marks) VALUES (5, 'Kiran', 20, 'Hyderabad', 105);",
+          "expected": "Error: the INSERT is rejected, no row is added.",
+          "answer": "marks 105 breaks the CHECK rule (marks must be between 0 and 100), so the database rejects the whole INSERT and the table is unchanged.",
+          "hint": "Check the marks value against the CHECK rule."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the broken INSERT",
+          "prompt": "This INSERT fails. Find the bug and fix it.",
+          "code": "INSERT INTO students (id, name, age, city, marks) VALUES (1, 'Aarav', 20, 'Hyderabad', 85);",
+          "expected": "INSERT INTO students (id, name, age, city, marks) VALUES (5, 'Aarav', 20, 'Hyderabad', 85);",
+          "answer": "id 1 already belongs to Aarav, so the INSERT breaks the primary key rule — primary keys must be unique. Using a fresh id (5) fixes it.",
+          "hint": "Which value already exists in the table?"
+        },
+        {
+          "type": "fill",
+          "title": "Complete the statement",
+          "prompt": "Fill in the blank to create an index on the city column.",
+          "code": "CREATE INDEX idx_city ON students (___);",
+          "expected": "city",
+          "answer": "CREATE INDEX idx_city ON students (city); creates an index on the city column.",
+          "hint": "Which column should the index cover?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the constraint checks",
+          "prompt": "Trace the checks the database runs for this INSERT, in order.",
+          "code": "INSERT INTO students (id, name, age, city, marks) VALUES (5, 'Kiran', 20, 'Hyderabad', 81);",
+          "expected": "Step 1: primary key check — id 5 is not used, pass. Step 2: NOT NULL check — name 'Kiran' is present, pass. Step 3: CHECK age >= 16 — 20 passes. Step 4: CHECK marks BETWEEN 0 AND 100 — 81 passes. Step 5: row inserted.",
+          "answer": "Following the flowchart: the database checks the primary key first, then required fields, then each CHECK rule, and only inserts the row when every check passes.",
+          "hint": "Walk the flowchart: key, required fields, then CHECK rules."
+        }
+      ]
+    },
+    {
+      "title": "Mini Project: Build a College Database",
+      "duration_minutes": 85,
+      "is_preview": 0,
+      "body": "<h3>The project</h3><p>Now combine everything into one working database for a small college. You will design the tables, create them with the right keys and constraints, load sample data, and answer real questions with queries.</p><h3>Step 1: design the tables</h3><p>A college has students, courses, and enrollments linking them. One student takes many courses and one course has many students — a many-to-many relationship — so enrollments is a junction table with two foreign keys.</p><pre><code>CREATE TABLE students (\n  id INT PRIMARY KEY,\n  name VARCHAR(50) NOT NULL,\n  age INT CHECK (age >= 16),\n  city VARCHAR(50),\n  marks INT CHECK (marks BETWEEN 0 AND 100)\n);\n\nCREATE TABLE courses (\n  course_id INT PRIMARY KEY,\n  title VARCHAR(100) NOT NULL,\n  credits INT CHECK (credits BETWEEN 1 AND 6)\n);\n\nCREATE TABLE enrollments (\n  student_id INT REFERENCES students(id),\n  course_id INT REFERENCES courses(course_id),\n  grade CHAR(1),\n  PRIMARY KEY (student_id, course_id)\n);</code></pre><p>REFERENCES is the foreign key: enrollments.student_id must exist in students(id), and enrollments.course_id must exist in courses(course_id).</p><h3>Step 2: load data and ask questions</h3><p>Insert the four students from lesson 1, two courses (1, 'SQL', 3) and (2, 'Python', 4), and the four enrollments from lesson 4. Then answer these questions with queries:</p><pre><code>-- Top scorer in the college\nSELECT name, marks FROM students ORDER BY marks DESC LIMIT 1;\n\n-- Average marks per city\nSELECT city, AVG(marks) AS avg_marks FROM students GROUP BY city;\n\n-- Students with no enrollments\nSELECT students.name FROM students LEFT JOIN enrollments ON students.id = enrollments.student_id WHERE enrollments.student_id IS NULL;\n\n-- Students scoring above the college average\nSELECT name FROM students WHERE marks > (SELECT AVG(marks) FROM students);</code></pre><p>The LEFT JOIN query returns Sneha — the only student with no enrollment. The above-average query returns Priya and Sneha, as you worked out in lesson 5.</p><p><b>Video:</b> rewatch the full-course video end to end as a revision pass — every technique in this project appears in it.</p><h3>Key points</h3><ul><li>Design first: list entities, then relationships, then tables.</li><li>A many-to-many relationship needs a junction table with two foreign keys.</li><li>Keys and constraints protect the data from the very first INSERT.</li><li>Every earlier lesson is one tool in this project: SELECT, WHERE, GROUP BY, JOINs, subqueries and safe writes.</li><li>Preview risky changes with SELECT before you run them.</li></ul>",
+      "flowchart": null,
+      "video": {
+        "id": "HXV3zeQKqGY",
+        "title": "SQL Tutorial - Full Database Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "In the college database, which table is the junction table?",
+          "options": [
+            "students",
+            "courses",
+            "enrollments",
+            "grades"
+          ],
+          "answer": 2,
+          "why": "enrollments links students and courses, holding one row per student-course pair — that is the junction table for a many-to-many relationship."
+        },
+        {
+          "q": "What is the first step when designing a database?",
+          "options": [
+            "Create the indexes",
+            "List the entities and their relationships",
+            "Insert the sample data",
+            "Write the SELECT queries"
+          ],
+          "answer": 1,
+          "why": "The tables come from the entities (students, courses) and their relationships; queries and data come after the design is right."
+        },
+        {
+          "q": "What does enrollments.student_id REFERENCES students(id) mean?",
+          "options": [
+            "student_id is the primary key of enrollments",
+            "students.id is copied into enrollments automatically",
+            "student_id must equal the student's marks",
+            "student_id must exist as an id in the students table"
+          ],
+          "answer": 3,
+          "why": "REFERENCES creates a foreign key: every student_id must match a real id in students, so an enrollment can never point at a non-existent student."
+        },
+        {
+          "q": "Which query finds students with no enrollments?",
+          "options": [
+            "SELECT name FROM students INNER JOIN enrollments ON students.id = enrollments.student_id;",
+            "SELECT name FROM students WHERE course IS NULL;",
+            "SELECT students.name FROM students LEFT JOIN enrollments ON students.id = enrollments.student_id WHERE enrollments.student_id IS NULL;",
+            "SELECT name FROM enrollments WHERE student_id IS NULL;"
+          ],
+          "answer": 2,
+          "why": "LEFT JOIN keeps unmatched students with NULL enrollment columns, and IS NULL picks out exactly those rows — Sneha."
+        },
+        {
+          "q": "Which query gives the average marks per city?",
+          "options": [
+            "SELECT city, AVG(marks) FROM students GROUP BY city;",
+            "SELECT city, AVG(marks) FROM students;",
+            "SELECT AVG(marks) FROM students WHERE city;",
+            "SELECT city FROM students GROUP BY marks;"
+          ],
+          "answer": 0,
+          "why": "GROUP BY city makes one group per city, and AVG then runs inside each group."
+        },
+        {
+          "q": "Why does the project use a junction table instead of putting a course column in students?",
+          "options": [
+            "A student takes many courses and a course has many students, which one column cannot hold",
+            "It makes SELECT queries shorter",
+            "Primary keys require it",
+            "It saves disk space"
+          ],
+          "answer": 0,
+          "why": "A many-to-many relationship cannot fit in a single column: each student needs several courses and each course needs several students, so the pairs live in their own table."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the top scorer",
+          "prompt": "What does this query return from the project database?",
+          "code": "SELECT name, marks FROM students ORDER BY marks DESC LIMIT 1;",
+          "expected": "Priya | 92",
+          "answer": "ORDER BY marks DESC puts the highest marks first, and LIMIT 1 keeps only that row: Priya with 92.",
+          "hint": "Sort highest first, then keep one row."
+        },
+        {
+          "type": "fill",
+          "title": "Complete the foreign key",
+          "prompt": "Fill in the blank so enrollments.student_id references the students table.",
+          "code": "FOREIGN KEY (student_id) REFERENCES students(___);",
+          "expected": "id",
+          "answer": "The foreign key must point at the primary key of students, which is id.",
+          "hint": "A foreign key points at the other table's primary key."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the no-enrollment query",
+          "prompt": "Trace how the database finds students with no enrollments.",
+          "code": "SELECT students.name FROM students LEFT JOIN enrollments ON students.id = enrollments.student_id WHERE enrollments.student_id IS NULL;",
+          "expected": "Step 1: LEFT JOIN keeps all 4 students; Sneha gets NULL enrollment columns. Step 2: WHERE enrollments.student_id IS NULL keeps only rows with NULL — Sneha. Result: Sneha.",
+          "answer": "The LEFT JOIN is the key step: it preserves students with no match and marks them with NULL, and the IS NULL filter then picks out exactly those students.",
+          "hint": "LEFT JOIN first, then filter on the NULL."
+        },
+        {
+          "type": "project",
+          "title": "Build the college database",
+          "prompt": "Build the complete college database from this course: create the students, courses and enrollments tables with primary keys, foreign keys and CHECK constraints; insert the 4 students, 2 courses (1, 'SQL', 3) and (2, 'Python', 4), and the 4 enrollments from lesson 4; then write and run the four queries from the lesson (top scorer, average marks per city, students with no enrollments, students above the college average). Save your CREATE TABLE, INSERT and SELECT statements in one .sql file.",
+          "code": "",
+          "expected": "Deliverables: 1) A .sql file with CREATE TABLE for students, courses and enrollments. 2) Primary key on students.id and courses.course_id, foreign keys from enrollments to both tables. 3) CHECK constraints on age and marks. 4) INSERT statements for 4 students, 2 courses and 4 enrollments, all running without errors. 5) The four queries, each returning the correct result (top scorer Priya 92; per-city averages Hyderabad 81.5, Warangal 92, Chennai 88; no-enrollment student Sneha; above-average Priya and Sneha).",
+          "answer": "Approach: design the tables first on paper, then write the CREATE TABLE statements with keys and constraints before inserting any data. Insert students and courses before enrollments, because the foreign keys require those rows to exist. Test each query one at a time, and use the lesson 6 habit — preview with SELECT — before any UPDATE or DELETE. If an INSERT fails, read the error: it names the exact constraint you broke.",
+          "hint": "Create tables before data, and parent rows before enrollments."
+        }
+      ]
+    }
+  ]
+}

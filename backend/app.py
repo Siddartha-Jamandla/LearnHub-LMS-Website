@@ -280,6 +280,13 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/certificates/verify/([^/]+)$", self.api_cert_verify),
             ("GET",    r"^/api/lessons/(\d+)$",          self.api_lesson_get),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
+            ("GET",    r"^/api/lessons/(\d+)/quiz$",     self.api_lesson_quiz),
+            ("POST",   r"^/api/lessons/(\d+)/quiz$",     self.api_lesson_quiz_submit),
+            ("GET",    r"^/api/lessons/(\d+)/tasks$",    self.api_lesson_tasks),
+            ("POST",   r"^/api/tasks/(\d+)/complete$",   self.api_task_complete),
+            ("GET",    r"^/api/courses/(\d+)/learn-progress$",
+                                                     self.api_course_learn_progress),
+            ("POST",   r"^/api/tutor$",                 self.api_tutor),
             ("POST",   r"^/api/admin/courses$",          self.api_admin_course_create),
             ("PUT",    r"^/api/admin/courses/(\d+)$",    self.api_admin_course_update),
             ("DELETE", r"^/api/admin/courses/(\d+)$",    self.api_admin_course_delete),
@@ -579,6 +586,28 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             if not enr:
                 self._err(403, "You must be enrolled in this course to view this lesson")
                 return
+        # Rich learning content (body, flowchart, video) + quiz/task counts.
+        conn3 = db()
+        content = conn3.execute(
+            "SELECT * FROM lesson_content WHERE lesson_id = ?",
+            (lesson_id,)).fetchone()
+        if content:
+            c = row_to_dict(content)
+            try:
+                c["flowchart"] = json.loads(c["flowchart_json"]) if c.get("flowchart_json") else None
+            except (ValueError, TypeError):
+                c["flowchart"] = None
+            c.pop("flowchart_json", None)
+            d["content"] = c
+        else:
+            d["content"] = None
+        d["quiz_count"] = conn3.execute(
+            "SELECT COUNT(*) AS n FROM quizzes WHERE lesson_id = ?",
+            (lesson_id,)).fetchone()["n"]
+        d["task_count"] = conn3.execute(
+            "SELECT COUNT(*) AS n FROM tasks WHERE lesson_id = ?",
+            (lesson_id,)).fetchone()["n"]
+        conn3.close()
         self._ok({"lesson": d})
 
     def api_lesson_complete(self, lesson_id):
@@ -646,6 +675,534 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if certificate:
             resp["certificate"] = certificate
         self._ok(resp)
+
+    # -- learning content: quizzes, tasks, learn-progress, tutor --------
+    def _lesson_access(self, lesson_id):
+        """Shared access rule for lesson learning content.
+
+        Free-preview lessons are public (user may be None). Other lessons
+        need a signed-in, enrolled user. Returns (lesson_dict, user) or
+        (None, None) after sending the error response.
+        """
+        conn = db()
+        lesson = conn.execute(
+            "SELECT id, course_id, title, is_preview FROM lessons WHERE id = ?",
+            (lesson_id,)).fetchone()
+        conn.close()
+        if not lesson:
+            self._err(404, "Lesson not found")
+            return None, None
+        d = row_to_dict(lesson)
+        if d.get("is_preview"):
+            return d, self._auth_user()  # preview: public, user optional
+        user = self._require_user()
+        if not user:
+            return None, None
+        conn2 = db()
+        enr = conn2.execute(
+            "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+            (user["id"], d["course_id"])).fetchone()
+        conn2.close()
+        if not enr:
+            self._err(403, "You must be enrolled in this course to use this lesson")
+            return None, None
+        return d, user
+
+    def api_lesson_quiz(self, lesson_id):
+        """GET /api/lessons/:id/quiz — questions WITHOUT answers.
+
+        Same access rule as the lesson itself (preview = public).
+        """
+        lesson, _user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT id, question, options_json, order_index FROM quizzes
+               WHERE lesson_id = ? ORDER BY order_index, id""",
+            (lesson_id,)).fetchall()
+        conn.close()
+        questions = []
+        for r in rows:
+            try:
+                options = json.loads(r["options_json"])
+            except (ValueError, TypeError):
+                options = []
+            questions.append({"id": r["id"], "question": r["question"],
+                              "options": options, "order_index": r["order_index"]})
+        self._ok({"lesson_id": int(lesson_id), "lesson_title": lesson["title"],
+                  "questions": questions})
+
+    def api_lesson_quiz_submit(self, lesson_id):
+        """POST /api/lessons/:id/quiz — grade answers, record the attempt.
+
+        Body: {"answers": {"<question_id>": <option index 0-3>, ...}}.
+        Auth required; enrolment required unless the lesson is a preview.
+        Returns the score plus, for every question, the correct option
+        and the explanation of WHY — so the quiz itself teaches.
+        """
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to submit a quiz")
+            return
+        body = self._read_json()
+        answers = body.get("answers") or {}
+        if not isinstance(answers, dict):
+            self._err(400, "answers must be an object of question_id -> option index")
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT id, question, options_json, answer_index, explanation
+               FROM quizzes WHERE lesson_id = ? ORDER BY order_index, id""",
+            (lesson_id,)).fetchall()
+        if not rows:
+            conn.close()
+            self._err(404, "This lesson has no quiz yet")
+            return
+        results, score = [], 0
+        for r in rows:
+            try:
+                options = json.loads(r["options_json"])
+            except (ValueError, TypeError):
+                options = []
+            picked = answers.get(str(r["id"]))
+            picked = answers.get(r["id"], picked)
+            try:
+                picked = int(picked)
+            except (TypeError, ValueError):
+                picked = None
+            correct = picked == r["answer_index"]
+            if correct:
+                score += 1
+            results.append({
+                "question_id": r["id"], "question": r["question"],
+                "options": options, "picked": picked,
+                "correct_index": r["answer_index"], "correct": correct,
+                "explanation": r["explanation"]})
+        conn.execute(
+            """INSERT INTO quiz_attempts (user_id, lesson_id, score, total, answers_json)
+               VALUES (?, ?, ?, ?, ?)""",
+            (user["id"], lesson_id, score, len(rows),
+             json.dumps({str(k): v for k, v in answers.items()})))
+        conn.commit()
+        conn.close()
+        self._ok({"lesson_id": int(lesson_id), "score": score,
+                  "total": len(rows),
+                  "percent": round(score / len(rows) * 100, 1) if rows else 0,
+                  "results": results})
+
+    def api_lesson_tasks(self, lesson_id):
+        """GET /api/lessons/:id/tasks — practice tasks WITHOUT solutions.
+
+        Same access rule as the lesson. Each task carries a `completed`
+        flag for the signed-in user (false for guests).
+        """
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT id, type, title, prompt, code, hint, order_index
+               FROM tasks WHERE lesson_id = ? ORDER BY order_index, id""",
+            (lesson_id,)).fetchall()
+        done = set()
+        if user:
+            done = {r["task_id"] for r in conn.execute(
+                """SELECT task_id FROM task_completions
+                   WHERE user_id = ? AND task_id IN
+                       (SELECT id FROM tasks WHERE lesson_id = ?)""",
+                (user["id"], lesson_id)).fetchall()}
+        conn.close()
+        tasks = []
+        for r in rows:
+            d = row_to_dict(r)
+            d["completed"] = r["id"] in done
+            tasks.append(d)
+        self._ok({"lesson_id": int(lesson_id), "lesson_title": lesson["title"],
+                  "tasks": tasks})
+
+    @staticmethod
+    def _norm_answer(text):
+        """Normalise a learner's answer for comparison: trim, collapse
+        whitespace, drop a trailing semicolon/newlines. Case-sensitive
+        (program output is case-sensitive), but tolerant of spacing."""
+        return re.sub(r"\s+", " ", str(text or "").strip()).strip(";").strip()
+
+    def api_task_complete(self, task_id):
+        """POST /api/tasks/:id/complete — check a task answer, record it.
+
+        Body: {"answer": "..."} (the learner's output / filled code /
+        fixed code). predict/fill/trace are auto-checked against the
+        expected value; fix/project are self-checked (any non-empty
+        submission marks them complete and the model answer is returned
+        for comparison). Auth required; enrolment required unless the
+        lesson is a preview.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        task = conn.execute(
+            """SELECT t.*, l.course_id, l.is_preview, l.title AS lesson_title
+               FROM tasks t JOIN lessons l ON l.id = t.lesson_id
+               WHERE t.id = ?""",
+            (task_id,)).fetchone()
+        if not task:
+            conn.close()
+            self._err(404, "Task not found")
+            return
+        t = row_to_dict(task)
+        if not t.get("is_preview"):
+            enr = conn.execute(
+                "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+                (user["id"], t["course_id"])).fetchone()
+            if not enr:
+                conn.close()
+                self._err(403, "You must be enrolled in this course to do its tasks")
+                return
+        body = self._read_json()
+        answer = (body.get("answer") or "")
+        if not isinstance(answer, str) or not answer.strip():
+            conn.close()
+            self._err(400, "answer is required")
+            return
+        if len(answer) > 10000:
+            conn.close()
+            self._err(400, "answer is too long (max 10000 characters)")
+            return
+        auto = t["type"] in ("predict", "fill", "trace")
+        correct = None
+        if auto:
+            correct = (self._norm_answer(answer)
+                       == self._norm_answer(t["expected"]))
+        if not auto or correct:
+            conn.execute(
+                """INSERT OR IGNORE INTO task_completions (user_id, task_id)
+                   VALUES (?, ?)""", (user["id"], task_id))
+            conn.commit()
+        conn.close()
+        resp = {"task_id": int(task_id), "type": t["type"],
+                "completed": bool(not auto or correct),
+                "correct": correct,
+                "expected": t["expected"], "answer": t["answer"],
+                "hint": t["hint"]}
+        if auto and not correct:
+            resp["message"] = ("Not quite — check the hint and try again. "
+                               "The expected answer is shown so you can learn from it.")
+        self._ok(resp)
+
+    def api_course_learn_progress(self, course_id):
+        """GET /api/courses/:id/learn-progress — quiz + task progress.
+
+        Auth + enrolled only. Per lesson: best quiz score, tasks done /
+        tasks total. Used by the lesson page to show what is finished.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        course = conn.execute("SELECT id FROM courses WHERE id = ?",
+                              (course_id,)).fetchone()
+        if not course:
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        if not conn.execute(
+                "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+                (user["id"], course_id)).fetchone():
+            conn.close()
+            self._err(403, "You must be enrolled in this course to view its progress")
+            return
+        lessons = conn.execute(
+            "SELECT id, title, order_index FROM lessons WHERE course_id = ?"
+            " ORDER BY order_index, id", (course_id,)).fetchall()
+        out = []
+        for lesson in lessons:
+            lid = lesson["id"]
+            best = conn.execute(
+                """SELECT MAX(score * 1.0 / total) AS best, COUNT(*) AS n
+                   FROM quiz_attempts WHERE user_id = ? AND lesson_id = ?""",
+                (user["id"], lid)).fetchone()
+            quiz_total = conn.execute(
+                "SELECT COUNT(*) AS n FROM quizzes WHERE lesson_id = ?",
+                (lid,)).fetchone()["n"]
+            tasks_total = conn.execute(
+                "SELECT COUNT(*) AS n FROM tasks WHERE lesson_id = ?",
+                (lid,)).fetchone()["n"]
+            tasks_done = conn.execute(
+                """SELECT COUNT(*) AS n FROM task_completions tc
+                   JOIN tasks t ON t.id = tc.task_id
+                   WHERE tc.user_id = ? AND t.lesson_id = ?""",
+                (user["id"], lid)).fetchone()["n"]
+            out.append({
+                "lesson_id": lid, "lesson_title": lesson["title"],
+                "quiz_total": quiz_total,
+                "quiz_attempts": best["n"] or 0,
+                "quiz_best_percent": (round(best["best"] * 100, 1)
+                                      if best["best"] is not None else None),
+                "tasks_done": tasks_done, "tasks_total": tasks_total})
+        conn.close()
+        self._ok({"course_id": int(course_id), "lessons": out})
+
+    # -- tutor chatbot (rule-based, knowledge base = course content) ---
+    def api_tutor(self):
+        """POST /api/tutor — the in-site tutor chatbot.
+
+        Rule-based only: every answer comes from the seeded course
+        content (lessons, flowcharts, MCQs, tasks). Nothing is invented:
+        when no content matches, the tutor says so and points at the
+        relevant lessons. No external API is called.
+
+        Body: {"message": "...", "course_id": 3, "lesson_id": 12,
+               "context": {"quiz_question_id": 5, "task_id": 9}}.
+        """
+        body = self._read_json()
+        message = (body.get("message") or "").strip()
+        if not message:
+            self._err(400, "message is required")
+            return
+        if len(message) > 500:
+            self._err(400, "message must be at most 500 characters")
+            return
+        course_id = _positive_int(body.get("course_id"))
+        lesson_id = _positive_int(body.get("lesson_id"))
+        context = body.get("context") or {}
+        if not isinstance(context, dict):
+            context = {}
+        reply, ctx = self._tutor_answer(message, course_id, lesson_id, context)
+        self._ok({"reply": reply, "context": ctx})
+
+    @staticmethod
+    def _strip_html(html):
+        text = re.sub(r"<[^>]+>", " ", html or "")
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+
+    def _tutor_answer(self, message, course_id, lesson_id, context):
+        msg = message.lower()
+        words = set(re.findall(r"[a-z][a-z0-9+#]*", msg))
+        conn = db()
+
+        # -- scope: one lesson, one course, or the whole catalogue --
+        scope_lessons = []
+        if lesson_id:
+            row = conn.execute(
+                "SELECT id, course_id, title FROM lessons WHERE id = ?",
+                (lesson_id,)).fetchone()
+            if row:
+                scope_lessons = [row_to_dict(row)]
+                course_id = course_id or row["course_id"]
+        if course_id and not scope_lessons:
+            scope_lessons = [row_to_dict(r) for r in conn.execute(
+                "SELECT id, course_id, title FROM lessons WHERE course_id = ?"
+                " ORDER BY order_index, id", (course_id,)).fetchall()]
+        if not scope_lessons:
+            scope_lessons = [row_to_dict(r) for r in conn.execute(
+                "SELECT id, course_id, title FROM lessons"
+                " ORDER BY course_id, order_index, id").fetchall()]
+        lesson_ids = [l["id"] for l in scope_lessons]
+        courses = {r["id"]: r["title"] for r in conn.execute(
+            "SELECT id, title FROM courses").fetchall()}
+
+        def topic_list():
+            names = [f"{l['title']} (lesson {l['id']})" for l in scope_lessons[:12]]
+            return ", ".join(names)
+
+        def unknown():
+            return ("I don't know that yet — it is not in the course material "
+                    "I was given, so I won't guess. Try asking me about one of "
+                    "these topics: " + topic_list() + ". You can also ask me to "
+                    "'quiz me', 'walk me through the flowchart', or 'give me a hint'.")
+
+        # -- 1. answering a quiz question posed by the tutor ----------
+        qid = context.get("quiz_question_id")
+        if qid and (msg.strip() in ("a", "b", "c", "d", "1", "2", "3", "4",
+                                     "option a", "option b", "option c",
+                                     "option d", "option 1", "option 2",
+                                     "option 3", "option 4")
+                    or re.fullmatch(r"[a-d1-4]", msg.strip())):
+            row = conn.execute(
+                "SELECT * FROM quizzes WHERE id = ?", (qid,)).fetchone()
+            if row:
+                picked = {"a": 0, "b": 1, "c": 2, "d": 3,
+                          "1": 0, "2": 1, "3": 2, "4": 3}[msg.strip()[-1]]
+                opts = json.loads(row["options_json"])
+                if picked == row["answer_index"]:
+                    reply = (f"Correct! {opts[picked]} is right. "
+                             f"{row['explanation']} Want another question? "
+                             "Just say 'quiz me'.")
+                else:
+                    reply = (f"Not quite — the correct answer is "
+                             f"'{opts[row['answer_index']]}'. {row['explanation']} "
+                             "Want to try another? Say 'quiz me'.")
+                conn.close()
+                return reply, {}
+            conn.close()
+            return "That question is gone — say 'quiz me' and I will ask a new one.", {}
+
+        # -- 2. quiz me -------------------------------------------------
+        if words & {"quiz", "test", "mcq", "question"} or "quiz me" in msg or "test me" in msg:
+            if lesson_ids:
+                placeholders = ",".join("?" * len(lesson_ids))
+                row = conn.execute(
+                    f"""SELECT id, lesson_id, question, options_json
+                        FROM quizzes WHERE lesson_id IN ({placeholders})
+                        ORDER BY RANDOM() LIMIT 1""",
+                    lesson_ids).fetchone()
+            else:
+                row = None
+            if not row:
+                conn.close()
+                return ("There is no quiz for this lesson yet. Pick another "
+                        "lesson, or ask me to explain a topic."), {}
+            opts = json.loads(row["options_json"])
+            letters = ["A", "B", "C", "D"]
+            q = (f"Quiz time! {row['question']}\n" +
+                 "\n".join(f"{letters[i]}. {o}" for i, o in enumerate(opts)) +
+                 "\nReply with A, B, C or D.")
+            conn.close()
+            return q, {"quiz_question_id": row["id"]}
+
+        # -- 3. walk through the flowchart ------------------------------
+        if "flowchart" in msg or "walk" in msg or "step by step" in msg or "steps" in msg:
+            row = None
+            if lesson_id:
+                row = conn.execute(
+                    "SELECT flowchart_title, flowchart_json FROM lesson_content"
+                    " WHERE lesson_id = ?", (lesson_id,)).fetchone()
+            if not row or not row["flowchart_json"]:
+                # This lesson has none: fall back to any flowchart in the
+                # same course (or the current scope), and say which one.
+                fallback_ids = list(lesson_ids)
+                if course_id:
+                    fallback_ids = [r["id"] for r in conn.execute(
+                        "SELECT id FROM lessons WHERE course_id = ?"
+                        " ORDER BY order_index, id", (course_id,)).fetchall()]
+                if fallback_ids:
+                    placeholders = ",".join("?" * len(fallback_ids))
+                    row = conn.execute(
+                        f"""SELECT lc.flowchart_title, lc.flowchart_json,
+                                   l.title AS lesson_title
+                            FROM lesson_content lc
+                            JOIN lessons l ON l.id = lc.lesson_id
+                            WHERE lc.lesson_id IN ({placeholders})
+                              AND lc.flowchart_json IS NOT NULL LIMIT 1""",
+                        fallback_ids).fetchone()
+            if not row or not row["flowchart_json"]:
+                conn.close()
+                return ("This lesson has no flowchart. Ask me to explain the "
+                        "topic instead, or open a lesson that has one "
+                        "(if-else, loops, functions, recursion, sorting)."), {}
+            try:
+                fc = json.loads(row["flowchart_json"])
+            except (ValueError, TypeError):
+                fc = None
+            if not fc:
+                conn.close()
+                return "This lesson's flowchart could not be read.", {}
+            nodes = {n["id"]: n for n in fc.get("nodes", [])}
+            steps, seen = [], set()
+            for e in fc.get("edges", []):
+                if e["from"] not in seen:
+                    seen.add(e["from"])
+                    steps.append(nodes.get(e["from"], {}).get("label", e["from"]))
+                label = e.get("label")
+                to_label = nodes.get(e["to"], {}).get("label", e["to"])
+                steps.append(f"{'If ' + label + ', go to: ' if label else 'Then: '}{to_label}")
+            title = row["flowchart_title"] or "Flowchart"
+            lesson_note = ""
+            if row.keys() and "lesson_title" in row.keys() and row["lesson_title"]:
+                lesson_note = f" (from the lesson '{row['lesson_title']}')"
+            conn.close()
+            return (f"Let's walk through '{title}'{lesson_note} step by step:\n" +
+                    "\n".join(f"{i + 1}. {s}" for i, s in enumerate(steps))), {}
+
+        # -- 4. hint for a task ------------------------------------------
+        if "hint" in msg:
+            tid = context.get("task_id")
+            row = None
+            if tid:
+                row = conn.execute(
+                    "SELECT title, hint FROM tasks WHERE id = ?", (tid,)).fetchone()
+            if not row and lesson_ids:
+                placeholders = ",".join("?" * len(lesson_ids))
+                row = conn.execute(
+                    f"""SELECT title, hint FROM tasks
+                        WHERE lesson_id IN ({placeholders}) LIMIT 1""",
+                    lesson_ids).fetchone()
+            conn.close()
+            if row and row["hint"]:
+                return (f"Hint for '{row['title']}': {row['hint']} "
+                        "Try it, then check your answer on the lesson page."), {}
+            return ("Tell me which task you need a hint for — open the task "
+                    "on its lesson page and ask me again from there."), {}
+
+        # -- 5. greetings / what can you do ------------------------------
+        if words & {"hi", "hello", "hey", "namaste"} and len(words) <= 4:
+            conn.close()
+            return ("Hi! I am the LearnHub tutor. I can explain any topic from "
+                    "your courses in simple steps, walk you through a lesson's "
+                    "flowchart, quiz you with MCQs, and give hints for tasks. "
+                    "Try: 'Explain loops', 'Quiz me', or 'Walk me through the "
+                    "flowchart'. Topics here: " + topic_list() + "."), {}
+        if "what" in msg and ("course" in msg or "learn" in msg):
+            conn.close()
+            return ("You can learn: " + ", ".join(courses.values()) +
+                    ". Open any course and ask me about its lessons."), {}
+
+        # -- 6. explain a topic: match lesson titles / keywords ---------
+        # Topic words only: drop stopwords and words from course titles
+        # (e.g. "python" names the course, not the topic), and normalise
+        # plurals ("loop" must match the lesson "Loops & Iteration").
+        _stop = {"in", "the", "a", "an", "and", "or", "of", "to", "for",
+                 "how", "what", "explain", "tell", "me", "about", "please",
+                 "is", "are", "with", "on", "i", "want", "learn", "give"}
+        _course_words = set()
+        for _t in courses.values():
+            _course_words |= set(re.findall(r"[a-z][a-z0-9+#]*", _t.lower()))
+        def _norm(_w):
+            return _w[:-1] if len(_w) > 3 and _w.endswith("s") and not _w.endswith("ss") else _w
+        topic_words = {_norm(w) for w in words - _stop - _course_words}
+        best, best_score = None, 0
+        for lesson in scope_lessons:
+            title_words = {_norm(w) for w in
+                           re.findall(r"[a-z][a-z0-9+#]*", lesson["title"].lower())}
+            score = len(topic_words & title_words)
+            # bonus for an exact phrase match on the title
+            if lesson["title"].lower() in msg:
+                score += 3
+            if score > best_score:
+                best, best_score = lesson, score
+        if not best and lesson_id:
+            # "Explain this lesson" (the chat widget's chip): no keyword
+            # to match, so explain the lesson the learner is looking at.
+            best = next((l for l in scope_lessons if l["id"] == lesson_id), None)
+            if best:
+                best_score = 1
+        if best and best_score > 0:
+            row = conn.execute(
+                "SELECT body, video_title FROM lesson_content WHERE lesson_id = ?",
+                (best["id"],)).fetchone()
+            conn.close()
+            if row and row["body"]:
+                text = self._strip_html(row["body"])
+                # first ~600 chars: the concept in simple steps
+                short = text[:600]
+                if len(text) > 600:
+                    short += "…"
+                reply = (f"Here's '{best['title']}' in simple steps:\n{short}\n"
+                         f"Read the full lesson with examples, flowchart and "
+                         f"quiz: lesson.html?id={best['id']}")
+                if row["video_title"]:
+                    reply += f"\nThere is also a free video for this lesson: {row['video_title']}."
+                return reply, {"lesson_id": best["id"]}
+            conn.close()
+            return (f"'{best['title']}' is a lesson in this course — open it "
+                    f"here: lesson.html?id={best['id']}"), {"lesson_id": best["id"]}
+        conn.close()
+        return unknown(), {}
 
     def api_cert_list(self):
         """List the current user's certificates of completion.

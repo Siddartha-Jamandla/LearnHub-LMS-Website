@@ -161,8 +161,9 @@ def main():
 
     existing = conn.execute("SELECT COUNT(*) FROM courses").fetchone()[0]
     if existing:
-        print(f"[seed] database already has {existing} course(s) - skipping seed.")
+        print(f"[seed] database already has {existing} course(s) - skipping base seed.")
         conn.close()
+        _load_learning_content()
         return
 
     total_lessons = 0
@@ -200,6 +201,33 @@ def main():
     conn.close()
     print(f"[seed] done: {len(COURSES)} courses, {total_lessons} lessons -> {DB_PATH} "
           f"({'new db' if fresh else 'existing db'})")
+    _load_learning_content()
+
+
+def _load_learning_content():
+    """Load real lesson content (backend/content/*.json) if present.
+
+    Runs after the base seed, and also when the base seed is skipped
+    (existing DB) - so redeploying with new content files updates the
+    live database without wiping enrolments or progress.
+    """
+    content_dir = os.path.join(BASE_DIR, "content")
+    if not os.path.isdir(content_dir) or not os.listdir(content_dir):
+        print("[seed] no learning content found - skipping.")
+        return
+    try:
+        import seed_content
+        conn = sqlite3.connect(DB_PATH)
+        conn.executescript(
+            open(os.path.join(BASE_DIR, "schema.sql")).read())
+        totals = seed_content.load_content(conn)
+        conn.close()
+        print(f"[seed] learning content: {totals['courses']} courses, "
+              f"{totals['lessons']} lessons, {totals['mcqs']} MCQs, "
+              f"{totals['tasks']} tasks, {totals['flowcharts']} flowcharts, "
+              f"{totals['videos']} videos")
+    except Exception as e:  # content is additive - never block the base seed
+        print(f"[seed] learning content failed (base data is intact): {e!r}")
 
 
 if __name__ == "__main__":

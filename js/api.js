@@ -8,12 +8,16 @@
 (function () {
     "use strict";
 
-    // If the page itself is served by the backend, talk to the same origin.
-    // Otherwise assume the backend runs locally on port 8000.
-    const SAME_ORIGIN_API = location.port === "8000" || location.protocol === "file:";
-    const API_BASE = (SAME_ORIGIN_API && location.protocol !== "file:")
-        ? `${location.protocol}//${location.host}`
-        : "http://localhost:8000";
+    // The backend serves the frontend, so the API lives on the same
+    // origin whenever the page is served over http(s) — local dev on any
+    // port (8000, 8124, …) and the live PythonAnywhere site alike.
+    // Only a file:// page (opened straight from disk) falls back to a
+    // backend assumed on localhost:8000.
+    // (The old check, location.port === "8000", sent every other hosted
+    // page to localhost:8000, so lesson pages failed with "Failed to fetch".)
+    const API_BASE = location.protocol === "file:"
+        ? "http://localhost:8000"
+        : `${location.protocol}//${location.host}`;
 
     let apiAvailable = null; // tri-state: null = unknown, true/false = checked
 
@@ -37,11 +41,13 @@
 
     async function request(method, path, body, auth) {
         const headers = { "Content-Type": "application/json" };
-        if (auth) {
-            const token = getToken();
-            if (!token) throw new Error("Not signed in");
-            headers["Authorization"] = "Bearer " + token;
-        }
+        // Attach the token whenever one is stored, so endpoints with
+        // "preview = public, otherwise enrolled" rules (lesson quiz,
+        // tasks, lesson detail) work for signed-in learners without
+        // forcing auth on public preview access.
+        const token = getToken();
+        if (token) headers["Authorization"] = "Bearer " + token;
+        else if (auth) throw new Error("Not signed in");
         const res = await fetch(API_BASE + path, {
             method,
             headers,
@@ -244,6 +250,53 @@
         async getMyCourses() {
             const d = await request("GET", "/api/my-courses", null, true);
             return d.courses;
+        },
+
+        /* ---------------- learning content: quiz / tasks / tutor ---------------- */
+        async getLessonQuiz(lessonId) {
+            // Questions only — answers stay on the server until submit.
+            const d = await request("GET", `/api/lessons/${lessonId}/quiz`);
+            return d.questions;
+        },
+
+        async submitQuiz(lessonId, answers) {
+            // answers: {questionId: optionIndex}. Returns score + per-question
+            // results with the correct option and the WHY explanation.
+            const d = await request("POST", `/api/lessons/${lessonId}/quiz`,
+                { answers }, true);
+            return d;
+        },
+
+        async getLessonTasks(lessonId) {
+            // Tasks without solutions; each carries a `completed` flag.
+            const d = await request("GET", `/api/lessons/${lessonId}/tasks`);
+            return d.tasks;
+        },
+
+        async completeTask(taskId, answer) {
+            // predict/fill/trace are auto-checked; fix/project are
+            // self-checked. Returns {correct, completed, expected, answer}.
+            const d = await request("POST", `/api/tasks/${taskId}/complete`,
+                { answer }, true);
+            return d;
+        },
+
+        async getLearnProgress(courseId) {
+            // Per-lesson quiz best score + tasks done/total (enrolled only).
+            const d = await request("GET", `/api/courses/${courseId}/learn-progress`, null, true);
+            return d.lessons;
+        },
+
+        async askTutor(message, opts = {}) {
+            // Rule-based tutor: answers come only from the course content.
+            // opts: {courseId, lessonId, context}.
+            const d = await request("POST", "/api/tutor", {
+                message,
+                course_id: opts.courseId || null,
+                lesson_id: opts.lessonId || null,
+                context: opts.context || {},
+            });
+            return d;
         },
 
         /* ---------------- admin (instructor) ---------------- */

@@ -1,0 +1,1845 @@
+{
+  "course": {
+    "match_title": "Python Programming Masterclass",
+    "title": "Python Programming Masterclass",
+    "description": "Learn Python from scratch: setup, data types, functions, OOP, files and error handling, then finish by building a quiz game and an automation script.",
+    "category": "Programming",
+    "price": 899,
+    "instructor": "Michael Brown",
+    "duration_hours": 22,
+    "level": "Beginner",
+    "image_url": "assets/images/course3.svg"
+  },
+  "lessons": [
+    {
+      "title": "Python Setup & First Program",
+      "duration_minutes": 30,
+      "is_preview": 1,
+      "body": "<h3>Python Setup &amp; First Program</h3>\n<p>Python is a beginner-friendly programming language used for web apps, data analysis, automation and AI. To start, install Python 3 from python.org, then check it works by opening a terminal and typing <code>python --version</code>. You should see something like <code>Python 3.12.0</code>.</p>\n<p>Write code in any text editor or in VS Code. Save your first file as <code>hello.py</code> and run it with <code>python hello.py</code>. The <code>print()</code> function displays text on the screen, and <code>input()</code> asks the user to type something. Anything after a <code>#</code> is a comment and is ignored by Python.</p>\n<pre><code>print(\"Hello, World!\")\nname = input(\"What is your name? \")\nprint(\"Hello, \" + name + \"! Welcome to Python.\")</code></pre>\n<p>Step by step: <code>print(\"Hello, World!\")</code> shows a greeting. <code>input()</code> waits for the user to type a name and stores it as text in <code>name</code>. The last line joins three pieces of text with <code>+</code> and prints a personal greeting.</p>\n<h3>Key points</h3>\n<ul><li>Check Python is installed with <code>python --version</code>.</li><li>Python files end in <code>.py</code> and run with <code>python filename.py</code>.</li><li><code>print()</code> displays output and <code>input()</code> reads text from the user.</li><li><code>input()</code> always returns a string, even when the user types digits.</li><li>Use <code>#</code> for comments that explain your code.</li></ul>",
+      "flowchart": {
+        "title": "From writing code to seeing output",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Install Python 3",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Write hello.py",
+            "kind": "input"
+          },
+          {
+            "id": "n4",
+            "label": "Run python hello.py",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Python installed correctly?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "See Hello, World!",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "Fix the install and retry",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n7",
+            "to": "n4"
+          },
+          {
+            "from": "n6",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "rfscVS0vtbw",
+        "title": "Learn Python - Full Course for Beginners [Tutorial]"
+      },
+      "mcqs": [
+        {
+          "q": "Which command checks the installed Python version?",
+          "options": [
+            "python --version",
+            "python -check",
+            "check python",
+            "python version"
+          ],
+          "answer": 0,
+          "why": "python --version asks the interpreter to print its version number."
+        },
+        {
+          "q": "What does print(\"Hello\") display?",
+          "options": [
+            "\"Hello\"",
+            "print",
+            "Nothing",
+            "Hello"
+          ],
+          "answer": 3,
+          "why": "print() outputs the text inside the quotes without the quotes."
+        },
+        {
+          "q": "Which line is a comment in Python?",
+          "options": [
+            "<!-- This is a note -->",
+            "/* This is a note */",
+            "# This is a note",
+            "// This is a note"
+          ],
+          "answer": 2,
+          "why": "Python comments start with #; // and /* */ belong to other languages."
+        },
+        {
+          "q": "What type of value does input() always return?",
+          "options": [
+            "A boolean",
+            "A string (str)",
+            "An integer (int)",
+            "A float"
+          ],
+          "answer": 1,
+          "why": "input() reads keystrokes as text, so even \"42\" comes back as the string \"42\"."
+        },
+        {
+          "q": "What file extension do Python programs use?",
+          "options": [
+            ".py",
+            ".java",
+            ".html",
+            ".txt"
+          ],
+          "answer": 0,
+          "why": "Python source files use the .py extension."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "print(\"Python\" + \" is fun\")",
+          "expected": "Python is fun",
+          "answer": "The + operator joins the two strings into one: \"Python\" + \" is fun\" = \"Python is fun\".",
+          "hint": "The + between two strings joins them together."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the missing quote",
+          "prompt": "This program crashes. Fix it so it prints Hello, World!",
+          "code": "print(\"Hello, World!)",
+          "expected": "print(\"Hello, World!\")",
+          "answer": "The string was missing its closing double quote, so Python could not tell where the string ended. Adding the closing quote fixes the syntax error.",
+          "hint": "Count the double quotes — every opening quote needs a closing one."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the code so it asks the user for their name.",
+          "code": "name = ___(\"What is your name? \")\nprint(\"Hello, \" + name)",
+          "expected": "input",
+          "answer": "input() displays the prompt and returns what the user types as a string.",
+          "hint": "Which function reads text typed by the user?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the variables",
+          "prompt": "Trace the values of x and y step by step.",
+          "code": "x = 5\ny = x + 3\nprint(y)",
+          "expected": "x = 5, then y = 5 + 3 = 8, then print(y) shows 8",
+          "answer": "Following the flowchart: start, set x to 5, compute y as x + 3 which is 8, then output 8 and end.",
+          "hint": "Work through the lines top to bottom, updating each variable."
+        }
+      ]
+    },
+    {
+      "title": "Data Types & Control Flow",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Data Types &amp; Control Flow</h3>\n<p>Every value in Python has a type. <code>int</code> is a whole number like <code>42</code>, <code>float</code> is a decimal like <code>3.14</code>, <code>str</code> is text like <code>\"Asha\"</code>, and <code>bool</code> is <code>True</code> or <code>False</code>. Use <code>type()</code> to check a value's type, and <code>int()</code> or <code>str()</code> to convert between types.</p>\n<p>Programs make decisions with <code>if</code>, <code>elif</code> and <code>else</code>. A comparison such as <code>age &gt;= 18</code> produces True or False. Use <code>==</code> to test equality (a single <code>=</code> assigns a value), and combine conditions with <code>and</code>, <code>or</code> and <code>not</code>.</p>\n<pre><code>age = 20\nif age &gt;= 18:\n    print(\"Adult\")\nelif age &gt;= 13:\n    print(\"Teenager\")\nelse:\n    print(\"Child\")</code></pre>\n<p>Here <code>age &gt;= 18</code> is True, so Python prints \"Adult\" and skips the other branches. Indentation matters: the lines under each branch must be indented by the same amount, because indentation is how Python groups a block.</p>\n<h3>Key points</h3>\n<ul><li>Core types are int, float, str and bool; check with <code>type()</code>.</li><li><code>==</code> compares values, while <code>=</code> assigns a value.</li><li><code>if / elif / else</code> runs exactly one branch, chosen top to bottom.</li><li>Combine conditions with <code>and</code>, <code>or</code> and <code>not</code>.</li><li>Indentation defines each block — keep it consistent.</li></ul>",
+      "flowchart": {
+        "title": "How an if-else decides",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read age",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "age >= 18?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Print Adult",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "age >= 13?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Print Teenager",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "Print Child",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n8"
+          },
+          {
+            "from": "n6",
+            "to": "n8"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "kqtD5dpn9C8",
+        "title": "Python for Beginners - Learn Coding with Python in 1 Hour"
+      },
+      "mcqs": [
+        {
+          "q": "What is the type of 3.14 in Python?",
+          "options": [
+            "int",
+            "str",
+            "bool",
+            "float"
+          ],
+          "answer": 3,
+          "why": "Numbers with a decimal point are floats; 3 is an int."
+        },
+        {
+          "q": "What does \"5\" + \"3\" produce?",
+          "options": [
+            "\"8\"",
+            "An error",
+            "\"53\"",
+            "8"
+          ],
+          "answer": 2,
+          "why": "Both values are strings, so + joins them as text instead of adding numbers."
+        },
+        {
+          "q": "Which operator tests whether two values are equal?",
+          "options": [
+            "is equal",
+            "==",
+            "=",
+            "!="
+          ],
+          "answer": 1,
+          "why": "== compares values; a single = assigns a value to a variable."
+        },
+        {
+          "q": "What does int(\"42\") return?",
+          "options": [
+            "42 as an integer",
+            "\"42\" as a string",
+            "42.0 as a float",
+            "An error"
+          ],
+          "answer": 0,
+          "why": "int() converts the string \"42\" into the integer 42."
+        },
+        {
+          "q": "In if / elif / else, how many branches run?",
+          "options": [
+            "All of them",
+            "The first two",
+            "None, ever",
+            "Exactly one — the first whose condition is True, or else"
+          ],
+          "answer": 3,
+          "why": "Python checks branches top to bottom and runs only the first matching one (or else)."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "print(10 % 3)",
+          "expected": "1",
+          "answer": "The % operator gives the remainder: 10 divided by 3 is 3 remainder 1.",
+          "hint": "Think about division remainders, not the quotient."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the comparison",
+          "prompt": "This code should print \"Adult\" when age is 18, but it crashes. Fix it.",
+          "code": "age = 18\nif age = 18:\n    print(\"Adult\")",
+          "expected": "age = 18\nif age == 18:\n    print(\"Adult\")",
+          "answer": "A single = inside the if assigns instead of comparing, which is a syntax error in a condition. == compares the two values.",
+          "hint": "Assignment and comparison look similar — which one belongs in an if?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the condition so scores of 50 or more pass.",
+          "code": "score = 72\nif score ___ 50:\n    print(\"Pass\")",
+          "expected": ">=",
+          "answer": ">= means greater than or equal to, so 72 passes and 50 passes too.",
+          "hint": "You need '50 or more', not just 'more than 50'."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the decision",
+          "prompt": "Trace this code step by step.",
+          "code": "x = 7\nif x > 5:\n    result = \"big\"\nelse:\n    result = \"small\"\nprint(result)",
+          "expected": "x = 7; x > 5 is True, so result = \"big\"; print shows big",
+          "answer": "Following the flowchart: read x = 7, test x > 5 (Yes), take the Yes branch to set result to \"big\", then output big.",
+          "hint": "Check the decision first, then follow only the matching branch."
+        }
+      ]
+    },
+    {
+      "title": "Functions & Modules",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Functions &amp; Modules</h3>\n<p>A function is a named block of code you can run again and again. Define one with <code>def</code>, give it parameters (the inputs it accepts), and use <code>return</code> to send a result back. Calling a function runs its body; without <code>return</code> it gives back <code>None</code>.</p>\n<p>Modules are files of ready-made functions you reuse with <code>import</code>. Python ships with a standard library: <code>math</code> for maths, <code>random</code> for random numbers, <code>datetime</code> for dates. You can also write your own module and import it.</p>\n<pre><code>import math\n\ndef greet(name):\n    return \"Hello, \" + name + \"!\"\n\nprint(greet(\"Asha\"))\nprint(math.sqrt(16))</code></pre>\n<p><code>greet(\"Asha\")</code> returns \"Hello, Asha!\" and <code>math.sqrt(16)</code> returns 4.0. Parameters keep functions flexible: the same <code>greet</code> works for any name, so you write the logic once and reuse it everywhere.</p>\n<h3>Key points</h3>\n<ul><li>Define functions with <code>def</code> and call them by name with arguments.</li><li><code>return</code> sends a value back; without it a function returns <code>None</code>.</li><li><code>import</code> brings in a module such as <code>math</code> or <code>random</code>.</li><li>Parameters make one function work for many different inputs.</li><li>Variables created inside a function are local to that function.</li></ul>",
+      "flowchart": {
+        "title": "How a function call works",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Call greet(\"Asha\")",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Jump into greet with name = \"Asha\"",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Build the greeting string",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Return \"Hello, Asha!\"",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "Back in main program, print the result",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "_uQrJ0TkZlc",
+        "title": "Python Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which keyword defines a function in Python?",
+          "options": [
+            "func",
+            "define",
+            "def",
+            "function"
+          ],
+          "answer": 2,
+          "why": "Functions are defined with def, as in def greet(name):."
+        },
+        {
+          "q": "What does a function return if it has no return statement?",
+          "options": [
+            "False",
+            "None",
+            "0",
+            "An empty string"
+          ],
+          "answer": 1,
+          "why": "A function without return finishes and gives back the special value None."
+        },
+        {
+          "q": "How do you use the sqrt function from the math module?",
+          "options": [
+            "import math, then math.sqrt(16)",
+            "import sqrt, then sqrt(16)",
+            "math import sqrt",
+            "from python import math.sqrt"
+          ],
+          "answer": 0,
+          "why": "import math loads the module, and math.sqrt(16) calls its square-root function."
+        },
+        {
+          "q": "What is a parameter?",
+          "options": [
+            "A value returned by a function",
+            "A module you import",
+            "A type of loop",
+            "A named input listed in a function definition"
+          ],
+          "answer": 3,
+          "why": "Parameters are the names in the def line; arguments are the actual values passed when calling."
+        },
+        {
+          "q": "What happens to a variable created inside a function?",
+          "options": [
+            "It is saved to a file",
+            "It is shared by all functions",
+            "It is local — it does not exist outside the function",
+            "It becomes a global variable"
+          ],
+          "answer": 2,
+          "why": "Local variables live only while the function runs and are not visible outside it."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "def add(a, b):\n    return a + b\n\nprint(add(2, 3))",
+          "expected": "5",
+          "answer": "add(2, 3) returns 2 + 3 = 5, and print displays 5.",
+          "hint": "Follow the call: a becomes 2, b becomes 3."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the function definition",
+          "prompt": "This function should return double its input, but it will not even run. Fix it.",
+          "code": "def double(n)\n    return n * 2",
+          "expected": "def double(n):\n    return n * 2",
+          "answer": "The def line was missing its colon, which is a syntax error. Adding : lets Python recognise the function header.",
+          "hint": "Every def line ends with a particular punctuation mark."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the function header so it accepts a name.",
+          "code": "def greet(___):\n    return \"Hello, \" + name",
+          "expected": "name",
+          "answer": "The parameter name receives the argument passed in, and the body uses it to build the greeting.",
+          "hint": "The body uses a variable called name — where should it come from?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the function call",
+          "prompt": "Trace this code step by step.",
+          "code": "def square(n):\n    return n * n\n\nresult = square(4)\nprint(result)",
+          "expected": "Call square(4): n = 4, return 4 * 4 = 16, so result = 16; print shows 16",
+          "answer": "Following the flowchart: call square(4), jump in with n = 4, compute n * n = 16, return 16 to result, then print 16.",
+          "hint": "Track the value of n inside the function, then the value of result outside it."
+        }
+      ]
+    },
+    {
+      "title": "Object-Oriented Programming",
+      "duration_minutes": 75,
+      "is_preview": 0,
+      "body": "<h3>Object-Oriented Programming</h3>\n<p>Object-oriented programming (OOP) groups data and behaviour into objects. A <code>class</code> is the blueprint; an <code>object</code> is one thing built from it. The special method <code>__init__</code> runs when an object is created and sets up its attributes, and <code>self</code> refers to the object itself.</p>\n<p>Methods are functions defined inside a class. Inheritance lets a new class reuse another class's attributes and methods, so you write shared behaviour once and specialise it.</p>\n<pre><code>class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    def bark(self):\n        return self.name + \" says Woof!\"\n\nbuddy = Dog(\"Buddy\")\nprint(buddy.bark())</code></pre>\n<p><code>Dog(\"Buddy\")</code> creates an object whose <code>name</code> is \"Buddy\". Calling <code>buddy.bark()</code> runs the method on that object, so the output is \"Buddy says Woof!\". A second dog, <code>Dog(\"Max\")</code>, would have its own separate <code>name</code>.</p>\n<h3>Key points</h3>\n<ul><li>A class is a blueprint; an object is an instance built from it.</li><li><code>__init__</code> sets up an object's attributes when it is created.</li><li><code>self</code> refers to the object the method is running on.</li><li>Methods are functions inside a class and can use the object's attributes.</li><li>Inheritance lets a class reuse and extend another class.</li></ul>",
+      "flowchart": {
+        "title": "How an object is created and used",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Call Dog(\"Buddy\")",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Create a new Dog object",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "__init__ sets self.name = \"Buddy\"",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Call buddy.bark()",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Return \"Buddy says Woof!\"",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "pTB0EiLXUC8",
+        "title": "Object-Oriented Programming, Simplified"
+      },
+      "mcqs": [
+        {
+          "q": "Which keyword creates a class in Python?",
+          "options": [
+            "struct",
+            "class",
+            "object",
+            "def"
+          ],
+          "answer": 1,
+          "why": "Classes are defined with the class keyword."
+        },
+        {
+          "q": "What does __init__ do?",
+          "options": [
+            "It runs when an object is created and sets up its attributes",
+            "It deletes an object",
+            "It imports a module",
+            "It prints the object"
+          ],
+          "answer": 0,
+          "why": "__init__ is the constructor: Python calls it automatically on creation."
+        },
+        {
+          "q": "What does self refer to inside a method?",
+          "options": [
+            "The class itself",
+            "The parent class",
+            "A global variable",
+            "The object the method was called on"
+          ],
+          "answer": 3,
+          "why": "self is the first parameter of a method and points at the current instance."
+        },
+        {
+          "q": "What does buddy = Dog(\"Buddy\") do?",
+          "options": [
+            "Calls the bark method",
+            "Imports the Dog module",
+            "Creates a Dog object named Buddy",
+            "Defines the Dog class"
+          ],
+          "answer": 2,
+          "why": "Calling the class name creates a new instance of that class."
+        },
+        {
+          "q": "What is inheritance?",
+          "options": [
+            "Calling a function twice",
+            "A class reusing attributes and methods from another class",
+            "Copying a file",
+            "Importing the math module"
+          ],
+          "answer": 1,
+          "why": "Inheritance lets a child class build on a parent class instead of rewriting shared code."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    def bark(self):\n        print(self.name + \" says Woof!\")\n\nd = Dog(\"Buddy\")\nd.bark()",
+          "expected": "Buddy says Woof!",
+          "answer": "Dog(\"Buddy\") sets self.name to \"Buddy\", and bark() prints that name plus \" says Woof!\".",
+          "hint": "What value does self.name hold for this dog?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix the missing self",
+          "prompt": "This class crashes when a Dog is created. Fix it.",
+          "code": "class Dog:\n    def __init__(name):\n        self.name = name",
+          "expected": "class Dog:\n    def __init__(self, name):\n        self.name = name",
+          "answer": "__init__ must take self as its first parameter; without it, Python passes the object into name and the assignment fails.",
+          "hint": "Every method's first parameter refers to the object itself."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete __init__ so it can store the dog's name.",
+          "code": "class Dog:\n    def __init__(___, name):\n        self.name = name",
+          "expected": "self",
+          "answer": "self is the new object; self.name = name stores the name on that object.",
+          "hint": "What is the conventional first parameter of every method?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace object creation",
+          "prompt": "Trace this code step by step.",
+          "code": "class Cat:\n    def __init__(self, name):\n        self.name = name\n\nc = Cat(\"Milo\")\nprint(c.name)",
+          "expected": "Cat(\"Milo\") creates an object, __init__ sets self.name = \"Milo\", c.name is \"Milo\", print shows Milo",
+          "answer": "Following the flowchart: call Cat(\"Milo\"), create the object, __init__ stores \"Milo\" in self.name, then read c.name and print Milo.",
+          "hint": "Follow the object from creation to the print statement."
+        }
+      ]
+    },
+    {
+      "title": "File Handling & Exceptions",
+      "duration_minutes": 45,
+      "is_preview": 0,
+      "body": "<h3>File Handling &amp; Exceptions</h3>\n<p>Programs often need to save data. <code>open()</code> opens a file: mode <code>\"w\"</code> writes (and erases old content), <code>\"r\"</code> reads, and <code>\"a\"</code> appends. Always use a <code>with</code> block — it closes the file automatically, even if an error occurs.</p>\n<p>Things go wrong: a file may not exist, or a conversion may fail. Wrap risky code in <code>try</code> and handle each problem in an <code>except</code> block, so the program reports the problem instead of crashing.</p>\n<pre><code>with open(\"notes.txt\", \"w\") as f:\n    f.write(\"Learn Python every day\\n\")\n\ntry:\n    with open(\"notes.txt\", \"r\") as f:\n        print(f.read())\nexcept FileNotFoundError:\n    print(\"File not found!\")</code></pre>\n<p>The first block writes a line to <code>notes.txt</code>. The second reads it back and prints it. If the file were missing, Python would raise <code>FileNotFoundError</code> and the <code>except</code> block would print \"File not found!\" instead of crashing.</p>\n<h3>Key points</h3>\n<ul><li>Open files with <code>open()</code>: \"w\" writes, \"r\" reads, \"a\" appends.</li><li>Use a <code>with</code> block so the file is always closed properly.</li><li><code>try / except</code> catches errors so the program can recover gracefully.</li><li>Catch a specific error such as <code>FileNotFoundError</code>, not every error blindly.</li><li><code>read()</code> returns the whole file content as one string.</li></ul>",
+      "flowchart": {
+        "title": "Reading a file safely with try/except",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Try to open notes.txt",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "File exists?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Read and print the content",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Print File not found!",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "Close the file",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n6"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "rfscVS0vtbw",
+        "title": "Learn Python - Full Course for Beginners [Tutorial]"
+      },
+      "mcqs": [
+        {
+          "q": "Which mode opens a file for writing, erasing its old content?",
+          "options": [
+            "\"w\"",
+            "\"r\"",
+            "\"a\"",
+            "\"x\""
+          ],
+          "answer": 0,
+          "why": "\"w\" means write and truncates the file; \"r\" reads and \"a\" appends."
+        },
+        {
+          "q": "Why use a with block when opening a file?",
+          "options": [
+            "It makes reading faster",
+            "It encrypts the file",
+            "It creates a backup copy",
+            "It closes the file automatically, even on error"
+          ],
+          "answer": 3,
+          "why": "with guarantees the file is closed when the block ends, so data is saved and resources freed."
+        },
+        {
+          "q": "Which error is raised when you open a file that does not exist?",
+          "options": [
+            "TypeError",
+            "NameError",
+            "FileNotFoundError",
+            "ValueError"
+          ],
+          "answer": 2,
+          "why": "Opening a missing file in read mode raises FileNotFoundError."
+        },
+        {
+          "q": "What does f.read() return?",
+          "options": [
+            "True or False",
+            "The whole file content as one string",
+            "One line at a time",
+            "A list of filenames"
+          ],
+          "answer": 1,
+          "why": "read() with no argument returns the entire remaining content as a single string."
+        },
+        {
+          "q": "Where does code that handles an error go?",
+          "options": [
+            "In an except block after try",
+            "In a finally block only",
+            "Before the try",
+            "Inside a comment"
+          ],
+          "answer": 0,
+          "why": "try holds the risky code and except holds the recovery code for a matching error."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "try:\n    print(int(\"42\"))\nexcept ValueError:\n    print(\"bad number\")",
+          "expected": "42",
+          "answer": "int(\"42\") succeeds and returns 42, so the except block never runs.",
+          "hint": "Does int(\"42\") succeed or fail?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix the unclosed file",
+          "prompt": "This code reads a file but never closes it. Rewrite it safely.",
+          "code": "f = open(\"data.txt\", \"r\")\nprint(f.read())",
+          "expected": "with open(\"data.txt\", \"r\") as f:\n    print(f.read())",
+          "answer": "Leaving a file open can lose buffered data and waste resources. A with block closes the file automatically when done.",
+          "hint": "Which block guarantees the file is closed?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the with statement so f refers to the opened file.",
+          "code": "with open(\"notes.txt\", \"r\") ___ f:\n    print(f.read())",
+          "expected": "as",
+          "answer": "The as keyword binds the opened file object to the name f inside the with block.",
+          "hint": "The keyword that gives the opened file a name is two letters."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the error handling",
+          "prompt": "Trace this code step by step.",
+          "code": "try:\n    x = 10 / 0\nexcept ZeroDivisionError:\n    x = 0\nprint(x)",
+          "expected": "10 / 0 raises ZeroDivisionError, the except block sets x = 0, print shows 0",
+          "answer": "Following the flowchart: try the division, the error is raised, take the error branch to the handler, set x to 0, then output 0.",
+          "hint": "Which error does dividing by zero raise?"
+        }
+      ]
+    },
+    {
+      "title": "Capstone: Automation Script",
+      "duration_minutes": 85,
+      "is_preview": 0,
+      "body": "<h3>Capstone: Automation Script</h3>\n<p>Automation means writing a script that does a boring, repetitive job for you. This capstone combines everything so far: functions organise the work, loops repeat it, file handling reads and writes data, and <code>try / except</code> keeps one bad file from stopping the whole job.</p>\n<p>A good script has a <code>main()</code> function and the guard <code>if __name__ == \"__main__\":</code>, which runs <code>main()</code> only when the file is executed directly — not when it is imported by another script. The <code>os</code> module lets the script list and rename real files.</p>\n<pre><code>import os\n\ndef count_txt_files(folder):\n    count = 0\n    for name in os.listdir(folder):\n        if name.endswith(\".txt\"):\n            count += 1\n    return count\n\ndef main():\n    print(\"Text files:\", count_txt_files(\".\"))\n\nif __name__ == \"__main__\":\n    main()</code></pre>\n<p>Step by step: <code>os.listdir(\".\")</code> lists the current folder, the loop counts names ending in <code>.txt</code>, and <code>main()</code> prints the total. The guard at the bottom is what starts the script when you run <code>python automate.py</code>.</p>\n<h3>Key points</h3>\n<ul><li>Automation scripts combine functions, loops, files and error handling.</li><li><code>os.listdir()</code> lists the files in a folder.</li><li><code>if __name__ == \"__main__\":</code> runs code only when the file is executed directly.</li><li>Keep one job per function so the script is easy to test and reuse.</li><li>Wrap risky file work in <code>try / except</code> so one failure does not stop the run.</li></ul>",
+      "flowchart": {
+        "title": "How the automation script runs",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Run python automate.py",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "main() lists files in the folder",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "More files to check?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "File ends with .txt?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Count += 1",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Print total count",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n4",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n4"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "_uQrJ0TkZlc",
+        "title": "Python Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does if __name__ == \"__main__\": do?",
+          "options": [
+            "It imports the main module",
+            "It defines the main function",
+            "It checks the file exists",
+            "It runs the code only when the file is executed directly"
+          ],
+          "answer": 3,
+          "why": "When a file is run directly, Python sets __name__ to \"__main__\"; when imported, it is the module name."
+        },
+        {
+          "q": "Which function lists the files in a folder?",
+          "options": [
+            "os.read()",
+            "os.files()",
+            "os.listdir()",
+            "os.open()"
+          ],
+          "answer": 2,
+          "why": "os.listdir(folder) returns a list of the names in that folder."
+        },
+        {
+          "q": "How do you test whether a filename ends with .txt?",
+          "options": [
+            "name.has(\".txt\")",
+            "name.endswith(\".txt\")",
+            "name.ends(\".txt\")",
+            "name == \".txt\""
+          ],
+          "answer": 1,
+          "why": "str.endswith() returns True when the string ends with the given suffix."
+        },
+        {
+          "q": "Why put the counting logic in its own function?",
+          "options": [
+            "So it can be reused and tested on its own",
+            "So it runs faster",
+            "So it uses less memory",
+            "Because loops need functions"
+          ],
+          "answer": 0,
+          "why": "One job per function keeps code organised, reusable and easy to test."
+        },
+        {
+          "q": "What should happen if one file in an automation run is unreadable?",
+          "options": [
+            "Delete the file immediately",
+            "Stop the script forever",
+            "Ignore all errors silently",
+            "Catch the error and continue with the next file"
+          ],
+          "answer": 3,
+          "why": "try / except around each file lets the script report the problem and keep working through the rest."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "def count_txt(files):\n    return sum(1 for f in files if f.endswith(\".txt\"))\n\nprint(count_txt([\"a.txt\", \"b.py\", \"c.txt\"]))",
+          "expected": "2",
+          "answer": "Two of the three names end with .txt (a.txt and c.txt), so the sum is 2.",
+          "hint": "Count only the names that end with .txt."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the main guard",
+          "prompt": "This script should run main() when executed, but the guard is wrong. Fix it.",
+          "code": "if __name__ = \"__main__\":\n    main()",
+          "expected": "if __name__ == \"__main__\":\n    main()",
+          "answer": "A single = assigns a value, which is invalid in a condition. The guard must compare with ==.",
+          "hint": "Same mistake as in the if lesson — assignment or comparison?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the guard so main() runs when the file is executed.",
+          "code": "if __name__ ___ \"__main__\":\n    main()",
+          "expected": "==",
+          "answer": "== compares __name__ with \"__main__\"; it is True only when the file is run directly.",
+          "hint": "You need to compare two values here."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the counting loop",
+          "prompt": "Trace this code step by step.",
+          "code": "count = 0\nfor name in [\"a.txt\", \"b.py\"]:\n    if name.endswith(\".txt\"):\n        count += 1\nprint(count)",
+          "expected": "count starts at 0; \"a.txt\" ends with .txt so count becomes 1; \"b.py\" does not, count stays 1; print shows 1",
+          "answer": "Following the flowchart: list the files, check each one — \"a.txt\" takes the Yes branch and increments the count, \"b.py\" takes the No branch — then print the total 1.",
+          "hint": "Walk through the list one file at a time, updating count only on the Yes branch."
+        }
+      ]
+    },
+    {
+      "title": "Lists, Dictionaries & Comprehensions",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Lists, Dictionaries &amp; Comprehensions</h3>\n<p>A list holds an ordered collection: <code>scores = [90, 85, 92]</code>. Items are numbered from 0, so <code>scores[0]</code> is 90. Add items with <code>append()</code>, remove them with <code>remove()</code>, and slice a range with <code>scores[0:2]</code>, which gives <code>[90, 85]</code>.</p>\n<p>A dictionary stores key-value pairs: <code>student = {\"name\": \"Asha\", \"age\": 20}</code>. Look values up by key with <code>student[\"name\"]</code>. A comprehension builds a collection in one line: <code>[x ** 2 for x in range(5)]</code> makes <code>[0, 1, 4, 9, 16]</code>.</p>\n<pre><code>scores = [90, 85, 92]\nscores.append(88)\nprint(scores[0])\nprint(len(scores))\n\nsquares = [x ** 2 for x in range(5)]\nprint(squares)</code></pre>\n<p>The list starts with three scores, <code>append(88)</code> makes four, <code>scores[0]</code> prints 90, and <code>len()</code> prints 4. The comprehension squares 0, 1, 2, 3 and 4 to give <code>[0, 1, 4, 9, 16]</code>.</p>\n<h3>Key points</h3>\n<ul><li>Lists are ordered and indexed from 0; use <code>append()</code> to add items.</li><li>Dictionaries store values under keys: <code>student[\"name\"]</code>.</li><li><code>len()</code> gives the number of items in a list or dictionary.</li><li>Comprehensions build a new list in one readable line.</li><li>Slicing like <code>scores[0:2]</code> returns a smaller list.</li></ul>",
+      "flowchart": {
+        "title": "How a list comprehension builds a list",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Take the next x from range(5)",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "More values left?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Compute x ** 2",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Add the result to the new list",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Output [0, 1, 4, 9, 16]",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n2"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "kqtD5dpn9C8",
+        "title": "Python for Beginners - Learn Coding with Python in 1 Hour"
+      },
+      "mcqs": [
+        {
+          "q": "What is scores[0] when scores = [90, 85, 92]?",
+          "options": [
+            "92",
+            "0",
+            "90",
+            "85"
+          ],
+          "answer": 2,
+          "why": "Python lists are indexed from 0, so index 0 is the first item, 90."
+        },
+        {
+          "q": "What does scores.append(88) do?",
+          "options": [
+            "Removes 88",
+            "Adds 88 to the end of the list",
+            "Replaces the first item with 88",
+            "Sorts the list"
+          ],
+          "answer": 1,
+          "why": "append() adds one item to the end of a list."
+        },
+        {
+          "q": "How do you read the value for the key \"name\" in student = {\"name\": \"Asha\"}?",
+          "options": [
+            "student[\"name\"]",
+            "student.name",
+            "student(\"name\")",
+            "student.get name"
+          ],
+          "answer": 0,
+          "why": "Dictionary values are looked up with square brackets and the key."
+        },
+        {
+          "q": "What does [x ** 2 for x in range(4)] produce?",
+          "options": [
+            "[1, 4, 9, 16]",
+            "[0, 1, 2, 3]",
+            "[2, 4, 6, 8]",
+            "[0, 1, 4, 9]"
+          ],
+          "answer": 3,
+          "why": "It squares 0, 1, 2 and 3, giving 0, 1, 4 and 9."
+        },
+        {
+          "q": "What does len([10, 20, 30]) return?",
+          "options": [
+            "10",
+            "60",
+            "3",
+            "30"
+          ],
+          "answer": 2,
+          "why": "len() counts the items in the collection — three items here."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "print([x ** 2 for x in range(4)])",
+          "expected": "[0, 1, 4, 9]",
+          "answer": "The comprehension squares 0, 1, 2 and 3, giving [0, 1, 4, 9].",
+          "hint": "Square each number from 0 to 3."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the dictionary key",
+          "prompt": "This code should print 90, but it crashes with a KeyError. Fix it.",
+          "code": "scores = {\"Asha\": 90}\nprint(scores[\"asha\"])",
+          "expected": "scores = {\"Asha\": 90}\nprint(scores[\"Asha\"])",
+          "answer": "Dictionary keys are case-sensitive, so \"asha\" is a different key from \"Asha\" and does not exist. Using the exact key \"Asha\" finds the value 90.",
+          "hint": "Python treats capital and small letters as different characters."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the comprehension so it squares each number.",
+          "code": "squares = [x ** 2 ___ x in range(5)]\nprint(squares)",
+          "expected": "for",
+          "answer": "A list comprehension needs for to loop over the source values: [x ** 2 for x in range(5)].",
+          "hint": "What keyword starts the loop inside a comprehension?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the list build",
+          "prompt": "Trace this code step by step.",
+          "code": "nums = []\nfor i in range(3):\n    nums.append(i * 10)\nprint(nums)",
+          "expected": "nums starts empty; i=0 appends 0, i=1 appends 10, i=2 appends 20; print shows [0, 10, 20]",
+          "answer": "Following the flowchart: take each value from range(3), compute i * 10, append it to the list, and when no values remain output [0, 10, 20].",
+          "hint": "Track the list after each loop step."
+        }
+      ]
+    },
+    {
+      "title": "Loops & Iteration Patterns",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Loops &amp; Iteration Patterns</h3>\n<p>Loops repeat work. A <code>for</code> loop runs once per item: <code>for i in range(3)</code> gives i the values 0, 1 and 2. A <code>while</code> loop repeats while its condition stays True, so it must change something inside the loop or it never stops.</p>\n<p>Use <code>break</code> to leave a loop early and <code>continue</code> to skip to the next round. <code>enumerate()</code> gives you both the position and the value as you loop, which is handy for numbered lists.</p>\n<pre><code>total = 0\nfor i in range(1, 4):\n    total += i\nprint(total)\n\nfor index, name in enumerate([\"Asha\", \"Ravi\"]):\n    print(index, name)</code></pre>\n<p>The first loop adds 1, then 2, then 3, so <code>total</code> becomes 6. The second loop prints <code>0 Asha</code> and <code>1 Ravi</code> — <code>enumerate</code> counts from 0 by default.</p>\n<h3>Key points</h3>\n<ul><li><code>for</code> loops over items; <code>range(3)</code> gives 0, 1, 2.</li><li><code>while</code> repeats while its condition is True — always update the condition inside.</li><li><code>break</code> exits a loop early; <code>continue</code> skips to the next round.</li><li><code>enumerate()</code> gives both the index and the value.</li><li>Accumulate a running total by adding inside the loop.</li></ul>",
+      "flowchart": {
+        "title": "How a while loop repeats",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Set count = 0",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "count < 3?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Print count",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "count += 1",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n3"
+          }
+        ]
+      },
+      "video": {
+        "id": "rfscVS0vtbw",
+        "title": "Learn Python - Full Course for Beginners [Tutorial]"
+      },
+      "mcqs": [
+        {
+          "q": "What values does range(3) produce?",
+          "options": [
+            "3, 2, 1",
+            "0, 1, 2",
+            "1, 2, 3",
+            "0, 1, 2, 3"
+          ],
+          "answer": 1,
+          "why": "range(3) starts at 0 and stops before 3, giving 0, 1 and 2."
+        },
+        {
+          "q": "What does break do inside a loop?",
+          "options": [
+            "Exits the loop immediately",
+            "Skips to the next round",
+            "Pauses the loop for one second",
+            "Restarts the loop"
+          ],
+          "answer": 0,
+          "why": "break jumps out of the loop entirely; continue only skips the current round."
+        },
+        {
+          "q": "What does continue do inside a loop?",
+          "options": [
+            "Exits the loop",
+            "Skips the whole loop",
+            "Repeats the current round",
+            "Skips the rest of the current round and starts the next one"
+          ],
+          "answer": 3,
+          "why": "continue jumps back to the loop header for the next item."
+        },
+        {
+          "q": "What happens if a while loop's condition never becomes False?",
+          "options": [
+            "It raises a ValueError",
+            "It skips the loop body",
+            "It loops forever (an infinite loop)",
+            "It stops after 10 rounds"
+          ],
+          "answer": 2,
+          "why": "while keeps going as long as its condition is True, so a condition that never changes means it never stops."
+        },
+        {
+          "q": "What does enumerate([\"Asha\", \"Ravi\"]) give on the first round?",
+          "options": [
+            "(0, \"Ravi\")",
+            "(0, \"Asha\")",
+            "(1, \"Asha\")",
+            "(\"Asha\", 0)"
+          ],
+          "answer": 1,
+          "why": "enumerate counts from 0, so the first pair is index 0 with value \"Asha\"."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "total = 0\nfor i in range(1, 4):\n    total += i\nprint(total)",
+          "expected": "6",
+          "answer": "The loop adds 1 + 2 + 3, so total is 6.",
+          "hint": "Add the numbers 1, 2 and 3 together."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the infinite loop",
+          "prompt": "This loop never stops. Fix it so it prints 0, 1 and 2.",
+          "code": "count = 0\nwhile count < 3:\n    print(count)",
+          "expected": "count = 0\nwhile count < 3:\n    print(count)\n    count += 1",
+          "answer": "The loop never changed count, so count < 3 stayed True forever. Adding count += 1 makes count reach 3 and the loop ends.",
+          "hint": "What must change inside the loop for the condition to become False?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the loop so it prints 0 to 4.",
+          "code": "for i in ___(5):\n    print(i)",
+          "expected": "range",
+          "answer": "range(5) produces 0, 1, 2, 3, 4, which the for loop then prints one by one.",
+          "hint": "Which function produces a sequence of numbers?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the while loop",
+          "prompt": "Trace this code step by step.",
+          "code": "count = 0\nwhile count < 2:\n    count += 1\nprint(count)",
+          "expected": "count = 0; check 0 < 2 (Yes), count becomes 1; check 1 < 2 (Yes), count becomes 2; check 2 < 2 (No), exit; print shows 2",
+          "answer": "Following the flowchart: start with count = 0, test count < 2 (Yes) and increment to 1, test again (Yes) and increment to 2, test a third time (No) and exit the loop, then print 2.",
+          "hint": "Check the condition before every round, including the final failing check."
+        }
+      ]
+    },
+    {
+      "title": "Debugging & Error Handling in Practice",
+      "duration_minutes": 45,
+      "is_preview": 0,
+      "body": "<h3>Debugging &amp; Error Handling in Practice</h3>\n<p>Debugging is finding and fixing mistakes. Start by reading the traceback: the last line names the error type, and the lines above show where it happened. Common errors are <code>NameError</code> (a name that does not exist), <code>TypeError</code> (the wrong type of value) and <code>ValueError</code> (the right type, wrong value, like <code>int(\"abc\")</code>).</p>\n<p>When you expect a problem, handle it with <code>try / except / else / finally</code>: <code>except</code> runs when an error occurs, <code>else</code> runs when no error occurs, and <code>finally</code> always runs — it is the place to close files or release resources. Add <code>print()</code> calls to see what your variables actually hold, and test with small inputs first.</p>\n<pre><code>try:\n    age = int(\"25\")\nexcept ValueError:\n    print(\"Please type digits only\")\nelse:\n    print(\"Age is\", age)\nfinally:\n    print(\"Done\")</code></pre>\n<p><code>int(\"25\")</code> succeeds, so the <code>except</code> block is skipped, <code>else</code> prints \"Age is 25\", and <code>finally</code> always prints \"Done\". If the text had been <code>\"abc\"</code>, the <code>except</code> block would have run instead.</p>\n<h3>Key points</h3>\n<ul><li>Read the traceback bottom-up: the last line names the error.</li><li><code>NameError</code> means an unknown name; <code>TypeError</code> a wrong type; <code>ValueError</code> a wrong value.</li><li><code>except</code> handles an error; <code>else</code> runs only when no error occurs.</li><li><code>finally</code> always runs, even when an error occurs.</li><li>Use print() to inspect real variable values while debugging.</li></ul>",
+      "flowchart": {
+        "title": "Debugging a crashing program",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Run the program",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Did it crash?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Read the traceback",
+            "kind": "input"
+          },
+          {
+            "id": "n5",
+            "label": "Find the error type and line",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Fix the code or add try/except",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Program works",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n2"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "_uQrJ0TkZlc",
+        "title": "Python Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which line of a traceback names the error type?",
+          "options": [
+            "The last line",
+            "The first line",
+            "The middle line",
+            "No line names it"
+          ],
+          "answer": 0,
+          "why": "A traceback ends with a line like ValueError: ..., naming the error and its message."
+        },
+        {
+          "q": "Which error does int(\"abc\") raise?",
+          "options": [
+            "NameError",
+            "TypeError",
+            "SyntaxError",
+            "ValueError"
+          ],
+          "answer": 3,
+          "why": "\"abc\" is a string (right type) but not a valid number (wrong value), which is a ValueError."
+        },
+        {
+          "q": "Which error means you used a variable that was never defined?",
+          "options": [
+            "TypeError",
+            "IndexError",
+            "NameError",
+            "ValueError"
+          ],
+          "answer": 2,
+          "why": "Referring to an undefined name raises NameError."
+        },
+        {
+          "q": "When does the else block of try / except / else run?",
+          "options": [
+            "Never",
+            "Only when no exception occurred",
+            "Only when an exception occurred",
+            "Always"
+          ],
+          "answer": 1,
+          "why": "else runs after a successful try; if an exception occurs, the matching except runs instead."
+        },
+        {
+          "q": "When does the finally block run?",
+          "options": [
+            "Always, whether or not an error occurred",
+            "Only when an error occurred",
+            "Only when no error occurred",
+            "Only in a loop"
+          ],
+          "answer": 0,
+          "why": "finally always executes, which makes it the right place for cleanup such as closing files."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "try:\n    print(int(\"7\") + 1)\nexcept ValueError:\n    print(\"bad\")",
+          "expected": "8",
+          "answer": "int(\"7\") is 7, plus 1 is 8, and no error occurs so except never runs.",
+          "hint": "Convert the string first, then add."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the wrong except",
+          "prompt": "This code should print \"Cannot divide by zero\" when dividing by zero, but it still crashes. Fix it.",
+          "code": "try:\n    print(10 / 0)\nexcept ValueError:\n    print(\"Cannot divide by zero\")",
+          "expected": "try:\n    print(10 / 0)\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")",
+          "answer": "Dividing by zero raises ZeroDivisionError, not ValueError, so the except block never matched. Catching ZeroDivisionError handles it.",
+          "hint": "What error does division by zero actually raise?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the handler so a bad number prints \"bad number\".",
+          "code": "try:\n    n = int(\"abc\")\nexcept ___:\n    print(\"bad number\")",
+          "expected": "ValueError",
+          "answer": "int(\"abc\") raises ValueError, so except ValueError catches it and prints the message.",
+          "hint": "Which error does int() raise for non-numeric text?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the try/except",
+          "prompt": "Trace this code step by step.",
+          "code": "try:\n    x = int(\"12\")\nexcept ValueError:\n    x = 0\nprint(x)",
+          "expected": "int(\"12\") succeeds, so x = 12 and the except block is skipped; print shows 12",
+          "answer": "Following the flowchart: run the try block, no crash (No branch), skip the except handler, and output 12.",
+          "hint": "Does the conversion succeed or fail here?"
+        }
+      ]
+    },
+    {
+      "title": "Mini Project: Build a Quiz Game",
+      "duration_minutes": 90,
+      "is_preview": 0,
+      "body": "<h3>Mini Project: Build a Quiz Game</h3>\n<p>Time to build something complete. A quiz game needs three parts: data (a list of question dictionaries with a question, options and the correct answer), logic (a loop that asks each question, checks the answer and updates the score), and output (the final score and a message).</p>\n<p>Store each question as a dictionary so the loop can treat every question the same way. Compare answers with <code>.lower().strip()</code> so \"Paris\", \"paris\" and \" paris \" all count as correct — small details like this are what make a program feel polished.</p>\n<pre><code>questions = [\n    {\"q\": \"What is the capital of France?\", \"a\": \"paris\"},\n    {\"q\": \"What is 2 + 2?\", \"a\": \"4\"},\n]\n\nscore = 0\nfor item in questions:\n    answer = input(item[\"q\"] + \" \").lower().strip()\n    if answer == item[\"a\"]:\n        print(\"Correct!\")\n        score += 1\n    else:\n        print(\"The answer was\", item[\"a\"])\n\nprint(\"Your score:\", score, \"out of\", len(questions))</code></pre>\n<p>The loop asks each question, normalises the answer, and adds 1 to the score when it matches. At the end it reports the score out of the number of questions. Extend it with more questions, a timer, or a play-again loop.</p>\n<h3>Key points</h3>\n<ul><li>A list of dictionaries is a clean way to store quiz questions.</li><li>Loop over the questions so each one is handled the same way.</li><li>Use <code>.lower().strip()</code> so answers match regardless of case or spaces.</li><li>Keep a score variable and add 1 for each correct answer.</li><li>Report the final score out of the total number of questions.</li></ul>",
+      "flowchart": {
+        "title": "How the quiz game flows",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Load the list of questions",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Show the next question",
+            "kind": "output"
+          },
+          {
+            "id": "n4",
+            "label": "Read the player's answer",
+            "kind": "input"
+          },
+          {
+            "id": "n5",
+            "label": "Answer correct?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Score += 1, print Correct!",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Print the right answer",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "More questions?",
+            "kind": "decision"
+          },
+          {
+            "id": "n9",
+            "label": "Print final score",
+            "kind": "output"
+          },
+          {
+            "id": "n10",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n8"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          },
+          {
+            "from": "n8",
+            "to": "n3",
+            "label": "Yes"
+          },
+          {
+            "from": "n8",
+            "to": "n9",
+            "label": "No"
+          },
+          {
+            "from": "n9",
+            "to": "n10"
+          }
+        ]
+      },
+      "video": {
+        "id": "kqtD5dpn9C8",
+        "title": "Python for Beginners - Learn Coding with Python in 1 Hour"
+      },
+      "mcqs": [
+        {
+          "q": "What is the best data structure for storing quiz questions with their answers?",
+          "options": [
+            "A single integer",
+            "A single string",
+            "A tuple of numbers",
+            "A list of dictionaries"
+          ],
+          "answer": 3,
+          "why": "Each question is a dict with q and a keys, and the list keeps them in order for the loop."
+        },
+        {
+          "q": "Why use .lower() on the player's answer?",
+          "options": [
+            "To remove spaces",
+            "To convert it to a number",
+            "So \"Paris\" and \"paris\" both count as correct",
+            "To make the answer shorter"
+          ],
+          "answer": 2,
+          "why": "lower() makes the comparison case-insensitive, so capitalisation does not mark a right answer wrong."
+        },
+        {
+          "q": "How is the score updated for a correct answer?",
+          "options": [
+            "score = score",
+            "score += 1",
+            "score = 0",
+            "score -= 1"
+          ],
+          "answer": 1,
+          "why": "score += 1 adds one to the running total for each correct answer."
+        },
+        {
+          "q": "What does input() return when the player types an answer?",
+          "options": [
+            "A string",
+            "An integer",
+            "A boolean",
+            "A list"
+          ],
+          "answer": 0,
+          "why": "input() always returns text, which is why we compare it with the string answer."
+        },
+        {
+          "q": "How do you know how many questions there are in total?",
+          "options": [
+            "questions.count",
+            "score",
+            "len(score)",
+            "len(questions)"
+          ],
+          "answer": 3,
+          "why": "len() counts the question dictionaries in the list, giving the total for the final score line."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "score = 0\nanswer = \"paris\"\nif answer == \"paris\":\n    score += 1\nprint(score)",
+          "expected": "1",
+          "answer": "The answer matches, so score increases from 0 to 1 and print shows 1.",
+          "hint": "Does the answer match the expected one?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix the case-sensitive answer check",
+          "prompt": "A player typing \"paris\" is marked wrong. Fix the check so any capitalisation works.",
+          "code": "answer = input(\"Capital of France? \")\nif answer == \"Paris\":\n    print(\"Correct!\")",
+          "expected": "answer = input(\"Capital of France? \")\nif answer.lower() == \"paris\":\n    print(\"Correct!\")",
+          "answer": "Comparing with == is case-sensitive, so \"paris\" did not equal \"Paris\". Lowercasing the input before comparing makes every capitalisation match.",
+          "hint": "How can you make both sides of the comparison use the same case?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the line so a correct answer adds 1 to the score.",
+          "code": "if answer == item[\"a\"]:\n    score ___ 1",
+          "expected": "+=",
+          "answer": "+= adds 1 to the current score; a plain = would reset the score to 1 every time.",
+          "hint": "You need to add to the existing score, not replace it."
+        },
+        {
+          "type": "project",
+          "title": "Build the Quiz Game",
+          "prompt": "Build a complete quiz game in Python: at least 5 questions stored as a list of dictionaries (each with a question and its correct answer), a loop that asks each question, case-insensitive answer checking, a running score, and a final score out of the total. Add a play-again option.",
+          "code": "",
+          "expected": "Deliverable checklist: a quiz.py file that runs without errors; 5+ questions as a list of dicts; loop asks every question; .lower().strip() on answers; score shown as e.g. 4 out of 5; play-again loop that repeats only on 'yes'.",
+          "answer": "Approach: start with the questions list from this lesson, add three more questions, wrap the game loop in a while True play-again loop, and test with all-correct, all-wrong and mixed-case answers.",
+          "hint": "Start from this lesson's code and add questions one at a time, testing after each."
+        }
+      ]
+    }
+  ]
+}

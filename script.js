@@ -126,6 +126,66 @@ const courses = [
         image: "assets/images/course8.svg",
         description:
             "Learn SQL queries, relational databases and database design."
+    },
+    {
+        id: 13,
+        title: "C Programming from Zero to Hero",
+        category: "Programming",
+        instructor: "Arjun Reddy",
+        price: 899,
+        oldPrice: 1999,
+        rating: "New",
+        students: 0,
+        lessons: 10,
+        hours: 20,
+        image: "assets/images/course4.svg",
+        description:
+            "Learn C from scratch: setup, variables, loops, functions, pointers, structures and files, with MCQs, flowcharts, videos and hands-on tasks."
+    },
+    {
+        id: 14,
+        title: "Data Structures & Algorithms",
+        category: "Programming",
+        instructor: "Priya Sharma",
+        price: 1299,
+        oldPrice: 2999,
+        rating: "New",
+        students: 0,
+        lessons: 10,
+        hours: 24,
+        image: "assets/images/course5.svg",
+        description:
+            "Learn the data structures and algorithms behind fast software: Big-O, arrays, linked lists, stacks, trees, graphs and sorting, with MCQs, flowcharts, videos and tasks."
+    },
+    {
+        id: 15,
+        title: "Java Programming Masterclass",
+        category: "Programming",
+        instructor: "Sarah Williams",
+        price: 999,
+        oldPrice: 2299,
+        rating: "New",
+        students: 0,
+        lessons: 8,
+        hours: 18,
+        image: "assets/images/course2.svg",
+        description:
+            "Learn Java from scratch - setup, core syntax, object-oriented programming, collections, files and exceptions, with MCQs, flowcharts, videos and tasks."
+    },
+    {
+        id: 16,
+        title: "SQL Essentials: Queries to Databases",
+        category: "Data Science",
+        instructor: "Kavya Nair",
+        price: 799,
+        oldPrice: 1799,
+        rating: "New",
+        students: 0,
+        lessons: 8,
+        hours: 12,
+        image: "assets/images/course6.svg",
+        description:
+            "Learn SQL from zero: query real tables, filter and sort data, join tables, aggregate results and design databases, with MCQs, flowcharts, videos and tasks."
     }
 ];
 
@@ -405,4 +465,4 @@ function updateNavigation() {
             }
         });
     }
-}
+}

@@ -1,0 +1,1846 @@
+{
+  "course": {
+    "match_title": null,
+    "title": "Data Structures & Algorithms",
+    "description": "Learn the data structures and algorithms behind fast software: Big-O, arrays, linked lists, stacks, queues, recursion, trees, hashing, graphs and sorting, ending with a mini search engine project.",
+    "category": "Programming",
+    "price": 1299,
+    "instructor": "Priya Sharma",
+    "duration_hours": 24,
+    "level": "Intermediate",
+    "image_url": "assets/images/course5.svg"
+  },
+  "lessons": [
+    {
+      "title": "Big-O Notation & Algorithm Thinking",
+      "duration_minutes": 50,
+      "is_preview": 1,
+      "body": "<h3>What is Big-O?</h3><p>Big-O notation describes how an algorithm's running time or memory use grows as the input size n grows. It ignores small constant factors and focuses on the growth pattern, so we can compare algorithms fairly.</p><h3>Think in steps</h3><ol><li>Count the basic operations as a function of n.</li><li>Keep only the fastest-growing term.</li><li>Drop constants: 3n + 5 becomes O(n).</li></ol><p>Common orders, fastest to slowest: O(1) constant, O(log n) logarithmic, O(n) linear, O(n log n), O(n^2) quadratic, O(2^n) exponential.</p><h3>Example: linear search vs binary search</h3><p>Linear search checks each item once: worst case O(n) time, O(1) extra space. Binary search halves a sorted list each step: O(log n) time, O(1) space.</p><pre><code>def linear_search(nums, target):\n    for i in range(len(nums)):\n        if nums[i] == target:\n            return i\n    return -1\n\ndef binary_search(nums, target):\n    low, high = 0, len(nums) - 1\n    while low &lt;= high:\n        mid = (low + high) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] &lt; target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n\nprint(linear_search([4, 2, 7, 1], 7))  # 2\nprint(binary_search([1, 2, 4, 7], 7))  # 3\n</code></pre><p><strong>Time complexity:</strong> linear search O(n) worst case; binary search O(log n) but only on sorted data. <strong>Space complexity:</strong> both O(1) extra space.</p><h3>Key points</h3><ul><li>Big-O describes growth with input size n, not exact seconds.</li><li>Drop constants and lower-order terms: 3n + 5 is O(n).</li><li>Binary search is O(log n) but needs sorted input; linear search is O(n).</li><li>Always state best, average and worst case when they differ.</li><li>Time and space are separate: a faster algorithm can use more memory.</li></ul>",
+      "flowchart": {
+        "title": "Classify an algorithm's Big-O",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Count operations in terms of n",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Is there a loop inside a loop?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Growth is at least O(n^2)",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Is the input halved each step?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Growth is O(log n)",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Growth is O(n) or O(1)",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n8"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n8"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "8hly31xKli0",
+        "title": "Algorithms and Data Structures Tutorial - Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does O(1) mean?",
+          "options": [
+            "Time grows in proportion to n",
+            "Time grows with the square of n",
+            "Time doubles when n doubles",
+            "Time stays roughly the same no matter how big n is"
+          ],
+          "answer": 3,
+          "why": "O(1) is constant time: the work does not grow with input size, e.g. reading nums[0]."
+        },
+        {
+          "q": "What is the worst-case time of linear search in a list of n items?",
+          "options": [
+            "O(n^2)",
+            "O(1)",
+            "O(log n)",
+            "O(n)"
+          ],
+          "answer": 3,
+          "why": "In the worst case the target is last or absent, so all n items are checked."
+        },
+        {
+          "q": "Binary search on a sorted list of n items takes:",
+          "options": [
+            "O(n)",
+            "O(log n)",
+            "O(n log n)",
+            "O(n^2)"
+          ],
+          "answer": 1,
+          "why": "Each step halves the search range, so about log2(n) steps are needed."
+        },
+        {
+          "q": "An algorithm with two nested loops over n items is usually:",
+          "options": [
+            "O(log n)",
+            "O(n^2)",
+            "O(2^n)",
+            "O(n)"
+          ],
+          "answer": 1,
+          "why": "The inner loop runs n times for each of the n outer iterations: n x n = n^2."
+        },
+        {
+          "q": "Which is fastest for very large n?",
+          "options": [
+            "O(2^n)",
+            "O(n)",
+            "O(n^2)",
+            "O(n log n)"
+          ],
+          "answer": 1,
+          "why": "O(n) grows linearly, slower than O(n log n), O(n^2) and O(2^n) for large n."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: linear search index",
+          "prompt": "What does this print?",
+          "code": "def linear_search(nums, target):\n    for i in range(len(nums)):\n        if nums[i] == target:\n            return i\n    return -1\n\nprint(linear_search([4, 2, 7, 1], 7))",
+          "expected": "2",
+          "answer": "linear_search checks index 0 (4), index 1 (2), then index 2 (7) which matches, so it returns 2.",
+          "hint": "Return the index, not the value."
+        },
+        {
+          "type": "predict",
+          "title": "Predict: linear search miss",
+          "prompt": "What does this print?",
+          "code": "def linear_search(nums, target):\n    for i in range(len(nums)):\n        if nums[i] == target:\n            return i\n    return -1\n\nprint(linear_search([4, 2, 7], 9))",
+          "expected": "-1",
+          "answer": "The loop checks 4, 2 and 7, none equals 9, so the function falls through to return -1.",
+          "hint": "What happens when no item matches?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix: binary search loop",
+          "prompt": "This binary search never finds the last element. Fix it.",
+          "code": "def binary_search(nums, target):\n    low, high = 0, len(nums) - 1\n    while low < high:\n        mid = (low + high) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1",
+          "expected": "def binary_search(nums, target):\n    low, high = 0, len(nums) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1",
+          "answer": "The bug is `while low < high`: when low == high there is still one unchecked element, so a target at that position is missed. Changing the condition to `low <= high` checks the final element.",
+          "hint": "Check what happens when only one element is left."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: binary search for 7",
+          "prompt": "Trace binary_search([1, 2, 4, 7], 7) step by step.",
+          "code": "def binary_search(nums, target):\n    low, high = 0, len(nums) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1",
+          "expected": "Step 1: low=0, high=3, mid=1, nums[1]=2 < 7, so low=2. Step 2: low=2, high=3, mid=2, nums[2]=4 < 7, so low=3. Step 3: low=3, high=3, mid=3, nums[3]=7 == target, return 3.",
+          "answer": "Follow the flowchart: start, check low <= high, compute mid, compare nums[mid] with the target, move low or high, repeat. The range halves each time: [1,2,4,7] -> [4,7] -> [7], and the third check finds 7 at index 3.",
+          "hint": "Halve the range each step and write down low, high and mid."
+        }
+      ]
+    },
+    {
+      "title": "Arrays & Strings",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Arrays: neighbours in memory</h3><p>An array (a Python list) stores items in contiguous slots, so the item at index i is found by arithmetic, not by searching. That is why indexing is instant, while inserting in the middle is slow: every later item must shift.</p><h3>Steps to use an array well</h3><ol><li>Use indexing and append when order does not need shifting.</li><li>Avoid inserting or deleting in the middle of a large list.</li><li>Use two pointers for sorted-array problems instead of nested loops.</li></ol><h3>Strings are immutable</h3><p>Python strings cannot be changed in place. <code>s[0] = 'x'</code> raises an error. Build a new string instead, for example with <code>''.join(...)</code>.</p><pre><code>nums = [10, 20, 30, 40]\nprint(nums[2])        # 30, O(1) indexing\nnums.append(50)       # amortised O(1)\nnums.insert(1, 15)    # O(n): 20, 30, 40, 50 shift right\nprint(nums)           # [10, 15, 20, 30, 40, 50]\n\ndef reverse_string(s):\n    return s[::-1]\n\nprint(reverse_string(\"hello\"))  # olleh\n</code></pre><p><strong>Time complexity:</strong> indexing O(1), append amortised O(1), insert/delete in the middle O(n), linear search O(n). <strong>Space complexity:</strong> O(n) to store n items.</p><h3>Key points</h3><ul><li>Array indexing is O(1) because items sit in contiguous memory.</li><li>Append is amortised O(1); insert/delete in the middle is O(n) due to shifting.</li><li>Python strings are immutable: build a new string instead of editing in place.</li><li>Two-pointer scans on sorted arrays often beat nested loops.</li><li>A list of n items uses O(n) space.</li></ul>",
+      "flowchart": {
+        "title": "Insert into an array",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read list, value and position",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Is position at the end?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Append the value",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Shift items after position right by one",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Place value at position",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Print the list",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n7"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "RBSGKlAvoiM",
+        "title": "Data Structures Easy to Advanced Course - Full Tutorial from a Google Engineer"
+      },
+      "mcqs": [
+        {
+          "q": "Reading nums[5] in a list of n items costs:",
+          "options": [
+            "O(n^2)",
+            "O(1)",
+            "O(log n)",
+            "O(n)"
+          ],
+          "answer": 1,
+          "why": "Indexing uses arithmetic on the base address, so it does not depend on n."
+        },
+        {
+          "q": "Inserting at the start of a Python list of n items costs:",
+          "options": [
+            "O(1)",
+            "O(log n)",
+            "O(n)",
+            "O(n^2)"
+          ],
+          "answer": 2,
+          "why": "Every existing item must shift one place to the right, which is n moves."
+        },
+        {
+          "q": "Which is true about Python strings?",
+          "options": [
+            "They are immutable",
+            "Indexing a string is O(n)",
+            "They cannot be sliced",
+            "They can be changed in place"
+          ],
+          "answer": 0,
+          "why": "Python strings are immutable: s[0] = 'x' raises TypeError; slicing or join builds a new string."
+        },
+        {
+          "q": "Appending to a Python list is usually:",
+          "options": [
+            "O(log n)",
+            "O(n^2)",
+            "O(n)",
+            "O(1) amortised"
+          ],
+          "answer": 3,
+          "why": "Most appends write into spare capacity; occasional resizing costs O(n) but averages out to O(1)."
+        },
+        {
+          "q": "Searching an unsorted array for a value costs, in the worst case:",
+          "options": [
+            "O(n log n)",
+            "O(1)",
+            "O(log n)",
+            "O(n)"
+          ],
+          "answer": 3,
+          "why": "Without order there is no way to skip items, so every item may have to be checked."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: insert shifts",
+          "prompt": "What does this print?",
+          "code": "nums = [10, 20, 30]\nnums.insert(1, 15)\nprint(nums)",
+          "expected": "[10, 15, 20, 30]",
+          "answer": "insert(1, 15) shifts 20 and 30 right and puts 15 at index 1.",
+          "hint": "Where does insert put the new value?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix: string edit",
+          "prompt": "This code crashes. Fix it so it prints 'Hello'.",
+          "code": "s = 'hello'\ns[0] = 'H'\nprint(s)",
+          "expected": "s = 'hello'\ns = 'H' + s[1:]\nprint(s)",
+          "answer": "The bug is trying to change a string in place: Python strings are immutable, so s[0] = 'H' raises TypeError. The fix builds a new string from 'H' plus the slice s[1:].",
+          "hint": "Strings cannot be edited in place - build a new one."
+        },
+        {
+          "type": "fill",
+          "title": "Fill: reverse a list in place",
+          "prompt": "Fill the blank so the list is reversed in place.",
+          "code": "nums = [1, 2, 3, 4]\nleft, right = 0, len(nums) - 1\nwhile left < right:\n    nums[left], nums[right] = nums[right], nums[left]\n    ___\nprint(nums)",
+          "expected": "left += 1\nright -= 1",
+          "answer": "The two pointers must move towards each other after each swap, otherwise the loop swaps the same pair forever.",
+          "hint": "Move both pointers inward after the swap."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: insert into a list",
+          "prompt": "Trace nums.insert(1, 15) on [10, 20, 30].",
+          "code": "nums = [10, 20, 30]\nnums.insert(1, 15)",
+          "expected": "Step 1: position 1 is not the end, so shift items from index 1 right: [10, 20, 20, 30] then [10, 10, 20, 30] conceptually, freeing index 1. Step 2: place 15 at index 1. Result: [10, 15, 20, 30].",
+          "answer": "Follow the flowchart: position is not at the end, so shift the tail right by one, then write the value at the freed position. Two items shift, so this insert is O(n) work.",
+          "hint": "Count how many items must shift."
+        }
+      ]
+    },
+    {
+      "title": "Linked Lists",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>What is a linked list?</h3><p>A linked list is a chain of nodes. Each node holds a value and a pointer to the next node. Unlike an array, nodes need not sit next to each other in memory, so inserting in the middle only rewires pointers instead of shifting items.</p><h3>Steps to insert after a node</h3><ol><li>Create the new node.</li><li>Point the new node at the current node's next node.</li><li>Point the current node at the new node.</li></ol><p>Order matters: step 2 must come before step 3, or the rest of the list is lost.</p><pre><code>class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\nclass LinkedList:\n    def __init__(self):\n        self.head = None\n\n    def prepend(self, value):\n        node = Node(value)\n        node.next = self.head\n        self.head = node\n\n    def to_list(self):\n        out, cur = [], self.head\n        while cur is not None:\n            out.append(cur.value)\n            cur = cur.next\n        return out\n\nll = LinkedList()\nll.prepend(3)\nll.prepend(2)\nll.prepend(1)\nprint(ll.to_list())  # [1, 2, 3]\n</code></pre><p><strong>Time complexity:</strong> insert/delete at the head O(1), insert/delete at a known node O(1), search by value O(n), access by index O(n). <strong>Space complexity:</strong> O(n) for n nodes plus one pointer per node.</p><h3>Key points</h3><ul><li>Nodes store a value plus a next pointer; no shifting is needed to insert.</li><li>Insert at the head is O(1); finding a value is O(n) because there is no indexing.</li><li>When inserting, link the new node to its successor before rewiring the predecessor.</li><li>Linked lists trade fast insertion for slow random access, the opposite of arrays.</li><li>Always keep a reference to the next node before changing a pointer.</li></ul>",
+      "flowchart": {
+        "title": "Insert a node after a given node",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read current node and new value",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Is current node None?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Stop: cannot insert after nothing",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Create new node",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "new.next = current.next",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "current.next = new node",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n8"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "8hly31xKli0",
+        "title": "Algorithms and Data Structures Tutorial - Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Inserting at the head of a singly linked list costs:",
+          "options": [
+            "O(1)",
+            "O(log n)",
+            "O(n)",
+            "O(n^2)"
+          ],
+          "answer": 0,
+          "why": "Only the new node's next pointer and the head pointer change, regardless of list size."
+        },
+        {
+          "q": "Finding a value in a singly linked list costs, in the worst case:",
+          "options": [
+            "O(log n)",
+            "O(n)",
+            "O(n log n)",
+            "O(1)"
+          ],
+          "answer": 1,
+          "why": "There is no index arithmetic, so nodes must be followed one by one from the head."
+        },
+        {
+          "q": "What is the main advantage of a linked list over an array?",
+          "options": [
+            "Less memory per item",
+            "Faster binary search",
+            "Faster random access",
+            "Insert/delete in the middle without shifting items"
+          ],
+          "answer": 3,
+          "why": "Insertion only rewires pointers; an array must shift every later item."
+        },
+        {
+          "q": "In a singly linked list, each node stores:",
+          "options": [
+            "An index number",
+            "A value and the next node's address",
+            "Only a value",
+            "A value and the previous node's address"
+          ],
+          "answer": 1,
+          "why": "A singly linked node has data plus a next pointer; that is what makes the chain."
+        },
+        {
+          "q": "Accessing the 100th element of a linked list is:",
+          "options": [
+            "O(1)",
+            "O(log n)",
+            "O(n)",
+            "O(100)"
+          ],
+          "answer": 2,
+          "why": "You must walk 100 next pointers from the head, so access is linear in the position."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: prepend order",
+          "prompt": "What does this print?",
+          "code": "ll = LinkedList()\nll.prepend(3)\nll.prepend(2)\nll.prepend(1)\nprint(ll.to_list())",
+          "expected": "[1, 2, 3]",
+          "answer": "Each prepend puts the new value at the head, so 3, then 2 in front, then 1 in front: [1, 2, 3].",
+          "hint": "Prepend puts each new value first."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: lost tail on insert",
+          "prompt": "Inserting after a node loses the rest of the list. Fix it.",
+          "code": "def insert_after(current, value):\n    node = Node(value)\n    current.next = node\n    node.next = current.next",
+          "expected": "def insert_after(current, value):\n    node = Node(value)\n    node.next = current.next\n    current.next = node",
+          "answer": "The bug is the order: `current.next = node` first overwrites the link to the rest of the list, then `node.next = current.next` just points the new node at itself. Setting node.next first preserves the tail, then current.next is rewired.",
+          "hint": "Which link must be saved before it is overwritten?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill: walk the list",
+          "prompt": "Fill the blank so to_list collects every value.",
+          "code": "def to_list(self):\n    out, cur = [], self.head\n    while cur is not None:\n        out.append(cur.value)\n        ___\n    return out",
+          "expected": "cur = cur.next",
+          "answer": "The cursor must advance to the next node each loop, otherwise the loop repeats the head forever.",
+          "hint": "Advance the cursor to the next node."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: prepend 1, 2, 3",
+          "prompt": "Trace the prepends in the lesson code.",
+          "code": "ll = LinkedList()\nll.prepend(3)\nll.prepend(2)\nll.prepend(1)",
+          "expected": "Step 1: prepend(3): head is None, new node 3 points to None, head = 3. Step 2: prepend(2): node 2 points to 3, head = 2. Step 3: prepend(1): node 1 points to 2, head = 1. Final chain: 1 -> 2 -> 3 -> None.",
+          "answer": "Follow the flowchart for each prepend: create the node, point it at the old head, then move the head to it. Three O(1) steps build 1 -> 2 -> 3.",
+          "hint": "Each prepend rewires only the head."
+        }
+      ]
+    },
+    {
+      "title": "Stacks & Queues",
+      "duration_minutes": 60,
+      "is_preview": 0,
+      "body": "<h3>Stack: last in, first out</h3><p>A stack is like a pile of plates: you push items on top and pop them off the top. The last item pushed is the first one popped (LIFO). Stacks power undo, back buttons, and function calls.</p><h3>Queue: first in, first out</h3><p>A queue is like a line at a shop: items join at the rear and leave from the front (FIFO). Queues power print jobs, task scheduling, and breadth-first search.</p><h3>Use the right tool</h3><p>A Python list works as a stack with append/pop, but for a queue use collections.deque: popping from the front of a list is O(n) because everything shifts, while deque.popleft() is O(1).</p><pre><code>from collections import deque\n\nstack = []\nstack.append(\"a\")\nstack.append(\"b\")\nprint(stack.pop())   # b, LIFO\n\nqueue = deque([\"x\", \"y\"])\nqueue.append(\"z\")\nprint(queue.popleft())  # x, FIFO\n\ndef is_balanced(s):\n    stack = []\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    for ch in s:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in \")]}\":\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return not stack\n\nprint(is_balanced(\"([{}])\"))  # True\n</code></pre><p><strong>Time complexity:</strong> stack push/pop/peek O(1); deque append/popleft O(1); list pop(0) O(n). <strong>Space complexity:</strong> O(n) for n stored items.</p><h3>Key points</h3><ul><li>Stack is LIFO: push and pop both happen at the top, in O(1).</li><li>Queue is FIFO: enqueue at the rear, dequeue from the front.</li><li>Use deque for queues; list.pop(0) is O(n) because items shift.</li><li>Stacks check balanced brackets and track function calls.</li><li>Peek reads the top/front without removing it.</li></ul>",
+      "flowchart": {
+        "title": "Push and pop on a stack",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read operation: push or pop?",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Is it push?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Append value on top",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Is the stack empty?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Report underflow: nothing to pop",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "Remove and return the top value",
+            "kind": "process"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n8"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n8"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "RBSGKlAvoiM",
+        "title": "Data Structures Easy to Advanced Course - Full Tutorial from a Google Engineer"
+      },
+      "mcqs": [
+        {
+          "q": "A stack removes items in which order?",
+          "options": [
+            "Last in, first out",
+            "Smallest first",
+            "Largest first",
+            "First in, first out"
+          ],
+          "answer": 0,
+          "why": "A stack only allows access at the top, so the most recently pushed item is popped first."
+        },
+        {
+          "q": "Push and pop on a stack cost:",
+          "options": [
+            "O(1) each",
+            "O(n^2) each",
+            "O(n) each",
+            "O(log n) each"
+          ],
+          "answer": 0,
+          "why": "Both touch only the top element, so they do not depend on the stack size."
+        },
+        {
+          "q": "Which structure fits a print queue?",
+          "options": [
+            "Binary search tree",
+            "Stack",
+            "Queue",
+            "Hash table"
+          ],
+          "answer": 2,
+          "why": "Print jobs must be served in arrival order, which is exactly FIFO queue behaviour."
+        },
+        {
+          "q": "Why use deque instead of a list for a queue?",
+          "options": [
+            "deque uses less code",
+            "list.pop(0) is O(n) but deque.popleft() is O(1)",
+            "Lists cannot hold strings",
+            "deque sorts items"
+          ],
+          "answer": 1,
+          "why": "Removing from the front of a list shifts every remaining item; deque is built for O(1) ends."
+        },
+        {
+          "q": "Popping from an empty stack is called:",
+          "options": [
+            "Underflow",
+            "Deadlock",
+            "Starvation",
+            "Overflow"
+          ],
+          "answer": 0,
+          "why": "Underflow means trying to pop when there is nothing to pop; overflow is pushing past capacity."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: stack pop order",
+          "prompt": "What does this print?",
+          "code": "stack = []\nstack.append('a')\nstack.append('b')\nprint(stack.pop())",
+          "expected": "b",
+          "answer": "append puts 'b' on top, so pop returns 'b' first (LIFO).",
+          "hint": "The last item in is the first out."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: queue with a list",
+          "prompt": "This queue is slow for large inputs. Fix it to O(1) dequeue.",
+          "code": "queue = ['x', 'y']\nqueue.append('z')\nfirst = queue.pop(0)",
+          "expected": "from collections import deque\nqueue = deque(['x', 'y'])\nqueue.append('z')\nfirst = queue.popleft()",
+          "answer": "The bug is performance, not correctness: list.pop(0) shifts every remaining item, so it is O(n). deque.popleft() removes from the front in O(1).",
+          "hint": "Which list operation shifts everything?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill: balanced brackets",
+          "prompt": "Fill the blank so unmatched closers are rejected.",
+          "code": "def is_balanced(s):\n    stack = []\n    pairs = {')': '(', ']': '[', '}': '{'}\n    for ch in s:\n        if ch in '([{':\n            stack.append(ch)\n        elif ch in ')]}':\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return ___",
+          "expected": "not stack",
+          "answer": "The string is balanced only if no opening bracket is left unclosed, i.e. the stack is empty at the end.",
+          "hint": "What must be true of the stack at the end?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace: is_balanced('([{}])')",
+          "prompt": "Trace the bracket checker.",
+          "code": "s = '([{}])'",
+          "expected": "Step 1: '(' pushed -> ['(']. Step 2: '[' pushed -> ['(', '[']. Step 3: '{' pushed -> ['(', '[', '{']. Step 4: '}' pops '{', match. Step 5: ']' pops '[', match. Step 6: ')' pops '(', match. Stack empty, return True.",
+          "answer": "Follow the flowchart: each opening bracket is a push; each closing bracket is a pop that must match the top. The stack empties exactly when every pair closes in reverse order.",
+          "hint": "Push opens, pop on closes, and check the match."
+        }
+      ]
+    },
+    {
+      "title": "Recursion & Divide and Conquer",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>What is recursion?</h3><p>Recursion is when a function calls itself to solve a smaller version of the same problem. Every recursive function needs a base case that stops the calls, and a recursive step that moves towards it. Without a base case, calls pile up until the stack overflows.</p><h3>Divide and conquer</h3><p>Divide and conquer splits a problem into smaller sub-problems, solves them (often recursively), and combines the answers. Merge sort and binary search both work this way.</p><pre><code>def factorial(n):\n    if n &lt;= 1:  # base case\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))  # 120\n\ndef binary_search_rec(nums, target, low, high):\n    if low &gt; high:\n        return -1\n    mid = (low + high) // 2\n    if nums[mid] == target:\n        return mid\n    if nums[mid] &lt; target:\n        return binary_search_rec(nums, target, mid + 1, high)\n    return binary_search_rec(nums, target, low, mid - 1)\n\nprint(binary_search_rec([1, 2, 4, 7], 7, 0, 3))  # 3\n</code></pre><p><strong>Time complexity:</strong> factorial O(n) time; recursive binary search O(log n) time; merge sort O(n log n). <strong>Space complexity:</strong> factorial uses O(n) stack frames; recursive binary search uses O(log n) stack frames.</p><h3>Key points</h3><ul><li>Every recursive function needs a base case and a step that shrinks the problem.</li><li>Missing a base case causes infinite recursion and a stack overflow.</li><li>Divide and conquer: divide, solve the parts, combine the answers.</li><li>Recursion depth costs stack space: factorial(5) uses 5 frames.</li><li>Naive recursive Fibonacci is O(2^n); memoisation brings it to O(n).</li></ul>",
+      "flowchart": {
+        "title": "Recursive factorial",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read n",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Is n &lt;= 1?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Return 1",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Return n * factorial(n - 1)",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n6"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          }
+        ]
+      },
+      "video": {
+        "id": "8hly31xKli0",
+        "title": "Algorithms and Data Structures Tutorial - Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What must every recursive function have?",
+          "options": [
+            "A global variable",
+            "A list",
+            "A loop",
+            "A base case"
+          ],
+          "answer": 3,
+          "why": "The base case stops the self-calls; without it recursion never ends."
+        },
+        {
+          "q": "What happens without a base case?",
+          "options": [
+            "It becomes a loop",
+            "It returns 0",
+            "It runs faster",
+            "It recurses until the stack overflows"
+          ],
+          "answer": 3,
+          "why": "Each call adds a stack frame, so endless calls exhaust the call stack (RecursionError in Python)."
+        },
+        {
+          "q": "factorial(5) makes how many calls including the first?",
+          "options": [
+            "4",
+            "5",
+            "6",
+            "120"
+          ],
+          "answer": 1,
+          "why": "Calls are factorial(5), (4), (3), (2), (1): five calls, returning 5*4*3*2*1 = 120."
+        },
+        {
+          "q": "Merge sort's time complexity is:",
+          "options": [
+            "O(n log n)",
+            "O(n^2)",
+            "O(log n)",
+            "O(n)"
+          ],
+          "answer": 0,
+          "why": "It divides the list log n times and merges in O(n) work per level."
+        },
+        {
+          "q": "Naive recursive Fibonacci fib(n) is:",
+          "options": [
+            "O(n^2)",
+            "O(2^n)",
+            "O(n)",
+            "O(n log n)"
+          ],
+          "answer": 1,
+          "why": "Each call spawns two more, so the call tree roughly doubles per level: exponential time."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: factorial(5)",
+          "prompt": "What does this print?",
+          "code": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))",
+          "expected": "120",
+          "answer": "5*4*3*2*1 = 120; the base case factorial(1) returns 1 and the products unwind.",
+          "hint": "Multiply down to the base case."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: missing base case",
+          "prompt": "This function never stops. Fix it.",
+          "code": "def countdown(n):\n    print(n)\n    countdown(n - 1)",
+          "expected": "def countdown(n):\n    if n <= 0:\n        return\n    print(n)\n    countdown(n - 1)",
+          "answer": "The bug is the missing base case: countdown keeps calling itself with smaller n forever. Adding `if n <= 0: return` stops the recursion.",
+          "hint": "What condition should stop the calls?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill: recursive binary search",
+          "prompt": "Fill the blank for the right-half search.",
+          "code": "def binary_search_rec(nums, target, low, high):\n    if low > high:\n        return -1\n    mid = (low + high) // 2\n    if nums[mid] == target:\n        return mid\n    if nums[mid] < target:\n        return ___",
+          "expected": "binary_search_rec(nums, target, mid + 1, high)",
+          "answer": "When nums[mid] is smaller than the target, the target can only be in the right half, so search from mid + 1 to high.",
+          "hint": "The target is larger than the middle value."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: factorial(4)",
+          "prompt": "Trace factorial(4) step by step.",
+          "code": "factorial(4)",
+          "expected": "Step 1: factorial(4) calls factorial(3). Step 2: factorial(3) calls factorial(2). Step 3: factorial(2) calls factorial(1). Step 4: factorial(1) hits the base case and returns 1. Step 5: returns unwind: 2*1=2, 3*2=6, 4*6=24.",
+          "answer": "Follow the flowchart: each call checks n <= 1; if not, it calls itself with n - 1. Four frames build up, then the base case returns 1 and the multiplications unwind to 24.",
+          "hint": "Write down each call, then unwind the returns."
+        }
+      ]
+    },
+    {
+      "title": "Trees & Binary Search Trees",
+      "duration_minutes": 70,
+      "is_preview": 0,
+      "body": "<h3>What is a tree?</h3><p>A tree is a hierarchy: one root, branches to children, leaves with no children. A binary tree gives each node at most two children, left and right. A binary search tree (BST) adds order: left subtree values are smaller than the node, right subtree values are larger.</p><h3>Steps to search a BST</h3><ol><li>Start at the root.</li><li>If the target equals the node, you found it.</li><li>If smaller, go left; if larger, go right.</li><li>Repeat until found or you reach an empty spot.</li></ol><p>An inorder traversal (left, node, right) of a BST visits values in sorted order.</p><pre><code>class TreeNode:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None\n\ndef insert(root, value):\n    if root is None:\n        return TreeNode(value)\n    if value &lt; root.value:\n        root.left = insert(root.left, value)\n    elif value &gt; root.value:\n        root.right = insert(root.right, value)\n    return root\n\ndef inorder(root):\n    if root is None:\n        return []\n    return inorder(root.left) + [root.value] + inorder(root.right)\n\nroot = None\nfor v in [10, 5, 15, 3, 7]:\n    root = insert(root, v)\nprint(inorder(root))  # [3, 5, 7, 10, 15]\n</code></pre><p><strong>Time complexity:</strong> BST search/insert/delete average O(log n) when balanced; worst case O(n) when skewed into a line. Traversal visits every node: O(n). <strong>Space complexity:</strong> O(n) for the nodes; recursion uses O(h) stack space where h is the height.</p><h3>Key points</h3><ul><li>BST order: left &lt; node &lt; right, for every node.</li><li>Search, insert and delete average O(log n) in a balanced BST.</li><li>A skewed BST (sorted insertions) degrades to O(n), like a linked list.</li><li>Inorder traversal of a BST gives values in sorted order.</li><li>Tree height decides cost: balanced height is about log2(n).</li></ul>",
+      "flowchart": {
+        "title": "Insert into a BST",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read root and value",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Is root empty?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Create a new node and return it",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Is value &lt; root.value?",
+            "kind": "decision"
+          },
+          {
+            "id": "n6",
+            "label": "Insert into left subtree",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Is value &gt; root.value?",
+            "kind": "decision"
+          },
+          {
+            "id": "n8",
+            "label": "Insert into right subtree",
+            "kind": "process"
+          },
+          {
+            "id": "n9",
+            "label": "Value already exists: do nothing",
+            "kind": "process"
+          },
+          {
+            "id": "n10",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n10"
+          },
+          {
+            "from": "n5",
+            "to": "n6",
+            "label": "Yes"
+          },
+          {
+            "from": "n5",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n10"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "Yes"
+          },
+          {
+            "from": "n7",
+            "to": "n9",
+            "label": "No"
+          },
+          {
+            "from": "n8",
+            "to": "n10"
+          },
+          {
+            "from": "n9",
+            "to": "n10"
+          }
+        ]
+      },
+      "video": {
+        "id": "RBSGKlAvoiM",
+        "title": "Data Structures Easy to Advanced Course - Full Tutorial from a Google Engineer"
+      },
+      "mcqs": [
+        {
+          "q": "In a BST, values in the left subtree are:",
+          "options": [
+            "Unordered",
+            "Larger than the node",
+            "Smaller than the node",
+            "Equal to the node"
+          ],
+          "answer": 2,
+          "why": "The BST rule is left < node < right, which is what makes search skip whole subtrees."
+        },
+        {
+          "q": "Average search time in a balanced BST of n nodes is:",
+          "options": [
+            "O(1)",
+            "O(log n)",
+            "O(n)",
+            "O(n log n)"
+          ],
+          "answer": 1,
+          "why": "Each comparison discards about half the remaining tree, like binary search."
+        },
+        {
+          "q": "Worst-case BST search, when insertions were already sorted, is:",
+          "options": [
+            "O(log n)",
+            "O(n)",
+            "O(n^2)",
+            "O(1)"
+          ],
+          "answer": 1,
+          "why": "Sorted insertions build a skewed chain, so search walks down n nodes like a linked list."
+        },
+        {
+          "q": "Which traversal of a BST gives sorted order?",
+          "options": [
+            "Postorder",
+            "Level order",
+            "Preorder",
+            "Inorder"
+          ],
+          "answer": 3,
+          "why": "Inorder visits left, node, right, and the BST ordering makes that ascending."
+        },
+        {
+          "q": "The root of a tree is:",
+          "options": [
+            "The middle node",
+            "The deepest node",
+            "The topmost node with no parent",
+            "A leaf"
+          ],
+          "answer": 2,
+          "why": "The root is the single top node; every other node descends from it."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: inorder is sorted",
+          "prompt": "What does this print?",
+          "code": "root = None\nfor v in [10, 5, 15, 3, 7]:\n    root = insert(root, v)\nprint(inorder(root))",
+          "expected": "[3, 5, 7, 10, 15]",
+          "answer": "Inorder traversal (left, node, right) of a BST always visits values in ascending order.",
+          "hint": "Inorder on a BST means sorted."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: BST insert goes wrong way",
+          "prompt": "This insert puts smaller values on the right. Fix it.",
+          "code": "def insert(root, value):\n    if root is None:\n        return TreeNode(value)\n    if value < root.value:\n        root.right = insert(root.right, value)\n    elif value > root.value:\n        root.left = insert(root.left, value)\n    return root",
+          "expected": "def insert(root, value):\n    if root is None:\n        return TreeNode(value)\n    if value < root.value:\n        root.left = insert(root.left, value)\n    elif value > root.value:\n        root.right = insert(root.right, value)\n    return root",
+          "answer": "The bug is swapped children: smaller values must go left and larger values right, otherwise the BST ordering breaks and search fails. Swapping left/right restores the rule.",
+          "hint": "Smaller goes left, larger goes right."
+        },
+        {
+          "type": "fill",
+          "title": "Fill: inorder traversal",
+          "prompt": "Fill the blank to complete inorder traversal.",
+          "code": "def inorder(root):\n    if root is None:\n        return []\n    return inorder(root.left) + [root.value] + ___",
+          "expected": "inorder(root.right)",
+          "answer": "Inorder is left, then the node, then the right subtree, so the missing piece is the right-subtree traversal.",
+          "hint": "Left, node, then what?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace: insert 7 into the BST",
+          "prompt": "Trace inserting 7 into the tree built from [10, 5, 15, 3].",
+          "code": "root = None\nfor v in [10, 5, 15, 3]:\n    root = insert(root, v)\ninsert(root, 7)",
+          "expected": "Step 1: root 10, 7 < 10, go left to 5. Step 2: node 5, 7 > 5, go right (empty). Step 3: create node 7 as the right child of 5. Final inorder: [3, 5, 7, 10, 15].",
+          "answer": "Follow the flowchart: at each node compare with the value and branch left for smaller, right for larger. 7 goes left from 10, right from 5, and lands as 5's right child.",
+          "hint": "Compare at each node and branch left or right."
+        }
+      ]
+    },
+    {
+      "title": "Hashing & Hash Tables",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>What is hashing?</h3><p>A hash function turns a key into a bucket index, so a hash table can jump straight to the right bucket instead of searching. Python dicts and sets are hash tables. A good hash function spreads keys evenly across buckets.</p><h3>Collisions</h3><p>Two keys can hash to the same bucket: a collision. Common fixes are chaining (each bucket holds a list of entries) and open addressing (probe for the next free bucket). When too many keys pile up, the table resizes and rehashes everything.</p><pre><code>scores = {\"ana\": 92, \"ben\": 78}\nscores[\"cid\"] = 85\nprint(scores[\"ana\"])  # 92, average O(1) lookup\nprint(\"ben\" in scores)  # True\n\ndef count_words(words):\n    counts = {}\n    for w in words:\n        counts[w] = counts.get(w, 0) + 1\n    return counts\n\nprint(count_words([\"a\", \"b\", \"a\", \"c\", \"b\", \"a\"]))\n# {'a': 3, 'b': 2, 'c': 1}\n</code></pre><p><strong>Time complexity:</strong> dict lookup/insert/delete average O(1); worst case O(n) when many keys collide into one bucket. <strong>Space complexity:</strong> O(n) for n entries, plus spare bucket capacity.</p><h3>Key points</h3><ul><li>A hash function maps a key to a bucket index for near-direct access.</li><li>Dict lookup, insert and delete average O(1), worst case O(n) under heavy collisions.</li><li>Collisions are handled by chaining or open addressing.</li><li>Load factor (entries / buckets) triggers resizing and rehashing.</li><li>Only hashable (immutable) keys work: strings, numbers and tuples, not lists.</li></ul>",
+      "flowchart": {
+        "title": "Look up a key in a hash table",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read the key",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Compute hash(key) -> bucket index",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Is the bucket empty?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Report key not found",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "Search the bucket's chain",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Key found in the chain?",
+            "kind": "decision"
+          },
+          {
+            "id": "n8",
+            "label": "Return its value",
+            "kind": "output"
+          },
+          {
+            "id": "n9",
+            "label": "Report key not found",
+            "kind": "output"
+          },
+          {
+            "id": "n10",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n10"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8",
+            "label": "Yes"
+          },
+          {
+            "from": "n7",
+            "to": "n9",
+            "label": "No"
+          },
+          {
+            "from": "n8",
+            "to": "n10"
+          },
+          {
+            "from": "n9",
+            "to": "n10"
+          }
+        ]
+      },
+      "video": {
+        "id": "8hly31xKli0",
+        "title": "Algorithms and Data Structures Tutorial - Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Average lookup time in a Python dict is:",
+          "options": [
+            "O(1)",
+            "O(log n)",
+            "O(n)",
+            "O(n^2)"
+          ],
+          "answer": 0,
+          "why": "Hashing jumps to the bucket directly, so average lookup does not grow with n."
+        },
+        {
+          "q": "When two keys hash to the same bucket, that is called:",
+          "options": [
+            "An overflow",
+            "A deadlock",
+            "A hash miss",
+            "A collision"
+          ],
+          "answer": 3,
+          "why": "A collision is two keys sharing a bucket; chaining or probing resolves it."
+        },
+        {
+          "q": "Worst-case dict lookup, with many collisions, is:",
+          "options": [
+            "O(n)",
+            "O(n log n)",
+            "O(1)",
+            "O(log n)"
+          ],
+          "answer": 0,
+          "why": "If all keys land in one bucket, lookup scans that whole chain."
+        },
+        {
+          "q": "Which can be a dict key in Python?",
+          "options": [
+            "A set",
+            "A list",
+            "A dict",
+            "A string"
+          ],
+          "answer": 3,
+          "why": "Dict keys must be hashable (immutable): strings, numbers and tuples qualify; lists, dicts and sets do not."
+        },
+        {
+          "q": "What does the load factor measure?",
+          "options": [
+            "Keys divided by buckets",
+            "Buckets divided by keys",
+            "Time divided by space",
+            "Collisions divided by keys"
+          ],
+          "answer": 0,
+          "why": "Load factor = entries / buckets; a high load factor triggers resizing and rehashing."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: word count",
+          "prompt": "What does this print?",
+          "code": "print(count_words(['a', 'b', 'a']))",
+          "expected": "{'a': 2, 'b': 1}",
+          "answer": "'a' is counted twice and 'b' once; dict.get(w, 0) + 1 builds the counts.",
+          "hint": "Count each word with get(w, 0) + 1."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: counting without get",
+          "prompt": "This counter crashes on the first new word. Fix it.",
+          "code": "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts[w] + 1",
+          "expected": "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts.get(w, 0) + 1",
+          "answer": "The bug is `counts[w]` on a missing key raises KeyError. Using counts.get(w, 0) returns 0 for a new word, so the first count becomes 1.",
+          "hint": "What happens the first time a key is missing?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill: check membership",
+          "prompt": "Fill the blank to test membership in O(1) average time.",
+          "code": "scores = {'ana': 92, 'ben': 78}\nprint(___)  # True",
+          "expected": "'ben' in scores",
+          "answer": "The `in` operator on a dict hashes the key and checks its bucket in average O(1) time.",
+          "hint": "Use `in` on the dict, not on a list of keys."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: lookup of 'ben'",
+          "prompt": "Trace scores['ben'] in {'ana': 92, 'ben': 78}.",
+          "code": "scores = {'ana': 92, 'ben': 78}\nscores['ben']",
+          "expected": "Step 1: hash('ben') gives a bucket index. Step 2: the bucket is not empty, so scan its chain. Step 3: the chain contains ('ben', 78), so return 78.",
+          "answer": "Follow the flowchart: hash the key, check the bucket, search the chain, return the matching value. With a good hash function the chain is short, so this is average O(1).",
+          "hint": "Hash, then check the bucket, then the chain."
+        }
+      ]
+    },
+    {
+      "title": "Graphs & BFS/DFS",
+      "duration_minutes": 70,
+      "is_preview": 0,
+      "body": "<h3>What is a graph?</h3><p>A graph is nodes (vertices) joined by edges. Social networks, maps and the web are graphs. Edges can be directed (one-way) or undirected, and weighted (with a cost) or unweighted.</p><h3>BFS: level by level</h3><p>Breadth-first search uses a queue: visit a node, enqueue its unvisited neighbours, then move to the next in line. BFS finds the shortest path in an unweighted graph.</p><h3>DFS: go deep first</h3><p>Depth-first search uses a stack or recursion: follow one path as far as it goes, backtrack, then try the next branch. DFS is handy for mazes, cycle detection and topological sorting.</p><pre><code>from collections import deque\n\ngraph = {\"A\": [\"B\", \"C\"], \"B\": [\"D\"], \"C\": [\"D\"], \"D\": []}\n\ndef bfs(graph, start):\n    visited, queue, order = set(), deque([start]), []\n    visited.add(start)\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for nb in graph[node]:\n            if nb not in visited:\n                visited.add(nb)\n                queue.append(nb)\n    return order\n\ndef dfs(graph, start, visited=None):\n    if visited is None:\n        visited = set()\n    visited.add(start)\n    order = [start]\n    for nb in graph[start]:\n        if nb not in visited:\n            order += dfs(graph, nb, visited)\n    return order\n\nprint(bfs(graph, \"A\"))  # ['A', 'B', 'C', 'D']\nprint(dfs(graph, \"A\"))  # ['A', 'B', 'D', 'C']\n</code></pre><p><strong>Time complexity:</strong> BFS and DFS both O(V + E) for V vertices and E edges: each vertex and edge is handled once. <strong>Space complexity:</strong> O(V) for the visited set plus the queue or recursion stack.</p><h3>Key points</h3><ul><li>A graph is vertices joined by edges; edges may be directed and/or weighted.</li><li>BFS uses a queue, visits level by level, and finds shortest paths in unweighted graphs.</li><li>DFS uses a stack/recursion, goes deep first, and suits mazes and cycle detection.</li><li>Both BFS and DFS cost O(V + E) time and O(V) space.</li><li>Always mark nodes visited when enqueuing/pushing, or cycles loop forever.</li></ul>",
+      "flowchart": {
+        "title": "Breadth-first search",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Enqueue start, mark it visited",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Is the queue empty?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "End: all reachable nodes visited",
+            "kind": "end"
+          },
+          {
+            "id": "n5",
+            "label": "Dequeue a node and record it",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Any unvisited neighbour left?",
+            "kind": "decision"
+          },
+          {
+            "id": "n7",
+            "label": "Mark it visited and enqueue it",
+            "kind": "process"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7",
+            "label": "Yes"
+          },
+          {
+            "from": "n6",
+            "to": "n3",
+            "label": "No"
+          },
+          {
+            "from": "n7",
+            "to": "n6"
+          }
+        ]
+      },
+      "video": {
+        "id": "RBSGKlAvoiM",
+        "title": "Data Structures Easy to Advanced Course - Full Tutorial from a Google Engineer"
+      },
+      "mcqs": [
+        {
+          "q": "BFS uses which structure?",
+          "options": [
+            "Queue",
+            "Hash table",
+            "Heap",
+            "Stack"
+          ],
+          "answer": 0,
+          "why": "BFS processes nodes in the order discovered, which is exactly FIFO queue order."
+        },
+        {
+          "q": "BFS finds the shortest path in:",
+          "options": [
+            "Directed graphs only",
+            "Graphs with cycles only",
+            "Weighted graphs",
+            "Unweighted graphs"
+          ],
+          "answer": 3,
+          "why": "Each BFS level is one more edge from the start, so the first time a node is reached is via the fewest edges."
+        },
+        {
+          "q": "DFS is best described as:",
+          "options": [
+            "Random order",
+            "Level by level",
+            "Deep first, then backtrack",
+            "Shortest path first"
+          ],
+          "answer": 2,
+          "why": "DFS follows one branch as far as possible before backtracking to try the next branch."
+        },
+        {
+          "q": "Time complexity of BFS on a graph with V vertices and E edges is:",
+          "options": [
+            "O(V)",
+            "O(E)",
+            "O(V + E)",
+            "O(V x E)"
+          ],
+          "answer": 2,
+          "why": "Each vertex is dequeued once and each edge is examined once."
+        },
+        {
+          "q": "Why mark a node visited when it is enqueued?",
+          "options": [
+            "To avoid processing it again and looping forever on cycles",
+            "To sort the queue",
+            "To make the queue faster",
+            "To save memory"
+          ],
+          "answer": 0,
+          "why": "Without visited marking, a cycle would re-enqueue nodes endlessly."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: BFS order",
+          "prompt": "What does this print?",
+          "code": "print(bfs(graph, 'A'))",
+          "expected": "['A', 'B', 'C', 'D']",
+          "answer": "BFS visits A, enqueues B and C, then B (enqueues D), then C, then D: level order ['A', 'B', 'C', 'D'].",
+          "hint": "BFS is level by level: A, then its neighbours, then theirs."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: BFS never marks visited",
+          "prompt": "This BFS loops forever on a cycle. Fix it.",
+          "code": "def bfs(graph, start):\n    queue, order = deque([start]), []\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for nb in graph[node]:\n            queue.append(nb)\n    return order",
+          "expected": "def bfs(graph, start):\n    visited, queue, order = {start}, deque([start]), []\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for nb in graph[node]:\n            if nb not in visited:\n                visited.add(nb)\n                queue.append(nb)\n    return order",
+          "answer": "The bug is that neighbours are enqueued without any visited check, so a cycle re-enqueues nodes forever. Adding a visited set and only enqueuing unvisited neighbours fixes it.",
+          "hint": "Which nodes should be enqueued - all neighbours, or only new ones?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill: DFS recursion",
+          "prompt": "Fill the blank so DFS visits unvisited neighbours.",
+          "code": "def dfs(graph, start, visited=None):\n    if visited is None:\n        visited = set()\n    visited.add(start)\n    order = [start]\n    for nb in graph[start]:\n        if nb not in visited:\n            ___\n    return order",
+          "expected": "order += dfs(graph, nb, visited)",
+          "answer": "DFS recurses into each unvisited neighbour and appends the order returned from that deeper call.",
+          "hint": "Recurse into the neighbour and collect its order."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: BFS from A",
+          "prompt": "Trace bfs(graph, 'A') on the lesson graph.",
+          "code": "graph = {'A': ['B', 'C'], 'B': ['D'], 'C': ['D'], 'D': []}",
+          "expected": "Step 1: queue [A], visited {A}. Step 2: dequeue A, enqueue B, C -> queue [B, C]. Step 3: dequeue B, enqueue D -> queue [C, D]. Step 4: dequeue C, D already visited. Step 5: dequeue D. Order: ['A', 'B', 'C', 'D'].",
+          "answer": "Follow the flowchart: dequeue a node, record it, enqueue each unvisited neighbour. D is enqueued once (from B) and skipped when seen from C because it is already visited.",
+          "hint": "Write the queue after each dequeue."
+        }
+      ]
+    },
+    {
+      "title": "Sorting & Searching Algorithms",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>Sorting: put things in order</h3><p>Sorting arranges data so searching and reporting become fast. Bubble sort swaps neighbours until sorted: simple but O(n^2). Merge sort splits, sorts the halves and merges them: O(n log n) in all cases. Quick sort picks a pivot and partitions around it: O(n log n) on average, O(n^2) worst case when pivots are bad.</p><h3>Searching: find it fast</h3><p>Linear search checks every item: O(n). Binary search halves a sorted list: O(log n). Sorting first costs O(n log n), so only sort when you will search many times.</p><pre><code>def bubble_sort(nums):\n    arr = nums[:]\n    for i in range(len(arr)):\n        for j in range(len(arr) - 1 - i):\n            if arr[j] &gt; arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr\n\ndef merge_sort(nums):\n    if len(nums) &lt;= 1:\n        return nums\n    mid = len(nums) // 2\n    left = merge_sort(nums[:mid])\n    right = merge_sort(nums[mid:])\n    out, i, j = [], 0, 0\n    while i &lt; len(left) and j &lt; len(right):\n        if left[i] &lt;= right[j]:\n            out.append(left[i]); i += 1\n        else:\n            out.append(right[j]); j += 1\n    return out + left[i:] + right[j:]\n\nprint(bubble_sort([5, 2, 9, 1]))  # [1, 2, 5, 9]\nprint(merge_sort([5, 2, 9, 1]))   # [1, 2, 5, 9]\n</code></pre><p><strong>Time complexity:</strong> bubble sort O(n^2) worst/average, O(n) best when already sorted with an early exit; merge sort O(n log n) in all cases; quick sort O(n log n) average, O(n^2) worst; binary search O(log n). <strong>Space complexity:</strong> merge sort O(n) extra space; bubble/quick sort (in-place) O(1) to O(log n) stack.</p><h3>Key points</h3><ul><li>Bubble sort is O(n^2): simple to write, too slow for large data.</li><li>Merge sort is O(n log n) always, but needs O(n) extra space.</li><li>Quick sort averages O(n log n) but degrades to O(n^2) with bad pivots.</li><li>Binary search needs sorted data and costs O(log n).</li><li>Python's built-in sorted() uses Timsort: O(n log n) worst case.</li></ul>",
+      "flowchart": {
+        "title": "Bubble sort one pass",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read the list",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "Any pair left to compare?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Is left &gt; right neighbour?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Swap the pair",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Move to the next pair",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Largest value bubbled to the end",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n3"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "8hly31xKli0",
+        "title": "Algorithms and Data Structures Tutorial - Full Course for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Merge sort's time complexity in the worst case is:",
+          "options": [
+            "O(n^2)",
+            "O(2^n)",
+            "O(n)",
+            "O(n log n)"
+          ],
+          "answer": 3,
+          "why": "Merge sort always divides log n levels deep and merges in O(n) per level."
+        },
+        {
+          "q": "Quick sort's worst-case time is:",
+          "options": [
+            "O(log n)",
+            "O(n)",
+            "O(n log n)",
+            "O(n^2)"
+          ],
+          "answer": 3,
+          "why": "With a bad pivot (e.g. already sorted input and first-element pivot), partitions are size 0 and n-1, giving n levels of O(n) work."
+        },
+        {
+          "q": "Binary search requires the data to be:",
+          "options": [
+            "Unsorted",
+            "Sorted",
+            "Unique",
+            "Numeric"
+          ],
+          "answer": 1,
+          "why": "Binary search discards half the range by comparing with the middle; that only works if the data is ordered."
+        },
+        {
+          "q": "Which sorting algorithm needs O(n) extra space?",
+          "options": [
+            "Insertion sort",
+            "Merge sort",
+            "Selection sort",
+            "Bubble sort"
+          ],
+          "answer": 1,
+          "why": "Merge sort builds merged copies of the halves, so it needs linear extra space."
+        },
+        {
+          "q": "Bubble sort on an already-sorted list with an early-exit check is:",
+          "options": [
+            "O(n^2)",
+            "O(1)",
+            "O(n)",
+            "O(n log n)"
+          ],
+          "answer": 2,
+          "why": "One pass with no swaps proves the list is sorted, so it finishes in linear time."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: bubble sort",
+          "prompt": "What does this print?",
+          "code": "print(bubble_sort([5, 2, 9, 1]))",
+          "expected": "[1, 2, 5, 9]",
+          "answer": "Bubble sort repeatedly swaps out-of-order neighbours until the list is sorted ascending.",
+          "hint": "Sort ascending and print the result."
+        },
+        {
+          "type": "fix",
+          "title": "Fix: bubble sort compares wrong pair",
+          "prompt": "This bubble sort never swaps the last pair. Fix it.",
+          "code": "def bubble_sort(nums):\n    arr = nums[:]\n    for i in range(len(arr)):\n        for j in range(len(arr) - 1 - i):\n            if arr[j] > arr[j + 2]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr",
+          "expected": "def bubble_sort(nums):\n    arr = nums[:]\n    for i in range(len(arr)):\n        for j in range(len(arr) - 1 - i):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr",
+          "answer": "The bug is comparing arr[j] with arr[j + 2] while swapping arr[j] with arr[j + 1]: the swap decision is based on the wrong neighbour (and j + 2 can go out of range). Comparing with arr[j + 1] fixes it.",
+          "hint": "Compare the pair you actually swap."
+        },
+        {
+          "type": "fill",
+          "title": "Fill: merge sort split",
+          "prompt": "Fill the blank to split the list in half.",
+          "code": "def merge_sort(nums):\n    if len(nums) <= 1:\n        return nums\n    mid = ___\n    left = merge_sort(nums[:mid])\n    right = merge_sort(nums[mid:])",
+          "expected": "len(nums) // 2",
+          "answer": "The midpoint is half the length (integer division), so the two halves are roughly equal.",
+          "hint": "Half the length, integer division."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: bubble sort [5, 2, 9, 1]",
+          "prompt": "Trace the first pass of bubble_sort([5, 2, 9, 1]).",
+          "code": "nums = [5, 2, 9, 1]",
+          "expected": "Step 1: compare 5 and 2, 5 > 2, swap -> [2, 5, 9, 1]. Step 2: compare 5 and 9, no swap. Step 3: compare 9 and 1, 9 > 1, swap -> [2, 5, 1, 9]. End of pass 1: largest value 9 is at the end.",
+          "answer": "Follow the flowchart: compare each adjacent pair, swap when the left is larger, move on. After one full pass the largest value has bubbled to the final position.",
+          "hint": "Compare neighbours left to right and swap when out of order."
+        }
+      ]
+    },
+    {
+      "title": "Mini Project: Build a Mini Search Engine",
+      "duration_minutes": 90,
+      "is_preview": 0,
+      "body": "<h3>What you are building</h3><p>A mini search engine over a small collection of documents. It tokenises each document, builds an inverted index (word -> list of document ids), and answers queries by looking up words in the index and ranking documents by how many query words they contain.</p><h3>Steps</h3><ol><li>Tokenise: lowercase text and split into words, stripping punctuation.</li><li>Index: for each word, record which documents contain it (a dict of sets).</li><li>Search: tokenise the query, look up each word, and count matches per document.</li><li>Rank: return documents with the most matches first.</li></ol><p>This project combines everything in the course: dicts (hashing, average O(1) lookup), sets, sorting for ranking, and Big-O thinking about why the index beats scanning every document for every query.</p><pre><code>import re\n\ndef tokenize(text):\n    return re.findall(r\"[a-z0-9]+\", text.lower())\n\ndef build_index(docs):\n    index = {}\n    for doc_id, text in enumerate(docs):\n        for word in set(tokenize(text)):\n            index.setdefault(word, set()).add(doc_id)\n    return index\n\ndef search(index, docs, query):\n    scores = {}\n    for word in tokenize(query):\n        for doc_id in index.get(word, set()):\n            scores[doc_id] = scores.get(doc_id, 0) + 1\n    ranked = sorted(scores, key=lambda d: scores[d], reverse=True)\n    return [(docs[d], scores[d]) for d in ranked]\n\ndocs = [\"Python is great for data science\",\n        \"Data structures make Python fast\",\n        \"Cooking recipes for dinner\"]\nindex = build_index(docs)\nprint(search(index, docs, \"python data\"))\n# [('Python is great for data science', 2), ('Data structures make Python fast', 2)]\n</code></pre><p><strong>Time complexity:</strong> building the index is O(total words); a query is O(query words x matching documents) instead of scanning every document word by word. Ranking the matches costs O(m log m) for m matches. <strong>Space complexity:</strong> O(total unique words + document references) for the index.</p><h3>Key points</h3><ul><li>An inverted index maps each word to the documents containing it.</li><li>Tokenise first: lowercase and strip punctuation so 'Python' and 'python' match.</li><li>Dict lookup is average O(1), so queries avoid scanning every document.</li><li>Rank by match count; break ties by document order.</li><li>The same idea, at huge scale, powers real search engines.</li></ul>",
+      "flowchart": null,
+      "video": {
+        "id": "RBSGKlAvoiM",
+        "title": "Data Structures Easy to Advanced Course - Full Tutorial from a Google Engineer"
+      },
+      "mcqs": [
+        {
+          "q": "What is an inverted index?",
+          "options": [
+            "A hash of each document",
+            "A list of documents in reverse order",
+            "A map from each word to the documents containing it",
+            "A sorted list of all words"
+          ],
+          "answer": 2,
+          "why": "An inverted index flips the mapping: instead of document -> words, it stores word -> documents, so a query jumps straight to matches."
+        },
+        {
+          "q": "Why tokenise and lowercase text before indexing?",
+          "options": [
+            "To make the index smaller only",
+            "So 'Python' and 'python' are treated as the same word",
+            "To sort the documents",
+            "To remove duplicate documents"
+          ],
+          "answer": 1,
+          "why": "Lowercasing normalises case so a query for 'python' matches 'Python' in a document."
+        },
+        {
+          "q": "Searching with an inverted index is faster than scanning all documents because:",
+          "options": [
+            "Dict lookup is average O(1) per query word",
+            "It sorts the documents first",
+            "It uses binary search",
+            "It uses less memory"
+          ],
+          "answer": 0,
+          "why": "Each query word is looked up directly in the dict instead of reading every document word by word."
+        },
+        {
+          "q": "How should search results be ranked in this project?",
+          "options": [
+            "By number of query words matched, most first",
+            "Randomly",
+            "Alphabetically",
+            "By document length"
+          ],
+          "answer": 0,
+          "why": "A document matching more query words is more relevant, so matches are sorted by score descending."
+        },
+        {
+          "q": "Which course data structure is the core of the inverted index?",
+          "options": [
+            "Binary search tree",
+            "Stack",
+            "Linked list",
+            "Hash table (dict)"
+          ],
+          "answer": 3,
+          "why": "The index is a dict from word to a set of document ids, relying on average O(1) hash lookup."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict: search ranking",
+          "prompt": "What does this print?",
+          "code": "docs = ['Python is great for data science', 'Data structures make Python fast', 'Cooking recipes for dinner']\nindex = build_index(docs)\nprint(search(index, docs, 'python data'))",
+          "expected": "[('Python is great for data science', 2), ('Data structures make Python fast', 2)]",
+          "answer": "'python' appears in docs 0 and 1, 'data' appears in docs 0 and 1, so both score 2 and both are returned, doc 0 first on the tie.",
+          "hint": "Count matches per document, then rank."
+        },
+        {
+          "type": "fill",
+          "title": "Fill: build the index",
+          "prompt": "Fill the blank so each word records its document.",
+          "code": "def build_index(docs):\n    index = {}\n    for doc_id, text in enumerate(docs):\n        for word in set(tokenize(text)):\n            index.setdefault(word, set()).___\n    return index",
+          "expected": "add(doc_id)",
+          "answer": "setdefault creates an empty set for a new word; add(doc_id) records that this document contains the word.",
+          "hint": "Add this document id to the word's set."
+        },
+        {
+          "type": "trace",
+          "title": "Trace: search 'python data'",
+          "prompt": "Trace search(index, docs, 'python data') on the lesson documents.",
+          "code": "docs = ['Python is great for data science', 'Data structures make Python fast', 'Cooking recipes for dinner']",
+          "expected": "Step 1: tokenise the query -> ['python', 'data']. Step 2: 'python' maps to {0, 1}, so scores = {0: 1, 1: 1}. Step 3: 'data' maps to {0, 1}, so scores = {0: 2, 1: 2}. Step 4: sort by score descending -> [0, 1]. Result: both documents with score 2.",
+          "answer": "The query is tokenised, each word is looked up in the inverted index in average O(1), and per-document scores are counted and ranked. No document is scanned word by word at query time.",
+          "hint": "Look up each query word, then count and rank."
+        },
+        {
+          "type": "project",
+          "title": "Mini Project: Build a Mini Search Engine",
+          "prompt": "Build a mini search engine in Python: (1) tokenise a collection of at least 10 documents you write yourself, (2) build an inverted index (word -> set of document ids), (3) implement search(query) that returns matching documents ranked by number of query words matched, (4) add a simple command-line loop so a user can type queries until they type 'quit', (5) handle a query with no matches by printing a friendly message.",
+          "code": "",
+          "expected": "Working search.py that: tokenises (lowercase, strips punctuation); builds an inverted index with a dict of sets; search returns ranked (document, score) pairs; CLI loop reads queries until 'quit'; no-match queries print a friendly message; at least 10 documents indexed; a short README or comments explain the time complexity of indexing and searching.",
+          "answer": "Approach hints: reuse tokenize/build_index/search from the lesson, then add the CLI loop around search(). Use set(tokenize(text)) when indexing so a repeated word in one document counts once per document. Rank with sorted(scores, key=scores.get, reverse=True). Test with queries that match 0, 1 and several documents, and with different capitalisation to prove tokenising works.",
+          "hint": "Start from the lesson code, then wrap search() in a while loop that stops on 'quit'."
+        }
+      ]
+    }
+  ]
+}

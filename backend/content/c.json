@@ -1,0 +1,1491 @@
+{
+  "course": {
+    "match_title": null,
+    "title": "C Programming from Zero to Hero",
+    "description": "Learn C from scratch: setup, variables, loops, functions, pointers, structures and files, ending with a mini project that manages student marks.",
+    "category": "Programming",
+    "price": 899,
+    "instructor": "Arjun Reddy",
+    "duration_hours": 20,
+    "level": "Beginner",
+    "image_url": "assets/images/course4.svg"
+  },
+  "lessons": [
+    {
+      "title": "C Setup & Your First Program",
+      "duration_minutes": 30,
+      "is_preview": 1,
+      "body": "<h3>What is C?</h3>\n<p>C is a fast, general-purpose programming language created in the 1970s. Operating systems, embedded devices and many other languages are built with C. Learning C teaches you how a computer really works: memory, variables and the CPU.</p>\n<h3>Step 1: Install a compiler</h3>\n<p>C code must be compiled (translated to machine code) before it runs. Install GCC: on Windows use MinGW, on macOS run <code>xcode-select --install</code>, on Linux run <code>sudo apt install gcc</code>. Check it with <code>gcc --version</code>.</p>\n<h3>Step 2: Write your first program</h3>\n<p>Save this as <code>hello.c</code>:</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    printf(\"Hello, World!\\n\");\n    return 0;\n}</code></pre>\n<h3>Step 3: Compile and run</h3>\n<p>Compile with <code>gcc hello.c -o hello</code>, then run it with <code>./hello</code> on Linux/macOS or <code>hello.exe</code> on Windows. You should see <code>Hello, World!</code>.</p>\n<p>How the program works: <code>#include &lt;stdio.h&gt;</code> brings in the standard input/output library so we can use <code>printf</code>. Every C program starts at <code>main</code>. <code>printf</code> prints text, and <code>\\n</code> is a newline. <code>return 0;</code> tells the operating system the program finished successfully. Every statement ends with a semicolon.</p>\n<h3>Key points</h3>\n<ul>\n<li>C code must be compiled with a compiler such as GCC before it can run.</li>\n<li>Every C program starts execution in the <code>main</code> function.</li>\n<li><code>#include &lt;stdio.h&gt;</code> gives you <code>printf</code> for printing output.</li>\n<li>Every statement ends with a semicolon, and <code>return 0;</code> means success.</li>\n<li>Compile with <code>gcc hello.c -o hello</code> and run the result.</li>\n</ul>",
+      "flowchart": null,
+      "video": {
+        "id": "KJgsSFOSQv0",
+        "title": "C Programming Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "Which function is the entry point of every C program?",
+          "options": [
+            "start()",
+            "main()",
+            "run()",
+            "begin()"
+          ],
+          "answer": 1,
+          "why": "Execution of every C program begins in the main() function; the other names have no special meaning."
+        },
+        {
+          "q": "Which header file must be included to use printf()?",
+          "options": [
+            "string.h",
+            "stdio.h",
+            "stdlib.h",
+            "math.h"
+          ],
+          "answer": 1,
+          "why": "printf() is declared in stdio.h, the standard input/output header."
+        },
+        {
+          "q": "Which command compiles hello.c into a program called hello?",
+          "options": [
+            "compile hello.c",
+            "cc run hello.c",
+            "run hello.c",
+            "gcc hello.c -o hello"
+          ],
+          "answer": 3,
+          "why": "gcc is the compiler; -o hello names the output executable file."
+        },
+        {
+          "q": "What does return 0; in main() mean?",
+          "options": [
+            "The program has no output",
+            "The program crashed",
+            "The program finished successfully",
+            "The program printed 0"
+          ],
+          "answer": 2,
+          "why": "By convention, returning 0 from main() signals successful completion to the operating system."
+        },
+        {
+          "q": "Which is a valid C source file name?",
+          "options": [
+            "hello.cpp",
+            "hello.c",
+            "hello.py",
+            "hello.java"
+          ],
+          "answer": 1,
+          "why": "C source files use the .c extension; the others belong to C++, Python and Java."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    printf(\"Hello, World!\\n\");\n    return 0;\n}",
+          "expected": "Hello, World!",
+          "answer": "printf prints the text exactly as written, and \\n moves to a new line.",
+          "hint": "printf prints the string literally; \\n is just a newline."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the missing semicolon",
+          "prompt": "This program will not compile. Find and fix the bug.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    printf(\"Hi\\n\")\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    printf(\"Hi\\n\");\n    return 0;\n}",
+          "answer": "The printf statement is missing its semicolon. In C every statement must end with ;, so the compiler reports an error before the return statement.",
+          "hint": "Every statement in C ends with a specific character. Which line is missing it?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blanks",
+          "prompt": "Complete the program so it prints your name.",
+          "code": "___ <stdio.h>\n\nint main(void)\n{\n    printf(\"My name is Sid.\\n\");\n    ___ 0;\n}",
+          "expected": "#include\nreturn",
+          "answer": "#include brings in stdio.h so printf works, and return 0; ends main() with success.",
+          "hint": "The first blank is the preprocessor directive; the second blank is the keyword that hands 0 back."
+        }
+      ]
+    },
+    {
+      "title": "Variables, Data Types & Input/Output",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Variables: named boxes in memory</h3>\n<p>A variable is a named place in memory that stores a value. You declare it with a type and a name, then you can store and change values in it: <code>int age = 21;</code></p>\n<h3>The main data types</h3>\n<ul>\n<li><code>int</code> — whole numbers, e.g. 42, -7</li>\n<li><code>float</code> — decimal numbers, e.g. 3.14 (use <code>double</code> for more precision)</li>\n<li><code>char</code> — a single character in single quotes, e.g. 'A'</li>\n</ul>\n<h3>Printing with printf</h3>\n<p>Format specifiers tell <code>printf</code> what type to print: <code>%d</code> for int, <code>%f</code> for float/double, <code>%c</code> for char. Using the wrong specifier prints garbage.</p>\n<h3>Reading input with scanf</h3>\n<p><code>scanf</code> reads typed input. It needs the address of the variable, so you write <code>&amp;</code> before the variable name: <code>scanf(\"%d\", &amp;age);</code>. Forgetting the <code>&amp;</code> is the most common beginner crash.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    int age;\n    float height;\n    printf(\"Enter your age: \");\n    scanf(\"%d\", &amp;age);\n    printf(\"Enter your height in metres: \");\n    scanf(\"%f\", &amp;height);\n    printf(\"Age: %d, Height: %.2f\\n\", age, height);\n    return 0;\n}</code></pre>\n<p><code>%.2f</code> prints a float with 2 digits after the decimal point. Always initialise your variables — an uninitialised variable holds whatever garbage was already in that memory.</p>\n<h3>Key points</h3>\n<ul>\n<li>Declare a variable with a type: <code>int</code>, <code>float</code>, <code>double</code> or <code>char</code>.</li>\n<li>Use matching format specifiers: <code>%d</code> for int, <code>%f</code> for float, <code>%c</code> for char.</li>\n<li><code>scanf</code> needs the address of the variable: <code>scanf(\"%d\", &amp;age);</code></li>\n<li>Always initialise variables; uninitialised variables hold garbage values.</li>\n<li><code>%.2f</code> prints a float rounded to 2 decimal places.</li>\n</ul>",
+      "flowchart": null,
+      "video": {
+        "id": "87SH2Cn0s9A",
+        "title": "C Programming Full Course for free ⚙️"
+      },
+      "mcqs": [
+        {
+          "q": "Which format specifier prints a float?",
+          "options": [
+            "%c",
+            "%f",
+            "%s",
+            "%d"
+          ],
+          "answer": 1,
+          "why": "%f is the specifier for float (and double) values; %d is for int, %c for char, %s for strings."
+        },
+        {
+          "q": "What is missing in this line? scanf(\"%d\", age);",
+          "options": [
+            "The %d specifier",
+            "The stdio.h header",
+            "A semicolon",
+            "The & before age"
+          ],
+          "answer": 3,
+          "why": "scanf needs the address of the variable, so it must be scanf(\"%d\", &age); — without & it writes to a wrong address."
+        },
+        {
+          "q": "What value does an uninitialised local int variable hold?",
+          "options": [
+            "It causes a compile error",
+            "Always 0",
+            "Always 1",
+            "A garbage (unpredictable) value"
+          ],
+          "answer": 3,
+          "why": "C does not zero local variables automatically; the memory holds whatever was there before, so the value is unpredictable."
+        },
+        {
+          "q": "Which is a valid variable name in C?",
+          "options": [
+            "2marks",
+            "total-marks",
+            "total_marks",
+            "int"
+          ],
+          "answer": 2,
+          "why": "Names must start with a letter or underscore and contain only letters, digits and underscores; int is a reserved keyword and 2marks starts with a digit."
+        },
+        {
+          "q": "What does printf(\"%.2f\", 3.14159); print?",
+          "options": [
+            "3.14",
+            "3",
+            "3.1416",
+            "3.14159"
+          ],
+          "answer": 0,
+          "why": "%.2f rounds the float to exactly 2 digits after the decimal point."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 5;\n    float b = 2.5;\n    printf(\"%d %.1f\\n\", a, b);\n    return 0;\n}",
+          "expected": "5 2.5",
+          "answer": "%d prints the int 5, %.1f prints the float 2.5 rounded to one decimal place.",
+          "hint": "Match each specifier to its value: %d with 5, %.1f with 2.5."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the scanf crash",
+          "prompt": "This program crashes when run. Find and fix the bug.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int marks;\n    printf(\"Enter marks: \");\n    scanf(\"%d\", marks);\n    printf(\"Marks: %d\\n\", marks);\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    int marks;\n    printf(\"Enter marks: \");\n    scanf(\"%d\", &marks);\n    printf(\"Marks: %d\\n\", marks);\n    return 0;\n}",
+          "answer": "scanf needs the address of marks so it knows where to store the input. Without &, scanf treats the garbage value of marks as an address and writes to random memory, which crashes the program.",
+          "hint": "scanf stores input somewhere — what does it need to know where?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blanks",
+          "prompt": "Complete the program so it reads a number and prints it back doubled.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int n;\n    scanf(\"%d\", ___);\n    printf(\"%d\\n\", n * ___);\n    return 0;\n}",
+          "expected": "&n\n2",
+          "answer": "scanf needs &n to store the input, and n * 2 doubles the value.",
+          "hint": "First blank: scanf needs an address. Second blank: what number doubles n?"
+        }
+      ]
+    },
+    {
+      "title": "Operators & If-Else Decisions",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Operators</h3>\n<p>Operators act on values: arithmetic (<code>+ - * / %</code>), relational (<code>== != &lt; &gt; &lt;= &gt;=</code>) and logical (<code>&amp;&amp;</code> AND, <code>||</code> OR, <code>!</code> NOT). The remainder operator <code>%</code> gives what is left after division: <code>7 % 3</code> is 1.</p>\n<h3>The integer division trap</h3>\n<p>Dividing two ints gives an int — the fraction is thrown away, not rounded. <code>5 / 2</code> is 2, not 2.5. To get 2.5, make one side a float: <code>5 / 2.0</code>.</p>\n<h3>Making decisions with if-else</h3>\n<p>An <code>if</code> runs its block only when its condition is true. <code>else if</code> chains extra checks, and <code>else</code> catches everything else. The condition uses <code>==</code> for comparison — a single <code>=</code> assigns a value instead of comparing, which is a classic bug.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    int marks;\n    printf(\"Enter marks: \");\n    scanf(\"%d\", &amp;marks);\n    if (marks &gt;= 90) {\n        printf(\"Grade A\\n\");\n    } else if (marks &gt;= 40) {\n        printf(\"Pass\\n\");\n    } else {\n        printf(\"Fail\\n\");\n    }\n    return 0;\n}</code></pre>\n<p>Trace it: marks 95 hits the first branch and skips the rest; marks 60 fails the first test, passes the second and prints Pass; marks 20 prints Fail.</p>\n<h3>Key points</h3>\n<ul>\n<li><code>5 / 2</code> is 2 in C because int divided by int gives an int.</li>\n<li><code>%</code> gives the remainder: <code>7 % 3</code> is 1.</li>\n<li>Use <code>==</code> to compare and <code>=</code> to assign — never mix them up.</li>\n<li><code>if / else if / else</code> runs exactly one branch, the first whose condition is true.</li>\n<li>Combine conditions with <code>&amp;&amp;</code> (AND) and <code>||</code> (OR).</li>\n</ul>",
+      "flowchart": {
+        "title": "How an if-else decides pass or fail",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Read marks",
+            "kind": "input"
+          },
+          {
+            "id": "n3",
+            "label": "marks >= 40?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Print Pass",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Print Fail",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n6"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          }
+        ]
+      },
+      "video": {
+        "id": "KJgsSFOSQv0",
+        "title": "C Programming Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What is the value of 5 / 2 in C?",
+          "options": [
+            "3",
+            "0",
+            "2.5",
+            "2"
+          ],
+          "answer": 3,
+          "why": "Both operands are ints, so C performs integer division and discards the fraction: 5 / 2 is 2."
+        },
+        {
+          "q": "What is 7 % 3 in C?",
+          "options": [
+            "0",
+            "2",
+            "1",
+            "3"
+          ],
+          "answer": 2,
+          "why": "7 divided by 3 is 2 remainder 1, and % returns that remainder."
+        },
+        {
+          "q": "What is wrong with if (marks = 40)?",
+          "options": [
+            "Nothing, it checks equality",
+            "It assigns 40 to marks instead of comparing",
+            "It is a syntax error",
+            "It checks marks is not 40"
+          ],
+          "answer": 1,
+          "why": "A single = assigns 40 to marks (and the condition becomes 40, which is true); comparison needs ==."
+        },
+        {
+          "q": "In if (a > 0 && b > 0), when is the condition true?",
+          "options": [
+            "When both a and b are positive",
+            "When a is positive only",
+            "When a and b are equal",
+            "When either a or b is positive"
+          ],
+          "answer": 0,
+          "why": "&& is logical AND, so the whole condition is true only when both sides are true."
+        },
+        {
+          "q": "marks is 35. What does the lesson program print?",
+          "options": [
+            "Fail",
+            "Nothing",
+            "Grade A",
+            "Pass"
+          ],
+          "answer": 0,
+          "why": "35 is below 90 and below 40, so both if tests fail and the else branch prints Fail."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 5, b = 2;\n    printf(\"%d %d\\n\", a / b, a % b);\n    return 0;\n}",
+          "expected": "2 1",
+          "answer": "a / b is integer division, 5 / 2 = 2, and a % b is the remainder, 5 % 2 = 1.",
+          "hint": "Remember: int / int drops the fraction, and % gives the remainder."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the comparison bug",
+          "prompt": "This program always prints 'Equal' even for different numbers. Fix it.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 5, b = 9;\n    if (a = b) {\n        printf(\"Equal\\n\");\n    } else {\n        printf(\"Not equal\\n\");\n    }\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 5, b = 9;\n    if (a == b) {\n        printf(\"Equal\\n\");\n    } else {\n        printf(\"Not equal\\n\");\n    }\n    return 0;\n}",
+          "answer": "a = b assigns 9 to a, and the condition then tests 9, which is non-zero and therefore true. Changing = to == compares the values, so 5 == 9 is false and it prints 'Not equal'.",
+          "hint": "One character is the difference between assigning and comparing."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the if-else chain",
+          "prompt": "Trace the lesson program step by step when marks is 60.",
+          "code": "int marks = 60;\nif (marks >= 90) {\n    printf(\"Grade A\\n\");\n} else if (marks >= 40) {\n    printf(\"Pass\\n\");\n} else {\n    printf(\"Fail\\n\");\n}",
+          "expected": "marks=60; 60>=90 is false; 60>=40 is true; prints Pass; else skipped.",
+          "answer": "Following the flowchart: the first decision (marks >= 90?) is No, so control moves to the second decision (marks >= 40?), which is Yes, so it prints Pass and skips the else branch entirely.",
+          "hint": "Walk the flowchart: check each decision in order and take the Yes/No edge."
+        }
+      ]
+    },
+    {
+      "title": "Loops: for, while & do-while",
+      "duration_minutes": 60,
+      "is_preview": 0,
+      "body": "<h3>Why loops?</h3>\n<p>A loop repeats a block of code instead of you writing it again and again. C has three loops: <code>for</code>, <code>while</code> and <code>do-while</code>.</p>\n<h3>The for loop</h3>\n<p>Use <code>for</code> when you know how many times to repeat. It packs start, condition and step into one line: <code>for (i = 1; i &lt;= 5; i++)</code> runs with i = 1, 2, 3, 4, 5.</p>\n<h3>The while loop</h3>\n<p><code>while</code> checks its condition before each run, so it may run zero times. It suits loops where the number of repeats is unknown, like reading input until the user types 0.</p>\n<h3>The do-while loop</h3>\n<p><code>do-while</code> checks its condition after each run, so the body always runs at least once — perfect for menus that must show once before asking.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    int i, sum = 0;\n    for (i = 1; i &lt;= 5; i++) {\n        sum = sum + i;\n    }\n    printf(\"Sum 1 to 5 = %d\\n\", sum);\n    return 0;\n}</code></pre>\n<p>Trace: i=1 sum=1, i=2 sum=3, i=3 sum=6, i=4 sum=10, i=5 sum=15, then i becomes 6, the condition fails and the loop ends. <code>break</code> exits a loop early and <code>continue</code> skips to the next round. Forgetting to update the loop variable inside a <code>while</code> creates an infinite loop.</p>\n<h3>Key points</h3>\n<ul>\n<li><code>for</code> is best when the number of repeats is known.</li>\n<li><code>while</code> checks the condition before each run and may run zero times.</li>\n<li><code>do-while</code> always runs the body at least once.</li>\n<li><code>break</code> exits a loop; <code>continue</code> skips to the next iteration.</li>\n<li>Always update the loop variable, or a <code>while</code> loop runs forever.</li>\n</ul>",
+      "flowchart": {
+        "title": "How a for loop adds 1 to 5",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "sum = 0, i = 1",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "i <= 5?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "sum = sum + i",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "i = i + 1",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Print sum",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n3"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "87SH2Cn0s9A",
+        "title": "C Programming Full Course for free ⚙️"
+      },
+      "mcqs": [
+        {
+          "q": "What does the lesson program print?",
+          "options": [
+            "6",
+            "10",
+            "15",
+            "5"
+          ],
+          "answer": 2,
+          "why": "1+2+3+4+5 = 15, so sum is 15 when the loop ends."
+        },
+        {
+          "q": "Which loop always runs its body at least once?",
+          "options": [
+            "for",
+            "while",
+            "do-while",
+            "None of these"
+          ],
+          "answer": 2,
+          "why": "do-while tests its condition after the body, so the first run happens unconditionally."
+        },
+        {
+          "q": "What does break do inside a loop?",
+          "options": [
+            "Exits the loop immediately",
+            "Restarts the loop",
+            "Pauses the program",
+            "Skips one iteration"
+          ],
+          "answer": 0,
+          "why": "break jumps out of the loop at once; continue is the one that skips to the next iteration."
+        },
+        {
+          "q": "How many times does for (i = 0; i < 3; i++) run its body?",
+          "options": [
+            "4",
+            "0",
+            "2",
+            "3"
+          ],
+          "answer": 3,
+          "why": "i takes the values 0, 1 and 2 — three runs — and stops when i becomes 3."
+        },
+        {
+          "q": "What happens if a while loop never changes its condition variable?",
+          "options": [
+            "It runs zero times",
+            "It runs once",
+            "It runs forever (infinite loop)",
+            "It is a compile error"
+          ],
+          "answer": 2,
+          "why": "The condition stays true, so the loop never exits — an infinite loop."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int i;\n    for (i = 1; i <= 3; i++) {\n        printf(\"%d \", i * i);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "expected": "1 4 9",
+          "answer": "i runs 1, 2, 3 and i*i gives 1, 4, 9, each followed by a space.",
+          "hint": "The loop prints i squared for i = 1, 2, 3."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the infinite loop",
+          "prompt": "This while loop never ends. Fix it so it prints 1 to 5.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int i = 1;\n    while (i <= 5) {\n        printf(\"%d \", i);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    int i = 1;\n    while (i <= 5) {\n        printf(\"%d \", i);\n        i++;\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "i is never updated inside the loop, so i <= 5 stays true forever. Adding i++ makes i grow until the condition fails and the loop ends after printing 1 to 5.",
+          "hint": "Something inside the loop body must move i towards the exit condition."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blanks",
+          "prompt": "Complete the loop so it prints the numbers 10 down to 1.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int i;\n    for (i = 10; i >= ___; ___) {\n        printf(\"%d \", i);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "expected": "1\ni--",
+          "answer": "The loop must stop at 1, so the condition is i >= 1, and i-- counts down by one each round.",
+          "hint": "First blank: the last number to print. Second blank: how do you count down?"
+        }
+      ]
+    },
+    {
+      "title": "Functions & Scope",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Why functions?</h3>\n<p>A function is a named block of code that does one job. Instead of copying the same code everywhere, you write it once and call it: <code>add(3, 4)</code>. Functions make programs shorter, clearer and easier to debug.</p>\n<h3>Anatomy of a function</h3>\n<p>A function has a return type, a name, parameters (inputs) and a body. <code>int add(int a, int b)</code> takes two ints and returns an int. A function that returns nothing uses <code>void</code>.</p>\n<h3>Declare before you use</h3>\n<p>C must see a function before it is called. Either define the function above <code>main</code>, or put a prototype (declaration) above <code>main</code> and define it below.</p>\n<h3>Scope: local vs global</h3>\n<p>A variable declared inside a function is local — it exists only there and disappears when the function returns. A variable declared outside all functions is global and visible everywhere, but globals should be used sparingly because any function can change them.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint add(int a, int b)\n{\n    return a + b;\n}\n\nint main(void)\n{\n    int result = add(3, 4);\n    printf(\"3 + 4 = %d\\n\", result);\n    return 0;\n}</code></pre>\n<p>Flow: <code>main</code> calls <code>add(3, 4)</code>, control jumps into <code>add</code>, <code>a + b</code> is 7, <code>return</code> sends 7 back, and <code>main</code> stores it in <code>result</code>. Arguments are copied into parameters, so changing a parameter inside the function never changes the caller's variable.</p>\n<h3>Key points</h3>\n<ul>\n<li>A function groups one job into a reusable, named block of code.</li>\n<li>The return type says what the function gives back; <code>void</code> means nothing.</li>\n<li>Declare a function (or its prototype) before calling it.</li>\n<li>Local variables exist only inside their function; globals are visible everywhere.</li>\n<li>Arguments are copied into parameters, so the caller's variables are unchanged.</li>\n</ul>",
+      "flowchart": {
+        "title": "How a function call works",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start main",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Call add(3, 4)",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Jump into add, a = 3, b = 4",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Compute a + b",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "Return 7 to main",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "Print result",
+            "kind": "output"
+          },
+          {
+            "id": "n7",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          }
+        ]
+      },
+      "video": {
+        "id": "KJgsSFOSQv0",
+        "title": "C Programming Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What does int add(int a, int b) return?",
+          "options": [
+            "Nothing",
+            "An int",
+            "Two ints",
+            "A float"
+          ],
+          "answer": 1,
+          "why": "The return type int before the name means the function returns one int value."
+        },
+        {
+          "q": "What does void mean as a function return type?",
+          "options": [
+            "It returns nothing",
+            "It returns an error",
+            "It takes no parameters",
+            "It returns 0"
+          ],
+          "answer": 0,
+          "why": "void means the function returns no value at all."
+        },
+        {
+          "q": "Where is a local variable visible?",
+          "options": [
+            "Only in main()",
+            "In every file",
+            "Everywhere in the program",
+            "Only inside the function where it is declared"
+          ],
+          "answer": 3,
+          "why": "Local variables are scoped to the block they are declared in and cease to exist when the function returns."
+        },
+        {
+          "q": "What happens if you call a function that has not been declared yet?",
+          "options": [
+            "It returns 0",
+            "It works fine",
+            "A compile error or warning",
+            "It runs twice"
+          ],
+          "answer": 2,
+          "why": "C needs to see a declaration or prototype before a call, otherwise the compiler does not know the function's signature."
+        },
+        {
+          "q": "What does add(3, 4) return in the lesson program?",
+          "options": [
+            "34",
+            "12",
+            "7",
+            "1"
+          ],
+          "answer": 2,
+          "why": "add returns a + b, and 3 + 4 is 7."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint square(int n)\n{\n    return n * n;\n}\n\nint main(void)\n{\n    printf(\"%d\\n\", square(6));\n    return 0;\n}",
+          "expected": "36",
+          "answer": "square(6) returns 6 * 6 = 36, and main prints that value.",
+          "hint": "Follow the call: 6 goes into n, and the function returns n * n."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the missing declaration",
+          "prompt": "This program fails to compile. Fix it with the smallest change.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    printf(\"%d\\n\", double_it(5));\n    return 0;\n}\n\nint double_it(int n)\n{\n    return n * 2;\n}",
+          "expected": "#include <stdio.h>\n\nint double_it(int n);\n\nint main(void)\n{\n    printf(\"%d\\n\", double_it(5));\n    return 0;\n}\n\nint double_it(int n)\n{\n    return n * 2;\n}",
+          "answer": "main calls double_it before the compiler has seen it. Adding the prototype int double_it(int n); above main tells the compiler the signature, so the call compiles and the definition below main still provides the body.",
+          "hint": "C must know a function exists before it is called — how do you announce it early?"
+        },
+        {
+          "type": "trace",
+          "title": "Trace the function call",
+          "prompt": "Trace this program step by step.",
+          "code": "int add(int a, int b) { return a + b; }\n\nint main(void)\n{\n    int result = add(3, 4);\n    printf(\"%d\\n\", result);\n    return 0;\n}",
+          "expected": "main calls add(3,4); a=3, b=4 inside add; returns 7; result=7; prints 7.",
+          "answer": "Following the flowchart: main calls add, the arguments are copied into a and b, add returns 7, control returns to main, result becomes 7 and printf prints 7.",
+          "hint": "Walk the flowchart: call, copy arguments, compute, return, print."
+        }
+      ]
+    },
+    {
+      "title": "Arrays & Strings",
+      "duration_minutes": 60,
+      "is_preview": 0,
+      "body": "<h3>Arrays: many values, one name</h3>\n<p>An array stores many values of the same type under one name: <code>int marks[5] = {78, 85, 90, 66, 92};</code> holds five marks. Indexing starts at 0, so the first mark is <code>marks[0]</code> and the last is <code>marks[4]</code>.</p>\n<h3>Stay inside the bounds</h3>\n<p>C does not check array bounds. Reading or writing <code>marks[5]</code> in a 5-element array touches memory that is not yours — undefined behaviour, often a crash or corrupted data. Always loop from 0 to size - 1.</p>\n<h3>Strings are char arrays</h3>\n<p>A string is a char array ending with the null character <code>'\\\\0'</code>, which marks the end. <code>char name[20] = \"Sid\";</code> stores 'S', 'i', 'd', '\\\\0'. Print strings with <code>%s</code> and read a word with <code>scanf(\"%19s\", name)</code> — no <code>&amp;</code> needed because the array name is already an address.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    int marks[5] = {78, 85, 90, 66, 92};\n    int i, sum = 0;\n    for (i = 0; i &lt; 5; i++) {\n        sum = sum + marks[i];\n    }\n    printf(\"Total: %d, Average: %.1f\\n\", sum, sum / 5.0);\n    char name[20] = \"Sid\";\n    printf(\"Hello, %s\\n\", name);\n    return 0;\n}</code></pre>\n<p>Note <code>sum / 5.0</code>: dividing by 5.0 forces floating-point division, so the average is 82.2 instead of the truncated int result 82.</p>\n<h3>Key points</h3>\n<ul>\n<li>Arrays hold many values of one type; indexing starts at 0.</li>\n<li>A 5-element array has valid indices 0 to 4 — never read <code>arr[5]</code>.</li>\n<li>A string is a char array ending with the null character <code>'\\\\0'</code>.</li>\n<li>Print strings with <code>%s</code>; <code>scanf(\"%s\")</code> needs no <code>&amp;</code> for arrays.</li>\n<li>Use <code>sum / 5.0</code> (not <code>sum / 5</code>) to get a real average.</li>\n</ul>",
+      "flowchart": null,
+      "video": {
+        "id": "87SH2Cn0s9A",
+        "title": "C Programming Full Course for free ⚙️"
+      },
+      "mcqs": [
+        {
+          "q": "What is the first element of int arr[5]?",
+          "options": [
+            "arr[0]",
+            "arr[5]",
+            "arr[-1]",
+            "arr[1]"
+          ],
+          "answer": 0,
+          "why": "C arrays are zero-indexed, so the first element is arr[0]."
+        },
+        {
+          "q": "What happens if you read arr[5] in a 5-element array?",
+          "options": [
+            "Undefined behaviour — memory outside the array",
+            "It returns the last element",
+            "It returns 0",
+            "It is a compile error"
+          ],
+          "answer": 0,
+          "why": "C does no bounds checking, so arr[5] reads memory past the array; the result is undefined and can crash or corrupt data."
+        },
+        {
+          "q": "What marks the end of a C string?",
+          "options": [
+            "The last letter",
+            "A space character",
+            "The null character '\\0'",
+            "A newline"
+          ],
+          "answer": 2,
+          "why": "C strings are char arrays terminated by '\\0'; functions like printf(\"%s\") stop there."
+        },
+        {
+          "q": "How many elements are in int a[10]?",
+          "options": [
+            "9",
+            "10",
+            "11",
+            "0"
+          ],
+          "answer": 1,
+          "why": "The size in brackets is the element count: a[10] holds 10 elements, indices 0 to 9."
+        },
+        {
+          "q": "int marks[5] = {78, 85, 90, 66, 92}; What is the total?",
+          "options": [
+            "411",
+            "421",
+            "391",
+            "401"
+          ],
+          "answer": 0,
+          "why": "78 + 85 + 90 + 66 + 92 = 411."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a[4] = {10, 20, 30, 40};\n    printf(\"%d %d\\n\", a[0], a[3]);\n    return 0;\n}",
+          "expected": "10 40",
+          "answer": "a[0] is the first element 10 and a[3] is the last element 40.",
+          "hint": "Count from 0: the first element is index 0, the fourth is index 3."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the out-of-bounds loop",
+          "prompt": "This loop reads past the end of the array. Fix it.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a[5] = {1, 2, 3, 4, 5};\n    int i;\n    for (i = 0; i <= 5; i++) {\n        printf(\"%d \", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    int a[5] = {1, 2, 3, 4, 5};\n    int i;\n    for (i = 0; i < 5; i++) {\n        printf(\"%d \", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "i <= 5 lets i reach 5, and a[5] is outside the 5-element array (valid indices 0-4). Changing the condition to i < 5 keeps every access inside the array.",
+          "hint": "For an array of size 5, what is the largest safe index?"
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blanks",
+          "prompt": "Complete the program so it prints the name stored in the string.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    char name[20] = \"___\";\n    printf(\"Hello, ___\\n\", name);\n    return 0;\n}",
+          "expected": "Sid\n%s",
+          "answer": "The string is initialised to \"Sid\" and %s is the format specifier that prints a string.",
+          "hint": "First blank: any name in quotes. Second blank: the specifier for a string."
+        }
+      ]
+    },
+    {
+      "title": "Pointers & Memory",
+      "duration_minutes": 75,
+      "is_preview": 0,
+      "body": "<h3>What is a pointer?</h3>\n<p>A pointer is a variable that stores a memory address instead of a value. It lets a function change the caller's variable and lets you work with arrays and dynamic memory efficiently.</p>\n<h3>The two operators</h3>\n<ul>\n<li><code>&amp;</code> (address-of): <code>&amp;x</code> is the address where x lives.</li>\n<li><code>*</code> (dereference): if <code>p</code> holds the address of x, then <code>*p</code> is the value of x. Writing <code>*p = 20;</code> changes x itself.</li>\n</ul>\n<p>Declare a pointer with <code>*</code> in the type: <code>int *p = &amp;x;</code> means p points to an int.</p>\n<h3>Pointer arithmetic</h3>\n<p>Adding 1 to a pointer moves it by the size of what it points to. For an int pointer, <code>p + 1</code> jumps 4 bytes to the next int — that is how array indexing works: <code>arr[i]</code> is the same as <code>*(arr + i)</code>.</p>\n<h3>Danger: wild and NULL pointers</h3>\n<p>An uninitialised pointer points nowhere safe, and dereferencing <code>NULL</code> (address 0) crashes the program. Always initialise pointers, and check for NULL before dereferencing.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    int x = 10;\n    int *p = &amp;x;\n    printf(\"x = %d\\n\", x);\n    printf(\"address of x = %p\\n\", (void *)p);\n    *p = 20;\n    printf(\"x is now %d\\n\", x);\n    return 0;\n}</code></pre>\n<p><code>%p</code> prints an address (the cast to <code>void *</code> is the correct, portable way to print a pointer). After <code>*p = 20;</code>, x itself is 20 because p points at x.</p>\n<h3>Key points</h3>\n<ul>\n<li>A pointer stores a memory address; <code>int *p = &amp;x;</code> makes p point to x.</li>\n<li><code>&amp;x</code> gives the address of x; <code>*p</code> gives the value at the address p holds.</li>\n<li><code>*p = 20;</code> changes the variable p points to.</li>\n<li><code>p + 1</code> moves to the next element, not the next byte.</li>\n<li>Never dereference an uninitialised or NULL pointer — it crashes.</li>\n</ul>",
+      "flowchart": {
+        "title": "How a pointer changes a variable",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "x = 10",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "p = &x",
+            "kind": "process"
+          },
+          {
+            "id": "n4",
+            "label": "Is p NULL?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Print error, stop",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "*p = 20",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Print x (now 20)",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n8"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "KJgsSFOSQv0",
+        "title": "C Programming Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "int x = 10; int *p = &x; What is *p?",
+          "options": [
+            "The address of p",
+            "0",
+            "The address of x",
+            "10"
+          ],
+          "answer": 3,
+          "why": "p holds the address of x, so dereferencing it with * gives the value stored at that address, which is 10."
+        },
+        {
+          "q": "What does &x mean in C?",
+          "options": [
+            "x multiplied",
+            "The value of x",
+            "The address of x",
+            "A pointer to a pointer"
+          ],
+          "answer": 2,
+          "why": "& is the address-of operator; &x is the memory address where x is stored."
+        },
+        {
+          "q": "int *p points to an int. How many bytes does p + 1 move forward (typical 4-byte int)?",
+          "options": [
+            "1 byte",
+            "4 bytes",
+            "8 bytes",
+            "It does not move"
+          ],
+          "answer": 1,
+          "why": "Pointer arithmetic steps by the size of the pointed-to type, so an int pointer advances by sizeof(int), typically 4 bytes."
+        },
+        {
+          "q": "What happens if you dereference a NULL pointer?",
+          "options": [
+            "It is a compile error",
+            "The program crashes",
+            "It returns the address",
+            "It returns 0 safely"
+          ],
+          "answer": 1,
+          "why": "NULL is address 0, which the program does not own; dereferencing it causes a segmentation fault and the program crashes."
+        },
+        {
+          "q": "After int x = 10; int *p = &x; *p = 20; what is x?",
+          "options": [
+            "0",
+            "Undefined",
+            "10",
+            "20"
+          ],
+          "answer": 3,
+          "why": "*p = 20 writes 20 into the memory p points to, which is x itself, so x becomes 20."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int x = 5;\n    int *p = &x;\n    *p = *p + 3;\n    printf(\"%d\\n\", x);\n    return 0;\n}",
+          "expected": "8",
+          "answer": "*p is x, so *p = *p + 3 reads 5, adds 3 and writes 8 back into x.",
+          "hint": "*p is just another name for x here. What is 5 + 3?"
+        },
+        {
+          "type": "fix",
+          "title": "Fix the pointer declaration",
+          "prompt": "This program will not compile. Fix it so p points to a.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 42;\n    int p = &a;\n    printf(\"%d\\n\", *p);\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 42;\n    int *p = &a;\n    printf(\"%d\\n\", *p);\n    return 0;\n}",
+          "answer": "p was declared as a plain int, so it cannot hold an address and cannot be dereferenced. Declaring it as int *p makes it a pointer to int, so &a fits and *p reads 42.",
+          "hint": "p must be declared as a pointer type, not a plain int."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the pointer swap",
+          "prompt": "Trace this swap step by step.",
+          "code": "int a = 3, b = 7;\nint *p = &a;\nint *q = &b;\nint temp = *p;\n*p = *q;\n*q = temp;",
+          "expected": "a=3, b=7; p->a, q->b; temp=3; *p=7 so a=7; *q=3 so b=3; a=7, b=3.",
+          "answer": "p points to a and q points to b. temp saves *p (3), *p = *q writes 7 into a, and *q = temp writes 3 into b. The values are swapped through the pointers.",
+          "hint": "Follow each dereference: *p means a, *q means b."
+        }
+      ]
+    },
+    {
+      "title": "Structures & File Handling",
+      "duration_minutes": 60,
+      "is_preview": 0,
+      "body": "<h3>Structures: group related data</h3>\n<p>A structure groups different types under one name. A student has a name (string), a roll number (int) and marks (float) — one <code>struct</code> holds them all together instead of three separate arrays.</p>\n<pre><code>struct Student {\n    char name[50];\n    int roll;\n    float marks;\n};</code></pre>\n<p>Access members with the dot operator: <code>struct Student s1; s1.roll = 101;</code>. An array of structs, <code>struct Student class[30];</code>, holds a whole class.</p>\n<h3>Files: data that survives</h3>\n<p>Variables vanish when a program ends; files keep data. Open a file with <code>fopen</code>, which returns a <code>FILE *</code>, use it, then close it with <code>fclose</code>.</p>\n<ul>\n<li><code>\"r\"</code> — read an existing file (fails if it does not exist)</li>\n<li><code>\"w\"</code> — write, creating the file or erasing its old contents</li>\n<li><code>\"a\"</code> — append to the end without erasing</li>\n</ul>\n<p>Always check the result: if <code>fopen</code> returns <code>NULL</code>, the file could not be opened. Use <code>fprintf</code> to write formatted text and <code>fscanf</code> to read it back.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint main(void)\n{\n    struct Student {\n        char name[50];\n        int roll;\n        float marks;\n    };\n    struct Student s1 = {\"Sid\", 101, 88.5f};\n    FILE *fp = fopen(\"students.txt\", \"w\");\n    if (fp == NULL) {\n        printf(\"Could not open file\\n\");\n        return 1;\n    }\n    fprintf(fp, \"%s %d %.1f\\n\", s1.name, s1.roll, s1.marks);\n    fclose(fp);\n    printf(\"Saved %s\\n\", s1.name);\n    return 0;\n}</code></pre>\n<p>Forgetting <code>fclose</code> can lose the last buffered data, so always close files you open. Note the <code>f</code> suffix: <code>88.5f</code> is a float literal; without it the value is a double.</p>\n<h3>Key points</h3>\n<ul>\n<li>A <code>struct</code> groups different types into one named unit; members are accessed with <code>.</code></li>\n<li>An array of structs stores a whole collection, like a class of students.</li>\n<li><code>fopen</code> modes: <code>\"r\"</code> read, <code>\"w\"</code> write (erases), <code>\"a\"</code> append.</li>\n<li>Always check <code>fopen</code> for NULL before using the file.</li>\n<li>Always <code>fclose</code> a file you opened, or buffered data can be lost.</li>\n</ul>",
+      "flowchart": {
+        "title": "How a file is saved safely",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Open students.txt in write mode",
+            "kind": "process"
+          },
+          {
+            "id": "n3",
+            "label": "Is the file pointer NULL?",
+            "kind": "decision"
+          },
+          {
+            "id": "n4",
+            "label": "Print error and stop",
+            "kind": "output"
+          },
+          {
+            "id": "n5",
+            "label": "Write student record with fprintf",
+            "kind": "output"
+          },
+          {
+            "id": "n6",
+            "label": "Close the file",
+            "kind": "process"
+          },
+          {
+            "id": "n7",
+            "label": "Print Saved",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4",
+            "label": "Yes"
+          },
+          {
+            "from": "n3",
+            "to": "n5",
+            "label": "No"
+          },
+          {
+            "from": "n4",
+            "to": "n8"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          },
+          {
+            "from": "n6",
+            "to": "n7"
+          },
+          {
+            "from": "n7",
+            "to": "n8"
+          }
+        ]
+      },
+      "video": {
+        "id": "87SH2Cn0s9A",
+        "title": "C Programming Full Course for free ⚙️"
+      },
+      "mcqs": [
+        {
+          "q": "How do you access the roll member of struct Student s1?",
+          "options": [
+            "s1::roll",
+            "s1->roll",
+            "s1.roll",
+            "s1[roll]"
+          ],
+          "answer": 2,
+          "why": "The dot operator accesses a member of a struct variable; -> is only for pointers to structs."
+        },
+        {
+          "q": "What does fopen(\"data.txt\", \"w\") do if data.txt already exists?",
+          "options": [
+            "Appends to it",
+            "Opens it for reading",
+            "Erases its contents and starts fresh",
+            "Returns an error"
+          ],
+          "answer": 2,
+          "why": "\"w\" mode truncates an existing file to zero length before writing; \"a\" is the mode that appends."
+        },
+        {
+          "q": "What does fopen return when it cannot open the file?",
+          "options": [
+            "An empty string",
+            "NULL",
+            "A negative number",
+            "0"
+          ],
+          "answer": 1,
+          "why": "On failure fopen returns NULL, which is why programs must check the result before using the FILE pointer."
+        },
+        {
+          "q": "Why must you call fclose() on a file you opened?",
+          "options": [
+            "To rename the file",
+            "It is optional and does nothing",
+            "To delete the file",
+            "To flush buffered data and free the file"
+          ],
+          "answer": 3,
+          "why": "fclose flushes any data still in the output buffer to disk and releases the file handle; skipping it can lose data."
+        },
+        {
+          "q": "Which mode opens a file for reading?",
+          "options": [
+            "\"x\"",
+            "\"w\"",
+            "\"a\"",
+            "\"r\""
+          ],
+          "answer": 3,
+          "why": "\"r\" is read mode; \"w\" writes (erasing) and \"a\" appends."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nstruct Point {\n    int x;\n    int y;\n};\n\nint main(void)\n{\n    struct Point p = {3, 4};\n    printf(\"%d %d\\n\", p.x, p.y);\n    return 0;\n}",
+          "expected": "3 4",
+          "answer": "p.x is 3 and p.y is 4 from the initialiser {3, 4}, printed in order.",
+          "hint": "The initialiser fills members in order: x first, then y."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the file handling bug",
+          "prompt": "This program can lose data and crash on a missing folder. Fix both problems.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    FILE *fp = fopen(\"out.txt\", \"w\");\n    fprintf(fp, \"Hello\\n\");\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    FILE *fp = fopen(\"out.txt\", \"w\");\n    if (fp == NULL) {\n        printf(\"Could not open file\\n\");\n        return 1;\n    }\n    fprintf(fp, \"Hello\\n\");\n    fclose(fp);\n    return 0;\n}",
+          "answer": "Two bugs: fopen can return NULL (e.g. bad path), and fprintf on NULL crashes, so a NULL check is added. And the file was never closed, so buffered data could be lost — fclose flushes it to disk.",
+          "hint": "Two fixes: check what fopen returned, and close the file when done."
+        },
+        {
+          "type": "fill",
+          "title": "Fill in the blanks",
+          "prompt": "Complete the program so it writes a student's name to a file.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    FILE *fp = fopen(\"name.txt\", \"___\");\n    fprintf(fp, \"%s\\n\", \"Sid\");\n    ___(fp);\n    return 0;\n}",
+          "expected": "w\nfclose",
+          "answer": "\"w\" opens the file for writing, and fclose(fp) flushes and closes it.",
+          "hint": "First blank: the write mode letter. Second blank: the function that closes a file."
+        }
+      ]
+    },
+    {
+      "title": "Recursion & Problem Solving",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>What is recursion?</h3>\n<p>Recursion is when a function calls itself. A problem is split into a smaller copy of itself until it becomes so small it can be answered directly. Factorial is the classic example: <code>n! = n * (n-1)!</code>.</p>\n<h3>The two parts every recursive function needs</h3>\n<ul>\n<li><strong>Base case</strong> — the stopping condition. For factorial, <code>0! = 1</code>. Without it the function calls itself forever and crashes with a stack overflow.</li>\n<li><strong>Recursive step</strong> — the call on a smaller input, moving towards the base case.</li>\n</ul>\n<h3>How it runs</h3>\n<p>Each call waits on the call stack while the next call runs. <code>factorial(3)</code> calls <code>factorial(2)</code>, which calls <code>factorial(1)</code>, which calls <code>factorial(0)</code> — the base case returns 1, then the answers unwind: 1 * 1 = 1, 2 * 1 = 2, 3 * 2 = 6.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nint factorial(int n)\n{\n    if (n == 0) {\n        return 1;\n    }\n    return n * factorial(n - 1);\n}\n\nint main(void)\n{\n    printf(\"5! = %d\\n\", factorial(5));\n    return 0;\n}</code></pre>\n<p>Recursion is elegant for problems that break into smaller copies — factorial, Fibonacci, searching trees — but a loop is usually faster and safer for simple counting, because each recursive call uses stack memory.</p>\n<h3>Key points</h3>\n<ul>\n<li>Recursion is a function calling itself on a smaller input.</li>\n<li>Every recursive function needs a base case, or it recurses forever and overflows the stack.</li>\n<li>The recursive step must move towards the base case.</li>\n<li><code>factorial(5) = 120</code> and <code>factorial(0) = 1</code>.</li>\n<li>Prefer loops for simple counting; use recursion when the problem naturally splits into smaller copies.</li>\n</ul>",
+      "flowchart": {
+        "title": "How factorial(n) recurses",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start factorial(n)",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Is n == 0?",
+            "kind": "decision"
+          },
+          {
+            "id": "n3",
+            "label": "Return 1",
+            "kind": "output"
+          },
+          {
+            "id": "n4",
+            "label": "Return n * factorial(n - 1)",
+            "kind": "process"
+          },
+          {
+            "id": "n5",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3",
+            "label": "Yes"
+          },
+          {
+            "from": "n2",
+            "to": "n4",
+            "label": "No"
+          },
+          {
+            "from": "n3",
+            "to": "n5"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          }
+        ]
+      },
+      "video": {
+        "id": "KJgsSFOSQv0",
+        "title": "C Programming Tutorial for Beginners"
+      },
+      "mcqs": [
+        {
+          "q": "What is factorial(4)?",
+          "options": [
+            "12",
+            "16",
+            "24",
+            "20"
+          ],
+          "answer": 2,
+          "why": "4! = 4 x 3 x 2 x 1 = 24."
+        },
+        {
+          "q": "What is factorial(0)?",
+          "options": [
+            "1",
+            "Undefined",
+            "It crashes",
+            "0"
+          ],
+          "answer": 0,
+          "why": "By definition 0! = 1, and it is also the base case that stops the recursion."
+        },
+        {
+          "q": "What happens if a recursive function has no base case?",
+          "options": [
+            "It becomes a loop",
+            "It is a compile error",
+            "It returns 0",
+            "It calls itself forever and overflows the stack"
+          ],
+          "answer": 3,
+          "why": "Without a stopping condition the calls never end; each call uses stack memory until the stack overflows and the program crashes."
+        },
+        {
+          "q": "What does the recursive step of factorial do?",
+          "options": [
+            "Prints n",
+            "Returns 1",
+            "Calls factorial(n - 1)",
+            "Calls factorial(n + 1)"
+          ],
+          "answer": 2,
+          "why": "The recursive step reduces the problem: n! = n * (n-1)!, so it calls factorial(n - 1)."
+        },
+        {
+          "q": "Which problem is recursion naturally suited to?",
+          "options": [
+            "Printing numbers 1 to 10",
+            "Computing factorial or Fibonacci",
+            "Reading a file line by line",
+            "Adding two numbers"
+          ],
+          "answer": 1,
+          "why": "Factorial and Fibonacci break into smaller copies of themselves, which is exactly what recursion expresses; simple counting is better as a loop."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nint factorial(int n)\n{\n    if (n == 0) {\n        return 1;\n    }\n    return n * factorial(n - 1);\n}\n\nint main(void)\n{\n    printf(\"%d\\n\", factorial(5));\n    return 0;\n}",
+          "expected": "120",
+          "answer": "5! = 5 x 4 x 3 x 2 x 1 = 120.",
+          "hint": "5! means 5 x 4 x 3 x 2 x 1."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the missing base case",
+          "prompt": "This recursive function never stops. Fix it.",
+          "code": "#include <stdio.h>\n\nint countdown(int n)\n{\n    printf(\"%d \", n);\n    return countdown(n - 1);\n}\n\nint main(void)\n{\n    countdown(3);\n    printf(\"\\n\");\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint countdown(int n)\n{\n    if (n == 0) {\n        return 0;\n    }\n    printf(\"%d \", n);\n    return countdown(n - 1);\n}\n\nint main(void)\n{\n    countdown(3);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "There is no base case, so countdown keeps calling itself with ever-smaller n until the stack overflows. Adding if (n == 0) return 0; stops the recursion after printing 3 2 1.",
+          "hint": "Every recursive function needs a condition that stops the calls."
+        },
+        {
+          "type": "trace",
+          "title": "Trace factorial(3)",
+          "prompt": "Trace factorial(3) step by step using the lesson flowchart.",
+          "code": "int factorial(int n)\n{\n    if (n == 0) {\n        return 1;\n    }\n    return n * factorial(n - 1);\n}",
+          "expected": "factorial(3): n!=0, returns 3*factorial(2); factorial(2) returns 2*factorial(1); factorial(1) returns 1*factorial(0); factorial(0) returns 1; unwinds: 1*1=1, 2*1=2, 3*2=6.",
+          "answer": "Following the flowchart: 3 is not 0, so it calls factorial(2); 2 is not 0, so it calls factorial(1); 1 is not 0, so it calls factorial(0); 0 hits the Yes edge and returns 1. The pending multiplications then unwind: 1*1=1, 2*1=2, 3*2=6.",
+          "hint": "Walk down to the base case, then multiply back up."
+        }
+      ]
+    },
+    {
+      "title": "Mini Project: Student Marks Manager",
+      "duration_minutes": 90,
+      "is_preview": 0,
+      "body": "<h3>The project</h3>\n<p>Now combine everything: build a Student Marks Manager that stores up to 5 students, each with a name, roll number and marks in 3 subjects. It must show a menu, add students, display all students with totals and averages, find the topper, and save the records to a file.</p>\n<h3>Step 1: Model the data</h3>\n<p>Use a struct for one student and an array of structs for the class — the same pattern from Lesson 8. Keep a count of how many students have been added so far.</p>\n<h3>Step 2: The menu loop</h3>\n<p>A <code>do-while</code> loop shows the menu at least once and repeats until the user chooses Exit. Each choice calls a small function: <code>addStudent</code>, <code>displayAll</code>, <code>findTopper</code>, <code>saveToFile</code>.</p>\n<h3>Step 3: Totals and averages</h3>\n<p>Total is the sum of the 3 subject marks; average is <code>total / 3.0</code> — remember the integer division trap from Lesson 3, so divide by 3.0, not 3. The topper is the student with the highest total: scan the array keeping the best total seen so far.</p>\n<h3>Step 4: Save to a file</h3>\n<p>Open <code>students.txt</code> in <code>\"w\"</code> mode, check for NULL, write one line per student with <code>fprintf</code>, then <code>fclose</code>.</p>\n<pre><code>#include &lt;stdio.h&gt;\n\nstruct Student {\n    char name[50];\n    int roll;\n    int marks[3];\n};\n\nint totalMarks(struct Student s)\n{\n    return s.marks[0] + s.marks[1] + s.marks[2];\n}\n\nint main(void)\n{\n    struct Student s1 = {\"Sid\", 101, {78, 85, 90}};\n    int total = totalMarks(s1);\n    printf(\"%s total: %d, average: %.1f\\n\",\n           s1.name, total, total / 3.0);\n    return 0;\n}</code></pre>\n<p>Output: <code>Sid total: 253, average: 84.3</code>. This is the core calculation your full menu program will reuse for every student.</p>\n<h3>Key points</h3>\n<ul>\n<li>Model one student as a struct and the class as an array of structs.</li>\n<li>A <code>do-while</code> menu loop runs until the user chooses Exit.</li>\n<li>Average is <code>total / 3.0</code> — dividing by 3 would truncate the result.</li>\n<li>Find the topper by scanning for the highest total.</li>\n<li>Save records with <code>fopen</code> in <code>\"w\"</code> mode, check for NULL, and <code>fclose</code>.</li>\n</ul>",
+      "flowchart": {
+        "title": "How the Marks Manager menu works",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "Start",
+            "kind": "start"
+          },
+          {
+            "id": "n2",
+            "label": "Show menu",
+            "kind": "output"
+          },
+          {
+            "id": "n3",
+            "label": "Read choice",
+            "kind": "input"
+          },
+          {
+            "id": "n4",
+            "label": "choice == 5 (Exit)?",
+            "kind": "decision"
+          },
+          {
+            "id": "n5",
+            "label": "Run the chosen action",
+            "kind": "process"
+          },
+          {
+            "id": "n6",
+            "label": "Is choice valid?",
+            "kind": "decision"
+          },
+          {
+            "id": "n7",
+            "label": "Print Invalid choice",
+            "kind": "output"
+          },
+          {
+            "id": "n8",
+            "label": "End",
+            "kind": "end"
+          }
+        ],
+        "edges": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n8",
+            "label": "Yes"
+          },
+          {
+            "from": "n4",
+            "to": "n6",
+            "label": "No"
+          },
+          {
+            "from": "n6",
+            "to": "n5",
+            "label": "Yes"
+          },
+          {
+            "from": "n6",
+            "to": "n7",
+            "label": "No"
+          },
+          {
+            "from": "n5",
+            "to": "n2"
+          },
+          {
+            "from": "n7",
+            "to": "n2"
+          }
+        ]
+      },
+      "video": {
+        "id": "87SH2Cn0s9A",
+        "title": "C Programming Full Course for free ⚙️"
+      },
+      "mcqs": [
+        {
+          "q": "Which data structure best stores 5 students, each with a name, roll and marks?",
+          "options": [
+            "An array of structs",
+            "A single char",
+            "Five separate floats",
+            "A single int"
+          ],
+          "answer": 0,
+          "why": "An array of structs groups each student's mixed fields together and holds all 5 in one collection."
+        },
+        {
+          "q": "A student scored 78, 85 and 90. What is the correct average in C?",
+          "options": [
+            "253 / 3 = 84.3",
+            "253 * 3 = 759",
+            "253 / 3 = 84",
+            "253 / 3.0 = 84.3"
+          ],
+          "answer": 3,
+          "why": "253 / 3 is integer division and gives 84; 253 / 3.0 forces floating-point division and gives 84.333..., printed as 84.3."
+        },
+        {
+          "q": "Which loop is best for a menu that must show at least once?",
+          "options": [
+            "No loop",
+            "for",
+            "while",
+            "do-while"
+          ],
+          "answer": 3,
+          "why": "do-while checks its condition after the body, so the menu is guaranteed to display at least once."
+        },
+        {
+          "q": "Which fopen mode saves the student records to a file?",
+          "options": [
+            "\"r\"",
+            "\"w\"",
+            "\"a\" only",
+            "There is no file mode"
+          ],
+          "answer": 1,
+          "why": "\"w\" opens the file for writing, creating it if needed, so the records can be saved."
+        },
+        {
+          "q": "How do you find the topper among the students?",
+          "options": [
+            "Scan all students and keep the highest total",
+            "Sort the names alphabetically",
+            "Pick a random student",
+            "Take the first student"
+          ],
+          "answer": 0,
+          "why": "The topper is the student with the highest total marks, found by scanning every student and tracking the best total seen so far."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this program print?",
+          "code": "#include <stdio.h>\n\nstruct Student {\n    char name[50];\n    int roll;\n    int marks[3];\n};\n\nint totalMarks(struct Student s)\n{\n    return s.marks[0] + s.marks[1] + s.marks[2];\n}\n\nint main(void)\n{\n    struct Student s1 = {\"Sid\", 101, {78, 85, 90}};\n    int total = totalMarks(s1);\n    printf(\"%d %.1f\\n\", total, total / 3.0);\n    return 0;\n}",
+          "expected": "253 84.3",
+          "answer": "78 + 85 + 90 = 253, and 253 / 3.0 = 84.333..., printed with %.1f as 84.3.",
+          "hint": "Add the three marks, then divide by 3.0 for a real average."
+        },
+        {
+          "type": "fix",
+          "title": "Fix the truncated average",
+          "prompt": "This program prints the average as 84 instead of 84.3. Fix it.",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int total = 253;\n    printf(\"Average: %.1f\\n\", total / 3);\n    return 0;\n}",
+          "expected": "#include <stdio.h>\n\nint main(void)\n{\n    int total = 253;\n    printf(\"Average: %.1f\\n\", total / 3.0);\n    return 0;\n}",
+          "answer": "total / 3 is integer division: 253 / 3 = 84 with the fraction discarded, and %.1f then prints 84.0. Dividing by 3.0 forces floating-point division, giving 84.333... which %.1f prints as 84.3.",
+          "hint": "The division itself is the problem, not the format specifier."
+        },
+        {
+          "type": "trace",
+          "title": "Trace the topper search",
+          "prompt": "Trace the search for the topper among totals 253, 240 and 271.",
+          "code": "int totals[3] = {253, 240, 271};\nint best = 0;\nint topper = 0;\nfor (int i = 0; i < 3; i++) {\n    if (totals[i] > best) {\n        best = totals[i];\n        topper = i;\n    }\n}",
+          "expected": "i=0: 253>0, best=253, topper=0; i=1: 240>253 false; i=2: 271>253, best=271, topper=2; topper index 2.",
+          "answer": "Start with best 0. i=0: 253 beats 0, so best=253, topper=0. i=1: 240 does not beat 253, no change. i=2: 271 beats 253, so best=271, topper=2. The topper is the student at index 2.",
+          "hint": "Walk the loop: only update best and topper when the total beats the current best."
+        },
+        {
+          "type": "project",
+          "title": "Build the Student Marks Manager",
+          "prompt": "Build the full Student Marks Manager in C: a menu program (do-while loop) that stores up to 5 students (name, roll number, marks in 3 subjects) in an array of structs, and offers: 1. Add student, 2. Display all students with total and average, 3. Show topper, 4. Save all records to students.txt, 5. Exit. Validate input (marks 0-100, no more than 5 students) and handle fopen failure.",
+          "code": "",
+          "expected": "Program compiles with gcc without warnings; menu repeats until Exit; adding a 6th student is refused; totals and averages are correct (average uses / 3.0); topper is the highest total; students.txt contains one line per student; file errors are handled with a message.",
+          "answer": "Approach: define struct Student with name, roll and marks[3]; keep a count variable. Write small functions: addStudent, displayAll, findTopper, saveToFile, plus totalMarks. Drive them from a do-while menu with a switch. Reuse the lesson code for totals, averages and file saving, and test with the sample student Sid (78, 85, 90).",
+          "hint": "Build it in small pieces: struct first, then add/display, then topper, then file saving."
+        }
+      ]
+    }
+  ]
+}

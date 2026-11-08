@@ -97,6 +97,7 @@
 
 <script src="script.js"></script>
 <script src="js/api.js"></script>
+<script src="js/tutor.js"></script>
 
 
 <script>
@@ -303,8 +304,10 @@ if (!course) {
                     "<div style=\"flex:1\"><strong>" + esc(l.title) + "</strong>" +
                     (l.is_preview ? " <span>(free preview)</span>" : "") +
                     "<br><small>" + (l.duration_minutes || 0) + " min</small></div>" +
+                    "<a class=\"btn btn-primary\" href=\"lesson.html?id=" + l.id + "\">Learn &rarr;</a>" +
                     "<button type=\"button\" class=\"btn btn-outline\" data-lesson-id=\"" + l.id + "\">Mark as complete</button></div>";
             }).join("");
+            if (window.LearnHubTutor) LearnHubTutor.init({ courseId: Number(courseId) });
             listEl.querySelectorAll("[data-lesson-id]").forEach(function (btn) {
                 btn.addEventListener("click", async function () {
                     try {

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Certificate of Completion - LearnHub</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <style>
+        .cert-wrap { max-width: 860px; margin: 3rem auto; padding: 0 1rem; }
+        .cert-card {
+            border: 4px double #2a7ae2; border-radius: 12px;
+            padding: 3rem 2rem; text-align: center; background: #fff;
+        }
+        .cert-card h1 { color: #2a7ae2; letter-spacing: 2px; margin-bottom: .25rem; }
+        .cert-card .sub { color: #666; margin: .25rem 0; }
+        .cert-card .name { font-size: 2rem; font-weight: bold; margin: 1rem 0; }
+        .cert-card .course { font-size: 1.4rem; font-weight: bold; margin: .5rem 0; }
+        .cert-card .code {
+            display: inline-block; margin-top: 1.5rem; padding: .4rem 1rem;
+            background: #f2f6fc; border: 1px dashed #2a7ae2; border-radius: 6px;
+            font-family: monospace; letter-spacing: 1px;
+        }
+        .cert-actions { text-align: center; margin-top: 1.5rem; }
+        @media print {
+            .header, .footer, .cert-actions { display: none; }
+            .cert-wrap { margin: 0; max-width: none; }
+        }
+    </style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="container navbar">
+
+        <a href="index.html" class="logo">
+            Learn<span>Hub</span>
+        </a>
+
+        <nav class="nav-menu">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="courses.html" class="nav-link">
+                Courses
+            </a>
+
+            <a href="my-courses.html" class="nav-link">
+                My Courses
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+<main>
+
+    <div class="cert-wrap">
+
+        <div
+            id="cert-card"
+            class="cert-card"
+        >
+            <p class="sub">Loading certificate...</p>
+        </div>
+
+        <div class="cert-actions">
+            <button
+                class="btn"
+                onclick="window.print()"
+            >
+                Print Certificate
+            </button>
+            <a
+                class="btn btn-outline"
+                href="my-courses.html"
+            >
+                Back to My Courses
+            </a>
+        </div>
+
+    </div>
+
+</main>
+
+<footer class="footer">
+
+    <div class="container">
+
+        <p>&copy; LearnHub LMS. Keep learning.</p>
+
+    </div>
+
+</footer>
+
+<script src="../js/api.js"></script>
+
+<script>
+    (async function () {
+        const card = document.getElementById("cert-card");
+        const id = new URLSearchParams(location.search).get("id");
+        if (!id) {
+            card.innerHTML = '<p class="sub">No certificate id given. Open this page as certificate.html?id=&lt;certificate_id&gt;.</p>';
+            return;
+        }
+        if (!localStorage.getItem("lh_token")) {
+            card.innerHTML = '<p class="sub">Please <a href="login.html">sign in</a> to view your certificate.</p>';
+            return;
+        }
+        try {
+            const cert = await LearnHubAPI.getCertificate(id);
+            card.innerHTML = `
+                <h1>CERTIFICATE OF COMPLETION</h1>
+                <p class="sub">This certificate is proudly presented to</p>
+                <p class="name">${escapeHtml(cert.user_name)}</p>
+                <p class="sub">for successfully completing</p>
+                <p class="course">${escapeHtml(cert.course_title)}</p>
+                <p class="sub">Instructor: ${escapeHtml(cert.instructor || "LearnHub")}
+                    &nbsp;|&nbsp; ${escapeHtml(String(cert.duration_hours || ""))} hours</p>
+                <p class="sub">Issued on ${escapeHtml(String(cert.issued_at || "").slice(0, 10))}</p>
+                <div class="code">${escapeHtml(cert.certificate_code)}</div>
+            `;
+        } catch (e) {
+            card.innerHTML = '<p class="sub">Could not load this certificate: ' +
+                escapeHtml(e.message || "not found") + '</p>';
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;",
+                '"': "&quot;", "'": "&#39;",
+            })[c]);
+        }
+    })();
+</script>
+
+</body>
+
+</html>

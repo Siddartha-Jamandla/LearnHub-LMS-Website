@@ -73,7 +73,13 @@ from `/api/register` or `/api/login`).
 | GET | `/api/courses/:id` | - | One course (includes `avg_rating` + `review_count`) |
 | GET | `/api/courses/:id/lessons` | - | Lessons for a course (each includes `is_preview`: 1 = free preview) |
 | GET | `/api/courses/:id/progress` | token | Progress summary for an enrolled course: `{course_id, total_lessons, completed_lessons, progress_percent, next_lesson_id, next_lesson_title, certificate_code}` — 404 unknown course, 403 not enrolled; `certificate_code` is null until 100% with a certificate on file |
-| GET | `/api/lessons/:id` | - for previews | Lesson detail/content. Free-preview lessons are public; other lessons need a token **and** enrolment in the course (401/403 otherwise) |
+| GET | `/api/lessons/:id` | - for previews | Lesson detail/content. Free-preview lessons are public; other lessons need a token **and** enrolment in the course (401/403 otherwise). Includes `content` (teachable explanation HTML, `flowchart` nodes/edges, `video_id`/`video_title`), `quiz_count` and `task_count` |
+| GET | `/api/lessons/:id/quiz` | - for previews | Quiz questions for a lesson — options only, **no answers** (same access rule as the lesson) |
+| POST | `/api/lessons/:id/quiz` | token | Submit quiz answers `{"answers": {"<question_id>": <option 0-3>}}` → `{score, total, percent, results[]}`. Each result carries the correct option + the explanation of WHY. Attempts are recorded (enrolled, or signed-in for preview lessons) |
+| GET | `/api/lessons/:id/tasks` | - for previews | Practice tasks for a lesson — prompt + code + hint, **no solutions**; each carries a `completed` flag for the signed-in learner |
+| POST | `/api/tasks/:id/complete` | token | Check a task answer `{"answer": "..."}`. `predict`/`fill`/`trace` are auto-checked against the expected value; `fix`/`project` are self-checked (any non-empty submission completes and returns the model answer for comparison). Returns `{correct, completed, expected, answer, hint}` |
+| GET | `/api/courses/:id/learn-progress` | token | Per-lesson quiz best score + tasks done/total for an enrolled course |
+| POST | `/api/tutor` | - | Rule-based tutor chatbot: `{"message", "course_id"?, "lesson_id"?, "context"?}` → `{"reply", "context"}`. Answers come only from the seeded course content — explains topics in simple steps, walks through a lesson's flowchart step by step, quizzes with MCQs (answer with A/B/C/D), gives task hints. Says "I don't know" instead of inventing anything outside the course material |
 | GET | `/api/courses/:id/reviews` | - | Reviews for a course (newest first, with reviewer name) |
 | POST | `/api/reviews` | token | `{course_id, rating (1-5), comment?}` → 201. Must be enrolled; one review per user per course |
 | POST | `/api/register` | - | `{name, email, password}` → token |
@@ -170,6 +176,11 @@ message when it is bad — the request never reaches the database:
 - **wishlist** - `id, user_id, course_id, added_at` (unique user+course; one entry per learner per course)
 - **certificates** - `id, user_id, course_id, certificate_code, issued_at` (unique user+course; issued when progress hits 100%)
 - **auth_tokens** - `token, user_id, created_at` (login sessions survive restarts)
+- **lesson_content** - `lesson_id (PK), body (teachable HTML), flowchart_title, flowchart_json (nodes/edges), video_id, video_title`
+- **quizzes** - `id, lesson_id, question, options_json (4 options), answer_index (0-3), explanation, order_index`
+- **quiz_attempts** - `id, user_id, lesson_id, score, total, answers_json, taken_at`
+- **tasks** - `id, lesson_id, type (predict | fix | fill | trace | project), title, prompt, code, expected, answer, hint, order_index`
+- **task_completions** - `id, user_id, task_id, completed_at` (unique user+task)
 
 Passwords are hashed with **SHA-256 + per-user random salt**
 (`hashlib.sha256`, format `salt$digest`). Tokens are random SHA-256 values
@@ -188,6 +199,45 @@ reviews by course and user, certificates by user, auth_tokens by token.
 lessons: Web Development Bootcamp, JavaScript, Python Masterclass, Machine
 Learning, Deep Learning, Data Science with SQL & Python, UI/UX Design,
 React, Digital Marketing, Django Full-Stack, TypeScript, and Git & GitHub.
+
+## Learning LMS — real courses, flowcharts, quizzes, tasks, tutor
+
+`backend/seed.py` also loads `backend/content/*.json` (see
+`backend/content/CONTENT_SPEC.md`) — full learning paths with real
+explanations, code, flowcharts, MCQs, practice tasks and free videos.
+The loader is idempotent: re-running the seed on an existing database
+updates the content without wiping enrolments or progress
+(`python3 backend/seed_content.py` runs the loader on its own).
+
+| Course | Lessons | MCQs | Tasks | Flowcharts |
+|---|---|---|---|---|
+| Python Programming Masterclass (extended) | 10 | 50 | 40 | 10 |
+| C Programming from Zero to Hero | 10 | 50 | 31 | 7 |
+| Data Structures & Algorithms | 10 | 50 | 40 | 9 |
+| Java Programming Masterclass | 8 | 48 | 31 | 7 |
+| SQL Essentials: Queries to Databases | 8 | 48 | 31 | 7 |
+| **Total learning content** | **46** | **246** | **173** | **40** |
+
+- **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
+  row on `course-details.html`): explanation with code examples and key
+  points, a free YouTube tutorial video (every embedded video ID was
+  verified via YouTube oEmbed — see `backend/content/VERIFIED_VIDEOS.md`),
+  the lesson flowchart rendered as inline SVG by `js/flowchart.js`
+  (no dependency, works offline), the per-lesson MCQ quiz, and the practice
+  tasks (predict-the-output, fix-the-bug, fill-in-the-blank, trace-the-code,
+  plus one mini-project per course). Quiz scores and task completions are
+  stored per user; `GET /api/courses/:id/learn-progress` summarises them.
+- **Tutor chatbot** — the "💬 Ask Tutor" widget on course and lesson pages
+  (`js/tutor.js` + `POST /api/tutor`) is rule-based: it explains topics in
+  simple steps, walks through a lesson's flowchart step by step, quizzes
+  the learner inside the chat (reply A/B/C/D), and gives hints for tasks.
+  Every answer comes from the seeded course content — the tutor never
+  invents anything and says so when a topic is not in the material.
+  No AI API, no external calls, no cost.
+- **Deploy note** — after pulling this on the live server, run
+  `python3 backend/seed.py` once so the new courses/content land in the
+  live database, then reload the web app. `init_db` creates the new tables
+  on server start (`CREATE TABLE IF NOT EXISTS`).
 
 ### Lesson progress in the frontend
 
