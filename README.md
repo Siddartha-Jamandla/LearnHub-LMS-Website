@@ -152,6 +152,16 @@ lessons: Web Development Bootcamp, JavaScript, Python Masterclass, Machine
 Learning, Deep Learning, Data Science with SQL & Python, UI/UX Design,
 React, Digital Marketing, and Django Full-Stack.
 
+### Lesson progress in the frontend
+
+`course-details.html` loads the course's lessons from the backend and renders
+a "Mark as complete" button per lesson (plus a progress bar fed by the
+enrolment's `progress_percent`, refreshed after each completion; completing
+the last lesson surfaces the certificate link). `my-courses.html` tries the
+backend first (`GET /api/my-courses`) and renders real progress bars per
+enrolment, falling back to the old localStorage rendering when offline or
+signed out, so neither page breaks without the backend.
+
 ## Frontend integration
 
 See **[INTEGRATION.md](INTEGRATION.md)** for the exact `<script>` tags to add

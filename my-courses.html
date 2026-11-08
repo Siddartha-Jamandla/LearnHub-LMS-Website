@@ -95,11 +95,41 @@
 
 
 <script src="script.js"></script>
+<script src="js/api.js"></script>
 
 
 <script>
 
-function renderMyCourses() {
+async function renderMyCourses() {
+    // Backend first: real enrolments with real progress bars.
+    // Any failure (offline, signed out) falls back to the legacy
+    // localStorage rendering below, so the page never breaks.
+    if (window.LearnHubAPI) {
+        try {
+            if (await LearnHubAPI.checkApi()) {
+                var courses = await LearnHubAPI.getMyCourses();
+                var container = document.getElementById("myCourseList");
+                if (courses && courses.length) {
+                    container.innerHTML = courses.map(function (c) {
+                        var pct = c.progress_percent || 0;
+                        return "<div class=\"course-card\"><div class=\"course-content\">" +
+                            "<h3>" + c.title + "</h3>" +
+                            "<p class=\"instructor\">" + c.instructor + "</p><br>" +
+                            "<p>" + pct + "% complete &middot; " + (c.lesson_count || 0) + " lessons</p>" +
+                            "<progress value=\"" + pct + "\" max=\"100\" style=\"width:100%;\"></progress><br><br>" +
+                            "<a class=\"btn btn-primary\" href=\"course-details.html?id=" + c.id + "\">Continue Learning</a>" +
+                            "</div></div>";
+                    }).join("");
+                    return;
+                }
+            }
+        } catch (e) { /* fall through to legacy rendering */ }
+    }
+    renderMyCoursesLegacy();
+}
+
+function renderMyCoursesLegacy() {
+
 
     const ids =
         JSON.parse(

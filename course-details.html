@@ -83,7 +83,20 @@
 </section>
 
 
+<section class="section">
+    <div class="container">
+        <h2>Lessons</h2>
+        <div id="lessonProgressWrap" hidden>
+            <p id="lessonProgressText"></p>
+            <progress id="lessonProgress" value="0" max="100" style="width:100%;"></progress>
+        </div>
+        <div id="lessonList"></div>
+        <p id="lessonNote"></p>
+    </div>
+</section>
+
 <script src="script.js"></script>
+<script src="js/api.js"></script>
 
 
 <script>
@@ -241,6 +254,78 @@ if (!course) {
 
 }
 
+</script>
+
+
+<script>
+// Lessons + progress, wired to the backend when it is reachable.
+// Falls back silently to the static page when the backend is down.
+(function () {
+    var listEl = document.getElementById("lessonList");
+    var noteEl = document.getElementById("lessonNote");
+    var wrapEl = document.getElementById("lessonProgressWrap");
+    var barEl = document.getElementById("lessonProgress");
+    var textEl = document.getElementById("lessonProgressText");
+    if (!listEl || !window.LearnHubAPI) return;
+
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
+    function setProgress(pct) {
+        wrapEl.hidden = false;
+        barEl.value = pct;
+        textEl.textContent = pct + "% complete";
+    }
+    async function refreshProgress(courseId) {
+        try {
+            var enrolments = await LearnHubAPI.getEnrollments();
+            var mine = enrolments.find(function (e) {
+                return String(e.course.id) === String(courseId);
+            });
+            if (mine) setProgress(mine.progress_percent);
+        } catch (e) { /* not signed in / not enrolled: keep session progress */ }
+    }
+    async function load() {
+        try {
+            if (!(await LearnHubAPI.checkApi())) return;
+            var params = new URLSearchParams(window.location.search);
+            var courseId = params.get("id") || 1;
+            var lessons = await LearnHubAPI.getLessons(courseId);
+            if (!lessons.length) {
+                noteEl.textContent = "No lessons published for this course yet.";
+                return;
+            }
+            await refreshProgress(courseId);
+            listEl.innerHTML = lessons.map(function (l) {
+                return "<div class=\"lesson-row\" style=\"display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0;\">" +
+                    "<div style=\"flex:1\"><strong>" + esc(l.title) + "</strong>" +
+                    (l.is_preview ? " <span>(free preview)</span>" : "") +
+                    "<br><small>" + (l.duration_minutes || 0) + " min</small></div>" +
+                    "<button type=\"button\" class=\"btn btn-outline\" data-lesson-id=\"" + l.id + "\">Mark as complete</button></div>";
+            }).join("");
+            listEl.querySelectorAll("[data-lesson-id]").forEach(function (btn) {
+                btn.addEventListener("click", async function () {
+                    try {
+                        var res = await LearnHubAPI.completeLesson(btn.dataset.lessonId);
+                        btn.disabled = true;
+                        btn.textContent = "\u2713 Completed";
+                        if (res && typeof res.progress_percent === "number") setProgress(res.progress_percent);
+                        else await refreshProgress(courseId);
+                        if (res && res.certificate) {
+                            noteEl.textContent = "\uD83C\uDF89 Course complete! Your certificate is ready: certificate.html?id=" + res.certificate.id;
+                        }
+                    } catch (e) {
+                        noteEl.textContent = "Could not mark complete: " + e.message +
+                            " (sign in and enrol in this course first).";
+                    }
+                });
+            });
+        } catch (e) { /* backend unreachable: static page stays as-is */ }
+    }
+    document.addEventListener("DOMContentLoaded", load);
+})();
 </script>
 
 </body>
