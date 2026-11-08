@@ -209,6 +209,19 @@
             return d.certificates;
         },
 
+        async verifyCertificate(code) {
+            // Public: no token needed. Returns {valid: true,
+            // certificate_code, course_title, instructor, student_name,
+            // issued_at} for a real code, or {valid: false} (404) when
+            // the code does not exist.
+            try {
+                return await request("GET",
+                    `/api/certificates/verify/${encodeURIComponent(code)}`);
+            } catch (e) {
+                return { ok: false, valid: false, error: e.message };
+            }
+        },
+
         async getMyCourses() {
             const d = await request("GET", "/api/my-courses", null, true);
             return d.courses;

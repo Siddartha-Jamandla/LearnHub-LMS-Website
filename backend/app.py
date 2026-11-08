@@ -276,6 +276,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("POST",   r"^/api/reviews$",                self.api_review_add),
             ("GET",    r"^/api/certificates/(\d+)$",     self.api_cert_get),
             ("GET",    r"^/api/certificates$",            self.api_cert_list),
+            ("GET",    r"^/api/certificates/verify/([^/]+)$", self.api_cert_verify),
             ("GET",    r"^/api/lessons/(\d+)$",          self.api_lesson_get),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("POST",   r"^/api/admin/courses$",          self.api_admin_course_create),
@@ -601,6 +602,42 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             (user["id"],)).fetchall()
         conn.close()
         self._ok({"certificates": [row_to_dict(r) for r in rows]})
+
+    def api_cert_verify(self, code):
+        """Public certificate verification (no auth).
+
+        Anyone with a certificate code can check it: GET
+        /api/certificates/verify/LH-XXXXXXXX returns {valid: true, ...}
+        with the course title, instructor, student name and issue date,
+        or 404 {valid: false} when the code does not exist. Only those
+        six fields are ever returned - no user ids, emails or internals.
+        """
+        code = (code or "").strip()
+        if not code or len(code) > 64:
+            self._json(404, {"ok": False, "valid": False,
+                             "error": "Certificate not found"})
+            return
+        conn = db()
+        cert = conn.execute(
+            """SELECT cf.certificate_code, cf.issued_at,
+                      c.title AS course_title, c.instructor,
+                      u.name AS student_name
+               FROM certificates cf
+               JOIN courses c ON c.id = cf.course_id
+               JOIN users u ON u.id = cf.user_id
+               WHERE cf.certificate_code = ?""",
+            (code,)).fetchone()
+        conn.close()
+        if not cert:
+            self._json(404, {"ok": False, "valid": False,
+                             "error": "Certificate not found"})
+            return
+        self._ok({"valid": True,
+                  "certificate_code": cert["certificate_code"],
+                  "course_title": cert["course_title"],
+                  "instructor": cert["instructor"],
+                  "student_name": cert["student_name"],
+                  "issued_at": cert["issued_at"]})
 
     def api_cert_get(self, cert_id):
         """View a certificate. Users can only view their own certificates."""
