@@ -88,8 +88,28 @@
     <div class="container">
 
         <div class="admin-card">
+            <h3>Sign in as admin</h3>
+            <p class="admin-note">The admin is the account registered with <strong>siddarthajamandla@gmail.com</strong>. Sign in with that Gmail and your LearnHub password and the dashboard unlocks — no admin key needed. (If you have not registered on LearnHub with that Gmail yet, register first at <a href="register.html">register.html</a>.)</p>
+            <form id="adminLoginForm">
+                <div class="key-bar">
+                    <div class="form-group">
+                        <label for="adminEmail">Gmail (admin email)</label>
+                        <input type="email" id="adminEmail" placeholder="siddarthajamandla@gmail.com" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">LearnHub password</label>
+                        <input type="password" id="adminPassword" placeholder="Your LearnHub password" autocomplete="current-password">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Sign in</button>
+                    <button class="btn" id="adminSignOutBtn" type="button">Sign out</button>
+                </div>
+            </form>
+            <p class="status-line" id="adminLoginStatus"></p>
+        </div>
+
+        <div class="admin-card">
             <h3>Admin key</h3>
-            <p class="admin-note">The admin key (API_SECRET) unlocks every section below. Enter once per tab — it is kept in <code>sessionStorage</code> and sent as <code>?key=</code> on every admin request. It is never stored on this page.</p>
+            <p class="admin-note">Fallback if you are not signed in as admin: the admin key (API_SECRET) unlocks every section below. Enter once per tab — it is kept in <code>sessionStorage</code> and sent as <code>?key=</code> on every admin request. It is never stored on this page.</p>
             <div class="key-bar">
                 <div class="form-group">
                     <label for="adminKey">Admin key (API_SECRET)</label>
@@ -115,7 +135,7 @@
                     <button class="admin-nav-btn" data-section="announcements" type="button">📢 Announcements</button>
                     <button class="admin-nav-btn" data-section="discussions" type="button">💬 Discussions</button>
                 </nav>
-                <p class="admin-note" style="margin-top: 14px;">Tip: the key is the same API_SECRET used by the server. Wrong key? Every section will say “Invalid admin key”.</p>
+                <p class="admin-note" style="margin-top: 14px;">Tip: signing in with the admin Gmail unlocks everything. The key is only a fallback — the same API_SECRET used by the server. Wrong key? Every section will say so.</p>
             </aside>
 
             <main>
@@ -418,9 +438,11 @@
         if (el) { el.textContent = msg || ""; el.classList.toggle("error", !!isErr); }
     }
     function keyError(err) {
-        return /401|403|unauthori[sz]ed|invalid|admin key/i.test(err.message || "")
-            ? "Invalid admin key — check the key and try again."
-            : "Could not load: " + err.message;
+        const m = err.message || "";
+        if (/sign in as admin/i.test(m)) return m;
+        return /401|403|unauthori[sz]ed|invalid|admin key/i.test(m)
+            ? "Admin access denied — sign in with the admin Gmail or check the admin key."
+            : "Could not load: " + m;
     }
 
     /* ---------------- admin key ---------------- */
@@ -438,6 +460,43 @@
         sessionStorage.removeItem("lh_admin_key"); keyInput.value = ""; getKey(false);
     });
     getKey(false);
+
+    /* ---------------- admin Gmail sign-in ---------------- */
+    const adminLoginStatus = document.getElementById("adminLoginStatus");
+    function showAdminUser() {
+        let u = null;
+        try { u = JSON.parse(localStorage.getItem("lh_user")); } catch (e) { /* ignore */ }
+        if (u && u.is_admin) {
+            adminLoginStatus.textContent = "Signed in as " + u.name + " (" + u.email + ") \u2014 admin access unlocked.";
+            document.getElementById("adminEmail").value = u.email;
+        } else if (u) {
+            adminLoginStatus.textContent = "Signed in as " + u.email + " \u2014 that account is not an admin.";
+        } else {
+            adminLoginStatus.textContent = "";
+        }
+    }
+    document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("adminEmail").value.trim();
+        const password = document.getElementById("adminPassword").value;
+        if (!email || !password) { adminLoginStatus.textContent = "Enter your Gmail and LearnHub password."; return; }
+        adminLoginStatus.textContent = "Signing in\u2026";
+        try {
+            const d = await api.login(email, password);
+            if (d.user && d.user.is_admin) {
+                adminLoginStatus.textContent = "Signed in as " + d.user.name + " \u2014 admin access unlocked.";
+                loadSection(currentSection);
+            } else {
+                adminLoginStatus.textContent = "Signed in, but that account is not the admin Gmail.";
+            }
+        } catch (err) { adminLoginStatus.textContent = "Could not sign in: " + err.message; }
+    });
+    document.getElementById("adminSignOutBtn").addEventListener("click", async () => {
+        try { await api.logout(); } catch (e) { /* ignore */ }
+        showAdminUser();
+        statusEl("dashStatus", "Signed out \u2014 sign in as admin above, or enter the admin key first.");
+    });
+    showAdminUser();
 
     /* ---------------- navigation ---------------- */
     let currentSection = "dashboard";
@@ -459,7 +518,7 @@
     });
     const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus" };
     function loadSection(name) {
-        if (!getKey(false)) { statusEl(STATUS_IDS[name] || "dashStatus", "Enter the admin key above first.", true); return; }
+        if (!getKey(false) && !localStorage.getItem("lh_token")) { statusEl(STATUS_IDS[name] || "dashStatus", "Sign in as admin above, or enter the admin key first.", true); return; }
         if (name === "dashboard") loadDashboard();
         else if (name === "courses") loadCourses();
         else if (name === "lessons") loadLessonCourses();
@@ -991,7 +1050,7 @@
     });
 
     /* ---------------- boot ---------------- */
-    if (getKey(false)) loadDashboard();
+    if (getKey(false) || localStorage.getItem("lh_token")) loadDashboard();
 })();
 </script>
 

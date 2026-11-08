@@ -300,14 +300,24 @@
         },
 
         /* ---------------- admin (instructor) ---------------- */
-        // Admin endpoints need the shared admin key (same value as the
-        // backend's API_SECRET env var), passed as ?key=.
+        // Admin endpoints accept EITHER the shared admin key (same value
+        // as the backend's API_SECRET env var, passed as ?key=) OR a
+        // signed-in admin user (the admin Gmail) - the stored lh_token
+        // is sent as a Bearer token and the key is left out.
         async _admin(method, path, key, body) {
-            if (!key) throw new Error("Admin key is required");
-            const sep = path.includes("?") ? "&" : "?";
-            const res = await fetch(API_BASE + path + sep + "key=" + encodeURIComponent(key), {
+            const headers = { "Content-Type": "application/json" };
+            const token = getToken();
+            if (token) headers["Authorization"] = "Bearer " + token;
+            let url = API_BASE + path;
+            if (key) {
+                const sep = path.includes("?") ? "&" : "?";
+                url += sep + "key=" + encodeURIComponent(key);
+            } else if (!token) {
+                throw new Error("Sign in as admin or enter the admin key");
+            }
+            const res = await fetch(url, {
                 method,
-                headers: { "Content-Type": "application/json" },
+                headers,
                 body: body ? JSON.stringify(body) : undefined,
             });
             const data = await res.json().catch(() => ({}));

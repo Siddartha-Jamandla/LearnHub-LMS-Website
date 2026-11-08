@@ -39,6 +39,14 @@ JS_DIR    = _js_cand if os.path.isdir(_js_cand) else None
 PORT       = int(os.environ.get("PORT", "8000"))
 DB_PATH    = os.environ.get("DB_PATH", os.path.join(BASE_DIR, "learnhub.db"))
 API_SECRET = os.environ.get("API_SECRET", "learnhub-dev-secret")
+# Gmail-admin: the account registered with this email is the site admin
+# and can unlock /admin.html by signing in - no admin key needed.
+# (Override with the ADMIN_EMAIL env var; the key still works as fallback.)
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "siddarthajamandla@gmail.com").strip().lower()
+
+
+def is_admin_email(email: str) -> bool:
+    return bool(email) and email.strip().lower() == ADMIN_EMAIL
 
 
 # ---------------------------------------------------------------- db helpers
@@ -129,6 +137,12 @@ CREATE INDEX IF NOT EXISTS idx_discussions_lesson ON discussions(lesson_id);
 """)
         conn.commit()
         _seed_announcements(conn)
+        # Gmail-admin: users.is_admin flag + backfill the admin Gmail.
+        cols_u = [r["name"] for r in conn.execute("PRAGMA table_info(users)")]
+        if "is_admin" not in cols_u:
+            conn.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
+        conn.execute("UPDATE users SET is_admin = 1 WHERE lower(email) = ?", (ADMIN_EMAIL,))
+        conn.commit()
     except Exception as e:
         print(f"[learnhub] pro-lms migration skipped: {e!r}")
     try:
@@ -200,13 +214,23 @@ def make_token(user_id: int) -> str:
 def user_from_token(token: str):
     conn = db()
     row = conn.execute(
-        """SELECT u.id, u.name, u.email, u.created_at
+        """SELECT u.id, u.name, u.email, u.created_at, u.is_admin
            FROM auth_tokens t JOIN users u ON u.id = t.user_id
            WHERE t.token = ?""",
         (token,),
     ).fetchone()
     conn.close()
     return row_to_dict(row)
+
+
+def _is_admin_user(user) -> bool:
+    """True when the signed-in user is an admin: the is_admin flag,
+    or the account's email is the configured admin Gmail."""
+    if not user:
+        return False
+    if user.get("is_admin"):
+        return True
+    return is_admin_email(user.get("email") or "")
 
 
 # ---------------------------------------------------------------- handler
@@ -1409,14 +1433,16 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._err(409, "An account with this email already exists")
             return
         cur = conn.execute(
-            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-            (name, email, hash_password(password)),
+            "INSERT INTO users (name, email, password_hash, is_admin) VALUES (?, ?, ?, ?)",
+            (name, email, hash_password(password),
+             1 if is_admin_email(email) else 0),
         )
         conn.commit()
         user_id = cur.lastrowid
         conn.close()
         token = make_token(user_id)
-        self._ok({"token": token, "user": {"id": user_id, "name": name, "email": email}}, status=201)
+        self._ok({"token": token, "user": {"id": user_id, "name": name, "email": email,
+                                            "is_admin": is_admin_email(email)}}, status=201)
 
     def api_login(self):
         body = self._read_json()
@@ -1431,8 +1457,10 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._err(401, "Invalid email or password")
             return
         token = make_token(user["id"])
-        self._ok({"token": token, "user": row_to_dict(user) and {
-            "id": user["id"], "name": user["name"], "email": user["email"]}})
+        u = row_to_dict(user)
+        self._ok({"token": token, "user": {
+            "id": user["id"], "name": user["name"], "email": user["email"],
+            "is_admin": _is_admin_user(u)}})
 
     def api_logout(self):
         auth = self.headers.get("Authorization", "")
@@ -1453,18 +1481,23 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         return user
 
     # -- admin (instructor) helpers ------------------------------------
-    # All admin endpoints are gated on the shared secret: ?key=API_SECRET
-    # (or the X-Admin-Key header). The admin UI lives at /admin.html.
+    # Admin endpoints accept EITHER the shared secret (?key=API_SECRET
+    # or the X-Admin-Key header) OR a signed-in admin user: the account
+    # registered with ADMIN_EMAIL (the admin Gmail). The admin UI lives
+    # at /admin.html - it signs in with Gmail or falls back to the key.
     COURSE_LEVELS = ("Beginner", "Intermediate", "Advanced")
 
     def _require_admin(self):
         from urllib.parse import urlparse, parse_qs
         qs = parse_qs(urlparse(self.path).query)
         key = qs.get("key", [""])[0] or self.headers.get("X-Admin-Key", "")
-        if key != API_SECRET:
-            self._err(403, "Forbidden: invalid or missing admin key")
-            return False
-        return True
+        if key and key == API_SECRET:
+            return True
+        user = self._auth_user()
+        if user and _is_admin_user(user):
+            return True
+        self._err(403, "Forbidden: sign in as the admin account or provide a valid admin key")
+        return False
 
     def _validate_course(self, body):
         """Return (clean_dict, error). Validates fields present in body."""
