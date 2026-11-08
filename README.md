@@ -84,6 +84,7 @@ from `/api/register` or `/api/login`).
 | GET | `/api/enrollments` | token | Enrolments with progress |
 | PUT | `/api/enrollments/:id/progress` | token | `{progress_percent: 0-100}` |
 | POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent). Includes `certificate {id, certificate_code}` when this completes the course |
+| GET | `/api/certificates` | token | Your certificates of completion (id, certificate_code, course title, issued date), newest first |
 | GET | `/api/certificates/:id` | token | View your own certificate of completion (user name, course, code, issue date) |
 | GET | `/api/my-courses` | token | Enrolled courses for the My Courses page |
 | GET | `/api/wishlist` | token | Wishlist items (newest first), each embedding course `id/title/price/level/avg_rating` |

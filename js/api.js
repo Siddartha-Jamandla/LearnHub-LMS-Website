@@ -202,6 +202,13 @@
             return d.certificate;
         },
 
+        async getMyCertificates() {
+            // Token required; lists only your own certificates, newest
+            // first (id, certificate_code, course title, issued date).
+            const d = await request("GET", "/api/certificates", null, true);
+            return d.certificates;
+        },
+
         async getMyCourses() {
             const d = await request("GET", "/api/my-courses", null, true);
             return d.courses;

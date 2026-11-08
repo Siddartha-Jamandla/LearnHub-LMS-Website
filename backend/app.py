@@ -275,6 +275,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/courses/(\d+)/reviews$",  self.api_course_reviews),
             ("POST",   r"^/api/reviews$",                self.api_review_add),
             ("GET",    r"^/api/certificates/(\d+)$",     self.api_cert_get),
+            ("GET",    r"^/api/certificates$",            self.api_cert_list),
             ("GET",    r"^/api/lessons/(\d+)$",          self.api_lesson_get),
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("POST",   r"^/api/admin/courses$",          self.api_admin_course_create),
@@ -558,6 +559,29 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if certificate:
             resp["certificate"] = certificate
         self._ok(resp)
+
+    def api_cert_list(self):
+        """List the current user's certificates of completion.
+
+        Auth required; only the caller's own certificates are returned,
+        newest first. Each entry carries the certificate id/code, the
+        course title, and issued_at (the date the course was completed).
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT cf.id, cf.certificate_code, cf.issued_at,
+                      c.id AS course_id, c.title AS course_title,
+                      c.instructor
+               FROM certificates cf
+               JOIN courses c ON c.id = cf.course_id
+               WHERE cf.user_id = ?
+               ORDER BY cf.issued_at DESC, cf.id DESC""",
+            (user["id"],)).fetchall()
+        conn.close()
+        self._ok({"certificates": [row_to_dict(r) for r in rows]})
 
     def api_cert_get(self, cert_id):
         """View a certificate. Users can only view their own certificates."""
