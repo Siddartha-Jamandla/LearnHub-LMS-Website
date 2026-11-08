@@ -296,6 +296,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("DELETE", r"^/api/cart/(\d+)$",             self.api_cart_del),
             ("POST",   r"^/api/checkout$",               self.api_checkout),
             ("GET",    r"^/api/enrollments$",            self.api_enrollments),
+            ("DELETE", r"^/api/enrollments/(\d+)$",      self.api_unenroll),
             ("PUT",    r"^/api/enrollments/(\d+)/progress$", self.api_progress),
             ("GET",    r"^/api/my-courses$",             self.api_my_courses),
             ("GET",    r"^/api/wishlist$",               self.api_wishlist_get),
@@ -1238,6 +1239,40 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             enrollment["course"] = d
             out.append(enrollment)
         self._ok({"enrollments": out})
+
+    def api_unenroll(self, course_id):
+        """Unenroll the caller from a course (auth required).
+
+        DELETE /api/enrollments/:course_id — 404 when the caller is not
+        enrolled (or the course does not exist). Removes the enrolment
+        row and the caller's lesson_progress rows for that course, so a
+        later re-enrolment starts fresh. Certificates are permanent:
+        an already-issued certificate record is KEPT and stays
+        verifiable. Other users' enrolments/progress are untouched.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        enrollment = conn.execute(
+            "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+            (user["id"], course_id)).fetchone()
+        if not enrollment:
+            conn.close()
+            self._err(404, "You are not enrolled in this course")
+            return
+        conn.execute(
+            """DELETE FROM lesson_progress
+               WHERE user_id = ?
+                 AND lesson_id IN (
+                     SELECT id FROM lessons WHERE course_id = ?)""",
+            (user["id"], course_id))
+        conn.execute("DELETE FROM enrollments WHERE id = ?", (enrollment["id"],))
+        conn.commit()
+        conn.close()
+        self._ok({"message": "Unenrolled from course",
+                  "course_id": int(course_id)})
+
 
     def api_progress(self, enrollment_id):
         user = self._require_user()

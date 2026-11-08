@@ -183,6 +183,15 @@
             return d.enrollments;
         },
 
+        async unenroll(courseId) {
+            // Removes your enrolment for a course (404 if not enrolled).
+            // Your lesson progress for the course is deleted, so a later
+            // re-enrolment starts fresh — but an already-earned
+            // certificate is permanent and is kept.
+            const d = await request("DELETE", `/api/enrollments/${courseId}`, null, true);
+            return d;
+        },
+
         async updateProgress(enrollmentId, percent) {
             const d = await request("PUT", `/api/enrollments/${enrollmentId}/progress`,
                 { progress_percent: percent }, true);
