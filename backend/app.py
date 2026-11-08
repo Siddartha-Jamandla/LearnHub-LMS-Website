@@ -15,6 +15,7 @@ Env vars (see backend/.env.example):
 
 import hashlib
 import json
+import math
 import mimetypes
 import os
 import re
@@ -92,6 +93,22 @@ def _migrate_schema(conn):
 
 def row_to_dict(row):
     return dict(row) if row else None
+
+
+def _positive_int(value):
+    """Return value as a positive int, or None when it is not one.
+
+    Accepts ints and digit strings; rejects bools, floats, and anything
+    that is not a positive whole number. Used to validate id fields sent
+    in request bodies (URL ids are already constrained to \\d+ by the router).
+    """
+    if isinstance(value, bool) or isinstance(value, float):
+        return None
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return None
+    return n if n > 0 else None
 
 
 # ---------------------------------------------------------------- security
@@ -388,7 +405,10 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if not user:
             return
         body = self._read_json()
-        course_id = body.get("course_id")
+        course_id = _positive_int(body.get("course_id"))
+        if course_id is None:
+            self._err(400, "course_id must be a positive integer")
+            return
         comment = (body.get("comment") or "").strip()
         try:
             rating = int(body.get("rating"))
@@ -570,8 +590,17 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if not name or not email or not password:
             self._err(400, "name, email and password are required")
             return
+        if len(name) > 100:
+            self._err(400, "name must be at most 100 characters")
+            return
+        if len(email) > 254 or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            self._err(400, "a valid email is required")
+            return
         if len(password) < 6:
             self._err(400, "password must be at least 6 characters")
+            return
+        if len(password) > 128:
+            self._err(400, "password must be at most 128 characters")
             return
         conn = db()
         if conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone():
@@ -643,8 +672,12 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             title = (body.get("title") or "").strip()
             if not title:
                 return None, "title is required and cannot be empty"
+            if len(title) > 200:
+                return None, "title must be at most 200 characters"
             clean["title"] = title
         if "price" in body:
+            if isinstance(body.get("price"), bool):
+                return None, "price must be an integer >= 0"
             try:
                 price = int(body.get("price"))
             except (TypeError, ValueError):
@@ -657,16 +690,23 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             if level not in self.COURSE_LEVELS:
                 return None, f"level must be one of: {', '.join(self.COURSE_LEVELS)}"
             clean["level"] = level
+        _TEXT_CAPS = {"description": 10000, "category": 60,
+                      "instructor": 100, "image_url": 2000}
         for f in ("description", "category", "instructor", "image_url"):
             if f in body:
-                clean[f] = (body.get(f) or "").strip()
+                value = (body.get(f) or "").strip()
+                if len(value) > _TEXT_CAPS[f]:
+                    return None, f"{f} must be at most {_TEXT_CAPS[f]} characters"
+                clean[f] = value
         if "duration_hours" in body:
+            if isinstance(body.get("duration_hours"), bool):
+                return None, "duration_hours must be a number >= 0"
             try:
                 dur = float(body.get("duration_hours"))
             except (TypeError, ValueError):
                 return None, "duration_hours must be a number >= 0"
-            if dur < 0:
-                return None, "duration_hours must be >= 0"
+            if not math.isfinite(dur) or dur < 0:
+                return None, "duration_hours must be a finite number >= 0"
             clean["duration_hours"] = dur
         return clean, err
 
@@ -759,10 +799,16 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if not title:
             self._err(400, "title is required")
             return
+        if len(title) > 200:
+            self._err(400, "title must be at most 200 characters")
+            return
         content_url = (body.get("content_url") or body.get("body")
                        or body.get("content") or "").strip()
         if not content_url:
             self._err(400, "content_url (or body) is required")
+            return
+        if len(content_url) > 2000:
+            self._err(400, "content_url must be at most 2000 characters")
             return
         try:
             duration = int(body.get("duration_minutes", 0) or 0)
@@ -810,10 +856,17 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             if not title:
                 self._err(400, "title cannot be empty")
                 return
+            if len(title) > 200:
+                self._err(400, "title must be at most 200 characters")
+                return
             clean["title"] = title
         for f in ("content_url", "body", "content"):
             if f in body:
-                clean["content_url"] = (body.get(f) or "").strip()
+                value = (body.get(f) or "").strip()
+                if len(value) > 2000:
+                    self._err(400, "content_url must be at most 2000 characters")
+                    return
+                clean["content_url"] = value
                 break
         if "duration_minutes" in body:
             try:
@@ -938,7 +991,10 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if not user:
             return
         body = self._read_json()
-        course_id = body.get("course_id")
+        course_id = _positive_int(body.get("course_id"))
+        if course_id is None:
+            self._err(400, "course_id must be a positive integer")
+            return
         conn = db()
         if not conn.execute("SELECT id FROM courses WHERE id = ?", (course_id,)).fetchone():
             conn.close()
@@ -1047,6 +1103,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         except (TypeError, ValueError):
             self._err(400, "progress_percent must be a number")
             return
+        if not math.isfinite(pct):
+            self._err(400, "progress_percent must be a finite number")
+            return
         pct = max(0.0, min(100.0, pct))
         conn = db()
         cur = conn.execute(
@@ -1110,7 +1169,10 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if not user:
             return
         body = self._read_json()
-        course_id = body.get("course_id")
+        course_id = _positive_int(body.get("course_id"))
+        if course_id is None:
+            self._err(400, "course_id must be a positive integer")
+            return
         conn = db()
         if not conn.execute("SELECT id FROM courses WHERE id = ?",
                             (course_id,)).fetchone():

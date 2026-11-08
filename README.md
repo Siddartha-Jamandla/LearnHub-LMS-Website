@@ -128,6 +128,16 @@ curl -X POST localhost:8000/api/register \
 curl localhost:8000/api/courses | python3 -m json.tool | head -20
 ```
 
+### Input validation
+
+Write endpoints reject bad input with 400 before touching the database:
+register names ≤100 chars, emails must be valid (≤254 chars), passwords
+6–128 chars; course titles ≤200, descriptions ≤10000, categories ≤60,
+instructors ≤100, image URLs ≤2000, `duration_hours` a finite number ≥0;
+lesson titles ≤200, content URLs ≤2000; review/cart/wishlist `course_id`
+must be a positive integer, review comments ≤2000 chars, ratings 1–5;
+`progress_percent` must be a finite number (clamped to 0–100).
+
 ## Database schema (`backend/schema.sql`)
 
 - **users** - `id, name, email (unique), password_hash, created_at`
