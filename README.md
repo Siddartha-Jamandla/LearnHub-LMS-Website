@@ -9,6 +9,7 @@ as a **complete full-stack project**:
 - **Database** - SQLite with a clean relational schema
 
 No Flask, no Django, no npm packages. Clone, run one command, and learn.
+🌐 **Live Demo:** https://learnhubapp.pythonanywhere.com/
 
 ## Architecture
 
