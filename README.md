@@ -35,6 +35,59 @@ The backend serves the frontend itself: open `http://localhost:8000` and every
 page is delivered by `app.py`, with `/js/api.js` and `/js/auth.js` served from
 the new `js/` directory.
 
+## Page audit & fixes (9 Nov 2026)
+
+A live HTTP check passed all 26 pages (200), so the audit exercised every
+flow end to end as a real user on a temp database. The backend API was
+sound; the breakage was in the pages themselves — most of them still ran
+on a stale localStorage copy of the course list and never talked to the
+API. Fixed (all verified on a fresh temp DB after the fix):
+
+- **login.html** — was byte-identical to register.html, so no login form
+  existed anywhere in the UI. Rewritten as a real login page wired to
+  `POST /api/login` (redirects to the dashboard when already signed in).
+- **register.html** — used only a localStorage registration that stored a
+  plaintext password and never created a server account. Now calls
+  `POST /api/register` via `js/auth.js`, with a confirm-password check.
+- **script.js** — removed the localStorage register/login handlers and the
+  plaintext-password storage; cart/wishlist are now API-first (localStorage
+  only as a guest fallback); `logout()` now clears the API token too;
+  checkout calls `POST /api/checkout`; cart count and nav state read the
+  real signed-in user.
+- **courses.html** — rendered a stale static 12-course list (wrong
+  titles/ids vs the 16 real courses) and sorted by a static rating. Now
+  fetches the live course list once and filters/sorts client-side.
+- **course-details.html** — the header (title/price/description) came from
+  the static list while lessons/reviews/exam used the API, and Add to Cart /
+  Add to Wishlist wrote to localStorage only. Header is now API-first with
+  a static fallback; the buttons call the API cart/wishlist.
+- **cart.html** — was a course-detail clone, not a cart. Rewritten: server
+  cart list with remove, order total, and a checkout link.
+- **checkout.html** — never called `POST /api/checkout`, so "purchase"
+  never enrolled anyone. Now shows the server cart as the order summary
+  and completes enrolment through the API.
+- **payment-success.html** — only moved localStorage ids around. Now lists
+  the real enrolled courses from `GET /api/my-courses`.
+- **profile.html** — was a copy of the old My Courses page with a hardcoded
+  25% progress bar and a "Continue Learning" button that only showed an
+  alert. Rewritten as a real profile: account, level/XP/streak, real
+  course progress, certificates, and sign-out.
+- **certificate.html** — only accepted `?id=`; notification links use
+  `?code=LH-…` and landed on "No certificate id given". Now also accepts
+  `?code=` via the public `GET /api/certificates/verify/:code` (no sign-in
+  needed); the exam-status line is skipped on that path.
+- **contact.html** — the form had no handler at all (submit just reloaded
+  the page). New `POST /api/contact` endpoint (validated; stored in a new
+  `contact_messages` table) and a **Messages** tab in admin.html
+  (`GET /api/admin/contact-messages`) so the admin can read them.
+- **index.html** — footer social icons were dead `href="#"` links. Now
+  link to the real LinkedIn, GitHub, and Instagram accounts; the
+  X/Twitter icon was removed (no account known).
+
+Not changed: the backend API, lesson page, search, learning paths,
+instructors, announcements, notifications, final exams, tutor, admin
+dashboard, and wishlist — all passed the functional audit as-is.
+
 ## Quick start
 
 ```bash

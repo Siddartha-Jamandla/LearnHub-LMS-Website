@@ -257,183 +257,80 @@
 
 
 <script src="script.js"></script>
+<script src="js/api.js"></script>
 
 
 <script>
+/* Courses from the live API (GET /api/courses) — the old version
+   rendered a hardcoded 12-course list from script.js whose titles
+   and ids no longer match the database (16 courses). Results are
+   cached after the first load; search / category / sort filter
+   client-side. If the API is unreachable, fall back to the legacy
+   static list so the page still shows something. */
+(function () {
+    "use strict";
+    var UI = window.LearnHubUI;
+    var cache = null;
 
-function renderCourses() {
+    async function loadAll() {
+        if (cache) return cache;
+        var rows = await UI.searchCourses({});
+        cache = rows || [];
+        var sel = document.getElementById("categoryFilter");
+        var cats = {};
+        cache.forEach(function (c) { cats[c.category] = true; });
+        var current = sel.value;
+        Object.keys(cats).sort().forEach(function (cat) {
+            if (!sel.querySelector('option[value="' + cat + '"]')) {
+                var opt = document.createElement("option");
+                opt.value = cat; opt.textContent = cat;
+                sel.appendChild(opt);
+            }
+        });
+        if (current) sel.value = current;
+        return cache;
+    }
 
-    const search =
-        document
-        .getElementById("courseSearch")
-        .value
-        .toLowerCase();
+    function ratingOf(c) {
+        return UI ? UI.ratingOf(c) : (Number(c.avg_rating || c.rating) || 0);
+    }
 
-    const category =
-        document
-        .getElementById("categoryFilter")
-        .value;
+    async function renderCourses() {
+        var listEl = document.getElementById("courseList");
+        var q = document.getElementById("courseSearch").value.trim().toLowerCase();
+        var category = document.getElementById("categoryFilter").value;
+        var sort = document.getElementById("sortCourses").value;
+        var rows;
+        try {
+            rows = await loadAll();
+        } catch (e) {
+            listEl.innerHTML = '<div class="empty-state"><h2>Courses are unavailable right now</h2><p>Please try again later.</p></div>';
+            return;
+        }
+        var filtered = rows.filter(function (c) {
+            var okSearch = !q || (c.title || "").toLowerCase().indexOf(q) !== -1 ||
+                (c.description || "").toLowerCase().indexOf(q) !== -1;
+            var okCat = category === "all" || c.category === category;
+            return okSearch && okCat;
+        });
+        if (sort === "low") filtered.sort(function (a, b) { return a.price - b.price; });
+        if (sort === "high") filtered.sort(function (a, b) { return b.price - a.price; });
+        if (sort === "rating") filtered.sort(function (a, b) { return ratingOf(b) - ratingOf(a); });
+        if (!filtered.length) {
+            listEl.innerHTML = '<div class="empty-state"><h2>No Courses Found</h2><p>Try another search or category.</p></div>';
+            return;
+        }
+        listEl.innerHTML = filtered.map(function (c) { return UI.courseCard(c); }).join("");
+    }
 
-    const sort =
-        document
-        .getElementById("sortCourses")
-        .value;
-
-    let filteredCourses = courses.filter(course => {
-
-        const matchesSearch =
-            course.title.toLowerCase().includes(search);
-
-        const matchesCategory =
-            category === "all" ||
-            course.category === category;
-
-        return matchesSearch && matchesCategory;
-
+    window.renderCourses = renderCourses;
+    document.addEventListener("DOMContentLoaded", function () {
+        renderCourses();
+        document.getElementById("courseSearch").addEventListener("input", renderCourses);
+        document.getElementById("categoryFilter").addEventListener("change", renderCourses);
+        document.getElementById("sortCourses").addEventListener("change", renderCourses);
     });
-
-
-    if (sort === "low") {
-
-        filteredCourses.sort(
-            (a, b) => a.price - b.price
-        );
-
-    }
-
-    if (sort === "high") {
-
-        filteredCourses.sort(
-            (a, b) => b.price - a.price
-        );
-
-    }
-
-    if (sort === "rating") {
-
-        filteredCourses.sort(
-            (a, b) => b.rating - a.rating
-        );
-
-    }
-
-
-    const courseList =
-        document.getElementById("courseList");
-
-
-    if (filteredCourses.length === 0) {
-
-        courseList.innerHTML = `
-            <div class="empty-state">
-                <h2>No Courses Found</h2>
-                <p>Try another search or category.</p>
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    courseList.innerHTML =
-        filteredCourses.map(course => `
-
-        <div class="course-card">
-
-            <div class="course-image">
-
-                <img
-                    src="${course.image}"
-                    alt="${course.title}"
-                >
-
-                <span class="course-category">
-                    ${course.category}
-                </span>
-
-                <button
-                    class="wishlist-btn"
-                    onclick="addToWishlist(${course.id})"
-                >
-                    ♡
-                </button>
-
-            </div>
-
-
-            <div class="course-content">
-
-                <div class="course-rating">
-                    ⭐ ${course.rating}
-                    <span>
-                        (${course.students})
-                    </span>
-                </div>
-
-                <h3>
-                    ${course.title}
-                </h3>
-
-                <p class="instructor">
-                    By ${course.instructor}
-                </p>
-
-                <div class="course-info">
-
-                    <span>
-                        📚 ${course.lessons} Lessons
-                    </span>
-
-                    <span>
-                        ⏱ ${course.hours} Hours
-                    </span>
-
-                </div>
-
-
-                <div class="course-footer">
-
-                    <div class="course-price">
-
-                        ${formatPrice(course.price)}
-
-                        <del>
-                            ${formatPrice(course.oldPrice)}
-                        </del>
-
-                    </div>
-
-                    <a
-                        href="course-details.html?id=${course.id}"
-                        class="btn btn-small btn-primary"
-                    >
-                        View
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `).join("");
-
-}
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    renderCourses
-);
-
-document
-    .getElementById("courseSearch")
-    .addEventListener(
-        "input",
-        renderCourses
-    );
-
+})();
 </script>
 
 </body>

@@ -123,9 +123,34 @@
 <script>
     (async function () {
         const card = document.getElementById("cert-card");
-        const id = new URLSearchParams(location.search).get("id");
+        const params = new URLSearchParams(location.search);
+        const id = params.get("id");
+        const code = params.get("code");
+        // Public verification links (e.g. from notifications) use
+        // ?code=LH-XXXX and need no sign-in; ?id= is the owner's
+        // private view. The old page only understood ?id=, so every
+        // notification link landed on "No certificate id given."
+        if (code) {
+            try {
+                const v = await LearnHubAPI.verifyCertificate(code);
+                if (!v.valid) {
+                    card.innerHTML = '<p class="sub">This certificate code is not valid.</p>';
+                    return;
+                }
+                renderCert({
+                    user_name: v.student_name, course_title: v.course_title,
+                    instructor: v.instructor, issued_at: v.issued_at,
+                    certificate_code: v.certificate_code, duration_hours: null,
+                    course_id: null,
+                }, location.origin + location.pathname + "?code=" + encodeURIComponent(code));
+            } catch (e) {
+                card.innerHTML = '<p class="sub">Could not verify this certificate: ' +
+                    escapeHtml(e.message || "not found") + '</p>';
+            }
+            return;
+        }
         if (!id) {
-            card.innerHTML = '<p class="sub">No certificate id given. Open this page as certificate.html?id=&lt;certificate_id&gt;.</p>';
+            card.innerHTML = '<p class="sub">No certificate given. Open this page as certificate.html?id=&lt;certificate_id&gt; or certificate.html?code=LH-XXXX.</p>';
             return;
         }
         if (!localStorage.getItem("lh_token")) {
@@ -134,6 +159,14 @@
         }
         try {
             const cert = await LearnHubAPI.getCertificate(id);
+            renderCert(cert, location.origin + location.pathname + "?id=" + id);
+        } catch (e) {
+            card.innerHTML = '<p class="sub">Could not load this certificate: ' +
+                escapeHtml(e.message || "not found") + '</p>';
+        }
+        return;
+
+        async function renderCert(cert, shareUrl) {
             card.innerHTML = `
                 <h1>CERTIFICATE OF COMPLETION</h1>
                 <p class="sub">This certificate is proudly presented to</p>
@@ -146,7 +179,7 @@
                 <div class="code">${escapeHtml(cert.certificate_code)}</div>
                 <p class="sub" id="examStatus"></p>
                 <div class="cert-share">
-                    <input type="text" id="shareLink" readonly value="${escapeHtml(location.origin + location.pathname + "?id=" + id)}" aria-label="Shareable certificate link">
+                    <input type="text" id="shareLink" readonly value="${escapeHtml(shareUrl)}" aria-label="Shareable certificate link">
                     <button class="btn btn-outline" type="button" id="copyLinkBtn">Copy link</button>
                 </div>
                 <p class="sub"><small>Anyone with this link can verify the certificate — the code is checked against the live registry.</small></p>
@@ -182,9 +215,6 @@
                     }
                 } catch (e) { /* hide the line when unavailable */ }
             }
-        } catch (e) {
-            card.innerHTML = '<p class="sub">Could not load this certificate: ' +
-                escapeHtml(e.message || "not found") + '</p>';
         }
 
         function escapeHtml(s) {

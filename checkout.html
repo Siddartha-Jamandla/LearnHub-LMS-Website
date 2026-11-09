@@ -64,8 +64,13 @@
         </h1>
 
         <p>
-            Enter your information to continue.
+            Review your order and confirm — enrolment is instant and no
+            payment is collected here.
         </p>
+
+        <div id="orderSummary">
+            <p>Loading your order…</p>
+        </div>
 
 
         <form id="checkoutForm">
@@ -148,7 +153,7 @@
                 type="submit"
                 class="btn btn-primary form-submit"
             >
-                Continue to Payment
+                Complete Enrolment
             </button>
 
         </form>
@@ -159,6 +164,53 @@
 
 
 <script src="script.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* Order summary from the server cart, and pre-fill the form from
+   the signed-in account. The submit itself is handled by script.js,
+   which calls POST /api/checkout and enrols every cart course. */
+(function () {
+    "use strict";
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
+    document.addEventListener("DOMContentLoaded", async function () {
+        var box = document.getElementById("orderSummary");
+        try {
+            var u = JSON.parse(localStorage.getItem("lh_user") || "null");
+            if (u) {
+                var nameInput = document.querySelector('#checkoutForm input[type="text"]');
+                var emailInput = document.querySelector('#checkoutForm input[type="email"]');
+                if (nameInput && u.name) nameInput.value = u.name;
+                if (emailInput && u.email) emailInput.value = u.email;
+            }
+        } catch (e) { /* leave the form blank */ }
+        if (!localStorage.getItem("lh_token")) {
+            box.innerHTML = '<p>Please <a href="login.html">sign in</a> to check out.</p>';
+            return;
+        }
+        try {
+            var items = await LearnHubAPI.getCart();
+            if (!items.length) {
+                box.innerHTML = '<p>Your cart is empty. <a href="courses.html">Browse courses</a>.</p>';
+                return;
+            }
+            var total = 0;
+            var rows = items.map(function (it) {
+                var c = it.course || {};
+                total += Number(c.price) || 0;
+                return "<li>" + esc(c.title) + " — " + esc(formatPrice(c.price)) + "</li>";
+            }).join("");
+            box.innerHTML = "<ul>" + rows + "</ul><p><strong>Total: " +
+                esc(formatPrice(total)) + "</strong></p>";
+        } catch (e) {
+            box.innerHTML = "<p>Could not load your order: " + esc(e.message || "") + "</p>";
+        }
+    });
+})();
+</script>
 
 </body>
 </html>

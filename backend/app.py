@@ -171,6 +171,15 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
         if "is_admin" not in cols_u:
             conn.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
             conn.execute("UPDATE users SET is_admin = 1 WHERE lower(email) = ?", (ADMIN_EMAIL,))
+        conn.execute("""CREATE TABLE IF NOT EXISTS contact_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            message TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )""")
+        conn.commit()
         conn.commit()
     except Exception as e:
         print(f"[learnhub] pro-lms migration skipped: {e!r}")
@@ -463,6 +472,8 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/me/dashboard$",          self.api_me_dashboard),
             ("GET",    r"^/api/leaderboard$",            self.api_leaderboard),
             ("GET",    r"^/api/announcements$",          self.api_announcements),
+            ("POST",   r"^/api/contact$",                self.api_contact_submit),
+            ("GET",    r"^/api/admin/contact-messages$", self.api_admin_contact_messages),
             ("GET",    r"^/api/learning-paths$",         self.api_learning_paths),
             ("GET",    r"^/api/lessons/(\d+)/notes$",    self.api_lesson_notes_get),
             ("POST",   r"^/api/lessons/(\d+)/notes$",    self.api_lesson_notes_post),
@@ -3082,6 +3093,51 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             " ORDER BY id DESC LIMIT 10").fetchall()
         conn.close()
         self._ok({"announcements": [row_to_dict(r) for r in rows]})
+
+    def api_contact_submit(self):
+        """POST /api/contact — public contact form.
+
+        Stores the message so the admin can read it (GET
+        /api/admin/contact-messages). No email is sent: this is a
+        free, stdlib-only site with no mail service configured.
+        """
+        body = self._read_json()
+        name = (body.get("name") or "").strip()
+        email = (body.get("email") or "").strip().lower()
+        subject = (body.get("subject") or "").strip()
+        message = (body.get("message") or "").strip()
+        if not name or len(name) > 100:
+            self._err(400, "name is required (at most 100 characters)")
+            return
+        if len(email) > 254 or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            self._err(400, "a valid email is required")
+            return
+        if not subject or len(subject) > 200:
+            self._err(400, "subject is required (at most 200 characters)")
+            return
+        if not message or len(message) > 5000:
+            self._err(400, "message is required (at most 5000 characters)")
+            return
+        conn = db()
+        cur = conn.execute(
+            "INSERT INTO contact_messages (name, email, subject, message)"
+            " VALUES (?, ?, ?, ?)", (name, email, subject, message))
+        conn.commit()
+        mid = cur.lastrowid
+        conn.close()
+        self._ok({"message_id": mid,
+                  "message": "Thanks! Your message has been received."}, status=201)
+
+    def api_admin_contact_messages(self):
+        """GET /api/admin/contact-messages — admin only, newest first."""
+        if not self._require_admin():
+            return
+        conn = db()
+        rows = conn.execute(
+            "SELECT id, name, email, subject, message, created_at"
+            " FROM contact_messages ORDER BY id DESC LIMIT 100").fetchall()
+        conn.close()
+        self._ok({"messages": [row_to_dict(r) for r in rows]})
 
     def api_learning_paths(self):
         conn = db()

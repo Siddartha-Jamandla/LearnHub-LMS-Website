@@ -138,6 +138,7 @@
                     <button class="admin-nav-btn" data-section="discussions" type="button">💬 Discussions</button>
                     <button class="admin-nav-btn" data-section="reviews" type="button">⭐ Reviews</button>
                     <button class="admin-nav-btn" data-section="instructors" type="button">🧑‍🏫 Instructors</button>
+                    <button class="admin-nav-btn" data-section="messages" type="button">✉️ Messages</button>
                 </nav>
                 <p class="admin-note" style="margin-top: 14px;">Tip: signing in with the admin Gmail unlocks everything. The key is only a fallback — the same API_SECRET used by the server. Wrong key? Every section will say so.</p>
             </aside>
@@ -414,6 +415,14 @@
                     <p class="status-line" id="discussionsStatus"></p>
                 </div>
 
+                <div class="admin-section" id="section-messages">
+                    <h2>Messages</h2>
+                    <p class="section-sub">Messages sent from the contact form on contact.html — reply by email.</p>
+                    <button class="btn btn-primary btn-small" id="refreshMessagesBtn" type="button">Refresh</button>
+                    <div class="table-wrap"><table class="data-table"><thead><tr><th>From</th><th>Subject</th><th>Message</th><th>Sent</th></tr></thead><tbody id="messagesBody"><tr><td colspan="4" class="admin-note">—</td></tr></tbody></table></div>
+                    <p class="status-line" id="messagesStatus"></p>
+                </div>
+
                 <!-- ================= REVIEWS ================= -->
                 <div class="admin-section" id="section-reviews">
                     <h2>Reviews</h2>
@@ -571,7 +580,7 @@
         document.getElementById("section-" + currentSection).classList.add("active");
         loadSection(currentSection);
     });
-    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus", reviews: "reviewsStatus", instructors: "instructorsStatus" };
+    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus", reviews: "reviewsStatus", instructors: "instructorsStatus", messages: "messagesStatus" };
     function loadSection(name) {
         // Unlocked = a saved key, or a signed-in admin session. A plain
         // signed-in (non-admin) account does not unlock anything.
@@ -587,6 +596,7 @@
         else if (name === "discussions") loadDiscussionsAdmin();
         else if (name === "reviews") loadReviews(1);
         else if (name === "instructors") loadInstructors();
+        else if (name === "messages") loadMessages();
     }
 
     /* ---------------- dashboard ---------------- */
@@ -1166,6 +1176,19 @@
         } catch (err) { statusEl("discussionsStatus", keyError(err), true); }
     }
     document.getElementById("refreshDiscussionsBtn").addEventListener("click", loadDiscussionsAdmin);
+    async function loadMessages() {
+        statusEl("messagesStatus", "Loading…");
+        try {
+            const d = await api.adminContactMessages(getKey());
+            document.getElementById("messagesBody").innerHTML = d.messages.map((m) =>
+                `<tr><td>${esc(m.name)}<br><span class="admin-note">${esc(m.email)}</span></td>` +
+                `<td>${esc(m.subject)}</td><td>${esc(m.message)}</td>` +
+                `<td>${dateOnly(m.created_at)}</td></tr>`).join("")
+                || `<tr><td colspan="4" class="admin-note">No messages yet.</td></tr>`;
+            statusEl("messagesStatus", "");
+        } catch (err) { statusEl("messagesStatus", keyError(err), true); }
+    }
+    document.getElementById("refreshMessagesBtn").addEventListener("click", loadMessages);
     document.getElementById("discussionsBody").addEventListener("click", async (e) => {
         const btn = e.target.closest("button[data-disc-del]");
         if (!btn) return;

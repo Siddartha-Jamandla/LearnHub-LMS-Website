@@ -5,17 +5,12 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Course Details - LearnHub</title>
+    <meta name="description" content="Your LearnHub cart — review your courses and check out to start learning.">
+    <title>Your Cart - LearnHub</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -36,7 +31,7 @@
                 Home
             </a>
 
-            <a href="courses.html" class="nav-link active">
+            <a href="courses.html" class="nav-link">
                 Courses
             </a>
 
@@ -46,6 +41,14 @@
 
             <a href="contact.html" class="nav-link">
                 Contact
+            </a>
+
+            <a href="dashboard.html" class="nav-link">
+                Dashboard
+            </a>
+
+            <a href="learning-paths.html" class="nav-link">
+                Learning Paths
             </a>
 
         </nav>
@@ -66,6 +69,10 @@
 
             </a>
 
+            <a href="login.html" class="btn btn-outline">
+                Login
+            </a>
+
         </div>
 
     </div>
@@ -73,174 +80,174 @@
 </header>
 
 
-<section class="course-detail">
+<section class="page-header">
 
-    <div
-        class="container"
-        id="courseDetails"
-    ></div>
+    <div class="container">
+
+        <h1>Your Cart</h1>
+
+        <p>
+            Review your courses, then check out to start learning.
+        </p>
+
+    </div>
 
 </section>
 
 
-<script src="script.js"></script>
+<section class="section">
 
+    <div class="container">
+
+        <div id="cartList" class="course-grid"></div>
+
+        <div id="cartSummary" class="admin-card" hidden>
+            <h3>Order summary</h3>
+            <p id="cartTotal"></p>
+            <a href="checkout.html" class="btn btn-primary">Proceed to Checkout</a>
+            &nbsp;
+            <a href="courses.html" class="btn btn-outline">Continue Browsing</a>
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer class="footer">
+
+    <div class="container footer-grid">
+
+        <div class="footer-column">
+
+            <a href="index.html" class="footer-logo">
+                Learn<span>Hub</span>
+            </a>
+
+            <p>
+                Learn new skills and build your future.
+            </p>
+
+        </div>
+
+        <div class="footer-column">
+
+            <h3>Quick Links</h3>
+
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="search.html">Search</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="learning-paths.html">Learning Paths</a>
+            <a href="instructors.html">Instructors</a>
+            <a href="announcements.html">Announcements</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+
+        </div>
+
+        <div class="footer-column">
+
+            <h3>Student</h3>
+
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+            <a href="my-courses.html">My Courses</a>
+            <a href="help.html">Help</a>
+            <a href="faq.html">FAQ</a>
+            <a href="terms.html">Terms</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
+
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+
+        <div class="container">
+
+            <p>
+                © 2026 LearnHub. All Rights Reserved.
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="script.js"></script>
+<script src="js/api.js"></script>
 
 <script>
+/* Real cart: GET /api/cart (signed in only). The old page showed a
+   single course's details instead of the cart, so nothing could be
+   reviewed, removed or checked out from here. */
+(function () {
+    "use strict";
 
-const params =
-    new URLSearchParams(window.location.search);
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
 
-const courseId =
-    params.get("id") || 1;
+    function emptyHtml(title, body, cta) {
+        return '<div class="empty-state"><h2>' + title + '</h2><p>' + body + '</p><br>' + (cta || "") + '</div>';
+    }
 
-const course =
-    getCourseById(courseId);
+    async function renderCart() {
+        var list = document.getElementById("cartList");
+        var summary = document.getElementById("cartSummary");
+        summary.hidden = true;
+        if (!localStorage.getItem("lh_token")) {
+            list.innerHTML = emptyHtml("Sign in to see your cart",
+                "Your cart lives on your account — sign in and your saved courses will be here.",
+                '<a href="login.html" class="btn btn-primary">Sign In</a>');
+            return;
+        }
+        list.innerHTML = "<p>Loading your cart…</p>";
+        var items;
+        try {
+            items = await LearnHubAPI.getCart();
+        } catch (e) {
+            list.innerHTML = emptyHtml("Could not load your cart", esc(e.message || "Please try again later."), "");
+            return;
+        }
+        if (!items.length) {
+            list.innerHTML = emptyHtml("Your cart is empty",
+                "Add a course and it will show up here.",
+                '<a href="courses.html" class="btn btn-primary">Browse Courses</a>');
+            return;
+        }
+        var total = 0;
+        list.innerHTML = items.map(function (it) {
+            var c = it.course || {};
+            total += Number(c.price) || 0;
+            return '<div class="course-card"><div class="course-content">' +
+                "<h3>" + esc(c.title) + "</h3>" +
+                '<p class="instructor">By ' + esc(c.instructor || "LearnHub") + "</p>" +
+                '<p class="course-price">' + esc(formatPrice(c.price)) + "</p>" +
+                '<p><a href="course-details.html?id=' + c.id + '" class="btn btn-outline btn-small">View Course</a> ' +
+                '<button type="button" class="btn btn-outline btn-small" data-remove="' + c.id + '">Remove</button></p>' +
+                "</div></div>";
+        }).join("");
+        document.getElementById("cartTotal").textContent =
+            items.length + (items.length === 1 ? " course" : " courses") + " — Total: " + formatPrice(total);
+        summary.hidden = false;
+        list.querySelectorAll("[data-remove]").forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+                btn.disabled = true;
+                await removeFromCart(Number(btn.dataset.remove));
+            });
+        });
+        updateCartCount();
+    }
 
-
-const container =
-    document.getElementById("courseDetails");
-
-
-if (!course) {
-
-    container.innerHTML = `
-        <div class="empty-state">
-            <h2>Course Not Found</h2>
-            <a href="courses.html"
-               class="btn btn-primary">
-               Back to Courses
-            </a>
-        </div>
-    `;
-
-} else {
-
-    container.innerHTML = `
-
-        <div class="detail-grid">
-
-            <div class="detail-main">
-
-                <span class="section-tag">
-                    ${course.category}
-                </span>
-
-                <h1>
-                    ${course.title}
-                </h1>
-
-                <p class="detail-description">
-                    ${course.description}
-                </p>
-
-                <p>
-                    ⭐ ${course.rating}
-                    &nbsp; | &nbsp;
-                    ${course.students} students
-                </p>
-
-                <br>
-
-                <div class="detail-image">
-
-                    <img
-                        src="${course.image}"
-                        alt="${course.title}"
-                    >
-
-                </div>
-
-                <br>
-
-                <h2>
-                    What You Will Learn
-                </h2>
-
-                <ul class="detail-list">
-
-                    <li>
-                        ✓ Complete course fundamentals
-                    </li>
-
-                    <li>
-                        ✓ Practical real-world projects
-                    </li>
-
-                    <li>
-                        ✓ Step-by-step learning
-                    </li>
-
-                    <li>
-                        ✓ Certificate after completion
-                    </li>
-
-                </ul>
-
-            </div>
-
-
-            <div class="detail-card">
-
-                <div class="detail-price">
-
-                    ${formatPrice(course.price)}
-
-                    <del>
-                        ${formatPrice(course.oldPrice)}
-                    </del>
-
-                </div>
-
-
-                <button
-                    class="btn btn-primary"
-                    onclick="addToCart(${course.id})"
-                >
-                    Add to Cart
-                </button>
-
-
-                <button
-                    class="btn btn-outline"
-                    onclick="addToWishlist(${course.id})"
-                >
-                    Add to Wishlist
-                </button>
-
-
-                <ul class="detail-list">
-
-                    <li>
-                        📚 ${course.lessons} Lessons
-                    </li>
-
-                    <li>
-                        ⏱ ${course.hours} Hours
-                    </li>
-
-                    <li>
-                        👨‍🏫 ${course.instructor}
-                    </li>
-
-                    <li>
-                        🏆 Certificate Included
-                    </li>
-
-                    <li>
-                        ♾ Lifetime Access
-                    </li>
-
-                </ul>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
+    window.renderCart = renderCart;
+    document.addEventListener("DOMContentLoaded", renderCart);
+})();
 </script>
 
 </body>

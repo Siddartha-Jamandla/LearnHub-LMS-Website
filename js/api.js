@@ -437,6 +437,18 @@
             return d.leaderboard;
         },
 
+        async submitContact(name, email, subject, message) {
+            // Public: no token needed. The message is stored for the admin.
+            const d = await request("POST", "/api/contact",
+                { name, email, subject, message });
+            return d;
+        },
+
+        async adminContactMessages(key) {
+            // Admin: newest contact-form messages first.
+            return this._admin("GET", "/api/admin/contact-messages", key);
+        },
+
         async getAnnouncements() {
             const d = await request("GET", "/api/announcements");
             return d.announcements;

@@ -113,10 +113,7 @@
                             Name
                         </label>
 
-                        <input
-                            type="text"
-                            required
-                        >
+                        <input type="text" id="contactName" placeholder="Enter your name" required>
 
                     </div>
 
@@ -127,10 +124,7 @@
                             Email
                         </label>
 
-                        <input
-                            type="email"
-                            required
-                        >
+                        <input type="email" id="contactEmail" placeholder="Enter your email" required>
 
                     </div>
 
@@ -141,10 +135,7 @@
                             Subject
                         </label>
 
-                        <input
-                            type="text"
-                            required
-                        >
+                        <input type="text" id="contactSubject" placeholder="What is this about?" required>
 
                     </div>
 
@@ -155,10 +146,7 @@
                             Message
                         </label>
 
-                        <textarea
-                            rows="5"
-                            required
-                        ></textarea>
+                        <textarea id="contactMessage" rows="5" placeholder="Write your message…" required></textarea>
 
                     </div>
 
@@ -169,6 +157,8 @@
                     >
                         Send Message
                     </button>
+
+                    <p class="status-line" id="contactStatus"></p>
 
                 </form>
 
@@ -182,6 +172,31 @@
 
 
 <script src="script.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* Contact form -> POST /api/contact (stored for the admin). The old
+   form had no handler at all: submitting just reloaded the page. */
+document.getElementById("contactForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var status = document.getElementById("contactStatus");
+    var btn = this.querySelector('[type="submit"]');
+    btn.disabled = true;
+    status.textContent = "Sending…";
+    try {
+        await LearnHubAPI.submitContact(
+            document.getElementById("contactName").value.trim(),
+            document.getElementById("contactEmail").value.trim(),
+            document.getElementById("contactSubject").value.trim(),
+            document.getElementById("contactMessage").value.trim());
+        status.textContent = "✓ Thanks! Your message has been received — we will get back to you by email.";
+        this.reset();
+    } catch (err) {
+        status.textContent = "Could not send: " + (err.message || "please try again later.");
+    } finally {
+        btn.disabled = false;
+    }
+});
+</script>
 
 
 <script>

@@ -130,160 +130,87 @@
 
 
 <script>
+/* Course header from the live API (GET /api/courses/:id). The old
+   version rendered a hardcoded list from script.js whose titles,
+   prices and lesson counts no longer match the database for most
+   course ids — the lessons below (API) and the header (static)
+   disagreed. Falls back to the static list only if the API is down. */
+(function () {
+    "use strict";
+    var params = new URLSearchParams(window.location.search);
+    var courseId = params.get("id") || 1;
+    var container = document.getElementById("courseDetails");
 
-const params =
-    new URLSearchParams(window.location.search);
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
 
-const courseId =
-    params.get("id") || 1;
+    function render(course, lessons, avgRating, reviewCount) {
+        var rating = (avgRating != null && avgRating > 0)
+            ? "⭐ " + Number(avgRating).toFixed(1) + " &nbsp;|&nbsp; " + reviewCount + " review" + (reviewCount === 1 ? "" : "s")
+            : "No reviews yet";
+        container.innerHTML =
+            '<div class="detail-grid">' +
+            '<div class="detail-main">' +
+            '<span class="section-tag">' + esc(course.category) + "</span>" +
+            "<h1>" + esc(course.title) + "</h1>" +
+            '<p class="detail-description">' + esc(course.description) + "</p>" +
+            '<p id="courseRatingLine">' + rating + "</p><br>" +
+            '<div class="detail-image"><img src="' + esc(course.image_url || course.image || "assets/images/course1.svg") +
+            '" alt="' + esc(course.title) + '"></div><br>' +
+            "<h2>What You Will Learn</h2>" +
+            '<ul class="detail-list"><li>✓ Complete course fundamentals</li>' +
+            "<li>✓ Practical real-world projects</li>" +
+            "<li>✓ Step-by-step learning</li>" +
+            "<li>✓ Certificate after completion</li></ul>" +
+            "</div>" +
+            '<div class="detail-card">' +
+            '<div class="detail-price">' + esc(formatPrice(course.price)) + "</div>" +
+            '<button class="btn btn-primary" onclick="addToCart(' + course.id + ')">Add to Cart</button>' +
+            '<button class="btn btn-outline" onclick="addToWishlist(' + course.id + ')">Add to Wishlist</button>' +
+            '<ul class="detail-list">' +
+            "<li>📚 " + (lessons != null ? lessons : "—") + " Lessons</li>" +
+            "<li>⏱ " + (course.duration_hours != null ? course.duration_hours : "—") + " Hours</li>" +
+            "<li>👨‍🏫 " + esc(course.instructor || "LearnHub") + "</li>" +
+            "<li>🏆 Certificate Included</li>" +
+            "<li>♾ Lifetime Access</li>" +
+            "</ul></div></div>";
+    }
 
-const course =
-    getCourseById(courseId);
+    function renderLegacy() {
+        var course = getCourseById(courseId);
+        if (!course) {
+            container.innerHTML = '<div class="empty-state"><h2>Course Not Found</h2>' +
+                '<a href="courses.html" class="btn btn-primary">Back to Courses</a></div>';
+            return;
+        }
+        render({
+            id: course.id, title: course.title, description: course.description,
+            category: course.category, price: course.price, instructor: course.instructor,
+            duration_hours: course.hours, image_url: course.image,
+        }, course.lessons, course.rating, course.students);
+    }
 
-
-const container =
-    document.getElementById("courseDetails");
-
-
-if (!course) {
-
-    container.innerHTML = `
-        <div class="empty-state">
-            <h2>Course Not Found</h2>
-            <a href="courses.html"
-               class="btn btn-primary">
-               Back to Courses
-            </a>
-        </div>
-    `;
-
-} else {
-
-    container.innerHTML = `
-
-        <div class="detail-grid">
-
-            <div class="detail-main">
-
-                <span class="section-tag">
-                    ${course.category}
-                </span>
-
-                <h1>
-                    ${course.title}
-                </h1>
-
-                <p class="detail-description">
-                    ${course.description}
-                </p>
-
-                <p id="courseRatingLine">
-                    ⭐ ${course.rating}
-                    &nbsp; | &nbsp;
-                    ${course.students} students
-                </p>
-
-                <br>
-
-                <div class="detail-image">
-
-                    <img
-                        src="${course.image}"
-                        alt="${course.title}"
-                    >
-
-                </div>
-
-                <br>
-
-                <h2>
-                    What You Will Learn
-                </h2>
-
-                <ul class="detail-list">
-
-                    <li>
-                        ✓ Complete course fundamentals
-                    </li>
-
-                    <li>
-                        ✓ Practical real-world projects
-                    </li>
-
-                    <li>
-                        ✓ Step-by-step learning
-                    </li>
-
-                    <li>
-                        ✓ Certificate after completion
-                    </li>
-
-                </ul>
-
-            </div>
-
-
-            <div class="detail-card">
-
-                <div class="detail-price">
-
-                    ${formatPrice(course.price)}
-
-                    <del>
-                        ${formatPrice(course.oldPrice)}
-                    </del>
-
-                </div>
-
-
-                <button
-                    class="btn btn-primary"
-                    onclick="addToCart(${course.id})"
-                >
-                    Add to Cart
-                </button>
-
-
-                <button
-                    class="btn btn-outline"
-                    onclick="addToWishlist(${course.id})"
-                >
-                    Add to Wishlist
-                </button>
-
-
-                <ul class="detail-list">
-
-                    <li>
-                        📚 ${course.lessons} Lessons
-                    </li>
-
-                    <li>
-                        ⏱ ${course.hours} Hours
-                    </li>
-
-                    <li>
-                        👨‍🏫 ${course.instructor}
-                    </li>
-
-                    <li>
-                        🏆 Certificate Included
-                    </li>
-
-                    <li>
-                        ♾ Lifetime Access
-                    </li>
-
-                </ul>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
+    document.addEventListener("DOMContentLoaded", async function () {
+        if (!window.LearnHubAPI) { renderLegacy(); return; }
+        try {
+            if (!(await LearnHubAPI.checkApi())) { renderLegacy(); return; }
+            var course = await LearnHubAPI.getCourse(courseId);
+            var lessons = null;
+            try { lessons = (await LearnHubAPI.getLessons(courseId)).length; } catch (e) { /* keep — */ }
+            render(course, lessons, course.avg_rating, course.review_count || 0);
+        } catch (e) {
+            if (String(e.message || "").indexOf("404") !== -1 || String(e.message || "").indexOf("not found") !== -1) {
+                container.innerHTML = '<div class="empty-state"><h2>Course Not Found</h2>' +
+                    '<a href="courses.html" class="btn btn-primary">Back to Courses</a></div>';
+            } else {
+                renderLegacy();
+            }
+        }
+    });
+})();
 </script>
 
 

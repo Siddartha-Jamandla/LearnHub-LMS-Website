@@ -216,79 +216,95 @@ function getCurrentUser() {
 
 
 /* -----------------------------
-   CART
+   CART + WISHLIST (API-first)
+   Signed-in users use the server cart/wishlist (POST /api/cart,
+   /api/wishlist); signed-out users are sent to login instead of
+   silently storing ids that the backend can never see.
 ------------------------------ */
 
-function addToCart(id) {
+function apiSignedIn() {
+    return !!localStorage.getItem("lh_token");
+}
 
-    const cart = getCart();
+function requireSignIn() {
+    alert("Please sign in first.");
+    window.location.href = "login.html";
+    return false;
+}
 
-    if (!cart.includes(Number(id))) {
-        cart.push(Number(id));
-        saveCart(cart);
+async function addToCart(id) {
+    if (!window.LearnHubAPI) { alert("Cart is unavailable right now."); return; }
+    if (!apiSignedIn()) return requireSignIn();
+    try {
+        await LearnHubAPI.addToCart(Number(id));
         alert("Course added to cart!");
-    } else {
-        alert("This course is already in your cart.");
+    } catch (e) {
+        alert(e.message || "Could not add to cart.");
     }
-
     updateCartCount();
 }
 
-function removeFromCart(id) {
-
-    let cart = getCart();
-
-    cart = cart.filter(courseId => courseId !== Number(id));
-
-    saveCart(cart);
-
-    if (typeof renderCart === "function") {
-        renderCart();
+async function removeFromCart(id) {
+    if (!window.LearnHubAPI || !apiSignedIn()) {
+        // Guest cart lives in localStorage only.
+        saveCart(getCart().filter(function (cid) { return cid !== Number(id); }));
+        if (typeof renderCart === "function") renderCart();
+        updateCartCount();
+        return;
     }
-
+    try {
+        // Backend delete takes the cart_item_id, not the course id:
+        // resolve it from the current server cart first.
+        var items = await LearnHubAPI.getCart();
+        var item = items.find(function (it) {
+            return Number(it.course ? it.course.id : it.course_id) === Number(id);
+        });
+        if (item) await LearnHubAPI.removeFromCart(item.cart_item_id);
+    } catch (e) {
+        alert(e.message || "Could not remove from cart.");
+    }
+    if (typeof renderCart === "function") renderCart();
     updateCartCount();
 }
 
-function updateCartCount() {
+async function addToWishlist(id) {
+    if (!window.LearnHubAPI) { alert("Wishlist is unavailable right now."); return; }
+    if (!apiSignedIn()) return requireSignIn();
+    try {
+        var d = await LearnHubAPI.addToWishlist(Number(id));
+        alert(d && d.added === false ? "Course is already in your wishlist." : "Course added to wishlist!");
+    } catch (e) {
+        alert(e.message || "Could not add to wishlist.");
+    }
+}
 
+async function removeFromWishlist(id) {
+    if (!window.LearnHubAPI || !apiSignedIn()) {
+        // Guest wishlist lives in localStorage only.
+        saveWishlist(getWishlist().filter(function (cid) { return cid !== Number(id); }));
+        if (typeof renderWishlist === "function") renderWishlist();
+        return;
+    }
+    try {
+        await LearnHubAPI.removeFromWishlist(Number(id));
+    } catch (e) {
+        alert(e.message || "Could not remove from wishlist.");
+    }
+    if (typeof renderWishlist === "function") renderWishlist();
+}
+
+async function updateCartCount() {
     const cartCount = document.getElementById("cart-count");
-
-    if (cartCount) {
-        cartCount.textContent = getCart().length;
+    if (!cartCount) return;
+    if (localStorage.getItem("lh_token") && window.LearnHubAPI) {
+        try {
+            const items = await LearnHubAPI.getCart();
+            cartCount.textContent = items.length;
+            return;
+        } catch (e) { /* fall through to local count */ }
     }
+    cartCount.textContent = getCart().length;
 }
-
-
-/* -----------------------------
-   WISHLIST
------------------------------- */
-
-function addToWishlist(id) {
-
-    const wishlist = getWishlist();
-
-    if (!wishlist.includes(Number(id))) {
-        wishlist.push(Number(id));
-        saveWishlist(wishlist);
-        alert("Course added to wishlist!");
-    } else {
-        alert("Course is already in your wishlist.");
-    }
-}
-
-function removeFromWishlist(id) {
-
-    let wishlist = getWishlist();
-
-    wishlist = wishlist.filter(courseId => courseId !== Number(id));
-
-    saveWishlist(wishlist);
-
-    if (typeof renderWishlist === "function") {
-        renderWishlist();
-    }
-}
-
 
 /* -----------------------------
    COURSE FINDER
@@ -309,99 +325,23 @@ function formatPrice(price) {
 
 
 /* -----------------------------
-   REGISTER
+   REGISTER / LOGIN
+   Auth lives in js/api.js + js/auth.js and the login.html /
+   register.html pages (server accounts, Bearer token in
+   localStorage as lh_token). The old handlers below stored
+   plaintext passwords in localStorage and never called the
+   backend, so they were removed — do not re-add them.
 ------------------------------ */
-
-const registerForm = document.getElementById("registerForm");
-
-if (registerForm) {
-
-    registerForm.addEventListener("submit", function (event) {
-
-        event.preventDefault();
-
-        const name = document.getElementById("registerName").value.trim();
-        const email = document.getElementById("registerEmail").value.trim();
-        const password = document.getElementById("registerPassword").value;
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
-
-        if (password !== confirmPassword) {
-            alert("Passwords do not match.");
-            return;
-        }
-
-        const user = {
-            name: name,
-            email: email,
-            password: password
-        };
-
-        localStorage.setItem("registeredUser", JSON.stringify(user));
-
-        alert("Registration successful!");
-
-        window.location.href = "login.html";
-    });
-}
-
-
-/* -----------------------------
-   LOGIN
------------------------------- */
-
-const loginForm = document.getElementById("loginForm");
-
-if (loginForm) {
-
-    loginForm.addEventListener("submit", function (event) {
-
-        event.preventDefault();
-
-        const email = document.getElementById("loginEmail").value.trim();
-        const password = document.getElementById("loginPassword").value;
-
-        const registeredUser =
-            JSON.parse(localStorage.getItem("registeredUser"));
-
-        if (!registeredUser) {
-            alert("No account found. Please register first.");
-            return;
-        }
-
-        if (
-            email === registeredUser.email &&
-            password === registeredUser.password
-        ) {
-
-            localStorage.setItem(
-                "currentUser",
-                JSON.stringify(registeredUser)
-            );
-
-            alert("Login successful!");
-
-            window.location.href = "courses.html";
-
-        } else {
-
-            alert("Invalid email or password.");
-
-        }
-    });
-}
-
 
 /* -----------------------------
    LOGOUT
 ------------------------------ */
 
-function logout() {
 
+async function logout() {
+    try { if (window.LearnHubAPI) await LearnHubAPI.logout(); } catch (e) { /* ignore */ }
     localStorage.removeItem("currentUser");
-
-    alert("Logged out successfully.");
-
+    localStorage.removeItem("registeredUser");
     window.location.href = "index.html";
 }
 
@@ -414,19 +354,25 @@ const checkoutForm = document.getElementById("checkoutForm");
 
 if (checkoutForm) {
 
-    checkoutForm.addEventListener("submit", function (event) {
+    checkoutForm.addEventListener("submit", async function (event) {
 
         event.preventDefault();
 
-        const user = getCurrentUser();
-
-        if (!user) {
-            alert("Please login before checkout.");
+        if (!localStorage.getItem("lh_token")) {
+            alert("Please sign in before checkout.");
             window.location.href = "login.html";
             return;
         }
 
-        window.location.href = "payment-success.html";
+        var btn = checkoutForm.querySelector('[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = "Processing…"; }
+        try {
+            await LearnHubAPI.checkout();
+            window.location.href = "payment-success.html";
+        } catch (e) {
+            alert(e.message || "Checkout failed.");
+            if (btn) { btn.disabled = false; btn.textContent = "Complete Enrolment"; }
+        }
     });
 }
 
@@ -450,7 +396,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function updateNavigation() {
 
-    const user = getCurrentUser();
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem("lh_user")); } catch (e) { user = null; }
+    if (!user) user = getCurrentUser();
 
     const loginLinks = document.querySelectorAll(
         'a[href="login.html"]'
@@ -465,7 +413,8 @@ function updateNavigation() {
             }
         });
     }
-}
+}
+
 
 /* =========================================================
    ULTIMATE LMS - shared frontend helpers

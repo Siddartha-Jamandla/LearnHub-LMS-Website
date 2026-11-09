@@ -5,12 +5,9 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>My Courses - LearnHub</title>
+    <title>Profile - LearnHub</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -37,15 +34,15 @@
                 Courses
             </a>
 
-            <a href="my-courses.html" class="nav-link active">
+            <a href="my-courses.html" class="nav-link">
                 My Courses
             </a>
 
-            <a href="profile.html" class="nav-link">
+            <a href="profile.html" class="nav-link active">
                 Profile
             </a>
 
-                    <a href="dashboard.html" class="nav-link">
+            <a href="dashboard.html" class="nav-link">
                 Dashboard
             </a>
 
@@ -53,7 +50,7 @@
                 Learning Paths
             </a>
 
-</nav>
+        </nav>
 
         <div class="nav-actions">
 
@@ -76,11 +73,11 @@
     <div class="container">
 
         <h1>
-            My Courses
+            Your Profile
         </h1>
 
         <p>
-            Continue your learning journey.
+            Your account, progress and certificates.
         </p>
 
     </div>
@@ -92,10 +89,19 @@
 
     <div class="container">
 
-        <div
-            id="myCourseList"
-            class="course-grid"
-        ></div>
+        <div class="admin-card" id="accountCard">
+            <p>Loading your profile…</p>
+        </div>
+
+        <h2 style="margin: 28px 0 12px;">My Courses</h2>
+        <div id="myCourseList" class="course-grid"></div>
+
+        <h2 style="margin: 28px 0 12px;">My Certificates</h2>
+        <div id="certList"><p>Loading…</p></div>
+
+        <p style="margin-top: 28px;">
+            <button type="button" class="btn btn-outline" id="signOutBtn">Sign Out</button>
+        </p>
 
     </div>
 
@@ -103,121 +109,80 @@
 
 
 <script src="script.js"></script>
-
+<script src="js/api.js"></script>
 
 <script>
+/* Real profile: account + stats from GET /api/me/dashboard, courses
+   from GET /api/my-courses with real progress, certificates from
+   GET /api/certificates. The old page rendered a localStorage list
+   with a hardcoded 25% progress bar and a button that only showed
+   an alert. */
+(function () {
+    "use strict";
 
-function renderMyCourses() {
-
-    const ids =
-        JSON.parse(
-            localStorage.getItem("myCourses")
-        ) || [];
-
-
-    const container =
-        document.getElementById("myCourseList");
-
-
-    if (ids.length === 0) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                <h2>
-                    No Courses Yet
-                </h2>
-
-                <p>
-                    Purchase a course to start learning.
-                </p>
-
-                <br>
-
-                <a
-                    href="courses.html"
-                    class="btn btn-primary"
-                >
-                    Explore Courses
-                </a>
-
-            </div>
-
-        `;
-
-        return;
-
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
     }
 
+    document.getElementById("signOutBtn").addEventListener("click", function () { logout(); });
 
-    container.innerHTML =
-        ids.map(id => {
-
-            const course =
-                getCourseById(id);
-
-            return `
-
-                <div class="course-card">
-
-                    <div class="course-image">
-
-                        <img
-                            src="${course.image}"
-                            alt="${course.title}"
-                        >
-
-                    </div>
-
-
-                    <div class="course-content">
-
-                        <h3>
-                            ${course.title}
-                        </h3>
-
-                        <p class="instructor">
-                            ${course.instructor}
-                        </p>
-
-                        <br>
-
-                        <p>
-                            Progress
-                        </p>
-
-                        <progress
-                            value="25"
-                            max="100"
-                            style="width:100%;"
-                        ></progress>
-
-                        <br><br>
-
-                        <button
-                            class="btn btn-primary"
-                            onclick="alert('Course learning page can be added later.')"
-                        >
-                            Continue Learning
-                        </button>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }).join("");
-
-}
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    renderMyCourses
-);
-
+    document.addEventListener("DOMContentLoaded", async function () {
+        var account = document.getElementById("accountCard");
+        var list = document.getElementById("myCourseList");
+        var certs = document.getElementById("certList");
+        if (!localStorage.getItem("lh_token")) {
+            account.innerHTML = '<p>You are not signed in. <a href="login.html" class="btn btn-primary">Sign In</a></p>';
+            list.innerHTML = "";
+            certs.innerHTML = "";
+            return;
+        }
+        try {
+            var d = await LearnHubAPI.getDashboard();
+            var u = d.user || {};
+            account.innerHTML = "<h3>" + esc(u.name || "") + "</h3>" +
+                "<p>" + esc(u.email || "") + "</p>" +
+                "<p>Level " + (d.level || 1) + " · " + (d.xp || 0) + " XP · 🔥 " +
+                (d.streak_days || 0) + "-day streak · " + (d.lessons_completed || 0) +
+                " lessons done · " + (d.certificates_count || 0) + " certificate(s)</p>" +
+                (u.is_admin ? '<p><span class="badge badge-blue">Admin</span> <a href="admin.html">Open admin dashboard</a></p>' : "");
+        } catch (e) {
+            account.innerHTML = "<p>Could not load your profile: " + esc(e.message || "") + "</p>";
+        }
+        try {
+            var courses = await LearnHubAPI.getMyCourses();
+            if (!courses.length) {
+                list.innerHTML = '<div class="empty-state"><h2>No Courses Yet</h2>' +
+                    "<p>Enrol in a course to start learning.</p><br>" +
+                    '<a href="courses.html" class="btn btn-primary">Explore Courses</a></div>';
+            } else {
+                list.innerHTML = courses.map(function (c) {
+                    var pct = c.progress_percent || 0;
+                    return '<div class="course-card"><div class="course-content">' +
+                        "<h3>" + esc(c.title) + "</h3>" +
+                        '<p class="instructor">' + esc(c.instructor || "") + "</p>" +
+                        "<p>" + pct + "% complete · " + (c.lesson_count || 0) + " lessons</p>" +
+                        '<progress value="' + pct + '" max="100" style="width:100%;"></progress><br><br>' +
+                        '<a class="btn btn-primary" href="course-details.html?id=' + c.id + '">Continue Learning</a>' +
+                        "</div></div>";
+                }).join("");
+            }
+        } catch (e) {
+            list.innerHTML = "<p>Could not load your courses: " + esc(e.message || "") + "</p>";
+        }
+        try {
+            var mine = await LearnHubAPI.getMyCertificates();
+            certs.innerHTML = mine.length ? "<ul>" + mine.map(function (c) {
+                return '<li><a href="certificate.html?id=' + c.id + '">' +
+                    esc(c.course_title) + "</a> — " + esc(c.certificate_code) +
+                    " <small>(" + esc(String(c.issued_at || "").slice(0, 10)) + ")</small></li>";
+            }).join("") + "</ul>" : "<p>No certificates yet — finish a course to earn one.</p>";
+        } catch (e) {
+            certs.innerHTML = "<p>Could not load certificates.</p>";
+        }
+    });
+})();
 </script>
 
 </body>

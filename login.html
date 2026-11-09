@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - LearnHub</title>
+    <title>Login - LearnHub</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -42,66 +42,45 @@
 
     <div class="form-card">
 
-        <h1>Create Account</h1>
+        <h1>Welcome Back</h1>
 
-        <p>Join LearnHub and start learning today.</p>
+        <p>Sign in to continue learning.</p>
 
-        <form id="registerForm">
-
-            <div class="form-group">
-                <label for="registerName">Full Name</label>
-
-                <input
-                    type="text"
-                    id="registerName"
-                    placeholder="Enter your full name"
-                    required
-                >
-            </div>
+        <form id="login-form">
 
             <div class="form-group">
-                <label for="registerEmail">Email Address</label>
+                <label for="loginEmail">Email Address</label>
 
                 <input
                     type="email"
-                    id="registerEmail"
+                    id="loginEmail"
+                    name="email"
                     placeholder="Enter your email"
                     required
                 >
             </div>
 
             <div class="form-group">
-                <label for="registerPassword">Password</label>
+                <label for="loginPassword">Password</label>
 
                 <input
                     type="password"
-                    id="registerPassword"
-                    placeholder="Create a password"
-                    required
-                    minlength="6"
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-
-                <input
-                    type="password"
-                    id="confirmPassword"
-                    placeholder="Confirm your password"
+                    id="loginPassword"
+                    name="password"
+                    placeholder="Enter your password"
                     required
                 >
             </div>
 
             <button type="submit" class="btn btn-primary form-submit">
-                Create Account
+                Sign In
             </button>
 
         </form>
 
         <div class="form-footer">
-            Already have an account?
-            <a href="login.html">Login</a>
+            Don't have an account?
+            <a href="register.html">Create one</a>
         </div>
 
     </div>
@@ -110,6 +89,17 @@
 
 
 <script src="script.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    // Real sign-in: server account via POST /api/login (js/auth.js).
+    // If you are already signed in, go straight to your dashboard.
+    if (window.LearnHubAuth && LearnHubAuth.isSignedIn()) {
+        window.location.href = "dashboard.html";
+    } else if (window.LearnHubAuth) {
+        LearnHubAuth.wireLoginForm("login-form", "dashboard.html");
+    }
+</script>
 
 </body>
 </html>
