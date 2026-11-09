@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search LearnHub courses — filter by category, level and price, sort by popularity, newest, price or top rating.">
+    <meta property="og:title" content="Search Courses - LearnHub">
+    <meta property="og:description" content="Find the right LearnHub course: search by keyword, filter by category, level and price, and sort by popularity, newest, price or rating.">
+    <meta property="og:type" content="website">
+    <title>Search Courses - LearnHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="learning-paths.html" class="nav-link">Learning Paths</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
+                🔔
+                <span id="notifCount" class="notif-count" hidden>0</span>
+            </a>
+            <a href="wishlist.html" class="nav-icon">♡</a>
+            <a href="cart.html" class="nav-icon">
+                🛒
+                <span id="cart-count" class="cart-count">0</span>
+            </a>
+            <a href="login.html" class="btn btn-outline">Login</a>
+        </div>
+    </div>
+</header>
+
+<section class="page-header">
+    <div class="container">
+        <h1>Search Courses</h1>
+        <p>Find the right course — every result comes from the live catalogue.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="search-area">
+            <form class="search-box" id="searchForm" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;">
+                <input type="search" id="q" name="q" placeholder="Search courses..." aria-label="Search courses">
+                <select id="category" name="category" aria-label="Category">
+                    <option value="">All Categories</option>
+                </select>
+                <select id="level" name="level" aria-label="Level">
+                    <option value="">All Levels</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+                <input type="number" id="maxPrice" name="max_price" min="0" placeholder="Max price (₹)" aria-label="Maximum price">
+                <select id="sort" name="sort" aria-label="Sort by">
+                    <option value="popular">Most popular</option>
+                    <option value="newest">Newest</option>
+                    <option value="price">Price: low to high</option>
+                    <option value="rating">Top rated</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+        </div>
+
+        <p class="search-meta" id="resultCount"></p>
+        <div id="resultsGrid" class="course-grid"><p>Loading courses…</p></div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-grid">
+        <div class="footer-column">
+            <a href="index.html" class="footer-logo">Learn<span>Hub</span></a>
+            <p>Learn new skills and build your future.</p>
+        </div>
+        <div class="footer-column">
+            <h3>Quick Links</h3>
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="search.html">Search</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="learning-paths.html">Learning Paths</a>
+            <a href="instructors.html">Instructors</a>
+            <a href="announcements.html">Announcements</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-column">
+            <h3>Student</h3>
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+            <a href="my-courses.html">My Courses</a>
+            <a href="help.html">Help</a>
+            <a href="faq.html">FAQ</a>
+            <a href="terms.html">Terms</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <p>© 2026 LearnHub. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="js/api.js"></script>
+<script>
+(function () {
+    "use strict";
+    var UI = window.LearnHubUI;
+    var form = document.getElementById("searchForm");
+    var grid = document.getElementById("resultsGrid");
+    var countEl = document.getElementById("resultCount");
+    var catSel = document.getElementById("category");
+
+    function paramsFromUrl() {
+        var p = new URLSearchParams(window.location.search);
+        return {
+            q: p.get("q") || "",
+            category: p.get("category") || "",
+            level: p.get("level") || "",
+            max_price: p.get("max_price") || "",
+            sort: p.get("sort") || "popular",
+        };
+    }
+
+    function paramsToUrl(p) {
+        var qs = new URLSearchParams();
+        if (p.q) qs.set("q", p.q);
+        if (p.category) qs.set("category", p.category);
+        if (p.level) qs.set("level", p.level);
+        if (p.max_price) qs.set("max_price", p.max_price);
+        if (p.sort && p.sort !== "popular") qs.set("sort", p.sort);
+        var url = "search.html" + (qs.toString() ? "?" + qs.toString() : "");
+        window.history.replaceState(null, "", url);
+    }
+
+    function readForm() {
+        return {
+            q: document.getElementById("q").value.trim(),
+            category: catSel.value,
+            level: document.getElementById("level").value,
+            max_price: document.getElementById("maxPrice").value.trim(),
+            sort: document.getElementById("sort").value,
+        };
+    }
+
+    function describe(p, n) {
+        var parts = [];
+        if (p.q) parts.push('for "' + p.q + '"');
+        if (p.category) parts.push("in " + p.category);
+        if (p.level) parts.push(p.level + " level");
+        if (p.max_price) parts.push("up to ₹" + Number(p.max_price).toLocaleString("en-IN"));
+        return n + " course" + (n === 1 ? "" : "s") + " found" +
+            (parts.length ? " " + parts.join(", ") : "");
+    }
+
+    async function run(p) {
+        grid.innerHTML = "<p>Searching…</p>";
+        countEl.textContent = "";
+        try {
+            var rows = await UI.searchCourses(p);
+            countEl.textContent = describe(p, rows.length);
+            if (!rows.length) {
+                grid.innerHTML = '<div class="empty-state"><h2>No courses found</h2>' +
+                    "<p>Try a different keyword, category or price — or clear the filters.</p>" +
+                    '<p><a href="search.html" class="btn btn-outline">Clear filters</a> ' +
+                    '<a href="courses.html" class="btn btn-primary">Browse all courses</a></p></div>';
+                return;
+            }
+            grid.innerHTML = rows.map(function (c) { return UI.courseCard(c); }).join("");
+        } catch (e) {
+            grid.innerHTML = '<div class="empty-state"><h2>Search is unavailable right now</h2>' +
+                "<p>Please try again later.</p></div>";
+        }
+    }
+
+    async function loadCategories(selected) {
+        try {
+            var d = await UI.lhApi("/api/courses?per_page=50");
+            var cats = {};
+            (d.courses || []).forEach(function (c) { cats[c.category] = true; });
+            Object.keys(cats).sort().forEach(function (cat) {
+                var opt = document.createElement("option");
+                opt.value = cat;
+                opt.textContent = cat;
+                catSel.appendChild(opt);
+            });
+            if (selected) catSel.value = selected;
+        } catch (e) { /* category filter stays "All Categories" */ }
+    }
+
+    var debounce = null;
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var p = readForm();
+        paramsToUrl(p);
+        run(p);
+    });
+    ["category", "level", "sort", "maxPrice"].forEach(function (id) {
+        document.getElementById(id).addEventListener("change", function () {
+            var p = readForm();
+            paramsToUrl(p);
+            run(p);
+        });
+    });
+    document.getElementById("q").addEventListener("input", function () {
+        clearTimeout(debounce);
+        debounce = setTimeout(function () {
+            var p = readForm();
+            paramsToUrl(p);
+            run(p);
+        }, 400);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var p = paramsFromUrl();
+        document.getElementById("q").value = p.q;
+        document.getElementById("level").value = p.level;
+        document.getElementById("maxPrice").value = p.max_price;
+        document.getElementById("sort").value = p.sort;
+        loadCategories(p.category);
+        run(p);
+    });
+})();
+</script>
+</body>
+</html>

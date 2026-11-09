@@ -20,6 +20,8 @@
         .admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
         .admin-card h3 { font-size: 1.05rem; margin-bottom: 12px; }
         .admin-note { font-size: .85rem; color: #64748b; }
+        .admin-warning { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 14px; font-size: .9rem; color: #78350f; margin-bottom: 16px; }
+        .admin-warning strong { color: #92400e; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; text-align: center; }
         .stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
@@ -134,6 +136,8 @@
                     <button class="admin-nav-btn" data-section="certificates" type="button">🎓 Certificates</button>
                     <button class="admin-nav-btn" data-section="announcements" type="button">📢 Announcements</button>
                     <button class="admin-nav-btn" data-section="discussions" type="button">💬 Discussions</button>
+                    <button class="admin-nav-btn" data-section="reviews" type="button">⭐ Reviews</button>
+                    <button class="admin-nav-btn" data-section="instructors" type="button">🧑‍🏫 Instructors</button>
                 </nav>
                 <p class="admin-note" style="margin-top: 14px;">Tip: signing in with the admin Gmail unlocks everything. The key is only a fallback — the same API_SECRET used by the server. Wrong key? Every section will say so.</p>
             </aside>
@@ -308,12 +312,15 @@
                 <div class="admin-section" id="section-users">
                     <h2>Users</h2>
                     <p class="section-sub">Every registered learner — enrolments, quiz scores and certificates. Click a user for the full picture.</p>
+                    <div class="admin-warning" id="adminRoleWarning" style="display:none;"></div>
+                    <p class="admin-note" id="adminRoleNote" style="display:none;"></p>
                     <div class="admin-card">
                         <div class="toolbar">
                             <input type="search" id="userSearch" placeholder="Search name or email…">
                             <button class="btn btn-primary btn-small" id="searchUsersBtn" type="button">Search</button>
+                            <button class="btn btn-small" id="exportUsersBtn" type="button">Export CSV</button>
                         </div>
-                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Enrolments</th><th>Certificates</th><th>Avg quiz</th><th></th></tr></thead><tbody id="usersBody"><tr><td colspan="7" class="admin-note">—</td></tr></tbody></table></div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Enrolments</th><th>Certificates</th><th>Avg quiz</th><th>Role</th><th></th></tr></thead><tbody id="usersBody"><tr><td colspan="8" class="admin-note">—</td></tr></tbody></table></div>
                         <div class="toolbar" style="margin-top: 12px;">
                             <button class="btn btn-small" id="usersPrevBtn" type="button">← Previous</button>
                             <span class="admin-note" id="usersPageInfo"></span>
@@ -331,6 +338,7 @@
                 <div class="admin-section" id="section-learning">
                     <h2>Learning analytics</h2>
                     <p class="section-sub">How well is each course teaching? Low quiz scores and unfinished tasks show where content needs fixing.</p>
+                    <div class="toolbar"><button class="btn btn-small" id="exportEnrollmentsBtn" type="button">Export enrolments CSV</button></div>
                     <div class="admin-card">
                         <h3>Per-course learning</h3>
                         <div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>Enrolments</th><th>Avg quiz score</th><th>Tasks done</th><th>Task completion</th></tr></thead><tbody id="analyticsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
@@ -354,6 +362,7 @@
                     </div>
                     <div class="admin-card">
                         <h3>All orders</h3>
+                        <div class="toolbar"><button class="btn btn-small" id="exportRevenueBtn" type="button">Export revenue CSV</button></div>
                         <div class="table-wrap"><table class="data-table"><thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody id="ordersBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
                         <div class="toolbar" style="margin-top: 12px;">
                             <button class="btn btn-small" id="ordersPrevBtn" type="button">← Previous</button>
@@ -372,6 +381,7 @@
                         <div class="toolbar">
                             <input type="search" id="certSearch" placeholder="Search code, learner or course…">
                             <button class="btn btn-primary btn-small" id="searchCertsBtn" type="button">Search</button>
+                            <button class="btn btn-small" id="exportCertsBtn" type="button">Export CSV</button>
                         </div>
                         <div class="table-wrap"><table class="data-table"><thead><tr><th>Code</th><th>Learner</th><th>Course</th><th>Issued</th><th></th></tr></thead><tbody id="certsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
                         <div class="toolbar" style="margin-top: 12px;">
@@ -402,6 +412,31 @@
                     <button class="btn btn-primary btn-small" id="refreshDiscussionsBtn" type="button">Refresh</button>
                     <div class="table-wrap"><table class="data-table"><thead><tr><th>Learner</th><th>Course / Lesson</th><th>Message</th><th>Posted</th><th>Actions</th></tr></thead><tbody id="discussionsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
                     <p class="status-line" id="discussionsStatus"></p>
+                </div>
+
+                <!-- ================= REVIEWS ================= -->
+                <div class="admin-section" id="section-reviews">
+                    <h2>Reviews</h2>
+                    <p class="section-sub">Every course review — moderate spam or abuse here. <span id="reviewsTotal"></span></p>
+                    <div class="admin-card">
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>User</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr></thead><tbody id="reviewsBody"><tr><td colspan="6" class="admin-note">—</td></tr></tbody></table></div>
+                        <div class="toolbar" style="margin-top: 12px;">
+                            <button class="btn btn-small" id="reviewsPrevBtn" type="button">← Previous</button>
+                            <span class="admin-note" id="reviewsPageInfo"></span>
+                            <button class="btn btn-small" id="reviewsNextBtn" type="button">Next →</button>
+                        </div>
+                    </div>
+                    <p class="status-line" id="reviewsStatus"></p>
+                </div>
+
+                <!-- ================= INSTRUCTORS ================= -->
+                <div class="admin-section" id="section-instructors">
+                    <h2>Instructors</h2>
+                    <p class="section-sub">Who teaches what, how learners rate them, and how many questions are still waiting for an answer.</p>
+                    <div class="admin-card">
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Instructor</th><th>Courses</th><th>Enrolments</th><th>Avg rating</th><th>Pending Q&amp;A</th></tr></thead><tbody id="instructorsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <p class="status-line" id="instructorsStatus"></p>
                 </div>
             </main>
         </div>
@@ -461,14 +496,31 @@
     });
     getKey(false);
 
-    /* ---------------- admin Gmail sign-in ---------------- */
+    /* ---------------- admin Gmail sign-in (session unlock) ---------------- */
+    // The server decides who is admin: GET /api/me/admin-status returns
+    // {is_admin, email, name} for the signed-in user (401 when signed
+    // out). Only called when a session token exists — never forces a
+    // login prompt. The secret-key entry below stays the fallback.
     const adminLoginStatus = document.getElementById("adminLoginStatus");
+    async function checkSessionAdmin() {
+        sessionAdmin = null;
+        if (!localStorage.getItem("lh_token")) { showAdminUser(); return false; }
+        try {
+            const d = await api.adminStatus();
+            if (d && d.is_admin) {
+                sessionAdmin = { email: d.email || "", name: d.name || "" };
+                if (d.email) knownAdminEmails.add(String(d.email).toLowerCase());
+            }
+        } catch (e) { /* signed out / not admin — fall back to the key */ }
+        showAdminUser();
+        return !!sessionAdmin;
+    }
     function showAdminUser() {
         let u = null;
         try { u = JSON.parse(localStorage.getItem("lh_user")); } catch (e) { /* ignore */ }
-        if (u && u.is_admin) {
-            adminLoginStatus.textContent = "Signed in as " + u.name + " (" + u.email + ") \u2014 admin access unlocked.";
-            document.getElementById("adminEmail").value = u.email;
+        if (sessionAdmin) {
+            adminLoginStatus.textContent = "Signed in as admin (" + (sessionAdmin.name ? sessionAdmin.name + ", " : "") + sessionAdmin.email + ") \u2014 admin access unlocked.";
+            document.getElementById("adminEmail").value = sessionAdmin.email;
         } else if (u) {
             adminLoginStatus.textContent = "Signed in as " + u.email + " \u2014 that account is not an admin.";
         } else {
@@ -482,9 +534,8 @@
         if (!email || !password) { adminLoginStatus.textContent = "Enter your Gmail and LearnHub password."; return; }
         adminLoginStatus.textContent = "Signing in\u2026";
         try {
-            const d = await api.login(email, password);
-            if (d.user && d.user.is_admin) {
-                adminLoginStatus.textContent = "Signed in as " + d.user.name + " \u2014 admin access unlocked.";
+            await api.login(email, password);
+            if (await checkSessionAdmin()) {
                 loadSection(currentSection);
             } else {
                 adminLoginStatus.textContent = "Signed in, but that account is not the admin Gmail.";
@@ -493,6 +544,7 @@
     });
     document.getElementById("adminSignOutBtn").addEventListener("click", async () => {
         try { await api.logout(); } catch (e) { /* ignore */ }
+        sessionAdmin = null;
         showAdminUser();
         statusEl("dashStatus", "Signed out \u2014 sign in as admin above, or enter the admin key first.");
     });
@@ -500,6 +552,9 @@
 
     /* ---------------- navigation ---------------- */
     let currentSection = "dashboard";
+    let sessionAdmin = null; // {email, name} when the signed-in user is admin (via /api/me/admin-status)
+    const knownAdminIds = new Set(); // user ids confirmed admin by a role-change response
+    const knownAdminEmails = new Set(); // lower-cased admin emails seen the same way
     let coursesCache = [];
     let usersPage = 1, usersTotalPages = 1;
     let ordersPage = 1, ordersTotalPages = 1;
@@ -516,9 +571,11 @@
         document.getElementById("section-" + currentSection).classList.add("active");
         loadSection(currentSection);
     });
-    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus" };
+    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus", reviews: "reviewsStatus", instructors: "instructorsStatus" };
     function loadSection(name) {
-        if (!getKey(false) && !localStorage.getItem("lh_token")) { statusEl(STATUS_IDS[name] || "dashStatus", "Sign in as admin above, or enter the admin key first.", true); return; }
+        // Unlocked = a saved key, or a signed-in admin session. A plain
+        // signed-in (non-admin) account does not unlock anything.
+        if (!getKey(false) && !sessionAdmin) { statusEl(STATUS_IDS[name] || "dashStatus", "Sign in as admin above, or enter the admin key first.", true); return; }
         if (name === "dashboard") loadDashboard();
         else if (name === "courses") loadCourses();
         else if (name === "lessons") loadLessonCourses();
@@ -528,6 +585,8 @@
         else if (name === "certificates") loadCerts(1);
         else if (name === "announcements") loadAnnouncements();
         else if (name === "discussions") loadDiscussionsAdmin();
+        else if (name === "reviews") loadReviews(1);
+        else if (name === "instructors") loadInstructors();
     }
 
     /* ---------------- dashboard ---------------- */
@@ -890,12 +949,27 @@
             const q = document.getElementById("userSearch").value.trim();
             const d = await api.adminUsers(getKey(), q, page);
             usersTotalPages = d.pages;
-            document.getElementById("usersBody").innerHTML = d.users.map((u) =>
-                `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${dateOnly(u.created_at)}</td>` +
+            document.getElementById("usersBody").innerHTML = d.users.map((u) => {
+                // The users list may not carry is_admin (backend-dependent),
+                // so a user also counts as admin when the signed-in admin
+                // session matches their email, or a role change here
+                // confirmed it.
+                const email = String(u.email || "").toLowerCase();
+                const isAdmin = !!u.is_admin || knownAdminIds.has(u.id) || knownAdminEmails.has(email) ||
+                    (sessionAdmin && sessionAdmin.email && email === String(sessionAdmin.email).toLowerCase());
+                const roleCell = isAdmin
+                    ? `<span class="badge badge-blue">Admin</span>`
+                    : `<span class="badge badge-grey">Learner</span>`;
+                const roleBtn = isAdmin
+                    ? `<button class="btn-link" data-role-remove="${u.id}" data-name="${esc(u.name)}">Remove admin</button>`
+                    : `<button class="btn-link" data-role-make="${u.id}" data-name="${esc(u.name)}">Make admin</button>`;
+                return `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${dateOnly(u.created_at)}</td>` +
                 `<td>${u.enrollments}</td><td>${u.certificates}</td><td>${scoreBadge(u.avg_quiz_percent)}</td>` +
-                `<td><button class="btn-link" data-user="${u.id}">View</button></td></tr>`).join("")
-                || `<tr><td colspan="7" class="admin-note">No users found.</td></tr>`;
+                `<td>${roleCell}</td><td><button class="btn-link" data-user="${u.id}">View</button> · ${roleBtn}</td></tr>`;
+            }).join("")
+                || `<tr><td colspan="8" class="admin-note">No users found.</td></tr>`;
             document.getElementById("usersPageInfo").textContent = "Page " + d.page + " of " + d.pages + " (" + d.total + " users)";
+            updateAdminWarning(d.users);
             statusEl("usersStatus", "");
         } catch (err) { statusEl("usersStatus", keyError(err), true); }
     }
@@ -903,7 +977,46 @@
     document.getElementById("userSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") loadUsers(1); });
     document.getElementById("usersPrevBtn").addEventListener("click", () => { if (usersPage > 1) loadUsers(usersPage - 1); });
     document.getElementById("usersNextBtn").addEventListener("click", () => { if (usersPage < usersTotalPages) loadUsers(usersPage + 1); });
+    function updateAdminWarning(users) {
+        const warn = document.getElementById("adminRoleWarning");
+        const note = document.getElementById("adminRoleNote");
+        const listedAdmin = (users || []).some((u) => !!u.is_admin || knownAdminIds.has(u.id) ||
+            knownAdminEmails.has(String(u.email || "").toLowerCase()) ||
+            (sessionAdmin && sessionAdmin.email && String(u.email || "").toLowerCase() === String(sessionAdmin.email).toLowerCase()));
+        if (sessionAdmin || listedAdmin || knownAdminIds.size > 0) {
+            warn.style.display = "";
+            warn.innerHTML = "<strong>Admin access:</strong> the account registered with <strong>siddarthajamandla@gmail.com</strong> has admin access. Anyone who registers with that Gmail would get admin access too — that window stays open until the account exists. The key-holder can revoke admin from any user here.";
+            note.style.display = "none";
+        } else {
+            warn.style.display = "none";
+            note.style.display = "";
+            note.textContent = "No admin users found. The admin Gmail (siddarthajamandla@gmail.com) is not registered yet — the first account to register with it becomes an admin. The key-holder can revoke admin from any user here.";
+        }
+    }
     document.getElementById("usersBody").addEventListener("click", async (e) => {
+        const roleMake = e.target.closest("button[data-role-make]");
+        const roleRemove = e.target.closest("button[data-role-remove]");
+        if (roleMake || roleRemove) {
+            const btn = roleMake || roleRemove;
+            const id = Number(roleMake ? roleMake.dataset.roleMake : roleRemove.dataset.roleRemove);
+            const making = !!roleMake;
+            const name = btn.dataset.name || ("user " + id);
+            if (!making && !confirm("Remove admin access from " + name + "? They will no longer be able to open the admin dashboard as a signed-in user. The admin key still works.")) return;
+            try {
+                const d = await api.setUserRole(getKey(), id, making);
+                const u = d.user || {};
+                if (u.is_admin) {
+                    knownAdminIds.add(u.id);
+                    if (u.email) knownAdminEmails.add(String(u.email).toLowerCase());
+                } else {
+                    knownAdminIds.delete(id);
+                    if (u.email) knownAdminEmails.delete(String(u.email).toLowerCase());
+                }
+                statusEl("usersStatus", (u.name || name) + (making ? " is now an admin." : " is no longer an admin."));
+                loadUsers(usersPage);
+            } catch (err) { statusEl("usersStatus", err.message, true); }
+            return;
+        }
         const btn = e.target.closest("button[data-user]");
         if (!btn) return;
         try {
@@ -998,6 +1111,18 @@
     document.getElementById("certsPrevBtn").addEventListener("click", () => { if (certsPage > 1) loadCerts(certsPage - 1); });
     document.getElementById("certsNextBtn").addEventListener("click", () => { if (certsPage < certsTotalPages) loadCerts(certsPage + 1); });
 
+    /* ---------------- CSV exports ---------------- */
+    async function doExport(type, statusId) {
+        try {
+            await api.adminExport(type, getKey());
+            statusEl(statusId, "CSV download started.");
+        } catch (err) { statusEl(statusId, err.message, true); }
+    }
+    document.getElementById("exportUsersBtn").addEventListener("click", () => doExport("users", "usersStatus"));
+    document.getElementById("exportEnrollmentsBtn").addEventListener("click", () => doExport("enrollments", "learningStatus"));
+    document.getElementById("exportRevenueBtn").addEventListener("click", () => doExport("revenue", "ordersStatus"));
+    document.getElementById("exportCertsBtn").addEventListener("click", () => doExport("certificates", "certsStatus"));
+
     /* ---------------- announcements ---------------- */
     async function loadAnnouncements() {
         statusEl("annStatus", "Loading…");
@@ -1049,8 +1174,63 @@
         catch (err) { statusEl("discussionsStatus", keyError(err), true); }
     });
 
+    /* ---------------- reviews (moderation) ---------------- */
+    let reviewsPage = 1, reviewsTotalPages = 1;
+    async function loadReviews(page) {
+        reviewsPage = page;
+        statusEl("reviewsStatus", "Loading\u2026");
+        try {
+            const d = await api.adminReviews(getKey(), { page, per_page: 20 });
+            const list = d.reviews || [];
+            reviewsTotalPages = d.pages || (list.length < 20 ? page : page + 1);
+            const total = d.total != null ? d.total : list.length;
+            document.getElementById("reviewsTotal").textContent = total + (total === 1 ? " review" : " reviews") + " in total.";
+            document.getElementById("reviewsBody").innerHTML = list.map((r) => {
+                const comment = r.comment != null ? r.comment : (r.body || "");
+                const rating = Math.max(0, Math.min(5, Number(r.rating) || 0));
+                const stars = "\u2605".repeat(rating) + "\u2606".repeat(5 - rating);
+                const courseLink = r.course_id
+                    ? `<a class="btn-link" href="course-details.html?id=${r.course_id}">${esc(r.course_title || r.course || ("Course " + r.course_id))}</a>`
+                    : esc(r.course_title || r.course || "\u2014");
+                const text = String(comment);
+                const excerpt = text.length > 140 ? text.slice(0, 140) + "\u2026" : text;
+                return `<tr><td>${courseLink}</td><td>${esc(r.user_name || r.name || "\u2014")}<br><span class="admin-note">${esc(r.user_email || r.email || "")}</span></td>` +
+                    `<td title="${Number(r.rating) || 0} / 5">${stars}</td><td>${esc(excerpt) || "\u2014"}</td><td>${dateOnly(r.created_at)}</td>` +
+                    `<td><button class="btn btn-danger-outline btn-small" data-review-del="${r.id}" type="button">Delete</button></td></tr>`;
+            }).join("") || `<tr><td colspan="6" class="admin-note">No reviews yet.</td></tr>`;
+            document.getElementById("reviewsPageInfo").textContent = "Page " + (d.page || page) + (d.pages ? " of " + d.pages : "") + (d.total != null ? " (" + d.total + " reviews)" : "");
+            statusEl("reviewsStatus", "");
+        } catch (err) { statusEl("reviewsStatus", keyError(err), true); }
+    }
+    document.getElementById("reviewsPrevBtn").addEventListener("click", () => { if (reviewsPage > 1) loadReviews(reviewsPage - 1); });
+    document.getElementById("reviewsNextBtn").addEventListener("click", () => { if (reviewsPage < reviewsTotalPages) loadReviews(reviewsPage + 1); });
+    document.getElementById("reviewsBody").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-review-del]");
+        if (!btn) return;
+        if (!confirm("Delete this review? This cannot be undone.")) return;
+        try { await api.deleteAdminReview(getKey(), btn.dataset.reviewDel); loadReviews(reviewsPage); }
+        catch (err) { statusEl("reviewsStatus", err.message, true); }
+    });
+
+    /* ---------------- instructors ---------------- */
+    async function loadInstructors() {
+        statusEl("instructorsStatus", "Loading\u2026");
+        try {
+            const d = await api.adminInstructors(getKey());
+            const list = d.instructors || [];
+            document.getElementById("instructorsBody").innerHTML = list.map((t) =>
+                `<tr><td>${esc(t.name)}</td><td>${t.courses}</td><td>${t.enrollments}</td>` +
+                `<td>${t.avg_rating == null ? "\u2014" : Number(t.avg_rating).toFixed(1) + " / 5"}</td>` +
+                `<td>${t.pending_qa ? `<span class="badge badge-amber">${t.pending_qa} waiting</span>` : "0"}</td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No instructors yet — instructors appear once a course has an instructor name.</td></tr>`;
+            statusEl("instructorsStatus", list.length + (list.length === 1 ? " instructor." : " instructors."));
+        } catch (err) { statusEl("instructorsStatus", keyError(err), true); }
+    }
+
     /* ---------------- boot ---------------- */
-    if (getKey(false) || localStorage.getItem("lh_token")) loadDashboard();
+    // Try the signed-in admin session first (no key needed); the key
+    // fallback still works exactly as before.
+    checkSessionAdmin().then((ok) => { if (ok || getKey(false)) loadDashboard(); });
 })();
 </script>
 

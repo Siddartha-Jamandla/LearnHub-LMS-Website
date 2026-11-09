@@ -513,6 +513,88 @@
             return this._admin("DELETE", `/api/admin/discussions/${id}`, key);
         },
 
+        /* ---------------- Gmail-admin: status, roles, moderation, export ---------------- */
+        async adminStatus() {
+            // Signed-in user only (401 when signed out). Returns
+            // {is_admin, email, name} as decided by the server —
+            // the admin Gmail, or any user with is_admin set.
+            // Token required; throws "Not signed in" without one.
+            const d = await request("GET", "/api/me/admin-status", null, true);
+            return d;
+        },
+
+        setUserRole(key, userId, isAdmin) {
+            // Grant (1) or revoke (0) admin for one user. Admin-gated;
+            // works with either the key or a signed-in admin session.
+            // Returns {user: {id, name, email, is_admin}}.
+            return this._admin("POST", `/api/admin/users/${userId}/role`,
+                key, { is_admin: isAdmin ? 1 : 0 });
+        },
+
+        adminReviews(key, params = {}) {
+            // All course reviews for moderation, paged (cap 50/page).
+            // Each review carries id, rating, comment (or body),
+            // created_at, course_title, user_name, user_email,
+            // course_id, user_id — field names may vary slightly.
+            const qs = new URLSearchParams();
+            if (params.page) qs.set("page", params.page);
+            if (params.per_page) qs.set("per_page", params.per_page);
+            const s = qs.toString();
+            return this._admin("GET", "/api/admin/reviews" + (s ? "?" + s : ""), key);
+        },
+
+        deleteAdminReview(key, id) {
+            return this._admin("DELETE", `/api/admin/reviews/${id}`, key);
+        },
+
+        adminInstructors(key) {
+            // Per-instructor totals: {name, courses, enrollments,
+            // avg_rating, pending_qa}.
+            return this._admin("GET", "/api/admin/instructors", key);
+        },
+
+        adminExportUrl(type, key) {
+            // Download URL for a CSV export. In key mode the key rides
+            // along as ?key= (same pattern as every admin call); in
+            // session mode the Bearer token is sent by fetch instead.
+            const qs = new URLSearchParams({ type });
+            if (key) qs.set("key", key);
+            return `${API_BASE}/api/admin/export?${qs.toString()}`;
+        },
+
+        async adminExport(type, key) {
+            // Triggers a CSV download of /api/admin/export?type=...
+            // Key mode: plain anchor (the key is in the URL, as with
+            // every other key-mode admin call). Session mode: fetch
+            // with the Bearer token and save the blob — the endpoint
+            // returns text/csv, not JSON, so _admin() can't be used.
+            if (key) {
+                const a = document.createElement("a");
+                a.href = this.adminExportUrl(type, key);
+                a.download = `learnhub-${type}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                return { ok: true };
+            }
+            const token = getToken();
+            if (!token) throw new Error("Sign in as admin or enter the admin key");
+            const res = await fetch(this.adminExportUrl(type), {
+                headers: { "Authorization": "Bearer " + token },
+            });
+            if (!res.ok) throw new Error(`Export failed (${res.status})`);
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `learnhub-${type}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            return { ok: true };
+        },
+
         /* ---------------- wishlist ---------------- */
         async getWishlist() {
             // Backend when signed in; items embed course details

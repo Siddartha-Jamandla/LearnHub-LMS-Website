@@ -57,6 +57,11 @@
 
         <div class="nav-actions">
 
+            <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
+                🔔
+                <span id="notifCount" class="notif-count" hidden>0</span>
+            </a>
+
             <a href="cart.html" class="nav-icon">
                 🛒
                 <span id="cart-count" class="cart-count">
@@ -123,11 +128,34 @@ async function renderMyCourses() {
                         return "<div class=\"course-card\"><div class=\"course-content\">" +
                             "<h3>" + c.title + "</h3>" +
                             "<p class=\"instructor\">" + c.instructor + "</p><br>" +
-                            "<p>" + pct + "% complete &middot; " + (c.lesson_count || 0) + " lessons</p>" +
-                            "<progress value=\"" + pct + "\" max=\"100\" style=\"width:100%;\"></progress><br><br>" +
+                            "<p id=\"pct-" + c.id + "\">" + pct + "% complete &middot; " + (c.lesson_count || 0) + " lessons</p>" +
+                            "<progress id=\"bar-" + c.id + "\" value=\"" + pct + "\" max=\"100\" style=\"width:100%;\"></progress>" +
+                            "<p id=\"meta-" + c.id + "\"></p><br>" +
                             "<a class=\"btn btn-primary\" href=\"course-details.html?id=" + c.id + "\">Continue Learning</a>" +
                             "</div></div>";
                     }).join("");
+                    // Refresh each card from GET /api/courses/:id/progress -
+                    // the authoritative recompute (done/total lessons,
+                    // next lesson, certificate code at 100%).
+                    courses.forEach(function (c) {
+                        LearnHubAPI.getCourseProgress(c.id).then(function (p) {
+                            var pctEl = document.getElementById("pct-" + c.id);
+                            var barEl = document.getElementById("bar-" + c.id);
+                            var metaEl = document.getElementById("meta-" + c.id);
+                            if (!pctEl || !barEl || !metaEl) return;
+                            var pct = p.progress_percent || 0;
+                            pctEl.textContent = pct + "% complete · " + p.completed_lessons + "/" + p.total_lessons + " lessons";
+                            barEl.value = pct;
+                            var meta = "";
+                            if (p.next_lesson_id) {
+                                meta += "Next: <a href=\"lesson.html?id=" + p.next_lesson_id + "\">" + p.next_lesson_title + "</a>";
+                            }
+                            if (p.certificate_code) {
+                                meta += (meta ? " · " : "") + "🎉 Certificate ready";
+                            }
+                            metaEl.innerHTML = meta;
+                        }).catch(function () { /* keep the my-courses figure */ });
+                    });
                     return;
                 }
             }

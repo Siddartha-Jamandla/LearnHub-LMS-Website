@@ -466,3 +466,169 @@ function updateNavigation() {
         });
     }
 }
+
+/* =========================================================
+   ULTIMATE LMS - shared frontend helpers
+   (search, ratings, estimated minutes, notifications)
+   ========================================================= */
+(function () {
+    "use strict";
+
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
+
+    function isSignedIn() {
+        return !!localStorage.getItem("lh_token");
+    }
+
+    // Minimal authenticated fetch against the same-origin API.
+    // Throws an Error with .status (e.g. 404/409) on failure.
+    async function lhApi(path, options) {
+        options = options || {};
+        var headers = { "Content-Type": "application/json" };
+        var token = localStorage.getItem("lh_token");
+        if (token) headers["Authorization"] = "Bearer " + token;
+        var res = await fetch(path, {
+            method: options.method || "GET",
+            headers: headers,
+            body: options.body ? JSON.stringify(options.body) : undefined,
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok) {
+            var err = new Error(data.error || ("Request failed (" + res.status + ")"));
+            err.status = res.status;
+            err.data = data;
+            throw err;
+        }
+        return data;
+    }
+
+    // Star string for an average rating (0-5). Rounds to the nearest
+    // whole star - honest, no fake precision.
+    function stars(rating) {
+        var r = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+        return "★".repeat(r) + "☆".repeat(5 - r);
+    }
+
+    function ratingOf(c) {
+        var r = (c.avg_rating != null ? c.avg_rating : c.rating);
+        return (r == null || isNaN(Number(r))) ? 0 : Number(r);
+    }
+
+    function reviewCountOf(c) {
+        var n = (c.review_count != null ? c.review_count : c.reviews_count);
+        return n == null ? 0 : Number(n) || 0;
+    }
+
+    // Estimated lesson minutes from the reading load + video:
+    //   max(1, round(word_count(body) / 200)) + (video ? 5 : 0)
+    // body is HTML - tags are stripped before counting words.
+    function estimateMinutes(bodyHtml, hasVideo) {
+        var text = String(bodyHtml || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ");
+        var words = text.trim().split(/\s+/).filter(Boolean).length;
+        return Math.max(1, Math.round(words / 200)) + (hasVideo ? 5 : 0);
+    }
+
+    // Search via the new /api/search endpoint; falls back to the
+    // existing /api/courses list (client-side filter/sort) while the
+    // new endpoint is still being rolled out.
+    async function searchCourses(params) {
+        params = params || {};
+        var qs = new URLSearchParams();
+        if (params.q) qs.set("q", params.q);
+        if (params.category) qs.set("category", params.category);
+        if (params.level) qs.set("level", params.level);
+        if (params.max_price != null && params.max_price !== "") qs.set("max_price", params.max_price);
+        if (params.sort) qs.set("sort", params.sort);
+        try {
+            var d = await lhApi("/api/search" + (qs.toString() ? "?" + qs.toString() : ""));
+            return d.results || d.courses || [];  // contract says "results"; live backend returns "courses"
+        } catch (e) {
+            if (e.status !== 404) throw e;
+        }
+        // Fallback: /api/courses supports q/category/level + sort
+        // rating|price_asc|price_desc|newest (not the /api/search names).
+        var qs2 = new URLSearchParams();
+        if (params.q) qs2.set("q", params.q);
+        if (params.category) qs2.set("category", params.category);
+        if (params.level) qs2.set("level", params.level);
+        if (params.sort === "rating") qs2.set("sort", "rating");
+        else if (params.sort === "newest") qs2.set("sort", "newest");
+        else if (params.sort === "price") qs2.set("sort", "price_asc");
+        qs2.set("per_page", "50");
+        var list = await lhApi("/api/courses" + (qs2.toString() ? "?" + qs2.toString() : ""));
+        var rows = (list.courses || []).filter(function (c) {
+            if (params.max_price != null && params.max_price !== "" &&
+                Number(c.price) > Number(params.max_price)) return false;
+            return true;
+        });
+        if (params.sort === "price") {
+            rows.sort(function (a, b) { return a.price - b.price; });
+        } else if (params.sort === "rating") {
+            rows.sort(function (a, b) { return ratingOf(b) - ratingOf(a); });
+        }
+        return rows;
+    }
+
+    // One course card, reusing the existing .course-card markup.
+    // Works with both API shapes (avg_rating/review_count from the
+    // new endpoints, rating/students from the legacy static data).
+    function courseCard(c, opts) {
+        opts = opts || {};
+        var rating = ratingOf(c);
+        var reviews = reviewCountOf(c);
+        var ratingHtml = rating > 0
+            ? esc(stars(rating)) + " " + rating.toFixed(1) +
+              (reviews ? " <span>(" + reviews + " review" + (reviews === 1 ? "" : "s") + ")</span>" : " <span>(no reviews yet)</span>")
+            : "No reviews yet";
+        var learners = (c.enrolment_count != null ? c.enrolment_count : c.students);
+        var img = c.image_url || c.image || "assets/images/course1.svg";
+        var meta = [];
+        if (c.duration_hours != null) meta.push("⏱ " + c.duration_hours + " Hours");
+        if (c.level) meta.push(esc(c.level));
+        if (learners != null) meta.push("👥 " + learners + " learners");
+        var badge = opts.badge ? '<span class="course-badge-new">' + esc(opts.badge) + "</span>" : "";
+        return '<div class="course-card">' +
+            '<div class="course-image">' +
+            '<img src="' + esc(img) + '" alt="' + esc(c.title) + '" onerror="this.style.display=\'none\';">' +
+            '<span class="course-category">' + esc(c.category || "") + "</span>" + badge +
+            '<button class="wishlist-btn" onclick="addToWishlist(' + c.id + ')" title="Add to Wishlist">♡</button>' +
+            "</div>" +
+            '<div class="course-content">' +
+            '<div class="course-rating">' + ratingHtml + "</div>" +
+            "<h3>" + esc(c.title) + "</h3>" +
+            '<p class="instructor">By ' + esc(c.instructor || "LearnHub") + "</p>" +
+            (meta.length ? '<div class="course-info">' + meta.map(function (m) { return "<span>" + m + "</span>"; }).join("") + "</div>" : "") +
+            '<div class="course-footer"><div class="course-price">' + formatPrice(c.price) + "</div>" +
+            '<a href="course-details.html?id=' + c.id + '" class="btn btn-small btn-primary">View Course</a>' +
+            "</div></div></div>";
+    }
+
+    // Notification bell: shows the unread count for signed-in users,
+    // stays hidden when signed out (or when the endpoint is absent).
+    async function initNotifBell() {
+        var bell = document.getElementById("notifBell");
+        if (!bell) return;
+        if (!isSignedIn()) { bell.hidden = true; return; }
+        bell.hidden = false;
+        var badge = document.getElementById("notifCount");
+        try {
+            var d = await lhApi("/api/me/notifications");
+            var n = d.unread_count || 0;
+            if (badge) { badge.textContent = n > 99 ? "99+" : String(n); badge.hidden = n === 0; }
+        } catch (e) {
+            if (badge) badge.hidden = true;
+        }
+    }
+
+    window.LearnHubUI = {
+        esc: esc, isSignedIn: isSignedIn, lhApi: lhApi,
+        stars: stars, ratingOf: ratingOf, reviewCountOf: reviewCountOf,
+        estimateMinutes: estimateMinutes, searchCourses: searchCourses,
+        courseCard: courseCard, initNotifBell: initNotifBell,
+    };
+    document.addEventListener("DOMContentLoaded", initNotifBell);
+})();

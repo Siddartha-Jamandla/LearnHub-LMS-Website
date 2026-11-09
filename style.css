@@ -1569,3 +1569,32 @@ button {
     .xp-head { flex-direction: column; align-items: flex-start; }
     .reply-form { flex-direction: column; }
 }
+
+
+/* =========================================================
+   ULTIMATE LMS additions (9 Nov 2026): hero search, category
+   chips, notification bell, reviews, exam, search page.
+   ========================================================= */
+.hero-search { display: flex; gap: 10px; margin: 18px 0 8px; max-width: 560px; }
+.hero-search input { flex: 1; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; }
+.category-chip { display: inline-block; padding: 8px 16px; margin: 4px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--primary); font-weight: 600; }
+.category-chip:hover { background: var(--primary); color: #fff; }
+.notif-bell { position: relative; }
+.notif-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; background: #e11d48; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.course-badge-new { position: absolute; top: 12px; right: 52px; background: var(--success); color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.review-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin: 12px 0; background: #fff; }
+.review-card .review-meta { color: var(--muted); font-size: .9rem; margin-bottom: 6px; }
+.review-stars { color: var(--warning); font-size: 1.1rem; letter-spacing: 2px; }
+.star-input button { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: #cbd5e1; padding: 0 2px; }
+.star-input button.on { color: var(--warning); }
+.notif-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin: 10px 0; background: #fff; }
+.notif-item.unread { background: #eef2ff; border-color: var(--primary); }
+.notif-item a { font-weight: 600; }
+.notif-item small { color: var(--muted); }
+.exam-box { border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin: 16px 0; background: var(--light); }
+.exam-q { margin: 14px 0; }
+.exam-q label { display: block; padding: 6px 0; }
+.cert-share { display: flex; gap: 8px; margin-top: 1rem; }
+.cert-share input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; }
+.search-meta { color: var(--muted); margin: 8px 0 20px; }
+.review-form textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }

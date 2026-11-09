@@ -38,6 +38,7 @@
     <div class="footer-column"><h3>Quick Links</h3><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="dashboard.html">Dashboard</a><a href="learning-paths.html">Learning Paths</a><a href="instructors.html">Instructors</a></div>
     <div class="footer-column"><h3>Support</h3><a href="help.html">Help</a><a href="announcements.html">Announcements</a><a href="faq.html">FAQ</a><a href="terms.html">Terms</a><a href="privacy-policy.html">Privacy Policy</a></div>
 </div><div class="footer-bottom"><div class="container"><p>© 2026 LearnHub. All Rights Reserved.</p></div></div></footer>
+<script src="script.js"></script>
 <script src="js/api.js"></script>
 <script>
 (function () {
@@ -45,9 +46,34 @@
     function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     async function load() {
         var root = document.getElementById("instructorsRoot");
+        // Real instructor stats from GET /api/instructors.
+        try {
+            var d = await LearnHubUI.lhApi("/api/instructors");
+            var list = d.instructors || [];
+            if (!list.length) {
+                root.innerHTML = '<div class="empty-state"><h2>No instructors yet</h2>' +
+                    "<p>No instructor teaches a live course on LearnHub yet — check back soon.</p></div>";
+                return;
+            }
+            root.innerHTML = list.map(function (ins) {
+                var initials = String(ins.name || "?").split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+                var rating = Number(ins.avg_rating) || 0;
+                return '<article class="course-card instructor-card">' +
+                    '<div class="instructor-avatar">' + esc(initials) + '</div>' +
+                    '<h3>' + esc(ins.name) + '</h3>' +
+                    (rating > 0
+                        ? '<p><span class="review-stars">' + esc(LearnHubUI.stars(rating)) + "</span> " + rating.toFixed(1) + "</p>"
+                        : "<p>No reviews yet</p>") +
+                    '<p>' + ins.course_count + ' course' + (ins.course_count === 1 ? "" : "s") + '</p>' +
+                    '<p>' + (ins.total_enrollments || 0) + ' enrolments</p>' +
+                    '<p><a href="courses.html" class="btn btn-outline btn-small">View courses</a></p>' +
+                    "</article>";
+            }).join("");
+            return;
+        } catch (e) { /* endpoint not live yet: fall back to course data */ }
         var courses;
         try { courses = await LearnHubAPI.getCourses({ per_page: 50 }); }
-        catch (e) { root.innerHTML = "<p>Instructors are unavailable right now: " + esc(e.message) + "</p>"; return; }
+        catch (e2) { root.innerHTML = "<p>Instructors are unavailable right now: " + esc(e2.message) + "</p>"; return; }
         var byInstructor = {};
         courses.forEach(function (c) {
             var name = c.instructor || "LearnHub Instructor";

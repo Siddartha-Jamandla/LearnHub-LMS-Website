@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://learnhubapp.pythonanywhere.com/index.html</loc></url>
   <url><loc>https://learnhubapp.pythonanywhere.com/courses.html</loc></url>
+  <url><loc>https://learnhubapp.pythonanywhere.com/search.html</loc></url>
   <url><loc>https://learnhubapp.pythonanywhere.com/course-details.html</loc></url>
   <url><loc>https://learnhubapp.pythonanywhere.com/lesson.html</loc></url>
   <url><loc>https://learnhubapp.pythonanywhere.com/dashboard.html</loc></url>

@@ -20,6 +20,10 @@
             <a href="learning-paths.html" class="nav-link">Learning Paths</a>
         </nav>
         <div class="nav-actions">
+            <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
+                🔔
+                <span id="notifCount" class="notif-count" hidden>0</span>
+            </a>
             <a href="wishlist.html" class="nav-icon">♡</a>
             <a href="cart.html" class="nav-icon">🛒<span id="cart-count" class="cart-count">0</span></a>
             <a href="my-courses.html" class="nav-link">My Courses</a>
@@ -33,6 +37,7 @@
     </div>
 </main>
 
+<script src="script.js"></script>
 <script src="js/api.js"></script>
 <script src="js/flowchart.js"></script>
 <script src="js/tutor.js"></script>
@@ -84,11 +89,17 @@
         var courseId = lesson.course_id;
 
         // --- page skeleton ---
+        // Estimated minutes from the reading load + video:
+        // max(1, round(word_count(body)/200)) + (video ? 5 : 0).
+        // Falls back to the stored duration when there is no body/video.
+        var estMin = (content.body || content.video_id) && window.LearnHubUI
+            ? LearnHubUI.estimateMinutes(content.body || "", !!content.video_id)
+            : (lesson.duration_minutes || 0);
         var html = '<p><a href="course-details.html?id=' + courseId + '">&larr; Back to ' +
             esc(lesson.course_title || "course") + '</a></p>' +
             '<span class="section-tag">' + esc(lesson.course_title || "") + '</span>' +
             '<h1>' + esc(lesson.title) + '</h1>' +
-            '<p><small>' + (lesson.duration_minutes || 0) + ' min' +
+            '<p><small>~' + estMin + ' min' +
             (lesson.is_preview ? ' &nbsp;•&nbsp; <span class="preview-badge">free preview</span>' : '') +
             '</small></p>';
 

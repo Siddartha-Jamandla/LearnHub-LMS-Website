@@ -23,6 +23,10 @@
             <a href="contact.html" class="nav-link">Contact</a>
         </nav>
         <div class="nav-actions">
+            <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
+                🔔
+                <span id="notifCount" class="notif-count" hidden>0</span>
+            </a>
             <a href="my-courses.html" class="nav-link">My Courses</a>
         </div>
     </div>
@@ -66,6 +70,10 @@
             <div id="bookmarkList"><p>Loading…</p></div>
         </div>
 
+        <h2 id="notifications">🔔 Notifications</h2>
+        <p><button type="button" class="btn btn-outline btn-small" id="markAllReadBtn">Mark all read</button></p>
+        <div id="notifList"><p>Sign in to see your notifications.</p></div>
+
         <h2>🏆 Leaderboard</h2>
         <div class="table-wrap"><table class="data-table leaderboard-table">
             <thead><tr><th>Rank</th><th>Learner</th><th>XP</th><th>Lessons</th><th>Certificates</th></tr></thead>
@@ -86,6 +94,7 @@
     <div class="footer-column"><h3>Support</h3><a href="help.html">Help</a><a href="announcements.html">Announcements</a><a href="faq.html">FAQ</a><a href="terms.html">Terms</a><a href="privacy-policy.html">Privacy Policy</a></div>
 </div><div class="footer-bottom"><div class="container"><p>© 2026 LearnHub. All Rights Reserved.</p></div></div></footer>
 
+<script src="script.js"></script>
 <script src="js/api.js"></script>
 <script>
 (function () {
@@ -161,9 +170,51 @@
         } catch (e) { document.getElementById("bookmarkList").innerHTML = "<p>Bookmarks are unavailable right now.</p>"; }
     }
 
+    async function loadNotifications() {
+        var box = document.getElementById("notifList");
+        var btn = document.getElementById("markAllReadBtn");
+        if (!window.LearnHubUI) { box.innerHTML = "<p>Notifications are unavailable right now.</p>"; return; }
+        var data;
+        try { data = await LearnHubUI.lhApi("/api/me/notifications"); }
+        catch (e) {
+            box.innerHTML = "<p>Notifications are unavailable right now.</p>";
+            btn.style.display = "none";
+            return;
+        }
+        var items = data.notifications || [];
+        if (!items.length) {
+            box.innerHTML = "<p>No notifications yet — enrol in a course and your updates will show up here.</p>";
+            btn.style.display = "none";
+            return;
+        }
+        box.innerHTML = items.map(function (n) {
+            var inner = "<strong>" + esc(n.title) + "</strong><p>" + esc(n.body || "") + "</p>" +
+                "<small>" + esc((n.created_at || "").slice(0, 16).replace("T", " ")) + "</small>";
+            if (n.link) inner = '<a href="' + esc(n.link) + '" data-notif-id="' + n.id + '" data-notif-link="1">' + inner + "</a>";
+            return '<div class="notif-item' + (n.is_read ? "" : " unread") + '" data-notif-item="' + n.id + '">' + inner + "</div>";
+        }).join("");
+        box.querySelectorAll("[data-notif-link]").forEach(function (a) {
+            a.addEventListener("click", function (e) {
+                // Mark read, then follow the link.
+                e.preventDefault();
+                var id = a.dataset.notifId, href = a.getAttribute("href");
+                LearnHubUI.lhApi("/api/notifications/" + id + "/read", { method: "POST" })
+                    .catch(function () {})
+                    .finally(function () { window.location.href = href; });
+            });
+        });
+        btn.addEventListener("click", async function () {
+            try {
+                await LearnHubUI.lhApi("/api/me/notifications/read-all", { method: "POST" });
+                loadNotifications();
+                if (window.LearnHubUI) LearnHubUI.initNotifBell();
+            } catch (e) { alert("Could not mark all read: " + e.message); }
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         loadPublic();
-        if (localStorage.getItem("lh_token")) loadDashboard();
+        if (localStorage.getItem("lh_token")) { loadDashboard(); loadNotifications(); }
         else document.getElementById("signedOutBox").hidden = false;
     });
 })();

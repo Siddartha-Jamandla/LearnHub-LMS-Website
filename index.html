@@ -62,6 +62,11 @@
             <!-- Right Side -->
             <div class="nav-actions">
 
+                <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
+                    🔔
+                    <span id="notifCount" class="notif-count" hidden>0</span>
+                </a>
+
                 <a href="wishlist.html" class="nav-icon" title="Wishlist">
                     ♡
                 </a>
@@ -125,27 +130,34 @@
 
                     </div>
 
+                    <form class="hero-search" action="search.html" method="get">
+                        <input type="search" name="q" placeholder="Search courses — try 'Python' or 'SQL'…" aria-label="Search courses">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </form>
+
+                    </div>
+
                     <!-- Hero Stats -->
                     <div class="hero-stats">
 
-                        <div class="stat">
-                            <h3>500+</h3>
+                        <div class="stat" id="statCoursesWrap">
+                            <h3 id="statCourses">—</h3>
                             <p>Courses</p>
                         </div>
 
-                        <div class="stat">
-                            <h3>50K+</h3>
-                            <p>Students</p>
+                        <div class="stat" id="statLearnersWrap">
+                            <h3 id="statLearners">—</h3>
+                            <p>Learners</p>
                         </div>
 
-                        <div class="stat">
-                            <h3>100+</h3>
-                            <p>Instructors</p>
+                        <div class="stat" id="statEnrollmentsWrap">
+                            <h3 id="statEnrollments">—</h3>
+                            <p>Enrolments</p>
                         </div>
 
-                        <div class="stat">
-                            <h3>4.8/5</h3>
-                            <p>Rating</p>
+                        <div class="stat" id="statCertsWrap">
+                            <h3 id="statCerts">—</h3>
+                            <p>Certificates Issued</p>
                         </div>
 
                     </div>
@@ -221,114 +233,9 @@
                 </div>
 
 
-                <div class="category-grid">
+                <div class="category-grid" id="categoryChips">
 
-                    <!-- Category 1 -->
-                    <a href="courses.html" class="category-card">
-
-                        <div class="category-icon">
-                            💻
-                        </div>
-
-                        <h3>
-                            Web Development
-                        </h3>
-
-                        <p>
-                            120+ Courses
-                        </p>
-
-                    </a>
-
-
-                    <!-- Category 2 -->
-                    <a href="courses.html" class="category-card">
-
-                        <div class="category-icon">
-                            📱
-                        </div>
-
-                        <h3>
-                            App Development
-                        </h3>
-
-                        <p>
-                            80+ Courses
-                        </p>
-
-                    </a>
-
-
-                    <!-- Category 3 -->
-                    <a href="courses.html" class="category-card">
-
-                        <div class="category-icon">
-                            📊
-                        </div>
-
-                        <h3>
-                            Data Science
-                        </h3>
-
-                        <p>
-                            75+ Courses
-                        </p>
-
-                    </a>
-
-
-                    <!-- Category 4 -->
-                    <a href="courses.html" class="category-card">
-
-                        <div class="category-icon">
-                            🤖
-                        </div>
-
-                        <h3>
-                            Artificial Intelligence
-                        </h3>
-
-                        <p>
-                            60+ Courses
-                        </p>
-
-                    </a>
-
-
-                    <!-- Category 5 -->
-                    <a href="courses.html" class="category-card">
-
-                        <div class="category-icon">
-                            🎨
-                        </div>
-
-                        <h3>
-                            UI/UX Design
-                        </h3>
-
-                        <p>
-                            50+ Courses
-                        </p>
-
-                    </a>
-
-
-                    <!-- Category 6 -->
-                    <a href="courses.html" class="category-card">
-
-                        <div class="category-icon">
-                            📈
-                        </div>
-
-                        <h3>
-                            Business
-                        </h3>
-
-                        <p>
-                            90+ Courses
-                        </p>
-
-                    </a>
+                    <p>Loading categories…</p>
 
                 </div>
 
@@ -352,12 +259,12 @@
                             Learn & Grow
                         </span>
 
-                        <h2>
-                            Popular Courses
+                        <h2 id="topRatedTitle">
+                            Top-Rated Courses
                         </h2>
 
-                        <p>
-                            Discover courses that students love the most.
+                        <p id="topRatedSub">
+                            The highest-rated courses on LearnHub, from real learner reviews.
                         </p>
 
                     </div>
@@ -369,608 +276,93 @@
                 </div>
 
 
-                <div class="course-grid">
+                <div class="course-grid" id="topRatedGrid">
 
-                    <!-- Course 1 -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course1.svg"
-                                alt="Web Development Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Development
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(1)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ 4.8
-                                <span>(2,450)</span>
-                            </div>
-
-                            <h3>
-                                Complete Web Development Bootcamp
-                            </h3>
-
-                            <p class="instructor">
-                                By John Smith
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 42 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 18 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹999
-                                    <del>₹2,499</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=1"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Course 2 -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course2.svg"
-                                alt="JavaScript Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Programming
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(2)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ 4.9
-                                <span>(1,890)</span>
-                            </div>
-
-                            <h3>
-                                JavaScript From Beginner to Advanced
-                            </h3>
-
-                            <p class="instructor">
-                                By Sarah Williams
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 35 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 14 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹799
-                                    <del>₹1,999</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=2"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Course 3 -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course3.svg"
-                                alt="Python Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Data Science
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(3)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ 4.7
-                                <span>(3,120)</span>
-                            </div>
-
-                            <h3>
-                                Python Programming Masterclass
-                            </h3>
-
-                            <p class="instructor">
-                                By Michael Brown
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 50 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 22 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹899
-                                    <del>₹2,299</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=3"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Course 4 -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course4.svg"
-                                alt="UI UX Design Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Design
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(4)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ 4.8
-                                <span>(1,540)</span>
-                            </div>
-
-                            <h3>
-                                UI/UX Design Complete Guide
-                            </h3>
-
-                            <p class="instructor">
-                                By Emily Johnson
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 28 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 12 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹699
-                                    <del>₹1,799</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=4"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Course 13 - NEW: full learning course with chatbot, MCQs, flowcharts, videos & tasks -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course4.svg"
-                                alt="C Programming Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Programming
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(13)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ New
-                                <span>(New course)</span>
-                            </div>
-
-                            <h3>
-                                C Programming from Zero to Hero
-                            </h3>
-
-                            <p class="instructor">
-                                By Arjun Reddy
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 10 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 20 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹899
-                                    <del>₹1,999</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=13"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Course 14 - NEW: full learning course with chatbot, MCQs, flowcharts, videos & tasks -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course5.svg"
-                                alt="DSA Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Programming
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(14)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ New
-                                <span>(New course)</span>
-                            </div>
-
-                            <h3>
-                                Data Structures & Algorithms
-                            </h3>
-
-                            <p class="instructor">
-                                By Priya Sharma
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 10 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 24 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹1,299
-                                    <del>₹2,999</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=14"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Course 15 - NEW: full learning course with chatbot, MCQs, flowcharts, videos & tasks -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course2.svg"
-                                alt="Java Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Programming
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(15)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ New
-                                <span>(New course)</span>
-                            </div>
-
-                            <h3>
-                                Java Programming Masterclass
-                            </h3>
-
-                            <p class="instructor">
-                                By Sarah Williams
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 8 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 18 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹999
-                                    <del>₹2,299</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=15"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Course 16 - NEW: full learning course with chatbot, MCQs, flowcharts, videos & tasks -->
-                    <div class="course-card">
-
-                        <div class="course-image">
-
-                            <img
-                                src="assets/images/course6.svg"
-                                alt="SQL Course"
-                                onerror="this.style.display='none';"
-                            >
-
-                            <span class="course-category">
-                                Data Science
-                            </span>
-
-                            <button
-                                class="wishlist-btn"
-                                onclick="addToWishlist(16)"
-                                title="Add to Wishlist"
-                            >
-                                ♡
-                            </button>
-
-                        </div>
-
-
-                        <div class="course-content">
-
-                            <div class="course-rating">
-                                ⭐ New
-                                <span>(New course)</span>
-                            </div>
-
-                            <h3>
-                                SQL Essentials: Queries to Databases
-                            </h3>
-
-                            <p class="instructor">
-                                By Kavya Nair
-                            </p>
-
-                            <div class="course-info">
-
-                                <span>
-                                    📚 8 Lessons
-                                </span>
-
-                                <span>
-                                    ⏱ 12 Hours
-                                </span>
-
-                            </div>
-
-
-                            <div class="course-footer">
-
-                                <div class="course-price">
-                                    ₹799
-                                    <del>₹1,799</del>
-                                </div>
-
-                                <a
-                                    href="course-details.html?id=16"
-                                    class="btn btn-small btn-primary"
-                                >
-                                    View Course
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                    <p>Loading top-rated courses…</p>
 
                 </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             NEW COURSES
+        ========================== -->
+        <section class="courses-section section">
+
+            <div class="container">
+
+                <div class="section-header section-header-row">
+
+                    <div>
+
+                        <span class="section-tag">
+                            Fresh
+                        </span>
+
+                        <h2>
+                            New Courses
+                        </h2>
+
+                        <p>
+                            The latest courses added to LearnHub.
+                        </p>
+
+                    </div>
+
+                    <a href="search.html?sort=newest" class="view-all">
+                        View All Courses →
+                    </a>
+
+                </div>
+
+
+                <div class="course-grid" id="newCoursesGrid">
+
+                    <p>Loading new courses…</p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             RECOMMENDED FOR YOU
+        ========================== -->
+        <section class="courses-section section" id="recommendedSection" hidden>
+
+            <div class="container">
+
+                <div class="section-header section-header-row">
+
+                    <div>
+
+                        <span class="section-tag">
+                            For You
+                        </span>
+
+                        <h2>
+                            Recommended for You
+                        </h2>
+
+                        <p>
+                            Picked from the categories you are already learning.
+                        </p>
+
+                    </div>
+
+                    <a href="my-courses.html" class="view-all">
+                        My Courses →
+                    </a>
+
+                </div>
+
+
+                <div class="course-grid" id="recommendedGrid"></div>
 
             </div>
 
@@ -1189,6 +581,10 @@
                     Courses
                 </a>
 
+                <a href="search.html">
+                    Search
+                </a>
+
                 <a href="about.html">
                     About Us
                 </a>
@@ -1291,7 +687,114 @@
 
 
     <!-- Common JavaScript -->
-    <script src="js/script.js"></script>
+    <script src="script.js"></script>
+    <script src="js/api.js"></script>
+<script>
+/* Homepage: real stats, categories, top-rated, new & recommended. */
+(function () {
+    "use strict";
+    var UI = window.LearnHubUI;
+
+    async function loadStats() {
+        try {
+            var d = await UI.lhApi("/api/stats");
+            document.getElementById("statCourses").textContent = d.total_courses;
+            document.getElementById("statLearners").textContent = d.total_learners;
+            document.getElementById("statEnrollments").textContent = d.total_enrollments;
+            document.getElementById("statCerts").textContent = d.certificates_issued;
+        } catch (e) {
+            // Stats endpoint not live yet: show the real course count
+            // and hide the stats we cannot verify.
+            try {
+                var list = await UI.lhApi("/api/courses?per_page=1");
+                document.getElementById("statCourses").textContent = list.total;
+            } catch (e2) { document.getElementById("statCourses").textContent = "—"; }
+            ["statLearnersWrap", "statEnrollmentsWrap", "statCertsWrap"].forEach(function (id) {
+                var el = document.getElementById(id); if (el) el.style.display = "none";
+            });
+        }
+    }
+
+    async function enrichRatings(list) {
+        // GET /api/courses list rows carry no avg_rating yet: fetch the
+        // single-course endpoint (which has avg_rating + review_count)
+        // for any course missing them. Tolerates failures.
+        await Promise.all(list.map(async function (c) {
+            if (c.avg_rating != null) return;
+            try {
+                var d = await UI.lhApi("/api/courses/" + c.id);
+                c.avg_rating = d.course.avg_rating;
+                c.review_count = d.course.review_count;
+            } catch (e) { /* leave unrated */ }
+        }));
+        return list;
+    }
+
+    async function loadTopRated() {
+        var grid = document.getElementById("topRatedGrid");
+        try {
+            var rows = await UI.searchCourses({ sort: "rating" });
+            rows = await enrichRatings(rows.slice(0, 8));
+            var rated = rows.filter(function (c) { return UI.ratingOf(c) > 0; });
+            if (!rated.length) {
+                // No ratings yet: fall back to the newest courses.
+                rows = await enrichRatings((await UI.searchCourses({ sort: "newest" })).slice(0, 8));
+                document.getElementById("topRatedTitle").textContent = "Popular Courses";
+                document.getElementById("topRatedSub").textContent = "No reviews yet — here are the newest courses while learners catch up.";
+            }
+            grid.innerHTML = rows.map(function (c) { return UI.courseCard(c); }).join("");
+        } catch (e) {
+            grid.innerHTML = '<div class="empty-state"><h2>Top-rated courses are unavailable right now</h2><p>Please try again later.</p></div>';
+        }
+    }
+
+    async function loadCategories() {
+        var wrap = document.getElementById("categoryChips");
+        try {
+            var d = await UI.lhApi("/api/courses?per_page=50");
+            var counts = {};
+            (d.courses || []).forEach(function (c) { counts[c.category] = (counts[c.category] || 0) + 1; });
+            var cats = Object.keys(counts).sort();
+            if (!cats.length) { wrap.innerHTML = "<p>No categories yet.</p>"; return; }
+            wrap.innerHTML = cats.map(function (cat) {
+                return '<a href="search.html?category=' + encodeURIComponent(cat) + '" class="category-chip">' +
+                    UI.esc(cat) + " (" + counts[cat] + ")</a>";
+            }).join("");
+        } catch (e) {
+            wrap.innerHTML = "<p>Categories are unavailable right now.</p>";
+        }
+    }
+
+    async function loadNew() {
+        var grid = document.getElementById("newCoursesGrid");
+        try {
+            var rows = await enrichRatings((await UI.searchCourses({ sort: "newest" })).slice(0, 4));
+            grid.innerHTML = rows.length
+                ? rows.map(function (c) { return UI.courseCard(c, { badge: "New" }); }).join("")
+                : "<p>No courses yet.</p>";
+        } catch (e) {
+            grid.innerHTML = "<p>New courses are unavailable right now.</p>";
+        }
+    }
+
+    async function loadRecommended() {
+        var section = document.getElementById("recommendedSection");
+        if (!UI.isSignedIn()) return; // hidden when signed out
+        try {
+            var d = await UI.lhApi("/api/me/recommended");
+            var rows = d.courses || [];
+            if (!rows.length) return; // hide when empty
+            section.hidden = false;
+            document.getElementById("recommendedGrid").innerHTML =
+                rows.slice(0, 4).map(function (c) { return UI.courseCard(c); }).join("");
+        } catch (e) { /* endpoint not live yet: keep hidden */ }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadStats(); loadCategories(); loadTopRated(); loadNew(); loadRecommended();
+    });
+})();
+</script>
 
 </body>
 </html>

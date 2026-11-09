@@ -231,3 +231,39 @@ CREATE TABLE IF NOT EXISTS discussions (
 CREATE INDEX IF NOT EXISTS idx_notes_user_lesson ON lesson_notes(user_id, lesson_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON lesson_bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_discussions_lesson ON discussions(lesson_id);
+
+-- ------------------------------------------------------------------
+-- ULTIMATE LMS: final exam attempts + notifications.
+-- ------------------------------------------------------------------
+
+-- One row per final-exam submission. Multiple attempts allowed;
+-- `passed` is 1 when score/total >= 0.70. XP (+50) and the
+-- exam-master badge are derived from passed rows (see _gamification),
+-- not stored separately.
+CREATE TABLE IF NOT EXISTS final_exam_attempts (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id  INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    score      INTEGER NOT NULL,
+    total      INTEGER NOT NULL,
+    passed     INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_final_exam_user_course
+    ON final_exam_attempts(user_id, course_id);
+
+-- In-app notifications (announcements, discussion replies,
+-- certificates, exam passes). is_read 0 = unread.
+CREATE TABLE IF NOT EXISTS notifications (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type       TEXT NOT NULL,
+    title      TEXT NOT NULL,
+    body       TEXT NOT NULL DEFAULT '',
+    link       TEXT,
+    is_read    INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);

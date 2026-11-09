@@ -10,6 +10,11 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta name="description" content="LearnHub certificate of completion — verify this certificate and share it with employers.">
+    <meta property="og:title" content="Certificate of Completion - LearnHub">
+    <meta property="og:description" content="A LearnHub certificate of completion, verifiable by its unique code.">
+    <meta property="og:type" content="website">
+
     <title>Certificate of Completion - LearnHub</title>
 
     <link
@@ -34,8 +39,9 @@
         }
         .cert-actions { text-align: center; margin-top: 1.5rem; }
         @media print {
-            .header, .footer, .cert-actions { display: none; }
+            .header, .footer, .cert-actions, .cert-share button { display: none; }
             .cert-wrap { margin: 0; max-width: none; }
+            .cert-share input { border: none; text-align: center; }
         }
     </style>
 
@@ -111,7 +117,8 @@
 
 </footer>
 
-<script src="../js/api.js"></script>
+<script src="script.js"></script>
+<script src="js/api.js"></script>
 
 <script>
     (async function () {
@@ -137,7 +144,44 @@
                     &nbsp;|&nbsp; ${escapeHtml(String(cert.duration_hours || ""))} hours</p>
                 <p class="sub">Issued on ${escapeHtml(String(cert.issued_at || "").slice(0, 10))}</p>
                 <div class="code">${escapeHtml(cert.certificate_code)}</div>
+                <p class="sub" id="examStatus"></p>
+                <div class="cert-share">
+                    <input type="text" id="shareLink" readonly value="${escapeHtml(location.origin + location.pathname + "?id=" + id)}" aria-label="Shareable certificate link">
+                    <button class="btn btn-outline" type="button" id="copyLinkBtn">Copy link</button>
+                </div>
+                <p class="sub"><small>Anyone with this link can verify the certificate — the code is checked against the live registry.</small></p>
             `;
+            const copyBtn = document.getElementById("copyLinkBtn");
+            copyBtn.addEventListener("click", async () => {
+                const input = document.getElementById("shareLink");
+                input.select();
+                try {
+                    await navigator.clipboard.writeText(input.value);
+                    copyBtn.textContent = "Copied ✓";
+                } catch (e) {
+                    document.execCommand("copy");
+                    copyBtn.textContent = "Copied ✓";
+                }
+                setTimeout(() => { copyBtn.textContent = "Copy link"; }, 2000);
+            });
+            // Final-exam status for this course (signed in + enrolled only;
+            // hidden when the endpoint is unavailable).
+            if (cert.course_id && window.LearnHubUI) {
+                try {
+                    const exam = await LearnHubUI.lhApi(`/api/courses/${cert.course_id}/final-exam`);
+                    const line = document.getElementById("examStatus");
+                    if (line) {
+                        // best_score is the raw best mark (questions
+                        // correct), not a percent.
+                        const total = (exam.questions || []).length || 10;
+                        line.textContent = exam.passed
+                            ? `Final exam: Passed ✓ (best score ${exam.best_score} / ${total})`
+                            : (exam.best_score != null
+                                ? `Final exam: not passed yet (best score ${exam.best_score} / ${total})`
+                                : "Final exam: not attempted yet");
+                    }
+                } catch (e) { /* hide the line when unavailable */ }
+            }
         } catch (e) {
             card.innerHTML = '<p class="sub">Could not load this certificate: ' +
                 escapeHtml(e.message || "not found") + '</p>';

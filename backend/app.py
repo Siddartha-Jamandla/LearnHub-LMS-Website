@@ -13,8 +13,10 @@ Env vars (see backend/.env.example):
   API_SECRET- secret salt for token generation (default "learnhub-dev-secret")
 """
 
+import csv
 import hashlib
 from datetime import date, timedelta
+import io
 import json
 import math
 import mimetypes
@@ -134,14 +136,41 @@ CREATE TABLE IF NOT EXISTS discussions (
 CREATE INDEX IF NOT EXISTS idx_notes_user_lesson ON lesson_notes(user_id, lesson_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON lesson_bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_discussions_lesson ON discussions(lesson_id);
+CREATE TABLE IF NOT EXISTS final_exam_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    score INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    passed INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_final_exam_user_course
+    ON final_exam_attempts(user_id, course_id);
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL DEFAULT '',
+    link TEXT,
+    is_read INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 """)
         conn.commit()
         _seed_announcements(conn)
-        # Gmail-admin: users.is_admin flag + backfill the admin Gmail.
+        # Gmail-admin: users.is_admin flag. The backfill runs ONLY when the
+        # column is first created (one-time upgrade grant for an admin-Gmail
+        # account that already exists). It must NOT run on every start, or
+        # it would silently re-grant admin after a key-holder revoked it.
+        # The grant also happens at registration (api_register) when the
+        # email matches ADMIN_EMAIL.
         cols_u = [r["name"] for r in conn.execute("PRAGMA table_info(users)")]
         if "is_admin" not in cols_u:
             conn.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
-        conn.execute("UPDATE users SET is_admin = 1 WHERE lower(email) = ?", (ADMIN_EMAIL,))
+            conn.execute("UPDATE users SET is_admin = 1 WHERE lower(email) = ?", (ADMIN_EMAIL,))
         conn.commit()
     except Exception as e:
         print(f"[learnhub] pro-lms migration skipped: {e!r}")
@@ -224,13 +253,30 @@ def user_from_token(token: str):
 
 
 def _is_admin_user(user) -> bool:
-    """True when the signed-in user is an admin: the is_admin flag,
-    or the account's email is the configured admin Gmail."""
+    """True when the signed-in user is an admin: the is_admin flag only.
+
+    The flag is authoritative so that a key-holder revoking admin via
+    POST /api/admin/users/:id/role actually sticks. (Registration still
+    grants is_admin=1 to the ADMIN_EMAIL address — see api_register —
+    so the first account registered with that Gmail becomes admin, but
+    that grant can now be revoked durably.)"""
     if not user:
         return False
-    if user.get("is_admin"):
-        return True
-    return is_admin_email(user.get("email") or "")
+    return bool(user.get("is_admin"))
+
+
+def _notify_user(conn, user_id, ntype, title, body, link=None):
+    """Best-effort in-app notification insert. Never raises and never
+    commits: the caller owns the transaction, so a notification failure
+    can never break the main action (announcement, reply, certificate,
+    exam pass)."""
+    try:
+        conn.execute(
+            "INSERT INTO notifications (user_id, type, title, body, link)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (user_id, ntype, title, body or "", link))
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------- handler
@@ -254,6 +300,22 @@ class LearnHubHandler(BaseHTTPRequestHandler):
 
     def _ok(self, payload, status=200):
         self._json(status, {"ok": True, **payload})
+
+    def _csv(self, filename, header, rows):
+        """Send rows as a downloadable CSV file (admin export)."""
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(header)
+        writer.writerows(rows)
+        body = buf.getvalue().encode("utf-8")
+        self.send_response(200)
+        self._cors()
+        self.send_header("Content-Type", "text/csv; charset=utf-8")
+        self.send_header("Content-Disposition",
+                         f'attachment; filename="{filename}"')
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def _err(self, status: int, message: str):
         self._json(status, {"ok": False, "error": message})
@@ -430,6 +492,29 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("GET",    r"^/api/wishlist$",               self.api_wishlist_get),
             ("POST",   r"^/api/wishlist$",               self.api_wishlist_add),
             ("DELETE", r"^/api/wishlist/(\d+)$",         self.api_wishlist_del),
+            # -- ULTIMATE LMS: search, stats, instructors, exams, --------
+            # -- notifications, reviews mgmt, admin roles / exports -----
+            ("GET",    r"^/api/search$",                self.api_search),
+            ("GET",    r"^/api/stats$",                 self.api_stats),
+            ("GET",    r"^/api/instructors$",           self.api_instructors),
+            ("GET",    r"^/api/me/admin-status$",       self.api_me_admin_status),
+            ("GET",    r"^/api/me/recommended$",        self.api_me_recommended),
+            ("GET",    r"^/api/me/notifications$",      self.api_me_notifications),
+            ("POST",   r"^/api/me/notifications/read-all$",
+                                                     self.api_me_notifications_read_all),
+            ("POST",   r"^/api/notifications/(\d+)/read$",
+                                                     self.api_notification_read),
+            ("PUT",    r"^/api/reviews/(\d+)$",         self.api_review_update),
+            ("DELETE", r"^/api/reviews/(\d+)$",         self.api_review_delete),
+            ("GET",    r"^/api/courses/(\d+)/final-exam$",
+                                                     self.api_final_exam_get),
+            ("POST",   r"^/api/courses/(\d+)/final-exam/submit$",
+                                                     self.api_final_exam_submit),
+            ("POST",   r"^/api/admin/users/(\d+)/role$", self.api_admin_user_role),
+            ("GET",    r"^/api/admin/reviews$",         self.api_admin_reviews),
+            ("DELETE", r"^/api/admin/reviews/(\d+)$",   self.api_admin_review_delete),
+            ("GET",    r"^/api/admin/instructors$",     self.api_admin_instructors),
+            ("GET",    r"^/api/admin/export$",          self.api_admin_export),
         ]
         for m, pattern, handler in r:
             match = re.match(pattern, path)
@@ -609,7 +694,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._err(404, "Course not found")
             return
         rows = conn.execute(
-            """SELECT r.id, r.rating, r.comment, r.created_at, u.name AS user_name
+            """SELECT r.id, r.user_id, r.rating, r.comment, r.created_at, u.name AS user_name
                FROM reviews r JOIN users u ON u.id = r.user_id
                WHERE r.course_id = ? ORDER BY r.id DESC""",
             (course_id,)).fetchall()
@@ -771,6 +856,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         # Certificate of completion: generated once when progress hits 100%.
         # INSERT OR IGNORE keeps it idempotent (UNIQUE(user_id, course_id)).
         certificate = None
+        certificate_new = False
         if pct >= 100.0:
             code = "LH-" + secrets.token_hex(4).upper()
             cur = conn.execute(
@@ -780,6 +866,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             if cur.rowcount == 1:
                 certificate = {"id": cur.lastrowid,
                                "certificate_code": code}
+                certificate_new = True
             else:
                 existing = conn.execute(
                     "SELECT id, certificate_code FROM certificates"
@@ -788,6 +875,21 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                 if existing:
                     certificate = {"id": existing["id"],
                                    "certificate_code": existing["certificate_code"]}
+        if certificate and certificate_new:
+            # Notify the learner their certificate is ready (best-effort;
+            # _notify_user never raises, and the commit below still runs).
+            try:
+                course_row = conn.execute(
+                    "SELECT title FROM courses WHERE id = ?",
+                    (lesson["course_id"],)).fetchone()
+                course_title = course_row["title"] if course_row else "your course"
+            except Exception:
+                course_title = "your course"
+            _notify_user(conn, user["id"], "certificate",
+                         "Certificate earned",
+                         f"Your certificate for '{course_title}' is ready"
+                         f" — code {certificate['certificate_code']}.",
+                         f"/certificate.html?code={certificate['certificate_code']}")
         conn.commit()
         conn.close()
         resp = {"lesson_id": int(lesson_id), "completed": True,
@@ -1904,7 +2006,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         total = conn.execute(
             f"SELECT COUNT(*) FROM users {where}", args).fetchone()[0]
         rows = conn.execute(
-            f"""SELECT u.id, u.name, u.email, u.created_at,
+            f"""SELECT u.id, u.name, u.email, u.created_at, u.is_admin,
                        (SELECT COUNT(*) FROM enrollments e
                          WHERE e.user_id = u.id) AS enrollments,
                        (SELECT COUNT(*) FROM certificates cf
@@ -1927,7 +2029,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             return
         conn = db()
         user = conn.execute(
-            "SELECT id, name, email, created_at FROM users WHERE id = ?",
+            "SELECT id, name, email, is_admin, created_at FROM users WHERE id = ?",
             (user_id,)).fetchone()
         if not user:
             conn.close()
@@ -2776,6 +2878,22 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                     best[q["lesson_id"]] = (pct, q["taken_at"])
         quiz_bonus = sum(1 for pct, _ in best.values() if pct >= 80) * 10
         xp = len(lessons) * 10 + len(tasks) * 5 + quiz_bonus + len(certs) * 50
+        # Final exams: +50 XP once per course passed (same computed-XP
+        # pattern as certificates above — there is no stored XP table,
+        # XP is always derived from activity rows, so a passed exam
+        # simply counts here). A repeat pass of the same course adds 0.
+        try:
+            exam_passes = conn.execute(
+                """SELECT fea.course_id, MIN(fea.created_at) AS first_passed,
+                          c.title AS course_title
+                   FROM final_exam_attempts fea
+                   JOIN courses c ON c.id = fea.course_id
+                   WHERE fea.user_id = ? AND fea.passed = 1
+                   GROUP BY fea.course_id ORDER BY first_passed""",
+                (user_id,)).fetchall()
+        except sqlite3.Error:
+            exam_passes = []
+        xp += len(exam_passes) * 50
         avg_quiz = (round(sum(p for p, _ in best.values()) / len(best), 1)
                     if best else 0.0)
         # streak: distinct activity dates, consecutive days ending
@@ -2836,10 +2954,21 @@ class LearnHubHandler(BaseHTTPRequestHandler):
              "earned": streak >= 7,
              "earned_at": today.isoformat() if streak >= 7 else None},
         ]
+        # Exam-master badges: one per course whose final exam the learner
+        # passed, derived from final_exam_attempts like every other badge
+        # above (no separate badge table exists).
+        for ep in exam_passes:
+            badges.append({
+                "id": f"exam-master-{ep['course_id']}",
+                "title": "Exam Master",
+                "description": f"Passed the final exam for '{ep['course_title']}'",
+                "earned": True,
+                "earned_at": ep["first_passed"]})
         return {"xp": xp, "level": xp // 200 + 1, "streak_days": streak,
                 "lessons_completed": len(lessons), "tasks_done": len(tasks),
                 "quizzes_taken": len(quizzes), "avg_quiz_percent": avg_quiz,
                 "certificates_count": len(certs), "badges": badges,
+                "exams_passed": len(exam_passes),
                 "quiz_bonus_lessons": len([1 for p, _ in best.values() if p >= 80])}
 
     def _recent_activity(self, conn, user_id):
@@ -3221,6 +3350,15 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             (user["id"], parent["lesson_id"], top_id, text))
         conn.commit()
         rid = cur.lastrowid
+        # Notify the top-level question's author (not the replier).
+        top = conn.execute(
+            "SELECT user_id FROM discussions WHERE id = ?", (top_id,)).fetchone()
+        if top and top["user_id"] != user["id"]:
+            _notify_user(conn, top["user_id"], "discussion_reply",
+                         "New reply to your question",
+                         text[:200],
+                         f"/lesson.html?id={parent['lesson_id']}")
+            conn.commit()
         conn.close()
         self._ok({"discussion_id": rid, "message": "Reply posted"}, status=201)
 
@@ -3261,6 +3399,11 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                            (title, text))
         conn.commit()
         aid = cur.lastrowid
+        # Notify every user about the new announcement (best-effort).
+        for u in conn.execute("SELECT id FROM users").fetchall():
+            _notify_user(conn, u["id"], "announcement", title, text,
+                         "/announcements.html")
+        conn.commit()
         conn.close()
         self._ok({"announcement_id": aid, "message": "Announcement posted"}, status=201)
 
@@ -3306,6 +3449,592 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._err(404, "Discussion not found")
             return
         self._ok({"deleted": int(discussion_id)})
+
+
+    # -- ULTIMATE LMS: search, stats, instructors, exams, ------------
+    # -- notifications, review management, admin roles / exports -----
+    # Course rows with review + enrolment stats attached (superset of
+    # the plain /api/courses item shape: same fields plus avg_rating,
+    # review_count, enrolment_count).
+    _COURSE_STATS_SELECT = (
+        "SELECT c.*, "
+        "COALESCE((SELECT ROUND(AVG(rating), 2) FROM reviews"
+        " WHERE course_id = c.id), 0.0) AS avg_rating, "
+        "(SELECT COUNT(*) FROM reviews WHERE course_id = c.id)"
+        " AS review_count, "
+        "(SELECT COUNT(*) FROM enrollments WHERE course_id = c.id)"
+        " AS enrolment_count FROM courses c"
+    )
+
+    def api_search(self):
+        """GET /api/search?q=&category=&level=&max_price=&sort=.
+
+        Public. q LIKE-matches course title/description AND lesson
+        titles (a course with a matching lesson appears). sort is
+        popular (enrolments desc, default) | newest | price (asc) |
+        rating (avg review rating desc). At most 50 results.
+        """
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        q = (qs.get("q", [""])[0] or "").strip()
+        if len(q) > 200:
+            self._err(400, "q must be at most 200 characters")
+            return
+        category = (qs.get("category", [""])[0] or "").strip()
+        level = (qs.get("level", [""])[0] or "").strip()
+        if level and level not in self.COURSE_LEVELS:
+            self._err(400, "level must be one of: Beginner, Intermediate, Advanced")
+            return
+        max_price_raw = (qs.get("max_price", [""])[0] or "").strip()
+        max_price = None
+        if max_price_raw:
+            try:
+                max_price = int(max_price_raw)
+            except (TypeError, ValueError):
+                self._err(400, "max_price must be an integer >= 0")
+                return
+            if max_price < 0:
+                self._err(400, "max_price must be >= 0")
+                return
+        sort = (qs.get("sort", ["popular"])[0] or "popular").strip()
+        SORTS = {
+            "popular": ("(SELECT COUNT(*) FROM enrollments e"
+                        " WHERE e.course_id = c.id) DESC, c.id"),
+            "newest": "c.created_at DESC, c.id DESC",
+            "price": "c.price ASC, c.id",
+            "rating": ("(SELECT COALESCE(AVG(rating), 0) FROM reviews"
+                       " WHERE course_id = c.id) DESC, c.id"),
+        }
+        if sort not in SORTS:
+            self._err(400, "Invalid sort: expected one of popular, newest,"
+                           " price, rating")
+            return
+        clauses, params = [], []
+        if category:
+            clauses.append("c.category = ?")
+            params.append(category)
+        if level:
+            clauses.append("c.level = ?")
+            params.append(level)
+        if max_price is not None:
+            clauses.append("c.price <= ?")
+            params.append(max_price)
+        if q:
+            clauses.append("(c.title LIKE ? OR c.description LIKE ?"
+                           " OR EXISTS (SELECT 1 FROM lessons l"
+                           " WHERE l.course_id = c.id AND l.title LIKE ?))")
+            params += [f"%{q}%", f"%{q}%", f"%{q}%"]
+        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+        conn = db()
+        total = conn.execute(
+            "SELECT COUNT(*) AS n FROM courses c" + where, params).fetchone()["n"]
+        rows = conn.execute(
+            self._COURSE_STATS_SELECT + where
+            + " ORDER BY " + SORTS[sort] + " LIMIT 50",
+            params).fetchall()
+        conn.close()
+        self._ok({"courses": [row_to_dict(r) for r in rows], "total": total})
+
+    def api_stats(self):
+        """GET /api/stats — public platform totals (real DB counts)."""
+        conn = db()
+        one = lambda sql: conn.execute(sql).fetchone()[0]
+        out = {
+            "total_learners": one("SELECT COUNT(*) FROM users"),
+            "total_courses": one("SELECT COUNT(*) FROM courses"),
+            "total_enrollments": one("SELECT COUNT(*) FROM enrollments"),
+            "certificates_issued": one("SELECT COUNT(*) FROM certificates"),
+        }
+        conn.close()
+        self._ok(out)
+
+    def api_instructors(self):
+        """GET /api/instructors — public per-instructor roll-up."""
+        conn = db()
+        rows = conn.execute(
+            """SELECT c.instructor AS name,
+                      COUNT(DISTINCT c.id) AS course_count,
+                      COALESCE(ROUND(AVG(r.rating), 2), 0.0) AS avg_rating,
+                      (SELECT COUNT(*) FROM enrollments e
+                       JOIN courses c2 ON c2.id = e.course_id
+                       WHERE c2.instructor = c.instructor) AS total_enrollments
+               FROM courses c LEFT JOIN reviews r ON r.course_id = c.id
+               GROUP BY c.instructor
+               ORDER BY course_count DESC, name""").fetchall()
+        conn.close()
+        self._ok({"instructors": [row_to_dict(r) for r in rows]})
+
+    def api_me_admin_status(self):
+        """GET /api/me/admin-status — signed-in user only."""
+        user = self._require_user()
+        if not user:
+            return
+        self._ok({"is_admin": bool(_is_admin_user(user)),
+                  "email": user["email"], "name": user["name"]})
+
+    def api_me_recommended(self):
+        """GET /api/me/recommended — signed-in only.
+
+        Courses in categories the caller is enrolled in, excluding
+        courses they already enrolled in, top by enrolment count,
+        limit 8, same shape as search results.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        cats = [r["category"] for r in conn.execute(
+            """SELECT DISTINCT c.category FROM enrollments e
+               JOIN courses c ON c.id = e.course_id
+               WHERE e.user_id = ?""", (user["id"],)).fetchall()]
+        if not cats:
+            conn.close()
+            self._ok({"courses": []})
+            return
+        placeholders = ",".join("?" * len(cats))
+        rows = conn.execute(
+            self._COURSE_STATS_SELECT
+            + f" WHERE c.category IN ({placeholders})"
+              " AND NOT EXISTS (SELECT 1 FROM enrollments e"
+              " WHERE e.user_id = ? AND e.course_id = c.id)"
+              " ORDER BY (SELECT COUNT(*) FROM enrollments e2"
+              " WHERE e2.course_id = c.id) DESC, c.id LIMIT 8",
+            cats + [user["id"]]).fetchall()
+        conn.close()
+        self._ok({"courses": [row_to_dict(r) for r in rows]})
+
+    # -- notifications -------------------------------------------------
+    def api_me_notifications(self):
+        """GET /api/me/notifications — own only, newest first."""
+        user = self._require_user()
+        if not user:
+            return
+        page, per_page, _q = self._admin_page()
+        conn = db()
+        total = conn.execute(
+            "SELECT COUNT(*) FROM notifications WHERE user_id = ?",
+            (user["id"],)).fetchone()[0]
+        unread = conn.execute(
+            "SELECT COUNT(*) FROM notifications"
+            " WHERE user_id = ? AND is_read = 0",
+            (user["id"],)).fetchone()[0]
+        rows = conn.execute(
+            """SELECT id, user_id, type, title, body, link, is_read,
+                      created_at FROM notifications
+               WHERE user_id = ? ORDER BY created_at DESC, id DESC
+               LIMIT ? OFFSET ?""",
+            (user["id"], per_page, (page - 1) * per_page)).fetchall()
+        conn.close()
+        self._ok(self._admin_paged(
+            {"notifications": [row_to_dict(r) for r in rows],
+             "unread_count": unread}, total, page, per_page))
+
+    def api_notification_read(self, notification_id):
+        """POST /api/notifications/:id/read — own only (404 otherwise)."""
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        row = conn.execute(
+            "SELECT id, user_id FROM notifications WHERE id = ?",
+            (notification_id,)).fetchone()
+        if not row or row["user_id"] != user["id"]:
+            conn.close()
+            self._err(404, "Notification not found")
+            return
+        conn.execute("UPDATE notifications SET is_read = 1 WHERE id = ?",
+                     (notification_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"notification_id": int(notification_id), "is_read": 1})
+
+    def api_me_notifications_read_all(self):
+        """POST /api/me/notifications/read-all — mark all own read."""
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        cur = conn.execute(
+            "UPDATE notifications SET is_read = 1"
+            " WHERE user_id = ? AND is_read = 0", (user["id"],))
+        conn.commit()
+        updated = cur.rowcount
+        conn.close()
+        self._ok({"updated": updated, "unread_count": 0})
+
+    # -- review edit / delete (own review only) ------------------------
+    def api_review_update(self, review_id):
+        """PUT /api/reviews/:id — own review only (403 otherwise)."""
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        sets, values = [], []
+        if "rating" in body:
+            if isinstance(body.get("rating"), bool):
+                self._err(400, "rating must be an integer 1-5")
+                return
+            try:
+                rating = int(body.get("rating"))
+            except (TypeError, ValueError):
+                self._err(400, "rating must be an integer 1-5")
+                return
+            if not 1 <= rating <= 5:
+                self._err(400, "rating must be between 1 and 5")
+                return
+            sets.append("rating = ?")
+            values.append(rating)
+        if "comment" in body:
+            comment = (body.get("comment") or "").strip()
+            if len(comment) > 2000:
+                self._err(400, "comment is too long (max 2000 characters)")
+                return
+            sets.append("comment = ?")
+            values.append(comment)
+        if not sets:
+            self._err(400, "Nothing to update: provide rating and/or comment")
+            return
+        conn = db()
+        row = conn.execute("SELECT * FROM reviews WHERE id = ?",
+                           (review_id,)).fetchone()
+        if not row:
+            conn.close()
+            self._err(404, "Review not found")
+            return
+        if row["user_id"] != user["id"]:
+            conn.close()
+            self._err(403, "You can only edit your own reviews")
+            return
+        conn.execute("UPDATE reviews SET " + ", ".join(sets) + " WHERE id = ?",
+                     values + [review_id])
+        conn.commit()
+        updated = row_to_dict(conn.execute(
+            "SELECT * FROM reviews WHERE id = ?", (review_id,)).fetchone())
+        conn.close()
+        self._ok({"review": updated})
+
+    def api_review_delete(self, review_id):
+        """DELETE /api/reviews/:id — own review only (403 otherwise)."""
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        row = conn.execute("SELECT id, user_id FROM reviews WHERE id = ?",
+                           (review_id,)).fetchone()
+        if not row:
+            conn.close()
+            self._err(404, "Review not found")
+            return
+        if row["user_id"] != user["id"]:
+            conn.close()
+            self._err(403, "You can only delete your own reviews")
+            return
+        conn.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"deleted": int(review_id)})
+
+    # -- final exams ----------------------------------------------------
+    def _final_exam_access(self, course_id):
+        """Shared gate for final-exam endpoints: signed-in + enrolled.
+
+        Returns (course_dict, user) or (None, None) after sending the
+        error response (404 unknown course, 403 not enrolled).
+        """
+        user = self._require_user()
+        if not user:
+            return None, None
+        conn = db()
+        course = conn.execute(
+            "SELECT id, title FROM courses WHERE id = ?",
+            (course_id,)).fetchone()
+        if not course:
+            conn.close()
+            self._err(404, "Course not found")
+            return None, None
+        if not conn.execute(
+                "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+                (user["id"], course_id)).fetchone():
+            conn.close()
+            self._err(403, "You must be enrolled in this course to take its final exam")
+            return None, None
+        conn.close()
+        return row_to_dict(course), user
+
+    def api_final_exam_get(self, course_id):
+        """GET /api/courses/:id/final-exam — enrolled only.
+
+        10 MCQs sampled from this course's lesson quizzes (table
+        `quizzes`: options_json is a JSON array of 4 strings,
+        answer_index 0-3, explanation). Correct answers are NEVER
+        returned here. 404 when the course has no quiz questions.
+        """
+        course, user = self._final_exam_access(course_id)
+        if not course:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT q.id, q.question, q.options_json
+               FROM quizzes q JOIN lessons l ON l.id = q.lesson_id
+               WHERE l.course_id = ? ORDER BY RANDOM() LIMIT 10""",
+            (course_id,)).fetchall()
+        if not rows:
+            conn.close()
+            self._err(404, "This course has no quiz questions yet")
+            return
+        attempts = conn.execute(
+            "SELECT COUNT(*) AS n, MAX(score) AS best,"
+            " MAX(passed) AS passed FROM final_exam_attempts"
+            " WHERE user_id = ? AND course_id = ?",
+            (user["id"], course_id)).fetchone()
+        conn.close()
+        questions = []
+        for r in rows:
+            try:
+                options = json.loads(r["options_json"])
+            except (ValueError, TypeError):
+                options = []
+            questions.append({"id": r["id"], "question": r["question"],
+                              "options": options})
+        self._ok({"course_id": int(course_id),
+                  "course_title": course["title"],
+                  "questions": questions,
+                  "attempts": attempts["n"],
+                  "best_score": attempts["best"],
+                  "passed": bool(attempts["passed"])})
+
+    def api_final_exam_submit(self, course_id):
+        """POST /api/courses/:id/final-exam/submit — enrolled only.
+
+        Body: {"answers": {"<question_id>": <option index>, ...}}.
+        Graded server-side against quizzes.answer_index; only answers
+        for questions belonging to this course count, so `total` is
+        the number of valid course questions submitted (10 when the
+        full sampled set is submitted). Pass = score/total >= 0.70.
+        On a first pass: +50 XP (derived in _gamification from the
+        passed attempt row) and the exam-master-<course_id> badge
+        (also derived there); the response reports xp_awarded 50 or 0.
+        A repeat pass awards 0 (XP is once per course).
+        """
+        course, user = self._final_exam_access(course_id)
+        if not course:
+            return
+        body = self._read_json()
+        answers = body.get("answers") if isinstance(body, dict) else None
+        if not isinstance(answers, dict) or not answers:
+            self._err(400, "answers must be a non-empty object of question_id -> option index")
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT q.id, q.answer_index
+               FROM quizzes q JOIN lessons l ON l.id = q.lesson_id
+               WHERE l.course_id = ?""",
+            (course_id,)).fetchall()
+        if not rows:
+            conn.close()
+            self._err(404, "This course has no quiz questions yet")
+            return
+        correct_by_id = {r["id"]: r["answer_index"] for r in rows}
+        score, total = 0, 0
+        for key, picked in answers.items():
+            try:
+                qid = int(key)
+            except (TypeError, ValueError):
+                continue
+            if qid not in correct_by_id:
+                continue
+            try:
+                picked = int(picked)
+            except (TypeError, ValueError):
+                picked = None
+            total += 1
+            if picked == correct_by_id[qid]:
+                score += 1
+        if total == 0:
+            conn.close()
+            self._err(400, "No valid answers for this course were submitted")
+            return
+        passed = score * 10 >= total * 7
+        already_passed = conn.execute(
+            "SELECT id FROM final_exam_attempts"
+            " WHERE user_id = ? AND course_id = ? AND passed = 1",
+            (user["id"], course_id)).fetchone()
+        conn.execute(
+            "INSERT INTO final_exam_attempts (user_id, course_id, score, total, passed)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (user["id"], course_id, score, total, 1 if passed else 0))
+        xp_awarded = 50 if (passed and not already_passed) else 0
+        if passed:
+            _notify_user(conn, user["id"], "exam_passed",
+                         "Final exam passed",
+                         f"You passed the final exam for '{course['title']}'"
+                         f" with {score}/{total}"
+                         + (" (+50 XP)." if xp_awarded else "."),
+                         f"/course-details.html?id={course_id}")
+        conn.commit()
+        conn.close()
+        self._ok({"score": score, "total": total, "passed": passed,
+                  "xp_awarded": xp_awarded})
+
+    # -- admin: user roles, review moderation, instructors, export ----
+    def api_admin_user_role(self, user_id):
+        """POST /api/admin/users/:id/role — admin-gated.
+
+        Body {"is_admin": 0 or 1}. Deliberately no guard against
+        revoking the admin-Gmail account: the key-holder must always
+        be able to revoke it.
+        """
+        if not self._require_admin():
+            return
+        body = self._read_json()
+        if not isinstance(body, dict):
+            self._err(400, "Request body must be a JSON object")
+            return
+        value = body.get("is_admin")
+        if isinstance(value, bool) or isinstance(value, float) \
+                or value not in (0, 1, "0", "1"):
+            self._err(400, "is_admin must be 0 or 1")
+            return
+        is_admin = int(value)
+        conn = db()
+        row = conn.execute(
+            "SELECT id, name, email, is_admin FROM users WHERE id = ?",
+            (user_id,)).fetchone()
+        if not row:
+            conn.close()
+            self._err(404, "User not found")
+            return
+        conn.execute("UPDATE users SET is_admin = ? WHERE id = ?",
+                     (is_admin, user_id))
+        conn.commit()
+        updated = row_to_dict(conn.execute(
+            "SELECT id, name, email, is_admin FROM users WHERE id = ?",
+            (user_id,)).fetchone())
+        conn.close()
+        self._ok({"user": updated})
+
+    def api_admin_reviews(self):
+        """GET /api/admin/reviews — admin-gated, paged (cap 50)."""
+        if not self._require_admin():
+            return
+        page, per_page, _q = self._admin_page()
+        conn = db()
+        total = conn.execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
+        rows = conn.execute(
+            """SELECT r.id, r.user_id, r.course_id, r.rating, r.comment,
+                      r.created_at, c.title AS course_title,
+                      u.name AS user_name, u.email AS user_email
+               FROM reviews r JOIN users u ON u.id = r.user_id
+               JOIN courses c ON c.id = r.course_id
+               ORDER BY r.id DESC LIMIT ? OFFSET ?""",
+            [per_page, (page - 1) * per_page]).fetchall()
+        conn.close()
+        self._ok(self._admin_paged(
+            {"reviews": [row_to_dict(r) for r in rows]}, total, page, per_page))
+
+    def api_admin_review_delete(self, review_id):
+        """DELETE /api/admin/reviews/:id — admin-gated."""
+        if not self._require_admin():
+            return
+        conn = db()
+        cur = conn.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+        conn.commit()
+        deleted = cur.rowcount
+        conn.close()
+        if not deleted:
+            self._err(404, "Review not found")
+            return
+        self._ok({"deleted": int(review_id)})
+
+    def api_admin_instructors(self):
+        """GET /api/admin/instructors — admin-gated.
+
+        pending_qa = top-level discussions (parent_id IS NULL — a
+        question, not a reply) on that instructor's courses that have
+        no reply row yet (no discussion with parent_id = the question).
+        """
+        if not self._require_admin():
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT c.instructor AS name,
+                      COUNT(DISTINCT c.id) AS courses,
+                      (SELECT COUNT(*) FROM enrollments e
+                       JOIN courses c2 ON c2.id = e.course_id
+                       WHERE c2.instructor = c.instructor) AS enrollments,
+                      COALESCE(ROUND(AVG(r.rating), 2), 0.0) AS avg_rating,
+                      (SELECT COUNT(*) FROM discussions d
+                       JOIN lessons l ON l.id = d.lesson_id
+                       JOIN courses c3 ON c3.id = l.course_id
+                       WHERE c3.instructor = c.instructor
+                         AND d.parent_id IS NULL
+                         AND NOT EXISTS (SELECT 1 FROM discussions r
+                                         WHERE r.parent_id = d.id)) AS pending_qa
+               FROM courses c LEFT JOIN reviews r ON r.course_id = c.id
+               GROUP BY c.instructor
+               ORDER BY courses DESC, name""").fetchall()
+        conn.close()
+        self._ok({"instructors": [row_to_dict(r) for r in rows]})
+
+    def api_admin_export(self):
+        """GET /api/admin/export?type=users|enrollments|revenue|certificates
+        — admin-gated, returns a real CSV download.
+
+        Revenue rows come from the real `orders` table (one row per
+        order); enrolment progress_pct is the stored value, which
+        lesson completion keeps recomputed from lesson_progress.
+        """
+        if not self._require_admin():
+            return
+        from urllib.parse import urlparse, parse_qs
+        typ = (parse_qs(urlparse(self.path).query).get("type", [""])[0]
+               or "").strip()
+        conn = db()
+        if typ == "users":
+            header = ["id", "name", "email", "created_at", "is_admin",
+                      "enrollments"]
+            rows = conn.execute(
+                """SELECT u.id, u.name, u.email, u.created_at, u.is_admin,
+                          (SELECT COUNT(*) FROM enrollments e
+                           WHERE e.user_id = u.id) AS enrollments
+                   FROM users u ORDER BY u.id""").fetchall()
+        elif typ == "enrollments":
+            header = ["id", "user_name", "user_email", "course_title",
+                      "enrolled_at", "progress_pct"]
+            rows = conn.execute(
+                """SELECT e.id, u.name AS user_name, u.email AS user_email,
+                          c.title AS course_title, e.enrolled_at,
+                          e.progress_percent
+                   FROM enrollments e JOIN users u ON u.id = e.user_id
+                   JOIN courses c ON c.id = e.course_id
+                   ORDER BY e.id""").fetchall()
+        elif typ == "revenue":
+            header = ["id", "user_email", "total", "status", "created_at"]
+            rows = conn.execute(
+                """SELECT o.id, u.email AS user_email, o.total, o.status,
+                          o.created_at
+                   FROM orders o JOIN users u ON u.id = o.user_id
+                   ORDER BY o.id""").fetchall()
+        elif typ == "certificates":
+            header = ["id", "user_name", "user_email", "course_title",
+                      "certificate_code", "issued_at"]
+            rows = conn.execute(
+                """SELECT cf.id, u.name AS user_name, u.email AS user_email,
+                          c.title AS course_title, cf.certificate_code,
+                          cf.issued_at
+                   FROM certificates cf JOIN users u ON u.id = cf.user_id
+                   JOIN courses c ON c.id = cf.course_id
+                   ORDER BY cf.id""").fetchall()
+        else:
+            conn.close()
+            self._err(400, "type must be one of: users, enrollments,"
+                           " revenue, certificates")
+            return
+        conn.close()
+        self._csv(f"learnhub-{typ}.csv", header, [tuple(r) for r in rows])
 
 
 def main():
