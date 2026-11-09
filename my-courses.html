@@ -132,6 +132,7 @@ async function renderMyCourses() {
                             "<progress id=\"bar-" + c.id + "\" value=\"" + pct + "\" max=\"100\" style=\"width:100%;\"></progress>" +
                             "<p id=\"meta-" + c.id + "\"></p><br>" +
                             "<a class=\"btn btn-primary\" href=\"course-details.html?id=" + c.id + "\">Continue Learning</a>" +
+                            " <button class=\"btn btn-outline\" type=\"button\" onclick=\"unenrollCourse(" + c.id + ", this)\">Unenroll</button>" +
                             "</div></div>";
                     }).join("");
                     // Refresh each card from GET /api/courses/:id/progress -
@@ -151,7 +152,7 @@ async function renderMyCourses() {
                                 meta += "Next: <a href=\"lesson.html?id=" + p.next_lesson_id + "\">" + p.next_lesson_title + "</a>";
                             }
                             if (p.certificate_code) {
-                                meta += (meta ? " · " : "") + "🎉 Certificate ready";
+                                meta += (meta ? " · " : "") + "🎉 <a href=\"certificate.html?code=" + encodeURIComponent(p.certificate_code) + "\">Certificate ready</a>";
                             }
                             metaEl.innerHTML = meta;
                         }).catch(function () { /* keep the my-courses figure */ });
@@ -162,6 +163,22 @@ async function renderMyCourses() {
         } catch (e) { /* fall through to legacy rendering */ }
     }
     renderMyCoursesLegacy();
+}
+
+
+// Unenroll from a course (DELETE /api/enrollments/:id). Lesson progress
+// is deleted, so a later re-enrolment starts fresh; an earned
+// certificate is permanent and is kept. The list reloads from the API.
+async function unenrollCourse(courseId, btn) {
+    if (!confirm("Unenroll from this course? Your lesson progress will be deleted (an earned certificate is kept).")) return;
+    if (btn) btn.disabled = true;
+    try {
+        await LearnHubAPI.unenroll(courseId);
+        renderMyCourses();
+    } catch (e) {
+        alert("Could not unenroll: " + (e.message || "please try again"));
+        if (btn) btn.disabled = false;
+    }
 }
 
 function renderMyCoursesLegacy() {

@@ -312,7 +312,10 @@ enrolment's `progress_percent`, refreshed after each completion; completing
 the last lesson surfaces the certificate link). `my-courses.html` tries the
 backend first (`GET /api/my-courses`) and renders real progress bars per
 enrolment, falling back to the old localStorage rendering when offline or
-signed out, so neither page breaks without the backend.
+signed out, so neither page breaks without the backend. Each card also
+carries an Unenroll button (`DELETE /api/enrollments/:id` — progress is
+deleted, an earned certificate is kept) and a finished course links its
+certificate (`certificate.html?code=LH-XXXX`, public verification).
 
 ## Frontend integration
 
