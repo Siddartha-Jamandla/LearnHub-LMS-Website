@@ -1383,6 +1383,14 @@ button {
     overflow: hidden;
 }
 
+/* The panel is shown/hidden with the `hidden` attribute in tutor.js.
+   Author CSS `display: flex` above beats the browser's built-in
+   `[hidden] { display: none }`, so without this rule the panel could
+   never close — it stayed open on every lesson page. */
+.tutor-panel[hidden] {
+    display: none;
+}
+
 .tutor-head {
     background: var(--primary);
     color: #fff;

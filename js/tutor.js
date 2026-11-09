@@ -10,7 +10,9 @@
     "use strict";
 
     var state = { courseId: null, lessonId: null, taskId: null, context: {} };
-    var panel, logEl, inputEl;
+    var panel, logEl, inputEl, fabEl;
+    var idleTimer = null;
+    var IDLE_CLOSE_MS = 60000; /* close after 60s with no use */
 
     function esc(s) {
         return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -26,8 +28,48 @@
         logEl.scrollTop = logEl.scrollHeight;
     }
 
+    function isOpen() {
+        return panel && !panel.hidden;
+    }
+
+    function openPanel() {
+        panel.hidden = false;
+        if (!logEl.children.length) {
+            addMsg("Hi! I am your LearnHub tutor. Ask me to explain a " +
+                "topic, walk you through a flowchart, quiz you, or give " +
+                "you a hint for a task.", "bot");
+        }
+        inputEl.focus();
+        pokeIdle();
+    }
+
+    function closePanel() {
+        if (!panel) return;
+        panel.hidden = true;
+        stopIdle();
+        if (fabEl) fabEl.focus();
+    }
+
+    /* Idle auto-close: while the chat is open and nobody uses it for
+       60 seconds, close it. Any pointer/key/input inside the panel or
+       on the button restarts the timer. Never closes while the tutor
+       is still thinking up a reply. */
+    function pokeIdle() {
+        stopIdle();
+        if (!isOpen()) return;
+        idleTimer = setTimeout(function () {
+            if (isOpen() && !panel.querySelector(".tutor-typing")) closePanel();
+            else pokeIdle();
+        }, IDLE_CLOSE_MS);
+    }
+
+    function stopIdle() {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+    }
+
     async function ask(message) {
         if (!message.trim()) return;
+        pokeIdle();
         addMsg(message, "user");
         inputEl.value = "";
         var typing = document.createElement("div");
@@ -44,10 +86,12 @@
             typing.remove();
             state.context = data.context || {};
             addMsg(data.reply, "bot");
+            pokeIdle();
         } catch (e) {
             typing.remove();
             addMsg("Sorry, I could not reach the tutor right now. " +
                 "Check your connection and try again.", "bot");
+            pokeIdle();
         }
     }
 
@@ -69,6 +113,7 @@
         fab.className = "tutor-fab";
         fab.textContent = "Ask tutor";
         fab.setAttribute("aria-label", "Open the LearnHub tutor chat");
+        fabEl = fab;
 
         panel = document.createElement("div");
         panel.id = "tutorPanel";
@@ -99,17 +144,29 @@
         chipsEl.appendChild(chip("Walk me through the flowchart", "Walk me through the flowchart"));
         chipsEl.appendChild(chip("Give me a hint", "Give me a hint"));
 
-        fab.addEventListener("click", function () {
-            panel.hidden = !panel.hidden;
-            if (!panel.hidden && !logEl.children.length) {
-                addMsg("Hi! I am your LearnHub tutor. Ask me to explain a " +
-                    "topic, walk you through a flowchart, quiz you, or give " +
-                    "you a hint for a task.", "bot");
-            }
-            if (!panel.hidden) inputEl.focus();
+        fab.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (isOpen()) closePanel();
+            else openPanel();
         });
         panel.querySelector(".tutor-close").addEventListener("click", function () {
-            panel.hidden = true;
+            closePanel();
+        });
+        /* Close when the user clicks anywhere outside the chat box
+           (and not on the "Ask tutor" button that opens it). */
+        document.addEventListener("pointerdown", function (e) {
+            if (!isOpen()) return;
+            if (panel.contains(e.target)) return;
+            if (fab.contains(e.target)) return;
+            closePanel();
+        });
+        /* Escape closes it too. */
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && isOpen()) closePanel();
+        });
+        /* Any use of the chat restarts the idle timer. */
+        ["pointerdown", "keydown", "input"].forEach(function (evt) {
+            panel.addEventListener(evt, pokeIdle);
         });
         document.getElementById("tutorForm").addEventListener("submit", function (e) {
             e.preventDefault();
