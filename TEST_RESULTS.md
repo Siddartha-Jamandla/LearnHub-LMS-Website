@@ -57,3 +57,48 @@
 - The full user journey tested end-to-end: **register → login → browse
   courses → view lessons → add to cart → checkout (enrolled + order created)
   → track progress → my-courses → logout**.
+
+## Re-test — 2026-11-09 (IST)
+
+Live `backend/app.py` on a scratch SQLite DB (seeded: 16 courses, 6 lessons
+each where seeded), port 8143. **30 checks, all passing.** Covers the
+endpoints added since the 31 Oct run — admin stats, public certificate
+verification, course progress summary, unenroll, course sort,
+my-certificates — plus the full register → enrol → complete → certificate
+→ unenroll journey and the frontend wiring behind it (`my-courses.html`
+Unenroll button + certificate link, `courses.html` Newest sort).
+
+| Test | Expected | Result |
+|---|---|---|
+| `GET /api/health` | 200 | ✅ pass |
+| `GET /api/courses?per_page=50` | 200, 16 courses, every row has `created_at` | ✅ pass |
+| `GET /api/courses?sort=bad` | 400 | ✅ pass |
+| `GET /api/courses?sort=newest` | 200, newest `created_at` first | ✅ pass |
+| `GET /api/search?q=python` | 200, Python course found | ✅ pass |
+| `POST /api/register` + `POST /api/login` | 201 / 200 + token | ✅ pass |
+| `POST /api/cart` + `POST /api/checkout` | enrolled | ✅ pass |
+| `GET /api/my-courses` | 1 enrolment | ✅ pass |
+| `GET /api/courses/:id/lessons` | lessons listed | ✅ pass |
+| `POST /api/lessons/:id/complete` (all lessons) | 200 each | ✅ pass |
+| `GET /api/courses/:id/progress` | 100%, `certificate_code` present | ✅ pass |
+| `GET /api/certificates` | 1 certificate | ✅ pass |
+| `GET /api/certificates/verify/:code` | 200, `valid: true` | ✅ pass |
+| `GET /api/certificates/verify/LH-DOESNOTEXIST` | 404, `valid: false` | ✅ pass |
+| `POST /api/reviews` + `GET /api/courses/:id/reviews` | 201, listed | ✅ pass |
+| `POST /api/wishlist` + `GET /api/wishlist` | 201, 1 item | ✅ pass |
+| `GET /api/admin/stats` (admin key) | 200 | ✅ pass |
+| `GET /api/admin/stats` (no key) | 403 | ✅ pass |
+| `POST /api/contact` | 201 | ✅ pass |
+| `DELETE /api/enrollments/:course_id` | 200 | ✅ pass |
+| `GET /api/my-courses` after unenroll | 0 enrolments | ✅ pass |
+| `GET /api/certificates` after unenroll | certificate kept (1) | ✅ pass |
+| `GET /api/courses/:id/progress` after unenroll | 403 (must be enrolled) | ✅ pass |
+| `DELETE /api/enrollments/:course_id` again | 404 | ✅ pass |
+
+## Notes
+
+- Test user `test09lh@example.com` was used for the auth/cart/checkout flow
+  and lived only in the scratch DB, which was deleted after the run.
+- Seeded courses all share one `created_at` second (same seed run), so the
+  `sort=newest` check verifies non-increasing `created_at` order, not a
+  strict date spread.
