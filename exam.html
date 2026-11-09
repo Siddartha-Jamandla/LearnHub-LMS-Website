@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Proctored assignment on Learn Hub — timed coding task with tab-switch and copy/paste monitoring.">
-    <title>Proctored Assignment - Learn Hub</title>
+    <title>Proctored assignment - Learn Hub</title>
     <link rel="stylesheet" href="style.css">
     <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 </head>
@@ -17,10 +17,10 @@
             <a href="index.html" class="nav-link">Home</a>
             <a href="courses.html" class="nav-link">Courses</a>
             <a href="dashboard.html" class="nav-link">Dashboard</a>
-            <a href="my-courses.html" class="nav-link">My Courses</a>
+            <a href="my-courses.html" class="nav-link">My courses</a>
         </nav>
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
-            <a href="cart.html" class="nav-icon">🛒<span id="cart-count" class="cart-count">0</span></a>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <a href="cart.html" class="nav-icon"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span id="cart-count" class="cart-count">0</span></a>
             <a href="profile.html" class="btn btn-outline">Profile</a>
         </div>
     </div>
@@ -28,14 +28,14 @@
 
 <main class="section">
     <div class="container">
-        <span class="section-tag">Proctored Assignment</span>
+        <span class="section-tag">Proctored assignment</span>
         <h1 id="examTitle">Loading assignment…</h1>
         <p id="examMeta" style="color:var(--muted);"></p>
 
         <div id="signedOutBox" class="empty-state" hidden>
             <h2>Sign in to take this assignment</h2>
             <p>Proctored assignments are for enrolled learners.</p>
-            <a href="login.html" class="btn btn-primary">Sign In</a>
+            <a href="login.html" class="btn btn-primary">Sign in</a>
         </div>
 
         <div id="examIntro" class="exam-box" hidden>
@@ -43,25 +43,25 @@
             <p><strong>Language:</strong> <span id="examLang">—</span> ·
                <strong>Duration:</strong> <span id="examDuration">—</span> ·
                <strong>Total marks:</strong> <span id="examMarks">—</span></p>
-            <p>⚠️ This assignment is proctored: tab switches, window blur, copy, cut, paste and right-click are all monitored and logged. More than 3 tab switches flags your attempt.</p>
-            <p><button type="button" class="btn btn-primary btn-large" id="startExamBtn">Start Assignment</button></p>
+            <p><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> This assignment is proctored: tab switches, window blur, copy, cut, paste and right-click are all monitored and logged. More than 3 tab switches flags your attempt.</p>
+            <p><button type="button" class="btn btn-primary btn-large" id="startExamBtn">Start assignment</button></p>
             <p class="auth-error" id="examError" hidden></p>
         </div>
 
         <div id="examLive" hidden>
             <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
-                <div>⏱ Time remaining: <span class="exam-timer" id="examTimer">--:--</span></div>
+                <div><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time remaining: <span class="exam-timer" id="examTimer">--:--</span></div>
                 <div>Tab switches: <strong id="tabSwitchCount">0</strong> <span id="flagBadge"></span></div>
             </div>
             <div class="flagged-warning" id="flaggedWarning" hidden>
-                ⚠️ Your attempt has been flagged — more than 3 tab switches were detected. This will be reviewed by the admin.
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Your attempt has been flagged — more than 3 tab switches were detected. This will be reviewed by the admin.
             </div>
             <div class="form-group" style="margin-top:16px;">
                 <label for="codeEditor">Your code (<span id="editorLang">code</span>)</label>
                 <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Write your solution here. Copy, cut, paste and right-click are blocked and logged."></textarea>
             </div>
             <p>
-                <button type="button" class="btn btn-primary btn-large" id="submitExamBtn">Submit Assignment</button>
+                <button type="button" class="btn btn-primary btn-large" id="submitExamBtn">Submit assignment</button>
                 <a class="btn btn-outline" id="backToCourseLink" href="courses.html">Back to courses</a>
             </p>
             <p class="auth-error" id="submitError" hidden></p>
@@ -72,7 +72,7 @@
             <h2 id="resultTitle">Submitted</h2>
             <p id="resultBody"></p>
             <p><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
-            <a href="my-courses.html" class="btn btn-outline">My Courses</a></p>
+            <a href="my-courses.html" class="btn btn-outline">My courses</a></p>
         </div>
     </div>
 </main>
@@ -131,7 +131,7 @@
         document.getElementById("tabSwitchCount").textContent = tabSwitches;
         if (tabSwitches > 3 || flagged) {
             document.getElementById("flaggedWarning").hidden = false;
-            document.getElementById("flagBadge").innerHTML = '<span class="badge badge-red">Flagged</span>';
+            document.getElementById("flagBadge").innerHTML = '<span class="meta">Flagged</span>';
         }
     }
     async function submitExam(auto) {
@@ -149,7 +149,7 @@
             document.getElementById("resultTitle").textContent = auto ? "Time up — auto-submitted" : "Assignment submitted";
             document.getElementById("resultBody").innerHTML =
                 "Score: <strong>" + esc(d.score) + " / " + esc(d.total_marks) + "</strong>" +
-                (d.flagged ? "<br>⚠️ This attempt was flagged for review (tab switches / copy-paste activity)." : "") +
+                (d.flagged ? "<br>This attempt was flagged for review (tab switches / copy-paste activity)." : "") +
                 (d.message ? "<br>" + esc(d.message) : "");
         } catch (e) {
             submitted = false;
@@ -161,7 +161,7 @@
     document.addEventListener("DOMContentLoaded", async function () {
         if (!assignmentId) {
             document.getElementById("examTitle").textContent = "No assignment selected";
-            showErr("Open this page from a course's Proctored Assignment button.");
+            showErr("Open this page from a course's Proctored assignment button.");
             return;
         }
         if (!localStorage.getItem("lh_token")) {
@@ -202,7 +202,7 @@
             } catch (e) {
                 if (e.status === 403) showErr("You are not enrolled in this course — enrol first, then start the assignment.");
                 else showErr(e.message || "Could not start the assignment.");
-                btn.disabled = false; btn.textContent = "Start Assignment";
+                btn.disabled = false; btn.textContent = "Start assignment";
             }
         });
 

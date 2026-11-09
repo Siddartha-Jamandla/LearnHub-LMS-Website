@@ -52,25 +52,25 @@
             </a>
 
             <a href="learning-paths.html" class="nav-link">
-                Learning Paths
+                Learning paths
             </a>
 
 </nav>
 
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
-                🔔
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="notifCount" class="notif-count" hidden>0</span>
             </a>
 
             <a href="wishlist.html" class="nav-icon">
-                ♡
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </a>
 
             <a href="cart.html" class="nav-icon">
 
-                🛒
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
 
                 <span id="cart-count" class="cart-count">
                     0
@@ -93,10 +93,10 @@
 
     <div class="container">
 
-        <h1>Explore Courses</h1>
+        <h1>Explore courses</h1>
 
         <p>
-            Find the perfect course and start learning.
+            Find a course and start learning.
         </p>
 
     </div>
@@ -108,7 +108,7 @@
     <div class="container">
         <div class="section-header">
             <span class="section-tag">Flagship tracks</span>
-            <h2>Flagship Tracks</h2>
+            <h2>Flagship tracks</h2>
             <p>Our five flagship tracks — C++, DSA, Python, Java and Web Development.</p>
         </div>
         <div class="flagship-grid" id="flagshipGrid"><p>Loading flagship tracks…</p></div>
@@ -132,7 +132,7 @@
                 <select id="categoryFilter">
 
                     <option value="all">
-                        All Categories
+                        All categories
                     </option>
 
                     <option value="Development">
@@ -165,23 +165,23 @@
                 <select id="sortCourses">
 
                     <option value="default">
-                        Sort By
+                        Sort by
                     </option>
 
                     <option value="low">
-                        Price: Low to High
+                        Price: low to high
                     </option>
 
                     <option value="high">
-                        Price: High to Low
+                        Price: high to low
                     </option>
 
                     <option value="rating">
-                        Highest Rated
+                        Highest rated
                     </option>
 
                     <option value="newest">
-                        Newest First
+                        Newest first
                     </option>
 
                 </select>
@@ -227,13 +227,13 @@
 
         <div class="footer-column">
 
-            <h3>Quick Links</h3>
+            <h3>Quick links</h3>
 
             <a href="index.html">Home</a>
             <a href="courses.html">Courses</a>
             <a href="search.html">Search</a>
             <a href="dashboard.html">Dashboard</a>
-            <a href="learning-paths.html">Learning Paths</a>
+            <a href="learning-paths.html">Learning paths</a>
             <a href="instructors.html">Instructors</a>
             <a href="announcements.html">Announcements</a>
             <a href="about.html">About</a>
@@ -247,7 +247,7 @@
 
             <a href="login.html">Login</a>
             <a href="register.html">Register</a>
-            <a href="my-courses.html">My Courses</a>
+            <a href="my-courses.html">My courses</a>
             <a href="help.html">Help</a>
             <a href="faq.html">FAQ</a>
             <a href="terms.html">Terms</a>
@@ -334,7 +334,7 @@
         if (sort === "rating") filtered.sort(function (a, b) { return ratingOf(b) - ratingOf(a); });
         if (sort === "newest") filtered.sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
         if (!filtered.length) {
-            listEl.innerHTML = '<div class="empty-state"><h2>No Courses Found</h2><p>Try another search or category.</p></div>';
+            listEl.innerHTML = '<div class="empty-state"><h2>No courses found</h2><p>Try another search or category.</p></div>';
             return;
         }
         listEl.innerHTML = filtered.map(function (c) { return UI.courseCard(c); }).join("");

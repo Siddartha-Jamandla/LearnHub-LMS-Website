@@ -12,14 +12,14 @@
     function wireThemeToggles() {
         var cur = document.documentElement.getAttribute("data-theme") || "dark";
         document.querySelectorAll(".theme-toggle").forEach(function (btn) {
-            btn.textContent = cur === "light" ? "☀️" : "🌙";
+            btn.textContent = cur === "light" ? "Dark" : "Light";
             if (btn.dataset.lhWired) return;
             btn.dataset.lhWired = "1";
             btn.addEventListener("click", function () {
                 var next = (document.documentElement.getAttribute("data-theme") === "light") ? "dark" : "light";
                 document.documentElement.setAttribute("data-theme", next);
                 try { localStorage.setItem("lh_theme", next); } catch (e) { /* ignore */ }
-                document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = next === "light" ? "☀️" : "🌙"; });
+                document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = next === "light" ? "Dark" : "Light"; });
             });
         });
     }
@@ -51,9 +51,9 @@ async function renderFlagshipTracks(gridId) {
         grid.innerHTML = ordered.map(function (x) {
             var c = x.course;
             var card = (window.LearnHubUI && LearnHubUI.courseCard)
-                ? LearnHubUI.courseCard(c, { badge: "Flagship" })
+                ? LearnHubUI.courseCard(c)
                 : '<div class="course-card"><div class="course-content"><h3>' + c.title + '</h3><p>' + (c.description || "") + '</p><a class="btn btn-primary btn-small" href="course-details.html?id=' + c.id + '">View Course</a></div></div>';
-            return '<div><span class="flagship-badge">★ Flagship · ' + x.track.label + '</span>' + card + "</div>";
+            return '<div><span class="flagship-badge">Flagship · ' + x.track.label + '</span>' + card + "</div>";
         }).join("");
     } catch (e) {
         grid.innerHTML = "<p>Flagship tracks are unavailable right now.</p>";
@@ -434,7 +434,7 @@ if (checkoutForm) {
             var statusBox = document.getElementById("checkoutStatus");
             if (statusBox) {
                 statusBox.hidden = false;
-                statusBox.innerHTML = '<div class="test-mode-notice"><strong>🧪 TEST MODE — Razorpay test mock (razorpay-test-mock).</strong> No real money is charged. ' +
+                statusBox.innerHTML = '<div class="test-mode-notice"><strong>Test mode — Razorpay test mock (razorpay-test-mock).</strong> No real money is charged. ' +
                     "Order total: <strong>" + formatPrice(d.total || 0) + " " + (d.currency || "INR") + "</strong>" +
                     (d.payments && d.payments.length ? "<br>Gateway order(s): " + d.payments.map(function (p) { return p.gateway_order_id; }).join(", ") : "") +
                     "<br>Verifying test payments…</div>";
@@ -609,21 +609,21 @@ function updateNavigation() {
         var rating = ratingOf(c);
         var reviews = reviewCountOf(c);
         var ratingHtml = rating > 0
-            ? esc(stars(rating)) + " " + rating.toFixed(1) +
-              (reviews ? " <span>(" + reviews + " review" + (reviews === 1 ? "" : "s") + ")</span>" : " <span>(no reviews yet)</span>")
-            : "No reviews yet";
+            ? '<span class="meta">' + rating.toFixed(1) + " / 5" +
+              (reviews ? " · " + reviews + " review" + (reviews === 1 ? "" : "s") : " · no reviews yet") + "</span>"
+            : '<span class="meta">No reviews yet</span>';
         var learners = (c.enrolment_count != null ? c.enrolment_count : c.students);
         var img = c.image_url || c.image || "assets/images/course1.svg";
         var meta = [];
-        if (c.duration_hours != null) meta.push("⏱ " + c.duration_hours + " Hours");
+        if (c.duration_hours != null) meta.push(c.duration_hours + " hours");
         if (c.level) meta.push(esc(c.level));
-        if (learners != null) meta.push("👥 " + learners + " learners");
+        if (learners != null) meta.push(learners + " learners");
         var badge = opts.badge ? '<span class="course-badge-new">' + esc(opts.badge) + "</span>" : "";
         return '<div class="course-card">' +
             '<div class="course-image">' +
             '<img src="' + esc(img) + '" alt="' + esc(c.title) + '" onerror="this.style.display=\'none\';">' +
             '<span class="course-category">' + esc(c.category || "") + "</span>" + badge +
-            '<button class="wishlist-btn" onclick="addToWishlist(' + c.id + ')" title="Add to Wishlist">♡</button>' +
+            '<button class="wishlist-btn" onclick="addToWishlist(' + c.id + ')" title="Save to wishlist" aria-label="Save to wishlist">Save</button>' +
             "</div>" +
             '<div class="course-content">' +
             '<div class="course-rating">' + ratingHtml + "</div>" +

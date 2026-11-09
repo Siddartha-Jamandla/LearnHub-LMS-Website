@@ -67,7 +67,7 @@
         fab.id = "tutorFab";
         fab.type = "button";
         fab.className = "tutor-fab";
-        fab.textContent = "💬 Ask Tutor";
+        fab.textContent = "Ask tutor";
         fab.setAttribute("aria-label", "Open the LearnHub tutor chat");
 
         panel = document.createElement("div");
@@ -76,7 +76,7 @@
         panel.hidden = true;
         panel.innerHTML =
             '<div class="tutor-head">' +
-            '<strong>🤖 LearnHub Tutor</strong>' +
+            '<strong>Tutor</strong>' +
             '<span class="tutor-sub">Answers from your course material only</span>' +
             '<button type="button" class="tutor-close" aria-label="Close chat">✕</button>' +
             '</div>' +

@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Super Admin - Learn Hub</title>
+    <title>Super admin - Learn Hub</title>
     <link rel="stylesheet" href="style.css">
     <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
     <style>
@@ -42,27 +42,27 @@
 <header class="header">
     <div class="container navbar">
         <a href="index.html" class="logo">Learn<span>Hub</span></a>
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
-            <span class="admin-note">Super Admin · hidden panel</span>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <span class="admin-note">Super admin · hidden panel</span>
         </div>
     </div>
 </header>
 
 <main class="section" id="superAdminMain" hidden>
     <div class="container">
-        <span class="section-tag">Super Admin</span>
-        <h1>Super Admin Control Panel</h1>
+        <span class="section-tag">Super admin</span>
+        <h1>Super admin Control Panel</h1>
         <p class="admin-note" id="superAdminWho">Checking admin status…</p>
 
         <div class="admin-layout">
             <aside class="admin-sidebar">
                 <nav id="superAdminNav">
-                    <button class="admin-nav-btn active" data-section="courses" type="button">📚 Courses</button>
-                    <button class="admin-nav-btn" data-section="users" type="button">👥 Users</button>
-                    <button class="admin-nav-btn" data-section="security" type="button">🛡️ Security Center</button>
-                    <button class="admin-nav-btn" data-section="audit" type="button">📋 Audit Logs</button>
-                    <button class="admin-nav-btn" data-section="payments" type="button">💳 Payments &amp; Revenue</button>
-                    <button class="admin-nav-btn" data-section="attempts" type="button">📝 Assignment Attempts</button>
+                    <button class="admin-nav-btn active" data-section="courses" type="button">Courses</button>
+                    <button class="admin-nav-btn" data-section="users" type="button">Users</button>
+                    <button class="admin-nav-btn" data-section="security" type="button">Security center</button>
+                    <button class="admin-nav-btn" data-section="audit" type="button">Audit logs</button>
+                    <button class="admin-nav-btn" data-section="payments" type="button">Payments &amp; revenue</button>
+                    <button class="admin-nav-btn" data-section="attempts" type="button">Assignment attempts</button>
                 </nav>
             </aside>
 
@@ -88,7 +88,7 @@
                                 <div class="form-group"><label>Duration (hours)</label><input id="ccHours" type="number" min="0" value="0"></div>
                             </div>
                             <div class="form-group"><label>Description</label><textarea id="ccDesc" rows="3"></textarea></div>
-                            <button class="btn btn-primary" type="submit">Create Course</button>
+                            <button class="btn btn-primary" type="submit">Create course</button>
                         </form>
                         <p class="status-line" id="courseFormStatus"></p>
                     </div>
@@ -105,7 +105,7 @@
                                 <div class="form-group"><label>Duration (hours)</label><input id="ecHours" type="number" min="0"></div>
                             </div>
                             <div class="form-group"><label>Description</label><textarea id="ecDesc" rows="3"></textarea></div>
-                            <button class="btn btn-primary" type="submit">Save Changes</button>
+                            <button class="btn btn-primary" type="submit">Save changes</button>
                             <button class="btn btn-outline" type="button" id="cancelEditBtn">Cancel</button>
                         </form>
                     </div>
@@ -127,7 +127,7 @@
 
                 <!-- SECURITY -->
                 <div class="admin-section" id="section-security">
-                    <h2>Security Center</h2>
+                    <h2>Security center</h2>
                     <p class="admin-note">Live security events, stats and the self-rectification error log. Real data only.</p>
                     <div class="admin-card"><h3>Overview</h3><div id="secStats"><p class="admin-note">Loading…</p></div></div>
                     <div class="admin-card"><h3>Security events</h3>
@@ -141,7 +141,7 @@
 
                 <!-- AUDIT -->
                 <div class="admin-section" id="section-audit">
-                    <h2>Audit Logs</h2>
+                    <h2>Audit logs</h2>
                     <p class="admin-note">Who did what, when, from where.</p>
                     <div class="admin-card">
                         <div class="toolbar"><button class="btn btn-primary btn-small" id="refreshAuditBtn" type="button">Refresh</button></div>
@@ -152,7 +152,7 @@
 
                 <!-- PAYMENTS -->
                 <div class="admin-section" id="section-payments">
-                    <h2>Payments &amp; Revenue</h2>
+                    <h2>Payments &amp; revenue</h2>
                     <p class="admin-note">Every payment (test-mode Razorpay mock) and total revenue.</p>
                     <div class="admin-card">
                         <h3>Total revenue: <span id="totalRevenue">—</span></h3>
@@ -164,7 +164,7 @@
 
                 <!-- ATTEMPTS -->
                 <div class="admin-section" id="section-attempts">
-                    <h2>Assignment Attempts</h2>
+                    <h2>Assignment attempts</h2>
                     <p class="admin-note">Proctored assignment attempts — tab switches, blur, paste and flags.</p>
                     <div class="admin-card">
                         <div class="toolbar"><button class="btn btn-primary btn-small" id="refreshAttemptsBtn" type="button">Refresh</button></div>
@@ -219,7 +219,7 @@
             var list = d.users || [];
             document.getElementById("usersBody").innerHTML = list.map(function (u) {
                 return "<tr><td>" + u.id + "</td><td>" + esc(u.name) + "</td><td>" + esc(u.email) + "</td><td>" + esc(String(u.created_at || "").slice(0, 10)) + "</td>" +
-                    '<td>' + (u.is_admin ? '<span class="badge badge-blue">Admin</span>' : "—") + "</td>" +
+                    '<td>' + (u.is_admin ? '<span class="meta">Admin</span>' : "—") + "</td>" +
                     '<td><button class="btn btn-outline btn-small" data-role-user="' + u.id + '" data-make-admin="' + (u.is_admin ? "0" : "1") + '" type="button">' + (u.is_admin ? "Revoke admin" : "Make admin") + "</button></td></tr>";
             }).join("") || '<tr><td colspan="6" class="admin-note">No users found.</td></tr>';
             statusEl("usersStatus", list.length + " user(s).");
@@ -227,7 +227,7 @@
     }
     function sevBadge(s) {
         s = String(s || "").toLowerCase();
-        return '<span class="badge ' + (s === "high" || s === "critical" ? "badge-red" : s === "medium" ? "badge-amber" : "badge-grey") + '">' + esc(s || "—") + "</span>";
+        return '<span class="meta">' + esc(s || "—") + "</span>";
     }
     async function loadSecurity() {
         statusEl("securityStatus", "Loading…");
@@ -248,14 +248,14 @@
             var d = await api.adminSecurity(null, 50);
             var events = d.events || [];
             document.getElementById("secEventsBody").innerHTML = events.map(function (ev) {
-                return "<tr><td>" + esc(String(ev.created_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(ev.event_type) + "</td><td>" + sevBadge(ev.severity) + "</td><td>" + esc(ev.details || "") + "<br><small>" + esc(ev.ip || "") + "</small></td><td>" + (ev.blocked ? '<span class="badge badge-red">Blocked</span>' : "—") + "</td></tr>";
+                return "<tr><td>" + esc(String(ev.created_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(ev.event_type) + "</td><td>" + sevBadge(ev.severity) + "</td><td>" + esc(ev.details || "") + "<br><small>" + esc(ev.ip || "") + "</small></td><td>" + (ev.blocked ? "Blocked" : "—") + "</td></tr>";
             }).join("") || '<tr><td colspan="5" class="admin-note">No security events logged yet.</td></tr>';
         } catch (e) { document.getElementById("secEventsBody").innerHTML = '<tr><td colspan="5" class="admin-note">Security events are unavailable right now.</td></tr>'; }
         try {
             var errs = await api.adminErrors(null);
             var list = errs.errors || [];
             document.getElementById("secErrorsBody").innerHTML = list.map(function (er) {
-                return "<tr><td>" + esc(String(er.occurred_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(er.error_type) + "</td><td>" + esc(er.message) + "</td><td>" + (er.auto_fixed ? '<span class="badge badge-green">Auto-fixed</span>' : '<span class="badge badge-grey">Not fixed</span>') + "</td><td>" + esc(er.fix_action || "—") + "</td></tr>";
+                return "<tr><td>" + esc(String(er.occurred_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(er.error_type) + "</td><td>" + esc(er.message) + "</td><td>" + (er.auto_fixed ? '<span class="meta">Auto-fixed</span>' : '<span class="meta">Not fixed</span>') + "</td><td>" + esc(er.fix_action || "—") + "</td></tr>";
             }).join("") || '<tr><td colspan="5" class="admin-note">No errors detected yet.</td></tr>';
             statusEl("securityStatus", "");
         } catch (e) { document.getElementById("secErrorsBody").innerHTML = '<tr><td colspan="5" class="admin-note">Error log is unavailable right now.</td></tr>'; }
@@ -289,7 +289,7 @@
             var d = await api.adminAssignmentAttempts(null);
             var list = d.attempts || [];
             document.getElementById("attemptsBody").innerHTML = list.map(function (a) {
-                return "<tr><td>" + esc(a.user_email || ("user " + (a.user_id || "—"))) + "</td><td>" + esc(a.assignment_title || ("Assignment " + (a.assignment_id || "—"))) + "</td><td>" + (a.tab_switches || 0) + "</td><td>" + (a.blur_events || 0) + "</td><td>" + (a.paste_attempts || 0) + "</td><td>" + (a.rightclick_attempts || 0) + "</td><td>" + (a.score == null ? "—" : a.score) + "</td><td>" + (a.flagged ? '<span class="badge badge-red">Flagged</span>' : "—") + "</td><td>" + esc(String(a.submitted_at || "").slice(0, 16).replace("T", " ")) + "</td></tr>";
+                return "<tr><td>" + esc(a.user_email || ("user " + (a.user_id || "—"))) + "</td><td>" + esc(a.assignment_title || ("Assignment " + (a.assignment_id || "—"))) + "</td><td>" + (a.tab_switches || 0) + "</td><td>" + (a.blur_events || 0) + "</td><td>" + (a.paste_attempts || 0) + "</td><td>" + (a.rightclick_attempts || 0) + "</td><td>" + (a.score == null ? "—" : a.score) + "</td><td>" + (a.flagged ? '<span class="meta">Flagged</span>' : "—") + "</td><td>" + esc(String(a.submitted_at || "").slice(0, 16).replace("T", " ")) + "</td></tr>";
             }).join("") || '<tr><td colspan="9" class="admin-note">No assignment attempts yet.</td></tr>';
             statusEl("attemptsStatus", "");
         } catch (e) { statusEl("attemptsStatus", "Could not load attempts: " + e.message, true); }

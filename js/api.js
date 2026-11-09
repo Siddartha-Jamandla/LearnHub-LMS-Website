@@ -749,11 +749,11 @@
                 var next = cur === "light" ? "dark" : "light";
                 document.documentElement.setAttribute("data-theme", next);
                 try { localStorage.setItem("lh_theme", next); } catch (e) { /* ignore */ }
-                document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = next === "light" ? "☀️" : "🌙"; });
+                document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = next === "light" ? "Dark" : "Light"; });
             });
         });
         var cur = document.documentElement.getAttribute("data-theme") || "dark";
-        document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = cur === "light" ? "☀️" : "🌙"; });
+        document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = cur === "light" ? "Dark" : "Light"; });
     }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
     else wire();

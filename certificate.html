@@ -68,7 +68,7 @@
             </a>
 
             <a href="my-courses.html" class="nav-link">
-                My Courses
+                My courses
             </a>
 
         </nav>
@@ -99,7 +99,7 @@
                 class="btn btn-outline"
                 href="my-courses.html"
             >
-                Back to My Courses
+                Back to My courses
             </a>
         </div>
 
@@ -111,7 +111,7 @@
 
     <div class="container">
 
-        <p>&copy; LearnHub LMS. Keep learning.</p>
+        <p>&copy; LearnHub LMS.</p>
 
     </div>
 
@@ -168,8 +168,8 @@
 
         async function renderCert(cert, shareUrl) {
             card.innerHTML = `
-                <h1>CERTIFICATE OF COMPLETION</h1>
-                <p class="sub">This certificate is proudly presented to</p>
+                <h1>Certificate of completion</h1>
+                <p class="sub">This certificate is presented to</p>
                 <p class="name">${escapeHtml(cert.user_name)}</p>
                 <p class="sub">for successfully completing</p>
                 <p class="course">${escapeHtml(cert.course_title)}</p>
@@ -190,10 +190,10 @@
                 input.select();
                 try {
                     await navigator.clipboard.writeText(input.value);
-                    copyBtn.textContent = "Copied ✓";
+                    copyBtn.textContent = "Copied";
                 } catch (e) {
                     document.execCommand("copy");
-                    copyBtn.textContent = "Copied ✓";
+                    copyBtn.textContent = "Copied";
                 }
                 setTimeout(() => { copyBtn.textContent = "Copy link"; }, 2000);
             });
@@ -208,7 +208,7 @@
                         // correct), not a percent.
                         const total = (exam.questions || []).length || 10;
                         line.textContent = exam.passed
-                            ? `Final exam: Passed ✓ (best score ${exam.best_score} / ${total})`
+                            ? `Final exam: passed (best score ${exam.best_score} / ${total})`
                             : (exam.best_score != null
                                 ? `Final exam: not passed yet (best score ${exam.best_score} / ${total})`
                                 : "Final exam: not attempted yet");

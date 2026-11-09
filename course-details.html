@@ -53,36 +53,36 @@
             </a>
 
             <a href="learning-paths.html" class="nav-link">
-                Learning Paths
+                Learning paths
             </a>
 
 </nav>
 
             <a href="learning-paths.html" class="nav-link">
-                Learning Paths
+                Learning paths
             </a>
 
 </nav>
 
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
-                🔔
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="notifCount" class="notif-count" hidden>0</span>
             </a>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
-                🔔
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="notifCount" class="notif-count" hidden>0</span>
             </a>
 
             <a href="wishlist.html" class="nav-icon">
-                ♡
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </a>
 
             <a href="cart.html" class="nav-icon">
 
-                🛒
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
 
                 <span id="cart-count" class="cart-count">
                     0
@@ -121,7 +121,7 @@
 
 <section class="section" id="assignmentSection" hidden>
     <div class="container">
-        <h2>Proctored Assignments</h2>
+        <h2>Proctored assignments</h2>
         <p>Timed coding assignments with tab-switch and copy/paste monitoring.</p>
         <div id="assignmentList"></div>
     </div>
@@ -129,7 +129,7 @@
 
 <section class="section" id="examSection" hidden>
     <div class="container">
-        <h2>Final Exam</h2>
+        <h2>Final exam</h2>
         <div class="exam-box" id="examBox"></div>
     </div>
 </section>
@@ -168,18 +168,18 @@
 
     function render(course, lessons, avgRating, reviewCount) {
         var rating = (avgRating != null && avgRating > 0)
-            ? "⭐ " + Number(avgRating).toFixed(1) + " &nbsp;|&nbsp; " + reviewCount + " review" + (reviewCount === 1 ? "" : "s")
+            ? Number(avgRating).toFixed(1) + " &nbsp;|&nbsp; " + reviewCount + " review" + (reviewCount === 1 ? "" : "s")
             : "No reviews yet";
         container.innerHTML =
             '<div class="detail-grid">' +
             '<div class="detail-main">' +
-            '<span class="section-tag">' + esc(course.category) + "</span>" +
+            '<span class="meta">' + esc(course.category) + "</span>" +
             "<h1>" + esc(course.title) + "</h1>" +
             '<p class="detail-description">' + esc(course.description) + "</p>" +
             '<p id="courseRatingLine">' + rating + "</p><br>" +
             '<div class="detail-image"><img src="' + esc(course.image_url || course.image || "assets/images/course1.svg") +
             '" alt="' + esc(course.title) + '"></div><br>' +
-            "<h2>What You Will Learn</h2>" +
+            "<h2>What you will learn</h2>" +
             '<ul class="detail-list"><li>✓ Complete course fundamentals</li>' +
             "<li>✓ Practical real-world projects</li>" +
             "<li>✓ Step-by-step learning</li>" +
@@ -187,22 +187,22 @@
             "</div>" +
             '<div class="detail-card">' +
             '<div class="detail-price">' + esc(formatPrice(course.price)) + "</div>" +
-            '<button class="btn btn-primary" onclick="addToCart(' + course.id + ')">Add to Cart</button>' +
-            '<button class="btn btn-outline" onclick="addToWishlist(' + course.id + ')">Add to Wishlist</button>' +
+            '<button class="btn btn-primary" onclick="addToCart(' + course.id + ')">Add to cart</button>' +
+            '<button class="btn btn-outline" onclick="addToWishlist(' + course.id + ')">Add to wishlist</button>' +
             '<ul class="detail-list">' +
-            "<li>📚 " + (lessons != null ? lessons : "—") + " Lessons</li>" +
-            "<li>⏱ " + (course.duration_hours != null ? course.duration_hours : "—") + " Hours</li>" +
-            "<li>👨‍🏫 " + esc(course.instructor || "LearnHub") + "</li>" +
-            "<li>🏆 Certificate Included</li>" +
-            "<li>♾ Lifetime Access</li>" +
+            "<li>" + "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>" + " " + (lessons != null ? lessons : "—") + " lessons</li>" +
+            "<li>" + "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>" + " " + (course.duration_hours != null ? course.duration_hours : "—") + " hours</li>" +
+            "<li>" + "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>" + " " + esc(course.instructor || "LearnHub") + "</li>" +
+            "<li>" + "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2Z'/></svg>" + " Certificate included</li>" +
+            "<li>Lifetime access</li>" +
             "</ul></div></div>";
     }
 
     function renderLegacy() {
         var course = getCourseById(courseId);
         if (!course) {
-            container.innerHTML = '<div class="empty-state"><h2>Course Not Found</h2>' +
-                '<a href="courses.html" class="btn btn-primary">Back to Courses</a></div>';
+            container.innerHTML = '<div class="empty-state"><h2>Course not found</h2>' +
+                '<a href="courses.html" class="btn btn-primary">Back to courses</a></div>';
             return;
         }
         render({
@@ -222,8 +222,8 @@
             render(course, lessons, course.avg_rating, course.review_count || 0);
         } catch (e) {
             if (String(e.message || "").indexOf("404") !== -1 || String(e.message || "").indexOf("not found") !== -1) {
-                container.innerHTML = '<div class="empty-state"><h2>Course Not Found</h2>' +
-                    '<a href="courses.html" class="btn btn-primary">Back to Courses</a></div>';
+                container.innerHTML = '<div class="empty-state"><h2>Course not found</h2>' +
+                    '<a href="courses.html" class="btn btn-primary">Back to courses</a></div>';
             } else {
                 renderLegacy();
             }
@@ -285,7 +285,7 @@
                     : "…";
                 return "<div class=\"lesson-row\" style=\"display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0;\">" +
                     "<div style=\"flex:1\"><strong>" + esc(l.title) + "</strong>" +
-                    (l.is_preview ? " <span>(free preview)</span>" : "") +
+                    (l.is_preview ? " <span class=\"meta\">free preview</span>" : "") +
                     "<br><small><span data-est-minutes=\"" + l.id + "\">" + mins + "</span></small></div>" +
                     "<a class=\"btn btn-primary\" href=\"lesson.html?id=" + l.id + "\">Learn &rarr;</a>" +
                     "<button type=\"button\" class=\"btn btn-outline\" data-lesson-id=\"" + l.id + "\">Mark as complete</button></div>";
@@ -297,11 +297,11 @@
                     try {
                         var res = await LearnHubAPI.completeLesson(btn.dataset.lessonId);
                         btn.disabled = true;
-                        btn.textContent = "\u2713 Completed";
+                        btn.textContent = "Completed";
                         if (res && typeof res.progress_percent === "number") setProgress(res.progress_percent);
                         else await refreshProgress(courseId);
                         if (res && res.certificate) {
-                            noteEl.textContent = "\uD83C\uDF89 Course complete! Your certificate is ready: certificate.html?id=" + res.certificate.id;
+                            noteEl.textContent = "Course complete. Your certificate is ready: certificate.html?id=" + res.certificate.id;
                         }
                     } catch (e) {
                         noteEl.textContent = "Could not mark complete: " + e.message +
@@ -383,7 +383,7 @@
         ratingLine = document.getElementById("courseRatingLine");
         if (avg > 0) {
             avgEl.innerHTML = '<span class="review-stars">' + esc(stars(avg)) + "</span> <strong>" + avg.toFixed(1) + "</strong> · " + count + " review" + (count === 1 ? "" : "s");
-            if (ratingLine) ratingLine.innerHTML = "⭐ " + avg.toFixed(1) + " (" + count + " review" + (count === 1 ? "" : "s") + ")";
+            if (ratingLine) ratingLine.innerHTML = avg.toFixed(1) + " (" + count + " review" + (count === 1 ? "" : "s") + ")";
         } else {
             avgEl.innerHTML = "<small>No reviews yet — be the first to review this course.</small>";
             if (ratingLine) ratingLine.innerHTML = "No reviews yet";
@@ -393,7 +393,7 @@
             var mine = myReview && r.id === myReview.id;
             return '<article class="review-card">' +
                 '<p class="review-meta"><strong>' + esc(r.user_name) + "</strong>" +
-                (mine ? ' <span class="preview-badge">Your review</span>' : "") +
+                (mine ? ' <span class="meta">Your review</span>' : "") +
                 " · " + esc(fmtDate(r.created_at)) + "</p>" +
                 '<p><span class="review-stars">' + esc(stars(r.rating)) + "</span></p>" +
                 "<p>" + esc(r.comment || "") + "</p>" +
@@ -466,7 +466,7 @@
                 } else {
                     await LearnHubAPI.postReview(courseId, chosen, ta.value.trim());
                 }
-                status.textContent = "✓ Review saved.";
+                status.textContent = "Review saved.";
                 loadReviews();
             } catch (err) {
                 if (err.status === 409) {
@@ -509,7 +509,7 @@
         // NOTE: best_score is the raw best mark (questions correct),
         // not a percent — the exam samples 10 questions.
         var total = (data.questions || []).length || 10;
-        if (data.passed) status = '<p>✅ <strong>Passed</strong> — best score ' + data.best_score + " / " + total + " correct</p>";
+        if (data.passed) status = '<p><strong>Passed</strong> — best score ' + data.best_score + " / " + total + " correct</p>";
         else if (data.best_score != null) status = "<p>Best score so far: <strong>" + data.best_score + " / " + total + " correct</strong> — not passed yet. You can retake it.</p>";
         if (data.attempts) status += "<p><small>Attempts: " + data.attempts + "</small></p>";
         examBox.innerHTML = status +
@@ -550,7 +550,7 @@
                     { method: "POST", body: { answers: answers } });
                 var certLink = "";
                 if (res.passed) {
-                    // Certificate unlocks at 100% course completion.
+                    // Certificate is issued at 100% course completion.
                     try {
                         var prog = await LearnHubAPI.getCourseProgress(courseId);
                         if (prog.progress_percent >= 100 && prog.certificate_code) {
@@ -561,11 +561,11 @@
                     } catch (e) { /* certificate link is a bonus, not required */ }
                 }
                 examBox.innerHTML =
-                    "<h3>" + (res.passed ? "🎉 You passed!" : "Not passed yet") + "</h3>" +
+                    "<h3>" + (res.passed ? "You passed" : "Not passed yet") + "</h3>" +
                     "<p>You scored <strong>" + res.score + " / " + res.total + "</strong>" +
                     (res.xp_awarded ? " — <strong>+" + res.xp_awarded + " XP</strong> earned." : ".") + "</p>" +
                     (res.passed
-                        ? "<p>Final exam passed. " + (certLink || "Complete all lessons to unlock your certificate.") + "</p>"
+                        ? "<p>Final exam passed. " + (certLink || "Complete all lessons to receive your certificate.") + "</p>"
                         : "<p>You need 70% to pass — review the lessons and retake the exam.</p>") +
                     '<button type="button" class="btn btn-outline" id="retakeExamBtn">Retake exam</button> ' +
                     '<a href="course-details.html?id=' + courseId + '" class="btn btn-outline">Back to course</a>';
@@ -583,237 +583,6 @@
     });
 })();
 </script>
-
-    function esc(s) { return UI ? UI.esc(s) : String(s == null ? "" : s); }
-    function stars(r) { return UI ? UI.stars(r) : ("★".repeat(Math.round(r || 0)) + "☆".repeat(5 - Math.round(r || 0))); }
-    function fmtDate(d) { return String(d || "").slice(0, 10); }
-
-    async function loadEnrolment() {
-        if (!signedIn || !window.LearnHubAPI) return;
-        try {
-            var enr = await LearnHubAPI.getEnrollments();
-            enrolled = enr.some(function (e) { return String(e.course.id) === String(courseId); });
-        } catch (e) { enrolled = false; }
-    }
-
-    async function loadReviews() {
-        if (!window.LearnHubAPI) { avgEl.innerHTML = "<small>Reviews are unavailable right now.</small>"; return; }
-        var reviews = [];
-        try { reviews = await LearnHubAPI.getReviews(courseId); }
-        catch (e) { avgEl.innerHTML = "<small>Reviews are unavailable right now.</small>"; return; }
-        // Real average + count from the single-course endpoint.
-        var avg = 0, count = reviews.length;
-        try {
-            var d = await LearnHubAPI.getCourse(courseId);
-            avg = d.avg_rating || 0;
-            count = d.review_count != null ? d.review_count : reviews.length;
-        } catch (e) {
-            if (reviews.length) avg = reviews.reduce(function (a, r) { return a + r.rating; }, 0) / reviews.length;
-        }
-        ratingLine = document.getElementById("courseRatingLine");
-        if (avg > 0) {
-            avgEl.innerHTML = '<span class="review-stars">' + esc(stars(avg)) + "</span> <strong>" + avg.toFixed(1) + "</strong> · " + count + " review" + (count === 1 ? "" : "s");
-            if (ratingLine) ratingLine.innerHTML = "⭐ " + avg.toFixed(1) + " (" + count + " review" + (count === 1 ? "" : "s") + ")";
-        } else {
-            avgEl.innerHTML = "<small>No reviews yet — be the first to review this course.</small>";
-            if (ratingLine) ratingLine.innerHTML = "No reviews yet";
-        }
-        myReview = myName ? reviews.find(function (r) { return r.user_name === myName; }) || null : null;
-        listEl.innerHTML = reviews.length ? reviews.map(function (r) {
-            var mine = myReview && r.id === myReview.id;
-            return '<article class="review-card">' +
-                '<p class="review-meta"><strong>' + esc(r.user_name) + "</strong>" +
-                (mine ? ' <span class="preview-badge">Your review</span>' : "") +
-                " · " + esc(fmtDate(r.created_at)) + "</p>" +
-                '<p><span class="review-stars">' + esc(stars(r.rating)) + "</span></p>" +
-                "<p>" + esc(r.comment || "") + "</p>" +
-                (mine ? '<p><button type="button" class="btn btn-outline btn-small" id="editReviewBtn">Edit</button> ' +
-                    '<button type="button" class="btn btn-outline btn-small" id="deleteReviewBtn">Delete</button></p>' : "") +
-                "</article>";
-        }).join("") : "<p>No reviews yet.</p>";
-        renderForm();
-        var editBtn = document.getElementById("editReviewBtn");
-        if (editBtn) editBtn.addEventListener("click", function () { renderForm(true); });
-        var delBtn = document.getElementById("deleteReviewBtn");
-        if (delBtn) delBtn.addEventListener("click", deleteReview);
-    }
-
-    function starInput(current) {
-        var html = '<div class="star-input" role="radiogroup" aria-label="Rating">';
-        for (var i = 1; i <= 5; i++) {
-            html += '<button type="button" data-star="' + i + '" class="' + (i <= current ? "on" : "") + '" aria-label="' + i + ' star' + (i > 1 ? "s" : "") + '">★</button>';
-        }
-        return html + "</div>";
-    }
-
-    function renderForm(editing) {
-        if (!signedIn) {
-            formWrap.innerHTML = '<p><a href="login.html" class="btn btn-outline">Sign in to review</a></p>';
-            return;
-        }
-        if (!enrolled) {
-            formWrap.innerHTML = "<p>Enrol in this course to write a review.</p>";
-            return;
-        }
-        if (myReview && !editing) {
-            formWrap.innerHTML = "<p>You have already reviewed this course — see your review above to edit or delete it.</p>";
-            return;
-        }
-        var current = editing && myReview ? myReview.rating : 5;
-        var comment = editing && myReview ? myReview.comment || "" : "";
-        formWrap.innerHTML =
-            '<form id="reviewForm" class="review-form">' +
-            "<h3>" + (editing ? "Edit your review" : "Write a review") + "</h3>" +
-            starInput(current) +
-            '<p><textarea id="reviewComment" rows="4" maxlength="2000" placeholder="What did you think of this course? (optional)">' + esc(comment) + "</textarea></p>" +
-            '<p><small><span id="reviewCharCount">' + comment.length + "</span>/2000 characters</small></p>" +
-            '<button type="submit" class="btn btn-primary">' + (editing ? "Save changes" : "Submit review") + "</button> " +
-            (editing ? '<button type="button" class="btn btn-outline" id="cancelEditBtn">Cancel</button> ' : "") +
-            '<span id="reviewStatus"></span></form>';
-        var chosen = current;
-        formWrap.querySelectorAll("[data-star]").forEach(function (btn) {
-            btn.addEventListener("click", function () {
-                chosen = Number(btn.dataset.star);
-                formWrap.querySelectorAll("[data-star]").forEach(function (b) {
-                    b.classList.toggle("on", Number(b.dataset.star) <= chosen);
-                });
-            });
-        });
-        var ta = document.getElementById("reviewComment");
-        ta.addEventListener("input", function () {
-            document.getElementById("reviewCharCount").textContent = ta.value.length;
-        });
-        var cancel = document.getElementById("cancelEditBtn");
-        if (cancel) cancel.addEventListener("click", function () { renderForm(false); });
-        document.getElementById("reviewForm").addEventListener("submit", async function (e) {
-            e.preventDefault();
-            var status = document.getElementById("reviewStatus");
-            status.textContent = "Saving…";
-            try {
-                if (editing && myReview) {
-                    await UI.lhApi("/api/reviews/" + myReview.id,
-                        { method: "PUT", body: { rating: chosen, comment: ta.value.trim() } });
-                } else {
-                    await LearnHubAPI.postReview(courseId, chosen, ta.value.trim());
-                }
-                status.textContent = "✓ Review saved.";
-                loadReviews();
-            } catch (err) {
-                if (err.status === 409) {
-                    // Already reviewed (server-side truth): reload and
-                    // show their review with Edit/Delete instead.
-                    status.textContent = "You have already reviewed this course.";
-                    loadReviews();
-                } else if (err.status === 404 && editing) {
-                    status.textContent = "Review editing is not available yet — please try again later.";
-                } else {
-                    status.textContent = "Could not save: " + err.message;
-                }
-            }
-        });
-    }
-
-    async function deleteReview() {
-        if (!myReview || !confirm("Delete your review?")) return;
-        try {
-            await UI.lhApi("/api/reviews/" + myReview.id, { method: "DELETE" });
-            loadReviews();
-        } catch (err) {
-            alert("Could not delete: " + (err.status === 404
-                ? "review deletion is not available yet — please try again later."
-                : err.message));
-        }
-    }
-
-    // ---- Final exam ----
-    var examSection = document.getElementById("examSection");
-    var examBox = document.getElementById("examBox");
-
-    async function loadExam() {
-        if (!signedIn || !enrolled || !UI) return; // exam is for enrolled learners
-        var data;
-        try { data = await UI.lhApi("/api/courses/" + courseId + "/final-exam"); }
-        catch (e) { return; } // 404 = no final exam for this course; 403 = not enrolled: hide
-        examSection.hidden = false;
-        var status = "";
-        // NOTE: best_score is the raw best mark (questions correct),
-        // not a percent — the exam samples 10 questions.
-        var total = (data.questions || []).length || 10;
-        if (data.passed) status = '<p>✅ <strong>Passed</strong> — best score ' + data.best_score + " / " + total + " correct</p>";
-        else if (data.best_score != null) status = "<p>Best score so far: <strong>" + data.best_score + " / " + total + " correct</strong> — not passed yet. You can retake it.</p>";
-        if (data.attempts) status += "<p><small>Attempts: " + data.attempts + "</small></p>";
-        examBox.innerHTML = status +
-            '<button type="button" class="btn btn-primary" id="startExamBtn">' +
-            (data.passed ? "Retake final exam" : "Take final exam") + "</button> " +
-            '<span id="examNote"></span>';
-        document.getElementById("startExamBtn").addEventListener("click", function () {
-            renderExam(data.questions || []);
-        });
-    }
-
-    function renderExam(questions) {
-        if (!questions.length) {
-            examBox.innerHTML = "<p>No final exam questions for this course yet.</p>";
-            return;
-        }
-        examBox.innerHTML = "<p>Answer all " + questions.length + " questions, then submit. You need 70% to pass.</p>" +
-            questions.map(function (q, i) {
-                return '<div class="exam-q"><p><strong>Q' + (i + 1) + ". " + esc(q.question) + "</strong></p>" +
-                    q.options.map(function (opt, oi) {
-                        return '<label><input type="radio" name="exam-q' + q.id + '" value="' + oi + '"> ' + esc(opt) + "</label>";
-                    }).join("") + "</div>";
-            }).join("") +
-            '<button type="button" class="btn btn-primary" id="submitExamBtn">Submit exam</button> <span id="examNote"></span>';
-        document.getElementById("submitExamBtn").addEventListener("click", async function () {
-            var answers = {};
-            var missing = 0;
-            questions.forEach(function (q) {
-                var picked = examBox.querySelector('input[name="exam-q' + q.id + '"]:checked');
-                if (picked) answers[q.id] = Number(picked.value);
-                else missing++;
-            });
-            var note = document.getElementById("examNote");
-            if (missing) { note.textContent = "Please answer all " + questions.length + " questions (" + missing + " left)."; return; }
-            note.textContent = "Submitting…";
-            try {
-                var res = await UI.lhApi("/api/courses/" + courseId + "/final-exam/submit",
-                    { method: "POST", body: { answers: answers } });
-                var certLink = "";
-                if (res.passed) {
-                    // Certificate unlocks at 100% course completion.
-                    try {
-                        var prog = await LearnHubAPI.getCourseProgress(courseId);
-                        if (prog.progress_percent >= 100 && prog.certificate_code) {
-                            var certs = await LearnHubAPI.getMyCertificates();
-                            var mine = certs.find(function (c) { return c.certificate_code === prog.certificate_code; });
-                            if (mine) certLink = ' <a href="certificate.html?id=' + mine.id + '" class="btn btn-primary">View certificate</a>';
-                        }
-                    } catch (e) { /* certificate link is a bonus, not required */ }
-                }
-                examBox.innerHTML =
-                    "<h3>" + (res.passed ? "🎉 You passed!" : "Not passed yet") + "</h3>" +
-                    "<p>You scored <strong>" + res.score + " / " + res.total + "</strong>" +
-                    (res.xp_awarded ? " — <strong>+" + res.xp_awarded + " XP</strong> earned." : ".") + "</p>" +
-                    (res.passed
-                        ? "<p>Final exam passed. " + (certLink || "Complete all lessons to unlock your certificate.") + "</p>"
-                        : "<p>You need 70% to pass — review the lessons and retake the exam.</p>") +
-                    '<button type="button" class="btn btn-outline" id="retakeExamBtn">Retake exam</button> ' +
-                    '<a href="course-details.html?id=' + courseId + '" class="btn btn-outline">Back to course</a>';
-                document.getElementById("retakeExamBtn").addEventListener("click", loadExam);
-            } catch (err) {
-                note.textContent = "Could not submit: " + err.message;
-            }
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", async function () {
-        await loadEnrolment();
-        loadReviews();
-        loadExam();
-    });
-})();
-</script>
-
 <script>
 /* Proctored assignments for this course: GET /api/courses/:id/assignments.
    Shown to everyone; starting requires enrolment (exam.html handles 403). */
@@ -834,7 +603,7 @@
                 return '<div class="exam-box"><h3>' + esc(a.title) + '</h3>' +
                     '<p>' + esc(a.description || "") + '</p>' +
                     '<p><small>Language: ' + esc(a.language || "—") + ' · ' + (a.duration_minutes || 0) + ' min · ' + (a.total_marks || 0) + ' marks</small></p>' +
-                    '<a class="btn btn-primary btn-small" href="exam.html?id=' + a.id + '">Proctored Assignment — Start</a></div>';
+                    '<a class="btn btn-primary btn-small" href="exam.html?id=' + a.id + '">Start proctored assignment</a></div>';
             }).join("");
         } catch (e) { /* no assignments for this course, or endpoint not live yet: keep hidden */ }
     });

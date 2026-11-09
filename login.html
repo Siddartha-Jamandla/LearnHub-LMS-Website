@@ -24,9 +24,9 @@
             <a href="contact.html" class="nav-link">Contact</a>
         </nav>
 
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
             <a href="cart.html" class="nav-icon">
-                🛒
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                 <span id="cart-count" class="cart-count">0</span>
             </a>
 
@@ -43,7 +43,7 @@
 
     <div class="form-card">
 
-        <h1>Welcome Back</h1>
+        <h1>Sign in</h1>
 
         <p>Sign in to Learn Hub — by CareerPlus Co-Private Limited.</p>
 
@@ -60,7 +60,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary form-submit" id="loginSubmitBtn">
-                Sign In
+                Sign in
             </button>
             <p class="auth-error" id="loginError" hidden></p>
             <p class="auth-note" id="loginNote" hidden></p>
@@ -80,7 +80,7 @@
                 <label for="otpInput">6-digit code</label>
                 <input type="text" id="otpInput" class="otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
             </div>
-            <button type="button" class="btn btn-primary form-submit" id="verifyOtpBtn">Verify &amp; Sign In</button>
+            <button type="button" class="btn btn-primary form-submit" id="verifyOtpBtn">Verify &amp; Sign in</button>
             <p class="auth-error" id="otpError" hidden></p>
             <p class="auth-note" id="otpNote" hidden></p>
             <p style="text-align:center;margin-top:14px;"><button type="button" class="btn btn-outline btn-small" id="backToLoginBtn">← Back to password</button></p>
@@ -147,7 +147,7 @@
             if (d.otp_required) { showOtpStep(); await requestOtp(); return; }
             show(loginError, "Unexpected response from the server. Please try again.");
         } catch (err) { show(loginError, friendly(err)); }
-        finally { btn.disabled = false; btn.textContent = "Sign In"; }
+        finally { btn.disabled = false; btn.textContent = "Sign in"; }
     });
     async function requestOtp() {
         show(otpError, ""); show(otpNote, "Sending your code…");
@@ -174,7 +174,7 @@
             if (d.token) { show(otpNote, "Verified — redirecting to your dashboard…"); setTimeout(function () { window.location.href = "dashboard.html"; }, 600); }
             else show(otpError, "Verification did not return a session. Please try again.");
         } catch (err) { show(otpError, friendly(err)); }
-        finally { btn.disabled = false; btn.textContent = "Verify & Sign In"; }
+        finally { btn.disabled = false; btn.textContent = "Verify & Sign in"; }
     });
     document.getElementById("backToLoginBtn").addEventListener("click", function () {
         otpStep.hidden = true; form.hidden = false;

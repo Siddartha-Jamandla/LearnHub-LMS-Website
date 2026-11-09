@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>My Courses - LearnHub</title>
+    <title>My courses - LearnHub</title>
 
     <link rel="stylesheet" href="style.css">
     <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
@@ -39,7 +39,7 @@
             </a>
 
             <a href="my-courses.html" class="nav-link active">
-                My Courses
+                My courses
             </a>
 
             <a href="profile.html" class="nav-link">
@@ -51,31 +51,31 @@
             </a>
 
             <a href="learning-paths.html" class="nav-link">
-                Learning Paths
+                Learning paths
             </a>
 
 </nav>
 
             <a href="learning-paths.html" class="nav-link">
-                Learning Paths
+                Learning paths
             </a>
 
 </nav>
 
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
-                🔔
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="notifCount" class="notif-count" hidden>0</span>
             </a>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
-                🔔
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="notifCount" class="notif-count" hidden>0</span>
             </a>
 
             <a href="cart.html" class="nav-icon">
-                🛒
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                 <span id="cart-count" class="cart-count">
                     0
                 </span>
@@ -93,11 +93,11 @@
     <div class="container">
 
         <h1>
-            My Courses
+            My courses
         </h1>
 
         <p>
-            Continue your learning journey.
+            Pick up where you left off.
         </p>
 
     </div>
@@ -143,7 +143,7 @@ async function renderMyCourses() {
                             "<p id=\"pct-" + c.id + "\">" + pct + "% complete &middot; " + (c.lesson_count || 0) + " lessons</p>" +
                             "<progress id=\"bar-" + c.id + "\" value=\"" + pct + "\" max=\"100\" style=\"width:100%;\"></progress>" +
                             "<p id=\"meta-" + c.id + "\"></p><br>" +
-                            "<a class=\"btn btn-primary\" href=\"course-details.html?id=" + c.id + "\">Continue Learning</a>" +
+                            "<a class=\"btn btn-primary\" href=\"course-details.html?id=" + c.id + "\">Continue learning</a>" +
                             " <button class=\"btn btn-outline\" type=\"button\" onclick=\"unenrollCourse(" + c.id + ", this)\">Unenroll</button>" +
                             "</div></div>";
                     }).join("");
@@ -164,7 +164,7 @@ async function renderMyCourses() {
                                 meta += "Next: <a href=\"lesson.html?id=" + p.next_lesson_id + "\">" + p.next_lesson_title + "</a>";
                             }
                             if (p.certificate_code) {
-                                meta += (meta ? " · " : "") + "🎉 <a href=\"certificate.html?code=" + encodeURIComponent(p.certificate_code) + "\">Certificate ready</a>";
+                                meta += (meta ? " · " : "") + "<a href=\"certificate.html?code=" + encodeURIComponent(p.certificate_code) + "\">Certificate ready</a>";
                             }
                             metaEl.innerHTML = meta;
                         }).catch(function () { /* keep the my-courses figure */ });
@@ -213,7 +213,7 @@ function renderMyCoursesLegacy() {
             <div class="empty-state">
 
                 <h2>
-                    No Courses Yet
+                    No courses yet
                 </h2>
 
                 <p>
@@ -226,7 +226,7 @@ function renderMyCoursesLegacy() {
                     href="courses.html"
                     class="btn btn-primary"
                 >
-                    Explore Courses
+                    Explore courses
                 </a>
 
             </div>
@@ -286,7 +286,7 @@ function renderMyCoursesLegacy() {
                             class="btn btn-primary"
                             onclick="alert('Course learning page can be added later.')"
                         >
-                            Continue Learning
+                            Continue learning
                         </button>
 
                     </div>

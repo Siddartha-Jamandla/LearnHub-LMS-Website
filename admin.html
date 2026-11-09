@@ -10,7 +10,7 @@
         /* ---- admin dashboard layout (LearnHub colours: #2a7ae2, #0f172a) ---- */
         .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
         .admin-sidebar { position: sticky; top: 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; }
-        .admin-sidebar h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin: 4px 8px 10px; }
+        .admin-sidebar h3 { font-size: .8rem; color: #64748b; margin: 4px 8px 10px; }
         .admin-nav-btn { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; background: transparent; border-radius: 8px; font-size: .95rem; cursor: pointer; color: #334155; }
         .admin-nav-btn:hover { background: #f8fafc; }
         .admin-nav-btn.active { background: #eef2ff; color: #2a7ae2; font-weight: 700; }
@@ -29,7 +29,7 @@
         .stat-label { font-size: .8rem; color: #64748b; }
         .data-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
         .data-table th, .data-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
-        .data-table th { color: #64748b; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+        .data-table th { color: #64748b; font-size: .8rem; }
         .table-wrap { overflow-x: auto; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
         .badge-green { background: #dcfce7; color: #166534; }
@@ -76,14 +76,14 @@
             <a href="courses.html" class="nav-link">Courses</a>
             <a href="my-courses.html" class="nav-link">My Courses</a>
         </nav>
-        <button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
         <div class="nav-actions" id="auth-slot"></div>
     </div>
 </header>
 
 <section class="page-header">
     <div class="container">
-        <h1>Admin Dashboard</h1>
+        <h1>Admin dashboard</h1>
         <p>Manage LearnHub — courses, lessons, learners, orders and certificates.</p>
     </div>
 </section>
@@ -93,7 +93,7 @@
 
         <div class="admin-card">
             <h3>Sign in as admin</h3>
-            <p class="admin-note">The admin is the account registered with <strong>siddarthajamandla@gmail.com</strong>. Sign in with that Gmail and your LearnHub password and the dashboard unlocks — no admin key needed. (If you have not registered on LearnHub with that Gmail yet, register first at <a href="register.html">register.html</a>.)</p>
+            <p class="admin-note">The admin is the account registered with <strong>siddarthajamandla@gmail.com</strong>. Sign in with that Gmail and your LearnHub password and the dashboard opens — no admin key needed. (If you have not registered on LearnHub with that Gmail yet, register first at <a href="register.html">register.html</a>.)</p>
             <form id="adminLoginForm">
                 <div class="key-bar">
                     <div class="form-group">
@@ -113,7 +113,7 @@
 
         <div class="admin-card">
             <h3>Admin key</h3>
-            <p class="admin-note">Fallback if you are not signed in as admin: the admin key (API_SECRET) unlocks every section below. Enter once per tab — it is kept in <code>sessionStorage</code> and sent as <code>?key=</code> on every admin request. It is never stored on this page.</p>
+            <p class="admin-note">Fallback if you are not signed in as admin: the admin key (API_SECRET) gives access to every section below. Enter once per tab — it is kept in <code>sessionStorage</code> and sent as <code>?key=</code> on every admin request. It is never stored on this page.</p>
             <div class="key-bar">
                 <div class="form-group">
                     <label for="adminKey">Admin key (API_SECRET)</label>
@@ -129,21 +129,21 @@
             <aside class="admin-sidebar">
                 <h3>Admin</h3>
                 <nav id="adminNav">
-                    <button class="admin-nav-btn active" data-section="dashboard" type="button">📊 Dashboard</button>
-                    <button class="admin-nav-btn" data-section="courses" type="button">📚 Courses</button>
-                    <button class="admin-nav-btn" data-section="lessons" type="button">📝 Lessons &amp; Content</button>
-                    <button class="admin-nav-btn" data-section="users" type="button">👥 Users</button>
-                    <button class="admin-nav-btn" data-section="learning" type="button">📈 Learning</button>
-                    <button class="admin-nav-btn" data-section="orders" type="button">🧾 Orders</button>
-                    <button class="admin-nav-btn" data-section="certificates" type="button">🎓 Certificates</button>
-                    <button class="admin-nav-btn" data-section="announcements" type="button">📢 Announcements</button>
-                    <button class="admin-nav-btn" data-section="discussions" type="button">💬 Discussions</button>
-                    <button class="admin-nav-btn" data-section="reviews" type="button">⭐ Reviews</button>
-                    <button class="admin-nav-btn" data-section="instructors" type="button">🧑‍🏫 Instructors</button>
-                    <button class="admin-nav-btn" data-section="messages" type="button">✉️ Messages</button>
-                    <button class="admin-nav-btn" data-section="security" type="button">🛡️ Security Center</button>
+                    <button class="admin-nav-btn active" data-section="dashboard" type="button">Dashboard</button>
+                    <button class="admin-nav-btn" data-section="courses" type="button">Courses</button>
+                    <button class="admin-nav-btn" data-section="lessons" type="button">Lessons &amp; content</button>
+                    <button class="admin-nav-btn" data-section="users" type="button">Users</button>
+                    <button class="admin-nav-btn" data-section="learning" type="button">Learning</button>
+                    <button class="admin-nav-btn" data-section="orders" type="button">Orders</button>
+                    <button class="admin-nav-btn" data-section="certificates" type="button">Certificates</button>
+                    <button class="admin-nav-btn" data-section="announcements" type="button">Announcements</button>
+                    <button class="admin-nav-btn" data-section="discussions" type="button">Discussions</button>
+                    <button class="admin-nav-btn" data-section="reviews" type="button">Reviews</button>
+                    <button class="admin-nav-btn" data-section="instructors" type="button">Instructors</button>
+                    <button class="admin-nav-btn" data-section="messages" type="button">Messages</button>
+                    <button class="admin-nav-btn" data-section="security" type="button">Security center</button>
                 </nav>
-                <p class="admin-note" style="margin-top: 14px;">Tip: signing in with the admin Gmail unlocks everything. The key is only a fallback — the same API_SECRET used by the server. Wrong key? Every section will say so.</p>
+                <p class="admin-note" style="margin-top: 14px;">Tip: signing in with the admin Gmail gives access to everything. The key is only a fallback — the same API_SECRET used by the server. Wrong key? Every section will say so.</p>
             </aside>
 
             <main>
@@ -219,7 +219,7 @@
 
                 <!-- ================= LESSONS & CONTENT ================= -->
                 <div class="admin-section" id="section-lessons">
-                    <h2>Lessons &amp; Content</h2>
+                    <h2>Lessons &amp; content</h2>
                     <p class="section-sub">Edit what learners actually study — explanation, flowchart, video, MCQs and tasks for any lesson.</p>
                     <div class="admin-card">
                         <div class="toolbar">
@@ -443,7 +443,7 @@
 
                 <!-- ================= SECURITY CENTER ================= -->
                 <div class="admin-section" id="section-security">
-                    <h2>Security Center</h2>
+                    <h2>Security center</h2>
                     <p class="section-sub">Live security events, audit trail and the self-rectification error log. Real data only — empty states when nothing is logged.</p>
                     <div class="admin-card">
                         <h3>Overview</h3>
@@ -499,9 +499,8 @@
     const pct = (v) => (v == null ? "—" : Number(v).toFixed(1) + "%");
     function dateOnly(s) { return s ? String(s).slice(0, 10) : "—"; }
     function scoreBadge(v) {
-        if (v == null) return '<span class="badge badge-grey">no attempts</span>';
-        const cls = v >= 70 ? "badge-green" : v >= 40 ? "badge-amber" : "badge-red";
-        return `<span class="badge ${cls}">${pct(v)}</span>`;
+        if (v == null) return '<span class="meta">no attempts</span>';
+        return `<span class="meta">${pct(v)}</span>`;
     }
     function statusEl(id, msg, isErr) {
         const el = document.getElementById(id);
@@ -522,7 +521,7 @@
     function getKey(save) {
         const k = (keyInput.value || "").trim();
         if (save !== false && k) sessionStorage.setItem("lh_admin_key", k);
-        keyStatus.textContent = k ? "Key saved for this tab." : "No key set — enter the admin key to unlock the dashboard.";
+        keyStatus.textContent = k ? "Key saved for this tab." : "No key set — enter the admin key to open the dashboard.";
         return k;
     }
     document.getElementById("saveKeyBtn").addEventListener("click", () => { getKey(); loadSection(currentSection); });
@@ -531,7 +530,7 @@
     });
     getKey(false);
 
-    /* ---------------- admin Gmail sign-in (session unlock) ---------------- */
+    /* ---------------- admin Gmail sign-in (session access) ---------------- */
     // The server decides who is admin: GET /api/me/admin-status returns
     // {is_admin, email, name} for the signed-in user (401 when signed
     // out). Only called when a session token exists — never forces a
@@ -554,7 +553,7 @@
         let u = null;
         try { u = JSON.parse(localStorage.getItem("lh_user")); } catch (e) { /* ignore */ }
         if (sessionAdmin) {
-            adminLoginStatus.textContent = "Signed in as admin (" + (sessionAdmin.name ? sessionAdmin.name + ", " : "") + sessionAdmin.email + ") \u2014 admin access unlocked.";
+            adminLoginStatus.textContent = "Signed in as admin (" + (sessionAdmin.name ? sessionAdmin.name + ", " : "") + sessionAdmin.email + ") \u2014 you have admin access.";
             document.getElementById("adminEmail").value = sessionAdmin.email;
         } else if (u) {
             adminLoginStatus.textContent = "Signed in as " + u.email + " \u2014 that account is not an admin.";
@@ -571,7 +570,7 @@
         try {
             const loginRes = await api.login(email, password);
             if (loginRes && loginRes.otp_required) {
-                adminLoginStatus.textContent = "One-time code required — sign in on login.html first (enter the code there), then return here; the admin session will unlock automatically.";
+                adminLoginStatus.textContent = "One-time code required — sign in on login.html first (enter the code there), then return here; you will have admin access.";
                 return;
             }
             if (await checkSessionAdmin()) {
@@ -612,8 +611,8 @@
     });
     const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus", reviews: "reviewsStatus", instructors: "instructorsStatus", messages: "messagesStatus", security: "securityStatus" };
     function loadSection(name) {
-        // Unlocked = a saved key, or a signed-in admin session. A plain
-        // signed-in (non-admin) account does not unlock anything.
+        // Access = a saved key, or a signed-in admin session. A plain
+        // signed-in (non-admin) account gets no admin access.
         if (!getKey(false) && !sessionAdmin) { statusEl(STATUS_IDS[name] || "dashStatus", "Sign in as admin above, or enter the admin key first.", true); return; }
         if (name === "dashboard") loadDashboard();
         else if (name === "courses") loadCourses();
@@ -769,7 +768,7 @@
                 let quiz = 0, tasks = 0;
                 try { const c = await api.adminLessonContent(getKey(), l.id); quiz = c.quizzes.length; tasks = c.tasks.length; } catch (e) { /* content may be absent */ }
                 rows.push(`<tr><td>${l.id}</td><td>${esc(l.title)}</td><td>${l.duration_minutes || 0} min</td>` +
-                    `<td>${l.is_preview ? '<span class="badge badge-green">Free</span>' : "—"}</td><td>${quiz}</td><td>${tasks}</td>` +
+                    `<td>${l.is_preview ? '<span class="meta">Free</span>' : "—"}</td><td>${quiz}</td><td>${tasks}</td>` +
                     `<td><button class="btn-link" data-edit-content="${l.id}">Edit content</button></td></tr>`);
             }
             document.getElementById("lessonsBody").innerHTML = rows.join("") || `<tr><td colspan="7" class="admin-note">No lessons yet — add one below.</td></tr>`;
@@ -924,7 +923,7 @@
         document.getElementById("taskCount").textContent = "(" + tasks.length + " tasks)";
         document.getElementById("taskList").innerHTML = tasks.map((t) =>
             `<div class="admin-card" style="padding: 14px; margin-bottom: 10px;">
-                <span class="badge badge-blue">${esc(t.type)}</span> <strong>${esc(t.title)}</strong>
+                <span class="meta">${esc(t.type)}</span> <strong>${esc(t.title)}</strong>
                 <p class="admin-note">${esc(t.prompt)}</p>
                 ${t.code ? `<pre class="code-box" style="white-space: pre-wrap;">${esc(t.code)}</pre>` : ""}
                 <button class="btn-link" data-task-edit="${t.id}">Edit</button> ·
@@ -999,8 +998,8 @@
                 const isAdmin = !!u.is_admin || knownAdminIds.has(u.id) || knownAdminEmails.has(email) ||
                     (sessionAdmin && sessionAdmin.email && email === String(sessionAdmin.email).toLowerCase());
                 const roleCell = isAdmin
-                    ? `<span class="badge badge-blue">Admin</span>`
-                    : `<span class="badge badge-grey">Learner</span>`;
+                    ? `<span class="meta">Admin</span>`
+                    : `<span class="meta">Learner</span>`;
                 const roleBtn = isAdmin
                     ? `<button class="btn-link" data-role-remove="${u.id}" data-name="${esc(u.name)}">Remove admin</button>`
                     : `<button class="btn-link" data-role-make="${u.id}" data-name="${esc(u.name)}">Make admin</button>`;
@@ -1069,7 +1068,7 @@
                 `<tr><td>${esc(en.course_title)}</td><td>${dateOnly(en.enrolled_at)}</td>` +
                 `<td><div class="progress"><span style="width:${en.progress_percent || 0}%"></span></div>${(en.progress_percent || 0).toFixed(0)}% (${en.completed_lessons}/${en.total_lessons} lessons)</td>` +
                 `<td>${scoreBadge(en.avg_quiz_percent)}</td><td>${en.tasks_done}</td>` +
-                `<td>${en.certificate_code ? `<span class="badge badge-green">${esc(en.certificate_code)}</span>` : "—"}</td></tr>`).join("")
+                `<td>${en.certificate_code ? `<span class="meta">${esc(en.certificate_code)}</span>` : "—"}</td></tr>`).join("")
                 || `<tr><td colspan="6" class="admin-note">Not enrolled in any course yet.</td></tr>`;
             document.getElementById("userDetailBody").innerHTML =
                 `<p class="admin-note">Joined ${dateOnly(d.user.created_at)} · ${d.certificates.length} certificate(s)</p>` +
@@ -1119,7 +1118,7 @@
                 `<tr><td>${esc(c.title)}</td><td>${c.enrollments}</td><td>${inr(c.revenue)}</td></tr>`).join("");
             document.getElementById("ordersBody").innerHTML = d.orders.map((o) =>
                 `<tr><td>#${o.id}</td><td>${esc(o.user_name)}<br><span class="admin-note">${esc(o.user_email)}</span></td>` +
-                `<td>${inr(o.total)}</td><td><span class="badge ${o.status === "completed" ? "badge-green" : "badge-amber"}">${esc(o.status)}</span></td>` +
+                `<td>${inr(o.total)}</td><td><span class="meta">${esc(o.status)}</span></td>` +
                 `<td>${dateOnly(o.created_at)}</td></tr>`).join("")
                 || `<tr><td colspan="5" class="admin-note">No orders yet.</td></tr>`;
             document.getElementById("ordersPageInfo").textContent = "Page " + d.page + " of " + d.pages + " (" + d.total + " orders)";
@@ -1138,7 +1137,7 @@
             const d = await api.adminCertificates(getKey(), q, page);
             certsTotalPages = d.pages;
             document.getElementById("certsBody").innerHTML = d.certificates.map((c) =>
-                `<tr><td><span class="badge badge-blue">${esc(c.certificate_code)}</span></td>` +
+                `<tr><td><span class="meta">${esc(c.certificate_code)}</span></td>` +
                 `<td>${esc(c.student_name)}<br><span class="admin-note">${esc(c.student_email)}</span></td>` +
                 `<td>${esc(c.course_title)}</td><td>${dateOnly(c.issued_at)}</td>` +
                 `<td><a class="btn-link" href="certificate.html?id=${c.id}">View</a></td></tr>`).join("")
@@ -1199,7 +1198,7 @@
         try {
             const d = await api.adminDiscussions(getKey());
             document.getElementById("discussionsBody").innerHTML = d.discussions.map((x) =>
-                `<tr><td>${esc(x.user_name)}</td><td>${esc(x.course_title)}<br><span class="admin-note">${esc(x.lesson_title)}</span>${x.parent_id ? '<br><span class="badge badge-grey">reply</span>' : ""}</td>` +
+                `<tr><td>${esc(x.user_name)}</td><td>${esc(x.course_title)}<br><span class="admin-note">${esc(x.lesson_title)}</span>${x.parent_id ? '<br><span class="meta">reply</span>' : ""}</td>` +
                 `<td>${esc(x.body)}</td><td>${dateOnly(x.created_at)}</td>` +
                 `<td><button class="btn btn-danger-outline btn-small" data-disc-del="${x.id}" type="button">Delete</button></td></tr>`).join("")
                 || `<tr><td colspan="5" class="admin-note">No discussions yet.</td></tr>`;
@@ -1269,8 +1268,7 @@
     /* ---------------- security centre ---------------- */
     function sevBadge(s) {
         s = String(s || "").toLowerCase();
-        const cls = (s === "high" || s === "critical") ? "badge-red" : s === "medium" ? "badge-amber" : "badge-grey";
-        return `<span class="badge ${cls}">${esc(s || "—")}</span>`;
+        return `<span class="meta">${esc(s || "—")}</span>`;
     }
     async function loadSecurity() {
         statusEl("securityStatus", "Loading…");
@@ -1286,7 +1284,7 @@
             const d = await api.adminSecurity(getKey(), 50);
             const events = d.events || [];
             document.getElementById("secEventsBody").innerHTML = events.map((ev) =>
-                `<tr><td>${dateOnly(ev.created_at)}</td><td>${esc(ev.event_type)}</td><td>${sevBadge(ev.severity)}</td><td>${esc(ev.details || "")}<br><span class="admin-note">${esc(ev.ip || "")}</span></td><td>${ev.blocked ? '<span class="badge badge-red">Blocked</span>' : "—"}</td></tr>`).join("")
+                `<tr><td>${dateOnly(ev.created_at)}</td><td>${esc(ev.event_type)}</td><td>${sevBadge(ev.severity)}</td><td>${esc(ev.details || "")}<br><span class="admin-note">${esc(ev.ip || "")}</span></td><td>${ev.blocked ? "Blocked" : "—"}</td></tr>`).join("")
                 || `<tr><td colspan="5" class="admin-note">No security events logged yet.</td></tr>`;
         } catch (err) { document.getElementById("secEventsBody").innerHTML = `<tr><td colspan="5" class="admin-note">Security events are unavailable right now.</td></tr>`; }
         try {
@@ -1300,7 +1298,7 @@
             const d = await api.adminErrors(getKey());
             const list = d.errors || [];
             document.getElementById("secErrorsBody").innerHTML = list.map((er) =>
-                `<tr><td>${dateOnly(er.occurred_at)}</td><td>${esc(er.error_type)}</td><td>${esc(er.message)}</td><td>${er.auto_fixed ? '<span class="badge badge-green">Auto-fixed</span>' : '<span class="badge badge-grey">Not fixed</span>'}</td><td>${esc(er.fix_action || "—")}</td></tr>`).join("")
+                `<tr><td>${dateOnly(er.occurred_at)}</td><td>${esc(er.error_type)}</td><td>${esc(er.message)}</td><td>${er.auto_fixed ? '<span class="meta">Auto-fixed</span>' : '<span class="meta">Not fixed</span>'}</td><td>${esc(er.fix_action || "—")}</td></tr>`).join("")
                 || `<tr><td colspan="5" class="admin-note">No errors detected yet.</td></tr>`;
             statusEl("securityStatus", "");
         } catch (err) { document.getElementById("secErrorsBody").innerHTML = `<tr><td colspan="5" class="admin-note">Error log is unavailable right now.</td></tr>`; }
@@ -1315,7 +1313,7 @@
             document.getElementById("instructorsBody").innerHTML = list.map((t) =>
                 `<tr><td>${esc(t.name)}</td><td>${t.courses}</td><td>${t.enrollments}</td>` +
                 `<td>${t.avg_rating == null ? "\u2014" : Number(t.avg_rating).toFixed(1) + " / 5"}</td>` +
-                `<td>${t.pending_qa ? `<span class="badge badge-amber">${t.pending_qa} waiting</span>` : "0"}</td></tr>`).join("")
+                `<td>${t.pending_qa ? `<span class="meta">${t.pending_qa} waiting</span>` : "0"}</td></tr>`).join("")
                 || `<tr><td colspan="5" class="admin-note">No instructors yet — instructors appear once a course has an instructor name.</td></tr>`;
             statusEl("instructorsStatus", list.length + (list.length === 1 ? " instructor." : " instructors."));
         } catch (err) { statusEl("instructorsStatus", keyError(err), true); }

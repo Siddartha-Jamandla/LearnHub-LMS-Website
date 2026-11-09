@@ -39,7 +39,7 @@
             </a>
 
             <a href="my-courses.html" class="nav-link">
-                My Courses
+                My courses
             </a>
 
         </nav>
@@ -54,16 +54,15 @@
     <div class="container">
 
         <div class="success-icon">
-            ✅
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
 
         <h1>
-            Enrolment Successful!
+            Enrolment successful
         </h1>
 
         <p>
-            Congratulations! You are now enrolled — your courses are
-            listed below.
+            You are now enrolled — your courses are listed below.
         </p>
 
         <div id="paymentInfo"></div>
@@ -76,14 +75,14 @@
             href="my-courses.html"
             class="btn btn-primary"
         >
-            Go to My Courses
+            Go to My courses
         </a>
 
         <a
             href="courses.html"
             class="btn btn-outline"
         >
-            Continue Learning
+            Continue learning
         </a>
 
     </div>
@@ -123,7 +122,7 @@
             if (payBox) {
                 if (mine.length) {
                     var total = mine.reduce(function (s, p) { return s + (Number(p.amount) || 0); }, 0);
-                    payBox.innerHTML = '<div class="test-mode-notice"><strong>🧪 TEST MODE — Razorpay test mock.</strong> No real money was charged.</div>' +
+                    payBox.innerHTML = '<p class="meta">Test mode — Razorpay test mock. No real money was charged.</p>' +
                         "<ul>" + mine.map(function (p) {
                             return "<li>Order <strong>" + esc(p.order_id || ("#" + p.id)) + "</strong> — " + esc(p.course_title || ("Course " + (p.course_id || ""))) +
                                 " — " + esc(formatPrice(p.amount)) + " " + esc(p.currency || "INR") + " — status: <strong>" + esc(p.status) + "</strong></li>";
@@ -131,7 +130,7 @@
                 } else if (paymentIds.length) {
                     payBox.innerHTML = '<p>Payments are still being confirmed — check <a href="profile.html">your profile</a> for purchase history.</p>';
                 } else {
-                    payBox.innerHTML = '<div class="test-mode-notice"><strong>🧪 TEST MODE — Razorpay test mock.</strong> No real money was charged.</div>';
+                    payBox.innerHTML = '<p class="meta">Test mode — Razorpay test mock. No real money was charged.</p>';
                 }
             }
         } catch (e) {

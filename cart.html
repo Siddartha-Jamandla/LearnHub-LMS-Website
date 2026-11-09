@@ -54,15 +54,15 @@
 
         </nav>
 
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 
             <a href="wishlist.html" class="nav-icon">
-                ♡
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </a>
 
             <a href="cart.html" class="nav-icon">
 
-                🛒
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
 
                 <span id="cart-count" class="cart-count">
                     0
@@ -105,9 +105,9 @@
         <div id="cartSummary" class="admin-card" hidden>
             <h3>Order summary</h3>
             <p id="cartTotal"></p>
-            <a href="checkout.html" class="btn btn-primary">Proceed to Checkout</a>
+            <a href="checkout.html" class="btn btn-primary">Proceed to checkout</a>
             &nbsp;
-            <a href="courses.html" class="btn btn-outline">Continue Browsing</a>
+            <a href="courses.html" class="btn btn-outline">Continue browsing</a>
         </div>
 
     </div>
@@ -126,14 +126,14 @@
             </a>
 
             <p>
-                Learn new skills and build your future — Learn Hub by CareerPlus Co-Private Limited.
+                Coding courses for B.Tech students — Learn Hub by CareerPlus Co-Private Limited.
             </p>
 
         </div>
 
         <div class="footer-column">
 
-            <h3>Quick Links</h3>
+            <h3>Quick links</h3>
 
             <a href="index.html">Home</a>
             <a href="courses.html">Courses</a>
@@ -153,7 +153,7 @@
 
             <a href="login.html">Login</a>
             <a href="register.html">Register</a>
-            <a href="my-courses.html">My Courses</a>
+            <a href="my-courses.html">My courses</a>
             <a href="help.html">Help</a>
             <a href="faq.html">FAQ</a>
             <a href="terms.html">Terms</a>
@@ -205,7 +205,7 @@
         if (!localStorage.getItem("lh_token")) {
             list.innerHTML = emptyHtml("Sign in to see your cart",
                 "Your cart lives on your account — sign in and your saved courses will be here.",
-                '<a href="login.html" class="btn btn-primary">Sign In</a>');
+                '<a href="login.html" class="btn btn-primary">Sign in</a>');
             return;
         }
         list.innerHTML = "<p>Loading your cart…</p>";

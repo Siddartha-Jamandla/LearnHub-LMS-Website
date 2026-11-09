@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Your LearnHub dashboard — XP, level, streak, badges, continue learning, leaderboard and announcements.">
-    <meta property="og:title" content="My Dashboard - LearnHub">
+    <meta property="og:title" content="Dashboard - LearnHub">
     <meta property="og:description" content="Track your XP, streak, badges and continue learning on LearnHub.">
     <meta property="og:type" content="website">
-    <title>My Dashboard - LearnHub</title>
+    <title>Dashboard - LearnHub</title>
     <link rel="stylesheet" href="style.css">
     <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 </head>
@@ -19,38 +19,38 @@
             <a href="index.html" class="nav-link">Home</a>
             <a href="courses.html" class="nav-link">Courses</a>
             <a href="dashboard.html" class="nav-link active">Dashboard</a>
-            <a href="learning-paths.html" class="nav-link">Learning Paths</a>
+            <a href="learning-paths.html" class="nav-link">Learning paths</a>
             <a href="about.html" class="nav-link">About</a>
             <a href="contact.html" class="nav-link">Contact</a>
         </nav>
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
-                🔔
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="notifCount" class="notif-count" hidden>0</span>
             </a>
-            <a href="my-courses.html" class="nav-link">My Courses</a>
+            <a href="my-courses.html" class="nav-link">My courses</a>
         </div>
     </div>
 </header>
 
 <main class="section">
     <div class="container">
-        <span class="section-tag">My Dashboard</span>
-        <h1 id="greeting">Your learning dashboard</h1>
+        <span class="section-tag">Dashboard</span>
+        <h1 id="greeting">Dashboard</h1>
         <p id="dashIntro">Sign in to see your XP, streak, badges and where you left off.</p>
 
         <div id="signedOutBox" class="empty-state" hidden>
             <h2>Sign in to see your dashboard</h2>
             <p>Your XP, streak and badges are saved to your account.</p>
-            <a href="login.html" class="btn btn-primary">Sign In</a>
-            <a href="register.html" class="btn btn-outline">Create Account</a>
+            <a href="login.html" class="btn btn-primary">Sign in</a>
+            <a href="register.html" class="btn btn-outline">Create account</a>
         </div>
 
         <div id="dashContent" hidden>
             <div class="xp-card">
                 <div class="xp-head">
                     <div><strong id="xpName"></strong><br><small id="xpLevel"></small></div>
-                    <div class="streak-flame" id="streakFlame">🔥 0 day streak</div>
+                    <div class="streak-flame" id="streakFlame"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> 0 day streak</div>
                 </div>
                 <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
                 <small id="xpNext"></small>
@@ -61,44 +61,44 @@
             <h2>Continue learning</h2>
             <div id="continueList" class="course-grid"><p>Loading…</p></div>
 
-            <h2>Your badges</h2>
+            <h2>Badges</h2>
             <div id="badgeGrid" class="badge-grid"></div>
 
             <h2>Recent activity</h2>
             <ul id="activityList" class="activity-list"></ul>
 
-            <h2>My bookmarks</h2>
+            <h2>Bookmarks</h2>
             <div id="bookmarkList"><p>Loading…</p></div>
 
-            <h2 id="purchaseHistorySection">🧾 Purchase history</h2>
+            <h2 id="purchaseHistorySection"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> Purchase history</h2>
             <div id="purchaseHistoryList"><p>Loading…</p></div>
 
-            <h2>📁 My resources</h2>
+            <h2><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Resources</h2>
             <div id="resourcesList"><p>Loading…</p></div>
         </div>
 
-        <h2 id="notifications">🔔 Notifications</h2>
+        <h2 id="notifications"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</h2>
         <p><button type="button" class="btn btn-outline btn-small" id="markAllReadBtn">Mark all read</button></p>
         <div id="notifList"><p>Sign in to see your notifications.</p></div>
 
-        <h2>🏆 Leaderboard</h2>
+        <h2><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Leaderboard</h2>
         <div class="table-wrap"><table class="data-table leaderboard-table">
             <thead><tr><th>Rank</th><th>Learner</th><th>XP</th><th>Lessons</th><th>Certificates</th></tr></thead>
             <tbody id="leaderboardBody"><tr><td colspan="5">Loading…</td></tr></tbody>
         </table></div>
 
-        <h2>📢 Announcements</h2>
+        <h2><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Announcements</h2>
         <div id="announceList"><p>Loading…</p></div>
 
-        <p style="margin-top:24px"><a href="notes.html" class="btn btn-primary">📝 My Notes</a>
-        <a href="learning-paths.html" class="btn btn-primary">Explore Learning Paths</a>
-        <a href="courses.html" class="btn btn-outline">Browse Courses</a></p>
+        <p style="margin-top:24px"><a href="notes.html" class="btn btn-primary"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> My notes</a>
+        <a href="learning-paths.html" class="btn btn-primary">Explore Learning paths</a>
+        <a href="courses.html" class="btn btn-outline">Browse courses</a></p>
     </div>
 </main>
 
 <footer class="footer"><div class="container footer-grid">
     <div class="footer-column"><a href="index.html" class="footer-logo">Learn<span>Hub</span></a><p>Learn new skills and build your future — Learn Hub by CareerPlus Co-Private Limited.</p></div>
-    <div class="footer-column"><h3>Quick Links</h3><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="dashboard.html">Dashboard</a><a href="learning-paths.html">Learning Paths</a><a href="instructors.html">Instructors</a></div>
+    <div class="footer-column"><h3>Quick links</h3><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="dashboard.html">Dashboard</a><a href="learning-paths.html">Learning paths</a><a href="instructors.html">Instructors</a></div>
     <div class="footer-column"><h3>Support</h3><a href="help.html">Help</a><a href="announcements.html">Announcements</a><a href="faq.html">FAQ</a><a href="terms.html">Terms</a><a href="privacy-policy.html">Privacy Policy</a></div>
 </div><div class="footer-bottom"><div class="container"><p>© 2026 Learn Hub by CareerPlus Co-Private Limited. All Rights Reserved.</p></div></div></footer>
 
@@ -116,7 +116,7 @@
             var lb = await LearnHubAPI.getLeaderboard();
             document.getElementById("leaderboardBody").innerHTML = lb.length ? lb.slice(0, 10).map(function (r) {
                 return "<tr><td>#" + r.rank + "</td><td>" + esc(r.name) + "</td><td>" + r.xp + " XP</td><td>" + r.lessons_completed + "</td><td>" + r.certificates + "</td></tr>";
-            }).join("") : '<tr><td colspan="5">No learners on the leaderboard yet — be the first!</td></tr>';
+            }).join("") : '<tr><td colspan="5">No learners on the leaderboard yet</td></tr>';
         } catch (e) { document.getElementById("leaderboardBody").innerHTML = '<tr><td colspan="5">Leaderboard is unavailable right now.</td></tr>'; }
         try {
             var ann = await LearnHubAPI.getAnnouncements();
@@ -135,11 +135,11 @@
             return;
         }
         document.getElementById("dashContent").hidden = false;
-        document.getElementById("greeting").textContent = "Welcome back, " + (d.user.name || "learner") + " 👋";
+        document.getElementById("greeting").textContent = "Dashboard";
         document.getElementById("dashIntro").textContent = "Here is where your learning stands.";
         document.getElementById("xpName").textContent = d.xp + " XP";
         document.getElementById("xpLevel").textContent = "Level " + d.level;
-        document.getElementById("streakFlame").textContent = "🔥 " + d.streak_days + " day streak";
+        document.getElementById("streakFlame").innerHTML = "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'/></svg> " + d.streak_days + " day streak";
         var intoLevel = d.xp % 200;
         document.getElementById("xpFill").style.width = (intoLevel / 200 * 100) + "%";
         document.getElementById("xpNext").textContent = (200 - intoLevel) + " XP to Level " + (d.level + 1);
@@ -154,18 +154,18 @@
         document.getElementById("continueList").innerHTML = d.continue_learning.length ? d.continue_learning.map(function (c) {
             var next = c.next_lesson_id
                 ? '<a href="lesson.html?id=' + c.next_lesson_id + '" class="btn btn-primary btn-small">Next: ' + esc(c.next_lesson_title) + '</a>'
-                : '<a href="certificate.html" class="btn btn-outline btn-small">Course complete 🎉</a>';
+                : '<a href="certificate.html" class="btn btn-outline btn-small">Course complete</a>';
             return '<div class="course-card"><h3>' + esc(c.title) + '</h3>' +
                 '<div class="xp-bar"><div class="xp-fill" style="width:' + c.progress_percent + '%"></div></div>' +
                 '<p><small>' + c.progress_percent + '% complete</small></p>' + next +
                 ' <a href="course-details.html?id=' + c.course_id + '" class="btn btn-outline btn-small">Course page</a></div>';
         }).join("") : "<p>You are not enrolled in any course yet. <a href='courses.html'>Browse courses</a> to start.</p>";
-        var badgeIcons = { "first-lesson": "👣", "5-lessons": "🔥", "10-lessons": "💪", "quiz-master": "🧠", "task-finisher": "🛠️", "course-finisher": "🎓", "streak-3": "📅", "streak-7": "⚡" };
+        var badgeIcons = { "first-lesson": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='20 6 9 17 4 12'/></svg>", "5-lessons": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'/></svg>", "10-lessons": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>", "quiz-master": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/></svg>", "task-finisher": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><polyline points='9 14 11 16 15 12'/></svg>", "course-finisher": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M22 10L12 5 2 10l10 5 10-5z'/><path d='M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5'/><path d='M22 10v6'/></svg>", "streak-3": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>", "streak-7": "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" };
         document.getElementById("badgeGrid").innerHTML = d.badges.map(function (b) {
             return '<div class="badge-card ' + (b.earned ? "earned" : "locked") + '">' +
-                '<div class="badge-icon">' + (badgeIcons[b.id] || "🏅") + '</div>' +
+                '<div class="badge-icon">' + (badgeIcons[b.id] || "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='15' r='5'/><path d='M9 10.5L6 3h6l1.5 4'/><path d='M15 10.5L18 3h-6l-1.5 4'/></svg>") + '</div>' +
                 '<strong>' + esc(b.title) + '</strong><p><small>' + esc(b.description) + '</small></p>' +
-                '<p><small>' + (b.earned ? "✓ Earned" + (b.earned_at ? " · " + esc(b.earned_at.slice(0, 10)) : "") : "🔒 Locked") + '</small></p></div>';
+                '<p><small>' + (b.earned ? "Earned" + (b.earned_at ? " · " + esc(b.earned_at.slice(0, 10)) : "") : "Locked") + '</small></p></div>';
         }).join("");
         document.getElementById("activityList").innerHTML = d.recent_activity.length ? d.recent_activity.map(function (a) {
             return '<li><small>' + esc((a.at || "").slice(0, 10)) + '</small> — ' + esc(a.text) + '</li>';
@@ -187,8 +187,8 @@
         try {
             var bm = await LearnHubAPI.getBookmarks();
             document.getElementById("bookmarkList").innerHTML = bm.length ? bm.map(function (b) {
-                return '<p>🔖 <a href="lesson.html?id=' + b.lesson_id + '">' + esc(b.lesson_title) + '</a> <small>· ' + esc(b.course_title) + '</small></p>';
-            }).join("") : "<p>No bookmarks yet — tap 🔖 on any lesson to save it here.</p>";
+                return '<p>' + "<svg class='icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z'/></svg>" + ' <a href="lesson.html?id=' + b.lesson_id + '">' + esc(b.lesson_title) + '</a> <small>· ' + esc(b.course_title) + '</small></p>';
+            }).join("") : "<p>No bookmarks yet — bookmark any lesson to save it here.</p>";
         } catch (e) { document.getElementById("bookmarkList").innerHTML = "<p>Bookmarks are unavailable right now.</p>"; }
     }
 

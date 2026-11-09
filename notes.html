@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Your private personal notes on Learn Hub — search, create, edit and delete notes for your courses.">
-    <title>My Notes - Learn Hub</title>
+    <title>My notes - Learn Hub</title>
     <link rel="stylesheet" href="style.css">
     <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 </head>
@@ -17,11 +17,11 @@
             <a href="index.html" class="nav-link">Home</a>
             <a href="courses.html" class="nav-link">Courses</a>
             <a href="dashboard.html" class="nav-link">Dashboard</a>
-            <a href="my-courses.html" class="nav-link">My Courses</a>
-            <a href="notes.html" class="nav-link active">My Notes</a>
+            <a href="my-courses.html" class="nav-link">My courses</a>
+            <a href="notes.html" class="nav-link active">My notes</a>
         </nav>
-        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
-            <a href="cart.html" class="nav-icon">🛒<span id="cart-count" class="cart-count">0</span></a>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <a href="cart.html" class="nav-icon"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span id="cart-count" class="cart-count">0</span></a>
             <a href="profile.html" class="btn btn-outline">Profile</a>
         </div>
     </div>
@@ -29,21 +29,21 @@
 
 <main class="section">
     <div class="container">
-        <span class="section-tag">Personal Notes</span>
-        <h1>My Notes</h1>
+        <span class="section-tag">Personal notes</span>
+        <h1>My notes</h1>
         <p>Your private notes — only you can see them. Search, create, edit and delete.</p>
 
         <div id="signedOutBox" class="empty-state" hidden>
             <h2>Sign in to see your notes</h2>
             <p>Notes are saved to your account.</p>
-            <a href="login.html" class="btn btn-primary">Sign In</a>
+            <a href="login.html" class="btn btn-primary">Sign in</a>
         </div>
 
         <div id="notesApp" hidden>
             <div class="search-area" style="margin-top:20px;">
                 <div class="search-box" style="grid-template-columns: 2fr auto;">
                     <input type="search" id="noteSearch" placeholder="Search your notes…" aria-label="Search notes">
-                    <button type="button" class="btn btn-primary" id="newNoteBtn">+ New Note</button>
+                    <button type="button" class="btn btn-primary" id="newNoteBtn">+ New note</button>
                 </div>
             </div>
             <p id="notesStatus" class="status-line"></p>
@@ -67,7 +67,7 @@
                             <label for="noteBody">Note</label>
                             <textarea id="noteBody" rows="12" placeholder="Write your note here…" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary" id="saveNoteBtn">Save Note</button>
+                        <button type="submit" class="btn btn-primary" id="saveNoteBtn">Save note</button>
                         <button type="button" class="btn btn-outline" id="clearEditorBtn">Clear</button>
                         <button type="button" class="btn btn-danger btn-small" id="deleteNoteBtn" hidden>Delete</button>
                         <p class="auth-error" id="noteError" hidden></p>
@@ -93,7 +93,7 @@
 <script src="script.js"></script>
 <script src="js/api.js"></script>
 <script>
-/* Personal Notes workspace — GET/POST/PUT/DELETE /api/me/notes.
+/* Personal notes workspace — GET/POST/PUT/DELETE /api/me/notes.
    Course picker is populated from GET /api/my-courses (enrolled courses). */
 (function () {
     "use strict";
@@ -206,7 +206,7 @@
                 await loadNotes(document.getElementById("noteSearch").value.trim());
                 if (selectedId) openNote(Number(selectedId));
             } catch (err) { showErr(err.message || "Could not save the note."); }
-            finally { btn.disabled = false; btn.textContent = "Save Note"; }
+            finally { btn.disabled = false; btn.textContent = "Save note"; }
         });
         document.getElementById("deleteNoteBtn").addEventListener("click", async function () {
             if (!selectedId || !confirm("Delete this note? This cannot be undone.")) return;
