@@ -5,9 +5,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description" content="Learn Hub — paid coding courses in C++, data structures, Python, Java and web development, with lessons, quizzes, proctored exams and certificates.">
+    <meta name="description" content="Learn Hub — paid coding courses in C, data structures, Python, Java and web development, with lessons, quizzes, proctored exams and certificates.">
     <meta property="og:title" content="Learn Hub — coding courses for B.Tech students">
-    <meta property="og:description" content="Paid courses in C++, data structures, Python, Java and web development, with quizzes, proctored exams and certificates.">
+    <meta property="og:description" content="Paid courses in C, data structures, Python, Java and web development, with quizzes, proctored exams and certificates.">
     <meta property="og:type" content="website">
 
     <title>Learn Hub — coding courses for B.Tech students</title>
@@ -105,7 +105,7 @@
                 <div class="hero-text">
 
                     <span class="meta">
-                        17 courses · C++, DSA, Python, Java, Web Development
+                        16 courses · C, DSA, Python, Java, Web Development
                     </span>
 
                     <h1>
@@ -113,7 +113,7 @@
                     </h1>
 
                     <p>
-                        Paid courses in C++, data structures, Python, Java
+                        Paid courses in C, data structures, Python, Java
                         and web development, with quizzes, proctored exams
                         and certificates. Built for B.Tech students in India.
                     </p>
@@ -172,15 +172,15 @@
                     <div class="code-window">
                         <div class="code-window-head">
                             <span class="dots"><i></i><i></i><i></i></span>
-                            <span>two_sum.cpp</span>
-                            <span style="margin-left:auto">C++ · Lesson 1</span>
+                            <span>reverse.c</span>
+                            <span style="margin-left:auto">C · Lesson 1</span>
                         </div>
-                        <pre><code><span class="cl"><span class="tok-k">int</span> <span class="tok-f">twoSum</span>(vector&lt;<span class="tok-k">int</span>&gt;&amp; nums, <span class="tok-k">int</span> target) {</span><span class="cl">    unordered_map&lt;<span class="tok-k">int</span>,<span class="tok-k">int</span>&gt; seen;</span><span class="cl">    <span class="tok-k">for</span> (<span class="tok-k">int</span> i = 0; i &lt; nums.size(); i++) {</span><span class="cl">        <span class="tok-k">int</span> need = target - nums[i];</span><span class="cl">        <span class="tok-k">if</span> (seen.count(need)) <span class="tok-k">return</span> {seen[need], i};</span><span class="cl">        seen[nums[i]] = i;</span><span class="cl">    }</span><span class="cl">    <span class="tok-k">return</span> {};</span><span class="cl">}</span></code></pre>
+                        <pre><code><span class="cl"><span class="tok-k">void</span> <span class="tok-f">reverse</span>(<span class="tok-k">int</span> a[], <span class="tok-k">int</span> n) {</span><span class="cl">    <span class="tok-k">int</span> i = 0, j = n - 1;</span><span class="cl">    <span class="tok-k">while</span> (i &lt; j) {</span><span class="cl">        <span class="tok-k">int</span> temp = a[i];</span><span class="cl">        a[i] = a[j];</span><span class="cl">        a[j] = temp;</span><span class="cl">        i++; j--;</span><span class="cl">    }</span><span class="cl">}</span></code></pre>
                     </div>
 
                     <p class="margin-note" style="margin-top: 16px">
-                        <strong>From the C++ course.</strong> Write it, run it, then
-                        take the proctored exam — try nums = [2, 7, 11, 15], target = 9.
+                        <strong>From the C course.</strong> Write it, run it, then
+                        take the proctored exam — try it on [1, 2, 3, 4, 5].
                     </p>
 
                 </div>
@@ -198,7 +198,7 @@
                 <div class="section-header">
                     <span class="meta">Five tracks</span>
                     <h2>Flagship tracks</h2>
-                    <p>C++, data structures, Python, Java and web development. Each one has lessons, quizzes and a proctored exam.</p>
+                    <p>C, data structures, Python, Java and web development. Each one has lessons, quizzes and a proctored exam.</p>
                 </div>
                 <div class="flagship-grid" id="flagshipGrid"><p>Loading flagship tracks…</p></div>
             </div>

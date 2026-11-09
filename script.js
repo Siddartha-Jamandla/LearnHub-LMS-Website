@@ -30,7 +30,7 @@
 
 /* Flagship tracks — the 5 flagship courses, in order, fetched live. */
 var FLAGSHIP_TRACKS = [
-    { id: 17, label: "C++" },
+    { id: 13, label: "C" },
     { id: 14, label: "DSA" },
     { id: 3, label: "Python" },
     { id: 15, label: "Java" },

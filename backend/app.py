@@ -272,30 +272,13 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
         print(f"[learnhub] migration skipped: {e!r}")
 
 
-CPP_COURSE = {
-    "title": "C++ Programming Masterclass",
-    "description": "Master C++ from zero to hero: modern C++17/20, OOP, STL, "
-                   "memory management, and interview-ready problem solving.",
-    "category": "Programming", "price": 999, "instructor": "Learn Hub Team",
-    "duration_hours": 16, "level": "Beginner",
-    "image_url": "assets/images/course-cpp.svg",
-    "lessons": [
-        ("C++ Setup & First Program", 40),
-        ("Variables, Data Types & Operators", 55),
-        ("Control Flow: Conditionals & Loops", 60),
-        ("Functions & Recursion", 55),
-        ("OOP: Classes, Objects & Inheritance", 70),
-        ("STL: Vectors, Maps & Algorithms", 65),
-    ],
-}
-
 ASSIGNMENT_SEEDS = [
     # (course title match, title, description, language, starter, mins, marks, keywords)
-    ("C++ Programming Masterclass", "Two Sum in C++",
-     "Given an array of integers and a target, return the indices of the two "
-     "numbers that add up to the target. Use an unordered_map for O(n) time.",
-     "cpp", "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<int> twoSum(vector<int>& nums, int target) {\n    // your code here\n    return {};\n}\n",
-     30, 100, ["unordered_map", "return", "target", "nums"]),
+    ("C Programming from Zero to Hero", "Reverse an Array in C",
+     "Read n numbers into an array, reverse it in place with two pointers, "
+     "and print the reversed array. Handle n <= 0 by printing nothing.",
+     "c", "#include <stdio.h>\n\nint main(void) {\n    int n;\n    // read n, then n numbers, reverse in place\n    // your code here\n    return 0;\n}\n",
+     30, 100, ["for", "swap", "temp", "return", "int"]),
     ("Data Structures & Algorithms", "Reverse a Linked List",
      "Reverse a singly linked list in place, in O(n) time and O(1) extra "
      "space. Explain the three-pointer approach in a comment.",
@@ -320,7 +303,7 @@ ASSIGNMENT_SEEDS = [
 
 
 def _migrate_learnhub(conn):
-    """Learn Hub tables + idempotent C++ course / assignment seeds.
+    """Learn Hub tables + assignment seeds.
 
     CREATE TABLE IF NOT EXISTS covers fresh DBs; the seeds check by
     title first, so re-running never duplicates. Safe on every start.
@@ -338,43 +321,33 @@ def _migrate_learnhub(conn):
             conn.commit()
     except Exception as e:
         print(f"[learnhub] email_verified migration skipped: {e!r}")
-    # --- C++ flagship course (id 17 on the stock 16-course DB) ---
+    # --- C++ removal (9 Nov 2026): the flagship is C, not C++ ---
+    # The C++ course (id 17) was added by mistake and never asked for.
+    # Remove it, its lessons and its assignments — but only when nobody
+    # is enrolled in it, so no learner ever loses paid access. The C
+    # course ("C Programming from Zero to Hero", id 13) already exists.
     try:
         row = conn.execute("SELECT id FROM courses WHERE title LIKE '%C++%'").fetchone()
-        if not row:
-            cur = conn.execute(
-                "SELECT COUNT(*) AS n FROM courses WHERE id = 17")
-            use_id = 17 if cur.fetchone()["n"] == 0 else None
-            if use_id:
-                cur = conn.execute(
-                    "INSERT INTO courses (id, title, description, category, price,"
-                    " instructor, duration_hours, level, image_url)"
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (use_id, CPP_COURSE["title"], CPP_COURSE["description"],
-                     CPP_COURSE["category"], CPP_COURSE["price"],
-                     CPP_COURSE["instructor"], CPP_COURSE["duration_hours"],
-                     CPP_COURSE["level"], CPP_COURSE["image_url"]))
+        if row:
+            cid = row["id"]
+            enrolled = conn.execute(
+                "SELECT COUNT(*) AS n FROM enrollments WHERE course_id = ?",
+                (cid,)).fetchone()["n"]
+            if enrolled == 0:
+                conn.execute("DELETE FROM assignment_events WHERE attempt_id IN"
+                             " (SELECT id FROM assignment_attempts WHERE assignment_id IN"
+                             " (SELECT id FROM assignments WHERE course_id = ?))", (cid,))
+                conn.execute("DELETE FROM assignment_attempts WHERE assignment_id IN"
+                             " (SELECT id FROM assignments WHERE course_id = ?)", (cid,))
+                conn.execute("DELETE FROM assignments WHERE course_id = ?", (cid,))
+                conn.execute("DELETE FROM lessons WHERE course_id = ?", (cid,))
+                conn.execute("DELETE FROM courses WHERE id = ?", (cid,))
+                conn.commit()
+                print(f"[learnhub] removed unasked C++ course id={cid}")
             else:
-                cur = conn.execute(
-                    "INSERT INTO courses (title, description, category, price,"
-                    " instructor, duration_hours, level, image_url)"
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (CPP_COURSE["title"], CPP_COURSE["description"],
-                     CPP_COURSE["category"], CPP_COURSE["price"],
-                     CPP_COURSE["instructor"], CPP_COURSE["duration_hours"],
-                     CPP_COURSE["level"], CPP_COURSE["image_url"]))
-            cid = cur.lastrowid
-            for idx, (title, mins) in enumerate(CPP_COURSE["lessons"]):
-                conn.execute(
-                    "INSERT INTO lessons (course_id, title, content_url,"
-                    " duration_minutes, order_index) VALUES (?, ?, ?, ?, ?)",
-                    (cid, title, f"/courses/{cid}/lessons/{idx + 1}", mins, idx + 1))
-            conn.execute("UPDATE lessons SET is_preview = 1 WHERE course_id = ?"
-                         " AND order_index = 1", (cid,))
-            conn.commit()
-            print(f"[learnhub] seeded C++ flagship course id={cid}")
+                print(f"[learnhub] C++ course kept: {enrolled} enrolment(s)")
     except Exception as e:
-        print(f"[learnhub] C++ seed skipped: {e!r}")
+        print(f"[learnhub] C++ removal skipped: {e!r}")
     # --- one proctored assignment per flagship course ---
     try:
         for match, title, desc, lang, starter, mins, marks, kws in ASSIGNMENT_SEEDS:
