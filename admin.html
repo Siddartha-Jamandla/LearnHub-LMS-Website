@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - LearnHub</title>
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
     <style>
         /* ---- admin dashboard layout (LearnHub colours: #2a7ae2, #0f172a) ---- */
         .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
@@ -75,6 +76,7 @@
             <a href="courses.html" class="nav-link">Courses</a>
             <a href="my-courses.html" class="nav-link">My Courses</a>
         </nav>
+        <button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
         <div class="nav-actions" id="auth-slot"></div>
     </div>
 </header>
@@ -139,6 +141,7 @@
                     <button class="admin-nav-btn" data-section="reviews" type="button">⭐ Reviews</button>
                     <button class="admin-nav-btn" data-section="instructors" type="button">🧑‍🏫 Instructors</button>
                     <button class="admin-nav-btn" data-section="messages" type="button">✉️ Messages</button>
+                    <button class="admin-nav-btn" data-section="security" type="button">🛡️ Security Center</button>
                 </nav>
                 <p class="admin-note" style="margin-top: 14px;">Tip: signing in with the admin Gmail unlocks everything. The key is only a fallback — the same API_SECRET used by the server. Wrong key? Every section will say so.</p>
             </aside>
@@ -438,6 +441,29 @@
                     <p class="status-line" id="reviewsStatus"></p>
                 </div>
 
+                <!-- ================= SECURITY CENTER ================= -->
+                <div class="admin-section" id="section-security">
+                    <h2>Security Center</h2>
+                    <p class="section-sub">Live security events, audit trail and the self-rectification error log. Real data only — empty states when nothing is logged.</p>
+                    <div class="admin-card">
+                        <h3>Overview</h3>
+                        <div id="secStats"><p class="admin-note">Sign in as admin above, or enter the admin key first.</p></div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Security events</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>Type</th><th>Severity</th><th>Details</th><th>Blocked</th></tr></thead><tbody id="secEventsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Audit logs</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>User</th><th>Action</th><th>IP</th><th>Details</th></tr></thead><tbody id="secAuditBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Error detection &amp; self-rectification</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>Type</th><th>Message</th><th>Auto-fixed</th><th>Fix action</th></tr></thead><tbody id="secErrorsBody"><tr><td colspan="5" class="admin-note">—</td></tr></tbody></table></div>
+                    </div>
+                    <p class="status-line" id="securityStatus"></p>
+                </div>
+
                 <!-- ================= INSTRUCTORS ================= -->
                 <div class="admin-section" id="section-instructors">
                     <h2>Instructors</h2>
@@ -543,7 +569,11 @@
         if (!email || !password) { adminLoginStatus.textContent = "Enter your Gmail and LearnHub password."; return; }
         adminLoginStatus.textContent = "Signing in\u2026";
         try {
-            await api.login(email, password);
+            const loginRes = await api.login(email, password);
+            if (loginRes && loginRes.otp_required) {
+                adminLoginStatus.textContent = "One-time code required — sign in on login.html first (enter the code there), then return here; the admin session will unlock automatically.";
+                return;
+            }
             if (await checkSessionAdmin()) {
                 loadSection(currentSection);
             } else {
@@ -580,7 +610,7 @@
         document.getElementById("section-" + currentSection).classList.add("active");
         loadSection(currentSection);
     });
-    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus", reviews: "reviewsStatus", instructors: "instructorsStatus", messages: "messagesStatus" };
+    const STATUS_IDS = { dashboard: "dashStatus", courses: "coursesStatus", lessons: "lessonsStatus", users: "usersStatus", learning: "learningStatus", orders: "ordersStatus", certificates: "certsStatus", announcements: "annStatus", discussions: "discussionsStatus", reviews: "reviewsStatus", instructors: "instructorsStatus", messages: "messagesStatus", security: "securityStatus" };
     function loadSection(name) {
         // Unlocked = a saved key, or a signed-in admin session. A plain
         // signed-in (non-admin) account does not unlock anything.
@@ -597,6 +627,7 @@
         else if (name === "reviews") loadReviews(1);
         else if (name === "instructors") loadInstructors();
         else if (name === "messages") loadMessages();
+        else if (name === "security") loadSecurity();
     }
 
     /* ---------------- dashboard ---------------- */
@@ -1234,6 +1265,46 @@
         try { await api.deleteAdminReview(getKey(), btn.dataset.reviewDel); loadReviews(reviewsPage); }
         catch (err) { statusEl("reviewsStatus", err.message, true); }
     });
+
+    /* ---------------- security centre ---------------- */
+    function sevBadge(s) {
+        s = String(s || "").toLowerCase();
+        const cls = (s === "high" || s === "critical") ? "badge-red" : s === "medium" ? "badge-amber" : "badge-grey";
+        return `<span class="badge ${cls}">${esc(s || "—")}</span>`;
+    }
+    async function loadSecurity() {
+        statusEl("securityStatus", "Loading…");
+        try {
+            const stats = await api.adminSecurityStats(getKey());
+            const counts = stats.by_severity || {};
+            document.getElementById("secStats").innerHTML =
+                `<div class="stats-grid">` +
+                [[stats.total_events || 0, "Total events"], [stats.blocked || 0, "Blocked"], [stats.recent_24h || 0, "Last 24h"], [stats.failed_logins_24h || 0, "Failed logins (24h)"], [counts.high || 0, "High severity"], [counts.medium || 0, "Medium severity"]]
+                    .map(([v, l]) => `<div class="stat-card"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`).join("") + `</div>`;
+        } catch (err) { document.getElementById("secStats").innerHTML = "<p>Security stats are unavailable right now.</p>"; }
+        try {
+            const d = await api.adminSecurity(getKey(), 50);
+            const events = d.events || [];
+            document.getElementById("secEventsBody").innerHTML = events.map((ev) =>
+                `<tr><td>${dateOnly(ev.created_at)}</td><td>${esc(ev.event_type)}</td><td>${sevBadge(ev.severity)}</td><td>${esc(ev.details || "")}<br><span class="admin-note">${esc(ev.ip || "")}</span></td><td>${ev.blocked ? '<span class="badge badge-red">Blocked</span>' : "—"}</td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No security events logged yet.</td></tr>`;
+        } catch (err) { document.getElementById("secEventsBody").innerHTML = `<tr><td colspan="5" class="admin-note">Security events are unavailable right now.</td></tr>`; }
+        try {
+            const d = await api.adminAuditLogs(getKey(), 50);
+            const logs = d.logs || [];
+            document.getElementById("secAuditBody").innerHTML = logs.map((l) =>
+                `<tr><td>${dateOnly(l.created_at)}</td><td>${esc(l.user_email || ("user " + (l.user_id || "—")))}</td><td>${esc(l.action)}</td><td>${esc(l.ip || "—")}</td><td>${esc(l.details || "")}</td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No audit logs yet.</td></tr>`;
+        } catch (err) { document.getElementById("secAuditBody").innerHTML = `<tr><td colspan="5" class="admin-note">Audit logs are unavailable right now.</td></tr>`; }
+        try {
+            const d = await api.adminErrors(getKey());
+            const list = d.errors || [];
+            document.getElementById("secErrorsBody").innerHTML = list.map((er) =>
+                `<tr><td>${dateOnly(er.occurred_at)}</td><td>${esc(er.error_type)}</td><td>${esc(er.message)}</td><td>${er.auto_fixed ? '<span class="badge badge-green">Auto-fixed</span>' : '<span class="badge badge-grey">Not fixed</span>'}</td><td>${esc(er.fix_action || "—")}</td></tr>`).join("")
+                || `<tr><td colspan="5" class="admin-note">No errors detected yet.</td></tr>`;
+            statusEl("securityStatus", "");
+        } catch (err) { document.getElementById("secErrorsBody").innerHTML = `<tr><td colspan="5" class="admin-note">Error log is unavailable right now.</td></tr>`; }
+    }
 
     /* ---------------- instructors ---------------- */
     async function loadInstructors() {

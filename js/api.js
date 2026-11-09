@@ -54,7 +54,11 @@
             body: body ? JSON.stringify(body) : undefined,
         });
         const data = await res.json().catch(() => ({}));
-        if (!data.ok) throw new Error(data.error || `Request failed (${res.status})`);
+        if (!data.ok) {
+            const err = new Error(data.error || `Request failed (${res.status})`);
+            err.status = res.status; err.data = data;
+            throw err;
+        }
         return data;
     }
 
@@ -129,17 +133,109 @@
         },
 
         async register(name, email, password) {
+            // OTP flow: the backend now returns {ok, otp_required:true, email}
+            // (no token yet). Only store a token when one is actually returned
+            // (older backend). The OTP step in register.html completes sign-in.
             const d = await request("POST", "/api/register", { name, email, password });
-            localStorage.setItem("lh_token", d.token);
-            localStorage.setItem("lh_user", JSON.stringify(d.user));
+            if (d.token) {
+                localStorage.setItem("lh_token", d.token);
+                if (d.user) localStorage.setItem("lh_user", JSON.stringify(d.user));
+            }
             return d;
         },
 
         async login(email, password) {
+            // OTP flow: the backend now returns {ok, otp_required:true, email}
+            // (no token yet). Only store a token when one is actually returned.
             const d = await request("POST", "/api/login", { email, password });
-            localStorage.setItem("lh_token", d.token);
-            localStorage.setItem("lh_user", JSON.stringify(d.user));
+            if (d.token) {
+                localStorage.setItem("lh_token", d.token);
+                if (d.user) localStorage.setItem("lh_user", JSON.stringify(d.user));
+            }
             return d;
+        },
+
+        /* ---------------- OTP auth (2-step login / register) ---------------- */
+        async requestOtp(email) {
+            // Returns {ok, demo_otp, expires_in_seconds, note}. The demo OTP
+            // is shown on screen in demo mode only; it is never console.logged.
+            return request("POST", "/api/auth/request-otp", { email });
+        },
+
+        async verifyOtp(email, otp) {
+            const d = await request("POST", "/api/auth/verify-otp", { email, otp });
+            if (d.token) {
+                localStorage.setItem("lh_token", d.token);
+                if (d.user) localStorage.setItem("lh_user", JSON.stringify(d.user));
+            }
+            return d;
+        },
+
+        /* ---------------- personal notes (per-user, private) ---------------- */
+        async getMyNotes(q) {
+            const qs = q ? "?q=" + encodeURIComponent(q) : "";
+            const d = await request("GET", "/api/me/notes" + qs, null, true);
+            return d.notes || [];
+        },
+        async createMyNote(note) {
+            const d = await request("POST", "/api/me/notes", note, true);
+            return d.note;
+        },
+        async updateMyNote(id, fields) {
+            const d = await request("PUT", `/api/me/notes/${id}`, fields, true);
+            return d.note || d;
+        },
+        async deleteMyNote(id) {
+            return request("DELETE", `/api/me/notes/${id}`, null, true);
+        },
+
+        /* ---------------- proctored assignments ---------------- */
+        async getCourseAssignments(courseId) {
+            const d = await request("GET", `/api/courses/${courseId}/assignments`);
+            return d.assignments || [];
+        },
+        async getAssignment(id) {
+            const d = await request("GET", `/api/assignments/${id}`);
+            return d.assignment;
+        },
+        async startAssignment(id) {
+            return request("POST", `/api/assignments/${id}/start`, {}, true);
+        },
+        async logAssignmentEvent(id, attemptId, type) {
+            return request("POST", `/api/assignments/${id}/event`, { attempt_id: attemptId, type }, true);
+        },
+        async submitAssignment(id, attemptId, code) {
+            return request("POST", `/api/assignments/${id}/submit`, { attempt_id: attemptId, code }, true);
+        },
+
+        /* ---------------- payments (Razorpay test mock) ---------------- */
+        async verifyPayment(paymentId, signature) {
+            return request("POST", `/api/payments/${paymentId}/verify`,
+                { payment_id: paymentId, signature }, true);
+        },
+        async getMyPayments() {
+            const d = await request("GET", "/api/payments/me", null, true);
+            return d.payments || [];
+        },
+
+        /* ---------------- admin: security centre / audit / errors ---------------- */
+        adminSecurity(key, limit) {
+            return this._admin("GET", "/api/admin/security" + (limit ? "?limit=" + limit : "?limit=50"), key);
+        },
+        adminAuditLogs(key, limit) {
+            return this._admin("GET", "/api/admin/audit-logs" + (limit ? "?limit=" + limit : "?limit=50"), key);
+        },
+        adminSecurityStats(key) {
+            return this._admin("GET", "/api/admin/security/stats", key);
+        },
+        adminErrors(key) {
+            return this._admin("GET", "/api/errors", key);
+        },
+        adminPayments(key) {
+            return this._admin("GET", "/api/admin/payments", key);
+        },
+        adminAssignmentAttempts(key) {
+            return this._admin("GET", "/api/admin/assignments/attempts", key);
         },
 
         async logout() {
@@ -180,7 +276,10 @@
         },
 
         async checkout() {
-            // Backend enrols the user in every cart course and clears the cart.
+            // Test-mode Razorpay mock: returns {ok, payments:[{id, course_id,
+            // amount, gateway_order_id, demo_signature}], total, currency,
+            // gateway:"razorpay-test-mock", test_mode:true}. Enrolment only
+            // happens after each payment is verified (see verifyPayment).
             return request("POST", "/api/checkout", null, true);
         },
 
@@ -629,4 +728,33 @@
     };
 
     window.LearnHubAPI = api;
+})();
+
+/* Theme fallback: pages that load js/api.js but not script.js (admin.html)
+   still get the persisted theme + toggle wiring. Guarded so it never runs
+   twice when script.js already handled it. */
+(function () {
+    if (window.__lhThemeInit) return;
+    window.__lhThemeInit = true;
+    try {
+        var t = localStorage.getItem("lh_theme") || "dark";
+        document.documentElement.setAttribute("data-theme", t);
+    } catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+    function wire() {
+        document.querySelectorAll(".theme-toggle").forEach(function (btn) {
+            if (btn.dataset.lhWired) return;
+            btn.dataset.lhWired = "1";
+            btn.addEventListener("click", function () {
+                var cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+                var next = cur === "light" ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", next);
+                try { localStorage.setItem("lh_theme", next); } catch (e) { /* ignore */ }
+                document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = next === "light" ? "☀️" : "🌙"; });
+            });
+        });
+        var cur = document.documentElement.getAttribute("data-theme") || "dark";
+        document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = cur === "light" ? "☀️" : "🌙"; });
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+    else wire();
 })();

@@ -15,6 +15,7 @@ Env vars (see backend/.env.example):
 
 import csv
 import hashlib
+import hmac
 from datetime import date, timedelta
 import io
 import json
@@ -46,6 +47,72 @@ API_SECRET = os.environ.get("API_SECRET", "learnhub-dev-secret")
 # (Override with the ADMIN_EMAIL env var; the key still works as fallback.)
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "siddarthajamandla@gmail.com").strip().lower()
 
+# Mock payment gateway (TEST MODE only - no real money, no real keys).
+# Signature secret is derived from API_SECRET (or PAYMENT_TEST_SECRET env);
+# it is a test-mode HMAC only and must never be treated as a live key.
+PAYMENT_TEST_SECRET = os.environ.get(
+    "PAYMENT_TEST_SECRET",
+    hashlib.sha256((os.environ.get("API_SECRET", "learnhub-dev-secret")
+                    + "|payment-test").encode()).hexdigest(),
+)
+
+# In-memory rate-limit state (per-process; DB tables are the durable log).
+_OTP_REQ_WINDOW = {}    # email -> [epoch, ...] request-otp calls (1h window)
+_FAILED_LOGINS = {}     # (ip, email) -> [epoch, ...] failed logins (10 min)
+_LOGIN_BLOCKS = {}      # (ip, email) -> blocked_until epoch
+
+# Threat-shield patterns scanned in URL path/query (and in auth/checkout
+# JSON bodies via _shield_scan_body). Deliberately narrow to avoid
+# false positives on ordinary text such as "C++" or lesson content.
+_SHIELD_PATTERNS = [
+    (re.compile(r"union\s+select", re.I), "sql_injection"),
+    (re.compile(r"drop\s+table", re.I), "sql_injection"),
+    (re.compile(r"or\s+1\s*=\s*1", re.I), "sql_injection"),
+    (re.compile(r"xp_cmdshell", re.I), "sql_injection"),
+    (re.compile(r"<\s*script", re.I), "xss"),
+    (re.compile(r"javascript\s*:", re.I), "xss"),
+    (re.compile(r"onerror\s*=", re.I), "xss"),
+    (re.compile(r"\.\./", re.I), "path_traversal"),
+    (re.compile(r"%2e%2e", re.I), "path_traversal"),
+]
+
+
+def _shield_scan(text):
+    """Return the event_type of the first threat pattern found, else None."""
+    if not text:
+        return None
+    for rx, etype in _SHIELD_PATTERNS:
+        if rx.search(text):
+            return etype
+    return None
+
+
+def _log_security(conn, ip, user_id, event_type, severity, details, blocked):
+    try:
+        conn.execute(
+            "INSERT INTO security_events (ip, user_id, event_type, severity,"
+            " details, blocked) VALUES (?, ?, ?, ?, ?, ?)",
+            (ip or "", user_id, event_type, severity, details or "", 1 if blocked else 0))
+        conn.commit()
+    except Exception:
+        pass
+
+
+def _audit(conn, user_id, action, ip, details=""):
+    """Best-effort audit insert; never raises, never commits (caller owns tx)."""
+    try:
+        conn.execute(
+            "INSERT INTO audit_logs (user_id, action, ip, details)"
+            " VALUES (?, ?, ?, ?)",
+            (user_id, action, ip or "", details or ""))
+    except Exception:
+        pass
+
+
+def _payment_signature(gateway_order_id, payment_id):
+    msg = f"{gateway_order_id}|{payment_id}".encode()
+    return hmac.new(PAYMENT_TEST_SECRET.encode(), msg, hashlib.sha256).hexdigest()
+
 
 def is_admin_email(email: str) -> bool:
     return bool(email) and email.strip().lower() == ADMIN_EMAIL
@@ -66,6 +133,7 @@ def init_db():
     conn = db()
     conn.executescript(schema)
     _migrate_schema(conn)
+    _migrate_learnhub(conn)
     conn.close()
     if fresh:
         print(f"[learnhub] created database at {DB_PATH}")
@@ -204,6 +272,132 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
         print(f"[learnhub] migration skipped: {e!r}")
 
 
+CPP_COURSE = {
+    "title": "C++ Programming Masterclass",
+    "description": "Master C++ from zero to hero: modern C++17/20, OOP, STL, "
+                   "memory management, and interview-ready problem solving.",
+    "category": "Programming", "price": 999, "instructor": "Learn Hub Team",
+    "duration_hours": 16, "level": "Beginner",
+    "image_url": "assets/images/course-cpp.svg",
+    "lessons": [
+        ("C++ Setup & First Program", 40),
+        ("Variables, Data Types & Operators", 55),
+        ("Control Flow: Conditionals & Loops", 60),
+        ("Functions & Recursion", 55),
+        ("OOP: Classes, Objects & Inheritance", 70),
+        ("STL: Vectors, Maps & Algorithms", 65),
+    ],
+}
+
+ASSIGNMENT_SEEDS = [
+    # (course title match, title, description, language, starter, mins, marks, keywords)
+    ("C++ Programming Masterclass", "Two Sum in C++",
+     "Given an array of integers and a target, return the indices of the two "
+     "numbers that add up to the target. Use an unordered_map for O(n) time.",
+     "cpp", "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<int> twoSum(vector<int>& nums, int target) {\n    // your code here\n    return {};\n}\n",
+     30, 100, ["unordered_map", "return", "target", "nums"]),
+    ("Data Structures & Algorithms", "Reverse a Linked List",
+     "Reverse a singly linked list in place, in O(n) time and O(1) extra "
+     "space. Explain the three-pointer approach in a comment.",
+     "python", "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef reverse_list(head):\n    # your code here\n    pass\n",
+     30, 100, ["prev", "curr", "next", "while", "return"]),
+    ("Python Programming Masterclass", "Palindrome Checker",
+     "Write a function that returns True when a string is a palindrome, "
+     "ignoring case and non-alphanumeric characters.",
+     "python", "def is_palindrome(s: str) -> bool:\n    # your code here\n    pass\n",
+     30, 100, ["lower", "return", "while", "=="]),
+    ("Java Programming Masterclass", "Fibonacci with Memoization",
+     "Compute the nth Fibonacci number using memoization. Handle n < 0 by "
+     "throwing an IllegalArgumentException.",
+     "java", "import java.util.*;\n\npublic class Fibonacci {\n    public static long fib(int n) {\n        // your code here\n        return 0;\n    }\n}\n",
+     30, 100, ["HashMap", "return", "fib", "IllegalArgumentException"]),
+    ("Complete Web Development Bootcamp", "Responsive Navbar + Form Validation",
+     "Build a responsive navbar with a mobile hamburger toggle and a signup "
+     "form that validates email format and a minimum 6-character password in JS.",
+     "javascript", "// Build the navbar toggle + form validation below\ndocument.addEventListener('DOMContentLoaded', () => {\n  // your code here\n});\n",
+     45, 100, ["addEventListener", "querySelector", "classList", "preventDefault"]),
+]
+
+
+def _migrate_learnhub(conn):
+    """Learn Hub tables + idempotent C++ course / assignment seeds.
+
+    CREATE TABLE IF NOT EXISTS covers fresh DBs; the seeds check by
+    title first, so re-running never duplicates. Safe on every start.
+    """
+    try:
+        conn.executescript(open(os.path.join(BASE_DIR, "schema.sql")).read())
+        conn.commit()
+    except Exception as e:
+        print(f"[learnhub] learnhub schema re-apply skipped: {e!r}")
+    try:
+        cols = [r["name"] for r in conn.execute("PRAGMA table_info(users)")]
+        if "email_verified" not in cols:
+            conn.execute("ALTER TABLE users ADD COLUMN email_verified"
+                         " INTEGER NOT NULL DEFAULT 0")
+            conn.commit()
+    except Exception as e:
+        print(f"[learnhub] email_verified migration skipped: {e!r}")
+    # --- C++ flagship course (id 17 on the stock 16-course DB) ---
+    try:
+        row = conn.execute("SELECT id FROM courses WHERE title LIKE '%C++%'").fetchone()
+        if not row:
+            cur = conn.execute(
+                "SELECT COUNT(*) AS n FROM courses WHERE id = 17")
+            use_id = 17 if cur.fetchone()["n"] == 0 else None
+            if use_id:
+                cur = conn.execute(
+                    "INSERT INTO courses (id, title, description, category, price,"
+                    " instructor, duration_hours, level, image_url)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (use_id, CPP_COURSE["title"], CPP_COURSE["description"],
+                     CPP_COURSE["category"], CPP_COURSE["price"],
+                     CPP_COURSE["instructor"], CPP_COURSE["duration_hours"],
+                     CPP_COURSE["level"], CPP_COURSE["image_url"]))
+            else:
+                cur = conn.execute(
+                    "INSERT INTO courses (title, description, category, price,"
+                    " instructor, duration_hours, level, image_url)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (CPP_COURSE["title"], CPP_COURSE["description"],
+                     CPP_COURSE["category"], CPP_COURSE["price"],
+                     CPP_COURSE["instructor"], CPP_COURSE["duration_hours"],
+                     CPP_COURSE["level"], CPP_COURSE["image_url"]))
+            cid = cur.lastrowid
+            for idx, (title, mins) in enumerate(CPP_COURSE["lessons"]):
+                conn.execute(
+                    "INSERT INTO lessons (course_id, title, content_url,"
+                    " duration_minutes, order_index) VALUES (?, ?, ?, ?, ?)",
+                    (cid, title, f"/courses/{cid}/lessons/{idx + 1}", mins, idx + 1))
+            conn.execute("UPDATE lessons SET is_preview = 1 WHERE course_id = ?"
+                         " AND order_index = 1", (cid,))
+            conn.commit()
+            print(f"[learnhub] seeded C++ flagship course id={cid}")
+    except Exception as e:
+        print(f"[learnhub] C++ seed skipped: {e!r}")
+    # --- one proctored assignment per flagship course ---
+    try:
+        for match, title, desc, lang, starter, mins, marks, kws in ASSIGNMENT_SEEDS:
+            crow = conn.execute(
+                "SELECT id FROM courses WHERE title = ?", (match,)).fetchone()
+            if not crow:
+                continue
+            exists = conn.execute(
+                "SELECT id FROM assignments WHERE course_id = ? AND title = ?",
+                (crow["id"], title)).fetchone()
+            if exists:
+                continue
+            conn.execute(
+                "INSERT INTO assignments (course_id, title, description, language,"
+                " starter_code, duration_minutes, total_marks, expected_keywords)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (crow["id"], title, desc, lang, starter, mins, marks,
+                 json.dumps(kws)))
+        conn.commit()
+    except Exception as e:
+        print(f"[learnhub] assignment seed skipped: {e!r}")
+
+
 def row_to_dict(row):
     return dict(row) if row else None
 
@@ -252,7 +446,8 @@ def make_token(user_id: int) -> str:
 def user_from_token(token: str):
     conn = db()
     row = conn.execute(
-        """SELECT u.id, u.name, u.email, u.created_at, u.is_admin
+        """SELECT u.id, u.name, u.email, u.created_at, u.is_admin,
+                      u.email_verified
            FROM auth_tokens t JOIN users u ON u.id = t.user_id
            WHERE t.token = ?""",
         (token,),
@@ -304,8 +499,31 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         self._cors()
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        # Admin / course data must reflect instantly - never cache it.
+        if self.path.startswith("/api/admin") or self.path.startswith("/api/courses"):
+            self.send_header("Cache-Control", "no-store")
+        cookie = getattr(self, "_pending_cookie", None)
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
+            self._pending_cookie = None
         self.end_headers()
         self.wfile.write(body)
+
+    def _client_ip(self):
+        fwd = self.headers.get("X-Forwarded-For", "")
+        if fwd:
+            return fwd.split(",")[0].strip()
+        return (self.client_address[0] if self.client_address else "")
+
+    def _set_auth_cookie(self, token):
+        # HttpOnly=False deliberately: the hidden super-admin page is
+        # served by the same backend, which reads this cookie; the
+        # token is also kept in localStorage by the JS client.
+        self._pending_cookie = (f"lh_token={token}; Path=/; SameSite=Lax;"
+                                " Max-Age=2592000")
+
+    def _clear_auth_cookie(self):
+        self._pending_cookie = ("lh_token=; Path=/; SameSite=Lax; Max-Age=0")
 
     def _ok(self, payload, status=200):
         self._json(status, {"ok": True, **payload})
@@ -371,6 +589,34 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             parsed = urlparse(self.path)
             path = unquote(parsed.path)
 
+            # Threat shield: scan URL path + query for injection / XSS /
+            # traversal patterns. Blocked attempts are logged, never served.
+            if path.startswith("/api/"):
+                # Scan the percent-decoded target: attackers encode the
+                # payload (%20UNION%20SELECT, %3Cscript%3E), and the raw
+                # encoded form would slip past the \s / < patterns.
+                hit = _shield_scan(unquote(self.path))
+                if hit:
+                    try:
+                        conn = db()
+                        _log_security(conn, self._client_ip(), None, hit,
+                                      "high", f"Blocked {method} {self.path[:300]}",
+                                      True)
+                        conn.close()
+                    except Exception:
+                        pass
+                    self._err(403, "Request blocked by the Learn Hub security shield")
+                    return
+
+            # Hidden super admin: direct URL only, admin session required.
+            # Everyone else (including signed-in non-admins) gets a plain
+            # 404 - no hint that the page exists. Token via Authorization
+            # header, ?token=, or the lh_token cookie set at sign-in.
+            if path == "/super-admin.html":
+                if not self._is_super_admin_request(parsed):
+                    self._json(404, {"ok": False, "error": "Not found"})
+                    return
+
             if path.startswith("/api/"):
                 self._route_api(method, path)
                 return
@@ -400,6 +646,26 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                 self._err(500, msg)
             except Exception:
                 pass
+
+    def _is_super_admin_request(self, parsed):
+        from urllib.parse import parse_qs
+        qs = parse_qs(parsed.query)
+        token = None
+        auth = self.headers.get("Authorization", "")
+        m = re.match(r"Bearer\s+(\S+)", auth)
+        if m:
+            token = m.group(1)
+        elif qs.get("token"):
+            token = qs["token"][0]
+        else:
+            cookie = self.headers.get("Cookie", "")
+            mm = re.search(r"lh_token=([^;\s]+)", cookie)
+            if mm:
+                token = mm.group(1)
+        if not token:
+            return False
+        user = user_from_token(token)
+        return bool(user and _is_admin_user(user))
 
     # -- static files --------------------------------------------------
     def _serve_file(self, full_path):
@@ -489,6 +755,24 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("DELETE", r"^/api/admin/announcements/(\d+)$", self.api_admin_announcement_delete),
             ("GET",    r"^/api/admin/discussions$",       self.api_admin_discussions),
             ("DELETE", r"^/api/admin/discussions/(\d+)$", self.api_admin_discussion_delete),
+            ("POST",   r"^/api/auth/request-otp$",      self.api_auth_request_otp),
+            ("POST",   r"^/api/auth/verify-otp$",       self.api_auth_verify_otp),
+            ("GET",    r"^/api/me/notes$",              self.api_me_notes_list),
+            ("POST",   r"^/api/me/notes$",              self.api_me_notes_create),
+            ("PUT",    r"^/api/me/notes/(\d+)$",        self.api_me_notes_update),
+            ("DELETE", r"^/api/me/notes/(\d+)$",        self.api_me_notes_delete),
+            ("GET",    r"^/api/courses/(\d+)/assignments$", self.api_course_assignments),
+            ("GET",    r"^/api/assignments/(\d+)$",     self.api_assignment_get),
+            ("POST",   r"^/api/assignments/(\d+)/start$", self.api_assignment_start),
+            ("POST",   r"^/api/assignments/(\d+)/event$", self.api_assignment_event),
+            ("POST",   r"^/api/assignments/(\d+)/submit$", self.api_assignment_submit),
+            ("POST",   r"^/api/payments/(\d+)/verify$", self.api_payment_verify),
+            ("GET",    r"^/api/payments/me$",           self.api_payments_me),
+            ("GET",    r"^/api/admin/payments$",        self.api_admin_payments),
+            ("GET",    r"^/api/admin/assignments/attempts$", self.api_admin_assignment_attempts),
+            ("GET",    r"^/api/admin/security$",        self.api_admin_security),
+            ("GET",    r"^/api/admin/audit-logs$",      self.api_admin_audit_logs),
+            ("GET",    r"^/api/admin/security/stats$",  self.api_admin_security_stats),
             ("POST",   r"^/api/register$",               self.api_register),
             ("POST",   r"^/api/login$",                  self.api_login),
             ("POST",   r"^/api/logout$",                 self.api_logout),
@@ -1552,10 +1836,17 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         )
         conn.commit()
         user_id = cur.lastrowid
+        _audit(conn, user_id, "register", self._client_ip(),
+               f"account created for {email}")
+        conn.commit()
         conn.close()
-        token = make_token(user_id)
-        self._ok({"token": token, "user": {"id": user_id, "name": name, "email": email,
-                                            "is_admin": is_admin_email(email)}}, status=201)
+        # Mandatory OTP: no session token is issued until the email is
+        # verified via POST /api/auth/verify-otp.
+        self._ok({"otp_required": True, "email": email,
+                  "user": {"id": user_id, "name": name, "email": email,
+                           "is_admin": is_admin_email(email)},
+                  "message": "Account created. Verify the OTP sent to your email to sign in."},
+                 status=201)
 
     def api_login(self):
         body = self._read_json()
@@ -1563,26 +1854,53 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         if not email or not password:
             self._err(400, "email and password are required")
             return
+        ip = self._client_ip()
+        now = time.time()
+        # Brute-force shield: >=5 failures in 10 min blocks this IP+email.
+        blocked_until = _LOGIN_BLOCKS.get((ip, email), 0)
+        if blocked_until > now:
+            self._err(429, "Too many failed sign-in attempts - try again in 10 minutes")
+            return
         conn = db()
         user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-        conn.close()
         if not user or not verify_password(password, user["password_hash"]):
+            key = (ip, email)
+            tries = [t for t in _FAILED_LOGINS.get(key, []) if now - t < 600]
+            tries.append(now)
+            _FAILED_LOGINS[key] = tries
+            _log_security(conn, ip, user["id"] if user else None,
+                          "failed_login", "low",
+                          f"failed sign-in for {email}", False)
+            if len(tries) >= 5:
+                _LOGIN_BLOCKS[key] = now + 600
+                _log_security(conn, ip, user["id"] if user else None,
+                                      "brute_force", "high",
+                              f"5 failed sign-ins for {email} - blocked 10 min", True)
+            _audit(conn, user["id"] if user else None, "login_failed", ip,
+                   f"failed sign-in for {email}")
+            conn.commit()
+            conn.close()
             self._err(401, "Invalid email or password")
             return
-        token = make_token(user["id"])
-        u = row_to_dict(user)
-        self._ok({"token": token, "user": {
-            "id": user["id"], "name": user["name"], "email": user["email"],
-            "is_admin": _is_admin_user(u)}})
+        _FAILED_LOGINS.pop((ip, email), None)
+        conn.close()
+        # Password OK - but no token yet: mandatory OTP verification.
+        self._ok({"otp_required": True, "email": email,
+                  "message": "Password correct. Verify the OTP to complete sign-in."})
 
     def api_logout(self):
         auth = self.headers.get("Authorization", "")
         m = re.match(r"Bearer\s+(\S+)", auth)
         if m:
             conn = db()
+            row = conn.execute("SELECT user_id FROM auth_tokens WHERE token = ?",
+                               (m.group(1),)).fetchone()
             conn.execute("DELETE FROM auth_tokens WHERE token = ?", (m.group(1),))
+            if row:
+                _audit(conn, row["user_id"], "logout", self._client_ip(), "")
             conn.commit()
             conn.close()
+        self._clear_auth_cookie()
         self._ok({"message": "Logged out"})
 
     # -- authenticated endpoints ---------------------------------------
@@ -1684,6 +2002,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             (course["title"], course["description"], course["category"],
              course["price"], course["instructor"], course["duration_hours"],
              course["level"], course["image_url"]))
+        admin = self._auth_user()
+        _audit(conn, admin["id"] if admin else None, "admin_course_create",
+               self._client_ip(), f"created course '{course['title']}'")
         conn.commit()
         course["id"] = cur.lastrowid
         conn.close()
@@ -1709,6 +2030,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         sets = ", ".join(f"{k} = ?" for k in clean)
         conn.execute(f"UPDATE courses SET {sets} WHERE id = ?",
                      list(clean.values()) + [course_id])
+        admin = self._auth_user()
+        _audit(conn, admin["id"] if admin else None, "admin_course_update",
+               self._client_ip(), f"updated course {course_id}: {sorted(clean)}")
         conn.commit()
         course = row_to_dict(conn.execute(
             "SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone())
@@ -1734,6 +2058,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         # lessons, reviews, certificates, cart items, wishlist rows
         # cascade automatically via ON DELETE CASCADE
         conn.execute("DELETE FROM courses WHERE id = ?", (course_id,))
+        admin = self._auth_user()
+        _audit(conn, admin["id"] if admin else None, "admin_course_delete",
+               self._client_ip(), f"deleted course {course_id}")
         conn.commit()
         conn.close()
         self._ok({"message": f"Course {course_id} deleted"})
@@ -1896,6 +2223,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         revenue_from_enrollments = conn.execute(
             "SELECT COALESCE(SUM(c.price), 0) AS rev FROM enrollments e"
             " JOIN courses c ON c.id = e.course_id").fetchone()["rev"]
+        revenue_from_payments = conn.execute(
+            "SELECT COALESCE(SUM(amount), 0) AS rev FROM payments"
+            " WHERE status = 'paid'").fetchone()["rev"]
         popular = conn.execute(
             """SELECT c.id, c.title, c.category, c.price,
                       COUNT(e.id) AS enrollments,
@@ -1911,6 +2241,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             "total_enrollments": total_enrollments,
             "revenue_from_orders": revenue_from_orders,
             "revenue_from_enrollments": revenue_from_enrollments,
+            "revenue_from_payments": revenue_from_payments,
             "popular_courses": [row_to_dict(r) for r in popular],
         })
 
@@ -2641,8 +2972,18 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         self._ok({"message": "Removed from cart"})
 
     def api_checkout(self):
+        """TEST-MODE checkout: creates pending mock-gateway payments.
+
+        No enrolment happens here - the user is enrolled only after
+        POST /api/payments/:id/verify confirms the (mock) gateway
+        payment. Gateway is razorpay-test-mock: no real keys, no real
+        charges. Unverified (no OTP) users cannot check out.
+        """
         user = self._require_user()
         if not user:
+            return
+        if not user.get("email_verified"):
+            self._err(403, "Verify your email with OTP before checkout")
             return
         conn = db()
         items = conn.execute(
@@ -2656,28 +2997,28 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             self._err(400, "Cart is empty")
             return
         total = sum(i["price"] for i in items)
-        # Enroll in every course (idempotent: skip ones already enrolled)
-        enrolled = []
+        payments = []
         for i in items:
-            try:
-                conn.execute(
-                    "INSERT INTO enrollments (user_id, course_id) VALUES (?, ?)",
-                    (user["id"], i["course_id"]),
-                )
-                enrolled.append(i["course_id"])
-            except sqlite3.IntegrityError:
-                pass  # already enrolled
-        cur = conn.execute(
-            "INSERT INTO orders (user_id, total, status) VALUES (?, ?, 'completed')",
-            (user["id"], total),
-        )
-        order_id = cur.lastrowid
-        conn.execute("DELETE FROM cart_items WHERE user_id = ?", (user["id"],))
+            gw_order = "LH-TEST-" + secrets.token_hex(6).upper()
+            order_id = "LH-" + secrets.token_hex(5).upper()
+            cur = conn.execute(
+                "INSERT INTO payments (order_id, user_id, course_id, amount,"
+                " currency, gateway, gateway_order_id, status)"
+                " VALUES (?, ?, ?, ?, 'INR', 'razorpay-test-mock', ?, 'pending')",
+                (order_id, user["id"], i["course_id"], i["price"], gw_order))
+            pid = cur.lastrowid
+            payments.append({
+                "id": pid, "course_id": i["course_id"], "amount": i["price"],
+                "order_id": order_id, "gateway_order_id": gw_order,
+                "demo_signature": _payment_signature(gw_order, pid)})
+        _audit(conn, user["id"], "checkout_started", self._client_ip(),
+               f"{len(payments)} test-mode payment(s), total Rs {total}")
         conn.commit()
         conn.close()
-        self._ok({"order_id": order_id, "total": total,
-                  "enrolled_course_ids": enrolled,
-                  "message": "Checkout complete - you are now enrolled!"})
+        self._ok({"payments": payments, "total": total, "currency": "INR",
+                  "gateway": "razorpay-test-mock", "test_mode": True,
+                  "message": "TEST MODE: no real money is charged. "
+                             "Verify each payment to complete enrolment."})
 
     def api_enrollments(self):
         user = self._require_user()
@@ -3065,11 +3406,28 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                 "next_lesson_id": nxt["id"] if nxt else None,
                 "next_lesson_title": nxt["title"] if nxt else None})
         recent = self._recent_activity(conn, user["id"])
+        purchase_history = conn.execute(
+            """SELECT p.id, p.order_id, p.gateway_order_id, p.course_id,
+                      c.title AS course_title, p.amount, p.currency,
+                      p.status, p.created_at
+               FROM payments p JOIN courses c ON c.id = p.course_id
+               WHERE p.user_id = ? ORDER BY p.created_at DESC, p.id DESC""",
+            (user["id"],)).fetchall()
+        resources = []
+        for e in enr:
+            n = conn.execute("SELECT COUNT(*) AS n FROM lessons"
+                             " WHERE course_id = ?",
+                             (e["course_id"],)).fetchone()["n"]
+            resources.append({"course_id": e["course_id"],
+                              "course_title": e["title"],
+                              "lesson_count": n})
         conn.close()
         self._ok({"user": user, **g,
                   "enrolled_count": len(enr), "completed_courses": completed,
                   "continue_learning": continue_learning,
-                  "recent_activity": recent})
+                  "recent_activity": recent,
+                  "purchase_history": [row_to_dict(r) for r in purchase_history],
+                  "resources": resources})
 
     def api_leaderboard(self):
         conn = db()
@@ -3965,6 +4323,10 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             return
         conn.execute("UPDATE users SET is_admin = ? WHERE id = ?",
                      (is_admin, user_id))
+        admin = self._auth_user()
+        _audit(conn, admin["id"] if admin else None, "admin_role_change",
+               self._client_ip(),
+               f"user {user_id} ({row['email']}) is_admin -> {is_admin}")
         conn.commit()
         updated = row_to_dict(conn.execute(
             "SELECT id, name, email, is_admin FROM users WHERE id = ?",
@@ -4091,6 +4453,528 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             return
         conn.close()
         self._csv(f"learnhub-{typ}.csv", header, [tuple(r) for r in rows])
+
+    # -- Learn Hub: OTP auth -------------------------------------------
+    def api_auth_request_otp(self):
+        """POST /api/auth/request-otp {email} -> demo OTP (demo mode).
+
+        Demo-safe: no SMS/email provider is configured (free tier), so
+        the generated code is returned in the response and shown on
+        screen as a "Demo OTP". In production this same code would be
+        sent by SMS/email instead. Only the SHA256 hash is stored;
+        the plain code is never logged or written to disk.
+        Rate limit: max 5 requests/hour per email.
+        """
+        body = self._read_json()
+        email = (body.get("email") or "").strip().lower()
+        if not email or len(email) > 254 or not re.fullmatch(
+                r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            self._err(400, "a valid email is required")
+            return
+        conn = db()
+        n = conn.execute(
+            "SELECT COUNT(*) AS n FROM otp_codes WHERE email = ?"
+            " AND created_at >= datetime('now', '-1 hour')",
+            (email,)).fetchone()["n"]
+        if n >= 5:
+            conn.close()
+            self._err(429, "Too many OTP requests - try again in an hour")
+            return
+        code = f"{secrets.randbelow(900000) + 100000:06d}"
+        conn.execute(
+            "INSERT INTO otp_codes (email, code_hash, expires_at)"
+            " VALUES (?, ?, datetime('now', '+10 minutes'))",
+            (email, hashlib.sha256(code.encode()).hexdigest()))
+        conn.commit()
+        conn.close()
+        self._ok({"demo_otp": code, "expires_in_seconds": 600,
+                  "note": "DEMO MODE: no SMS/email provider is configured, so "
+                          "the OTP is shown here. In production it arrives "
+                          "by SMS/email and is never displayed."})
+
+    def api_auth_verify_otp(self):
+        """POST /api/auth/verify-otp {email, otp} -> session token.
+
+        Max 5 verify attempts per code; codes expire after 10 minutes.
+        On success the account is marked email_verified and a token is
+        issued (plus the lh_token cookie for the hidden super-admin page).
+        """
+        body = self._read_json()
+        email = (body.get("email") or "").strip().lower()
+        otp = str(body.get("otp") or "").strip()
+        if not email or not otp or not re.fullmatch(r"\d{6}", otp):
+            self._err(400, "email and a 6-digit OTP are required")
+            return
+        conn = db()
+        row = conn.execute(
+            "SELECT * FROM otp_codes WHERE email = ? AND used = 0"
+            " ORDER BY id DESC LIMIT 1", (email,)).fetchone()
+        if not row:
+            conn.close()
+            self._err(400, "No OTP was requested for this email - request one first")
+            return
+        if row["attempts"] >= 5:
+            conn.close()
+            self._err(429, "Too many wrong attempts - request a new OTP")
+            return
+        if row["expires_at"] < time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()):
+            conn.close()
+            self._err(400, "OTP expired - request a new one")
+            return
+        if hashlib.sha256(otp.encode()).hexdigest() != row["code_hash"]:
+            conn.execute("UPDATE otp_codes SET attempts = attempts + 1 WHERE id = ?",
+                         (row["id"],))
+            conn.commit()
+            conn.close()
+            self._err(401, "Incorrect OTP")
+            return
+        conn.execute("UPDATE otp_codes SET used = 1 WHERE id = ?", (row["id"],))
+        user = conn.execute("SELECT * FROM users WHERE email = ?",
+                            (email,)).fetchone()
+        if not user:
+            conn.commit()
+            conn.close()
+            self._err(404, "No account for this email - register first")
+            return
+        conn.execute("UPDATE users SET email_verified = 1 WHERE id = ?",
+                     (user["id"],))
+        _audit(conn, user["id"], "otp_verified", self._client_ip(),
+               f"OTP verified for {email}")
+        conn.commit()
+        conn.close()
+        token = make_token(user["id"])
+        self._set_auth_cookie(token)
+        u = row_to_dict(user)
+        self._ok({"token": token, "user": {
+            "id": user["id"], "name": user["name"], "email": user["email"],
+            "is_admin": _is_admin_user(u)}})
+
+    # -- Learn Hub: personal notes workspace ----------------------------
+    def api_me_notes_list(self):
+        user = self._require_user()
+        if not user:
+            return
+        from urllib.parse import urlparse, parse_qs
+        q = (parse_qs(urlparse(self.path).query).get("q", [""])[0] or "").strip()
+        conn = db()
+        if q:
+            rows = conn.execute(
+                "SELECT * FROM personal_notes WHERE user_id = ?"
+                " AND (title LIKE ? OR body LIKE ?)"
+                " ORDER BY updated_at DESC, id DESC",
+                (user["id"], f"%{q}%", f"%{q}%")).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM personal_notes WHERE user_id = ?"
+                " ORDER BY updated_at DESC, id DESC", (user["id"],)).fetchall()
+        conn.close()
+        self._ok({"notes": [row_to_dict(r) for r in rows]})
+
+    def api_me_notes_create(self):
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        title = (body.get("title") or "").strip()[:200]
+        note_body = body.get("body") or ""
+        if len(note_body) > 20000:
+            self._err(400, "note body must be at most 20000 characters")
+            return
+        course_id = _positive_int(body.get("course_id")) if body.get("course_id") else None
+        lesson_id = _positive_int(body.get("lesson_id")) if body.get("lesson_id") else None
+        conn = db()
+        try:
+            cur = conn.execute(
+                "INSERT INTO personal_notes (user_id, title, body, course_id, lesson_id)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (user["id"], title, note_body, course_id, lesson_id))
+            conn.commit()
+        except sqlite3.IntegrityError:
+            conn.close()
+            self._err(400, "course_id / lesson_id does not exist")
+            return
+        note = row_to_dict(conn.execute(
+            "SELECT * FROM personal_notes WHERE id = ?", (cur.lastrowid,)).fetchone())
+        conn.close()
+        self._ok({"note": note}, status=201)
+
+    def api_me_notes_update(self, note_id):
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        conn = db()
+        row = conn.execute("SELECT * FROM personal_notes WHERE id = ? AND user_id = ?",
+                           (note_id, user["id"])).fetchone()
+        if not row:
+            conn.close()
+            self._err(404, "Note not found")
+            return
+        title = (body.get("title") or row["title"]).strip()[:200] if "title" in body else row["title"]
+        note_body = body.get("body", row["body"])
+        if len(note_body) > 20000:
+            conn.close()
+            self._err(400, "note body must be at most 20000 characters")
+            return
+        conn.execute("UPDATE personal_notes SET title = ?, body = ?,"
+                     " updated_at = datetime('now') WHERE id = ?",
+                     (title, note_body, note_id))
+        conn.commit()
+        note = row_to_dict(conn.execute(
+            "SELECT * FROM personal_notes WHERE id = ?", (note_id,)).fetchone())
+        conn.close()
+        self._ok({"note": note})
+
+    def api_me_notes_delete(self, note_id):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        cur = conn.execute("DELETE FROM personal_notes WHERE id = ? AND user_id = ?",
+                           (note_id, user["id"]))
+        conn.commit()
+        conn.close()
+        if cur.rowcount == 0:
+            self._err(404, "Note not found")
+            return
+        self._ok({"message": "Note deleted"})
+
+    # -- Learn Hub: proctored live assignments -------------------------
+    def _assignment_public(self, row):
+        d = row_to_dict(row)
+        d.pop("expected_keywords", None)
+        return d
+
+    def api_course_assignments(self, course_id):
+        conn = db()
+        if not conn.execute("SELECT id FROM courses WHERE id = ?",
+                            (course_id,)).fetchone():
+            conn.close()
+            self._err(404, "Course not found")
+            return
+        rows = conn.execute("SELECT * FROM assignments WHERE course_id = ?"
+                            " ORDER BY id", (course_id,)).fetchall()
+        conn.close()
+        self._ok({"assignments": [self._assignment_public(r) for r in rows]})
+
+    def api_assignment_get(self, assignment_id):
+        conn = db()
+        row = conn.execute("SELECT * FROM assignments WHERE id = ?",
+                           (assignment_id,)).fetchone()
+        conn.close()
+        if not row:
+            self._err(404, "Assignment not found")
+            return
+        self._ok({"assignment": self._assignment_public(row)})
+
+    def api_assignment_start(self, assignment_id):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        a = conn.execute("SELECT * FROM assignments WHERE id = ?",
+                         (assignment_id,)).fetchone()
+        if not a:
+            conn.close()
+            self._err(404, "Assignment not found")
+            return
+        enrolled = conn.execute(
+            "SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?",
+            (user["id"], a["course_id"])).fetchone()
+        if not enrolled:
+            conn.close()
+            self._err(403, "Enrol in this course to start the proctored assignment")
+            return
+        open_attempt = conn.execute(
+            "SELECT * FROM assignment_attempts WHERE user_id = ?"
+            " AND assignment_id = ? AND submitted_at IS NULL"
+            " ORDER BY id DESC LIMIT 1",
+            (user["id"], assignment_id)).fetchone()
+        if open_attempt:
+            conn.close()
+            self._ok({"attempt_id": open_attempt["id"],
+                      "started_at": open_attempt["started_at"],
+                      "duration_minutes": a["duration_minutes"],
+                      "resumed": True})
+            return
+        cur = conn.execute(
+            "INSERT INTO assignment_attempts (user_id, assignment_id) VALUES (?, ?)",
+            (user["id"], assignment_id))
+        conn.commit()
+        attempt_id = cur.lastrowid
+        started = conn.execute("SELECT started_at FROM assignment_attempts"
+                               " WHERE id = ?", (attempt_id,)).fetchone()["started_at"]
+        _audit(conn, user["id"], "assignment_started", self._client_ip(),
+               f"assignment {assignment_id} attempt {attempt_id}")
+        conn.commit()
+        conn.close()
+        self._ok({"attempt_id": attempt_id, "started_at": started,
+                  "duration_minutes": a["duration_minutes"], "resumed": False})
+
+    def api_assignment_event(self, assignment_id):
+        """POST /api/assignments/:id/event {attempt_id, type}.
+
+        type: tab_switch | blur | paste | rightclick | copy | cut.
+        Counters live on the attempt; >3 tab-switches auto-flags it.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        attempt_id = _positive_int(body.get("attempt_id"))
+        etype = (body.get("type") or "").strip()
+        colmap = {"tab_switch": "tab_switches", "blur": "blur_events",
+                  "paste": "paste_attempts", "rightclick": "rightclick_attempts"}
+        if not attempt_id or etype not in (*colmap, "copy", "cut"):
+            self._err(400, "attempt_id and a valid event type are required")
+            return
+        conn = db()
+        att = conn.execute(
+            "SELECT * FROM assignment_attempts WHERE id = ? AND user_id = ?"
+            " AND assignment_id = ? AND submitted_at IS NULL",
+            (attempt_id, user["id"], assignment_id)).fetchone()
+        if not att:
+            conn.close()
+            self._err(404, "Open attempt not found")
+            return
+        conn.execute("INSERT INTO assignment_events (attempt_id, type) VALUES (?, ?)",
+                     (attempt_id, etype))
+        if etype in colmap:
+            conn.execute(f"UPDATE assignment_attempts SET {colmap[etype]} ="
+                         f" {colmap[etype]} + 1 WHERE id = ?", (attempt_id,))
+        att2 = conn.execute("SELECT * FROM assignment_attempts WHERE id = ?",
+                            (attempt_id,)).fetchone()
+        flagged = 1 if att2["tab_switches"] > 3 else att2["flagged"]
+        if flagged and not att2["flagged"]:
+            conn.execute("UPDATE assignment_attempts SET flagged = 1 WHERE id = ?",
+                         (attempt_id,))
+        conn.commit()
+        conn.close()
+        self._ok({"tab_switches": att2["tab_switches"],
+                  "blur_events": att2["blur_events"],
+                  "paste_attempts": att2["paste_attempts"],
+                  "rightclick_attempts": att2["rightclick_attempts"],
+                  "flagged": bool(flagged)})
+
+    def api_assignment_submit(self, assignment_id):
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        attempt_id = _positive_int(body.get("attempt_id"))
+        code = body.get("code") or ""
+        if not attempt_id:
+            self._err(400, "attempt_id is required")
+            return
+        conn = db()
+        a = conn.execute("SELECT * FROM assignments WHERE id = ?",
+                         (assignment_id,)).fetchone()
+        att = conn.execute(
+            "SELECT * FROM assignment_attempts WHERE id = ? AND user_id = ?"
+            " AND assignment_id = ? AND submitted_at IS NULL",
+            (attempt_id, user["id"], assignment_id)).fetchone()
+        if not a or not att:
+            conn.close()
+            self._err(404, "Assignment or open attempt not found")
+            return
+        # Transparent heuristic grading: share of expected keywords
+        # present in the submitted code (documented in the build report).
+        try:
+            keywords = json.loads(a["expected_keywords"] or "[]")
+        except (ValueError, TypeError):
+            keywords = []
+        code_l = code.lower()
+        matched = sum(1 for kw in keywords if str(kw).lower() in code_l)
+        score = 0
+        if keywords and len(code.strip()) >= 10:
+            score = round(a["total_marks"] * matched / len(keywords))
+        flagged = 1 if (att["tab_switches"] > 3 or att["flagged"]) else 0
+        conn.execute(
+            "UPDATE assignment_attempts SET code = ?, submitted_at = datetime('now'),"
+            " score = ?, flagged = ? WHERE id = ?",
+            (code[:20000], score, flagged, attempt_id))
+        _audit(conn, user["id"], "assignment_submitted", self._client_ip(),
+               f"assignment {assignment_id} score {score}/{a['total_marks']}"
+               f" flagged={flagged}")
+        conn.commit()
+        conn.close()
+        self._ok({"score": score, "total_marks": a["total_marks"],
+                  "flagged": bool(flagged),
+                  "message": "Attempt flagged for review - too many tab switches."
+                             if flagged else "Assignment submitted."})
+
+    def api_admin_assignment_attempts(self):
+        if not self._require_admin():
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT at.id, at.user_id, u.email AS user_email,
+                      at.assignment_id, a.title AS assignment_title,
+                      a.course_id, at.tab_switches, at.blur_events,
+                      at.paste_attempts, at.rightclick_attempts,
+                      at.score, at.flagged, at.started_at, at.submitted_at
+               FROM assignment_attempts at
+               JOIN users u ON u.id = at.user_id
+               JOIN assignments a ON a.id = at.assignment_id
+               ORDER BY at.started_at DESC, at.id DESC LIMIT 100""").fetchall()
+        conn.close()
+        self._ok({"attempts": [row_to_dict(r) for r in rows]})
+
+    # -- Learn Hub: mock payments --------------------------------------
+    def api_payment_verify(self, payment_id):
+        """POST /api/payments/:id/verify {payment_id, signature}.
+
+        Simulates the gateway callback: the HMAC signature over
+        gateway_order_id|payment_id must match the server-side test
+        secret. On success the payment is marked paid, the learner is
+        enrolled, an order row is created and the cart item is cleared.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        signature = str(body.get("signature") or "")
+        conn = db()
+        pay = conn.execute("SELECT * FROM payments WHERE id = ?",
+                           (payment_id,)).fetchone()
+        if not pay or pay["user_id"] != user["id"]:
+            conn.close()
+            self._err(404, "Payment not found")
+            return
+        if pay["status"] == "paid":
+            conn.close()
+            self._ok({"order_id": pay["order_id"], "already_paid": True,
+                      "enrolled_course_ids": [pay["course_id"]]})
+            return
+        if pay["status"] != "pending":
+            conn.close()
+            self._err(400, f"Payment is {pay['status']} and cannot be verified")
+            return
+        expected = _payment_signature(pay["gateway_order_id"], pay["id"])
+        if not signature or not hmac.compare_digest(signature, expected):
+            conn.close()
+            self._err(401, "Invalid payment signature")
+            return
+        conn.execute("UPDATE payments SET status = 'paid' WHERE id = ?",
+                     (payment_id,))
+        try:
+            conn.execute("INSERT INTO enrollments (user_id, course_id) VALUES (?, ?)",
+                         (user["id"], pay["course_id"]))
+        except sqlite3.IntegrityError:
+            pass
+        cur = conn.execute(
+            "INSERT INTO orders (user_id, total, status) VALUES (?, ?, 'completed')",
+            (user["id"], pay["amount"]))
+        order_row_id = cur.lastrowid
+        conn.execute("DELETE FROM cart_items WHERE user_id = ? AND course_id = ?",
+                     (user["id"], pay["course_id"]))
+        _audit(conn, user["id"], "payment_verified", self._client_ip(),
+               f"test-mode payment {pay['order_id']} Rs {pay['amount']}"
+               f" course {pay['course_id']}")
+        conn.commit()
+        conn.close()
+        self._ok({"order_id": pay["order_id"], "order_row_id": order_row_id,
+                  "enrolled_course_ids": [pay["course_id"]],
+                  "message": "Payment verified (TEST MODE) - you are now enrolled!"})
+
+    def api_payments_me(self):
+        user = self._require_user()
+        if not user:
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT p.id, p.order_id, p.gateway_order_id, p.course_id,
+                      c.title AS course_title, p.amount, p.currency,
+                      p.gateway, p.status, p.created_at
+               FROM payments p JOIN courses c ON c.id = p.course_id
+               WHERE p.user_id = ? ORDER BY p.created_at DESC, p.id DESC""",
+            (user["id"],)).fetchall()
+        conn.close()
+        self._ok({"payments": [row_to_dict(r) for r in rows]})
+
+    def api_admin_payments(self):
+        if not self._require_admin():
+            return
+        conn = db()
+        rows = conn.execute(
+            """SELECT p.id, p.order_id, p.user_id, u.email AS user_email,
+                      p.course_id, c.title AS course_title, p.amount,
+                      p.currency, p.gateway, p.status, p.created_at
+               FROM payments p JOIN users u ON u.id = p.user_id
+               JOIN courses c ON c.id = p.course_id
+               ORDER BY p.created_at DESC, p.id DESC LIMIT 200""").fetchall()
+        total = conn.execute(
+            "SELECT COALESCE(SUM(amount), 0) AS rev FROM payments"
+            " WHERE status = 'paid'").fetchone()["rev"]
+        conn.close()
+        self._ok({"payments": [row_to_dict(r) for r in rows],
+                  "total_revenue": total})
+
+    # -- Learn Hub: security center + audit logs -----------------------
+    def api_admin_security(self):
+        if not self._require_admin():
+            return
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        try:
+            limit = max(1, min(200, int(qs.get("limit", ["50"])[0])))
+        except (TypeError, ValueError):
+            limit = 50
+        conn = db()
+        rows = conn.execute(
+            "SELECT * FROM security_events ORDER BY id DESC LIMIT ?",
+            (limit,)).fetchall()
+        by_sev = {r["severity"]: r["n"] for r in conn.execute(
+            "SELECT severity, COUNT(*) AS n FROM security_events GROUP BY severity")}
+        by_type = {r["event_type"]: r["n"] for r in conn.execute(
+            "SELECT event_type, COUNT(*) AS n FROM security_events GROUP BY event_type")}
+        total = conn.execute("SELECT COUNT(*) AS n FROM security_events").fetchone()["n"]
+        blocked = conn.execute(
+            "SELECT COUNT(*) AS n FROM security_events WHERE blocked = 1").fetchone()["n"]
+        conn.close()
+        self._ok({"events": [row_to_dict(r) for r in rows],
+                  "counts": {"by_severity": by_sev, "by_type": by_type,
+                             "total": total, "blocked": blocked}})
+
+    def api_admin_audit_logs(self):
+        if not self._require_admin():
+            return
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(self.path).query)
+        try:
+            limit = max(1, min(200, int(qs.get("limit", ["50"])[0])))
+        except (TypeError, ValueError):
+            limit = 50
+        conn = db()
+        rows = conn.execute(
+            """SELECT al.id, al.user_id, u.email AS user_email, al.action,
+                      al.ip, al.details, al.created_at
+               FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id
+               ORDER BY al.id DESC LIMIT ?""", (limit,)).fetchall()
+        conn.close()
+        self._ok({"logs": [row_to_dict(r) for r in rows]})
+
+    def api_admin_security_stats(self):
+        if not self._require_admin():
+            return
+        conn = db()
+        one = lambda sql: conn.execute(sql).fetchone()[0]
+        total = one("SELECT COUNT(*) FROM security_events")
+        blocked = one("SELECT COUNT(*) FROM security_events WHERE blocked = 1")
+        recent = one("SELECT COUNT(*) FROM security_events"
+                     " WHERE created_at >= datetime('now', '-1 day')")
+        failed = one("SELECT COUNT(*) FROM security_events"
+                     " WHERE event_type IN ('failed_login', 'brute_force')"
+                     " AND created_at >= datetime('now', '-1 day')")
+        by_sev = {r["severity"]: r["n"] for r in conn.execute(
+            "SELECT severity, COUNT(*) AS n FROM security_events GROUP BY severity")}
+        by_type = {r["event_type"]: r["n"] for r in conn.execute(
+            "SELECT event_type, COUNT(*) AS n FROM security_events GROUP BY event_type")}
+        conn.close()
+        self._ok({"total_events": total, "blocked": blocked,
+                  "recent_24h": recent, "failed_logins_24h": failed,
+                  "by_severity": by_sev, "by_type": by_type})
+
 
 
 def main():

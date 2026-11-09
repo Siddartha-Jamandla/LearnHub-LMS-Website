@@ -13,6 +13,7 @@
     <title>Checkout - LearnHub</title>
 
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 
 </head>
 
@@ -39,7 +40,7 @@
 
         </nav>
 
-        <div class="nav-actions">
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
 
             <a href="cart.html" class="nav-icon">
                 🛒
@@ -67,6 +68,8 @@
             Review your order and confirm — enrolment is instant and no
             payment is collected here.
         </p>
+
+        <div id="checkoutStatus" hidden></div>
 
         <div id="orderSummary">
             <p>Loading your order…</p>

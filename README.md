@@ -1,6 +1,6 @@
-# LearnHub LMS - Full-Stack Edition
+# Learn Hub LMS - Full-Stack Edition
 
-LearnHub is an online learning platform offering expert-led courses in web
+**Learn Hub** by **CareerPlus Co-Private Limited** — an online learning platform offering expert-led courses in web
 development, programming, design, marketing, AI, and business - now rebuilt
 as a **complete full-stack project**:
 

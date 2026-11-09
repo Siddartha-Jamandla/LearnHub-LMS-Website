@@ -5,9 +5,15 @@
 }
 
 :root {
-    --primary: #4f46e5;
-    --primary-dark: #3730a3;
-    --secondary: #7c3aed;
+    /* Learn Hub theme — default DARK (CodeShift-inspired neon violet + emerald).
+       Light theme overrides live in [data-theme="light"] below. */
+    --primary: #8b5cf6;
+    --primary-dark: #7c3aed;
+    --secondary: #10b981;
+    --accent: #10b981;
+    --bg: #0b0f1a;
+    --surface: #111827;
+    --surface-2: #1e293b;
     --dark: #111827;
     --text: #374151;
     --muted: #6b7280;
@@ -1598,3 +1604,90 @@ button {
 .cert-share input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; }
 .search-meta { color: var(--muted); margin: 8px 0 20px; }
 .review-form textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+
+/* =========================================================
+   Learn Hub — dark / light theme (lh_theme in localStorage)
+   Default is dark. [data-theme="light"] restores the light look.
+   ========================================================= */
+:root[data-theme="dark"] {
+    --primary: #8b5cf6; --primary-dark: #7c3aed; --secondary: #10b981;
+    --accent: #10b981; --bg: #0b0f1a; --surface: #111827; --surface-2: #1e293b;
+    --dark: #f1f5f9; --text: #e2e8f0; --muted: #94a3b8; --light: #0f172a;
+    --white: #1e293b; --border: #334155;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="light"] {
+    --primary: #8b5cf6; --primary-dark: #7c3aed; --secondary: #10b981;
+    --accent: #10b981; --bg: #ffffff; --surface: #ffffff; --surface-2: #f8fafc;
+    --dark: #111827; --text: #374151; --muted: #6b7280; --light: #f8fafc;
+    --white: #ffffff; --border: #e5e7eb;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+[data-theme="dark"] .header { background: #0f172a; border-bottom-color: #1e293b; }
+[data-theme="dark"] .hero { background: linear-gradient(135deg, #1e1b4b, #0b0f1a); }
+[data-theme="dark"] .page-header { background: #1e1b4b; }
+[data-theme="dark"] .hero h1, [data-theme="dark"] .section-header h2,
+[data-theme="dark"] .form-card h1, [data-theme="dark"] .detail-main h1,
+[data-theme="dark"] .course-content h3, [data-theme="dark"] .feature-card h3,
+[data-theme="dark"] .category-card h3, [data-theme="dark"] .logo { color: #f1f5f9; }
+[data-theme="dark"] .course-card, [data-theme="dark"] .category-card,
+[data-theme="dark"] .feature-card, [data-theme="dark"] .form-card,
+[data-theme="dark"] .detail-card, [data-theme="dark"] .cart-summary,
+[data-theme="dark"] .profile-card, [data-theme="dark"] .sidebar,
+[data-theme="dark"] .quiz-q, [data-theme="dark"] .task-card,
+[data-theme="dark"] .review-card, [data-theme="dark"] .notif-item,
+[data-theme="dark"] .path-card, [data-theme="dark"] .badge-card,
+[data-theme="dark"] .stat-card, [data-theme="dark"] .xp-card,
+[data-theme="dark"] .hero-card, [data-theme="dark"] .floating-card,
+[data-theme="dark"] .faq-question, [data-theme="dark"] .search-area,
+[data-theme="dark"] .tutor-panel, [data-theme="dark"] .admin-card { background: var(--surface); border-color: var(--border); color: var(--text); }
+[data-theme="dark"] .btn-outline { background: transparent; }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: #0f172a; color: #e2e8f0; border-color: #334155; }
+[data-theme="dark"] .form-group label { color: #e2e8f0; }
+[data-theme="dark"] .why-us { background: #0f172a; }
+[data-theme="dark"] .course-image { background: linear-gradient(135deg, #7c3aed, #10b981); }
+[data-theme="dark"] .lesson-body code { background: #1e1b4b; color: #c4b5fd; }
+[data-theme="dark"] .lesson-body th { background: #1e293b; }
+[data-theme="dark"] .lesson-flowchart { background: #0f172a; border-color: #334155; }
+[data-theme="dark"] .tutor-log { background: #0f172a; }
+[data-theme="dark"] .tutor-bot { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .category-chip { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .data-table th { background: #1e293b; color: #e2e8f0; }
+[data-theme="dark"] .note-item { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .exam-box { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .cta-section { background: linear-gradient(135deg, #7c3aed, #059669); }
+[data-theme="dark"] .hero-image-placeholder { background: linear-gradient(135deg, #7c3aed, #10b981); }
+/* theme toggle button */
+.theme-toggle { background: transparent; border: 1px solid var(--border); border-radius: 999px; width: 38px; height: 38px; font-size: 18px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: transform .2s, border-color .2s, background .2s; color: var(--text); }
+.theme-toggle:hover { transform: scale(1.08) rotate(8deg); border-color: var(--primary); background: rgba(139,92,246,.12); }
+/* flagship tracks */
+.flagship-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+@media (max-width: 1000px) { .flagship-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .flagship-grid { grid-template-columns: 1fr; } }
+.flagship-badge { display: inline-block; background: linear-gradient(135deg, #8b5cf6, #10b981); color: #fff; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: 6px; }
+/* OTP demo box — demo mode only; never log the code to console */
+.otp-demo-box { background: #fefce8; border: 1px dashed #f59e0b; border-radius: 10px; padding: 14px; margin: 14px 0; text-align: center; color: #78350f; }
+[data-theme="dark"] .otp-demo-box { background: #292524; border-color: #f59e0b; color: #fde68a; }
+.otp-demo-box .otp-code { font-size: 1.8rem; font-weight: 800; letter-spacing: .35em; font-family: ui-monospace, monospace; }
+.otp-input { text-align: center; font-size: 1.4rem; letter-spacing: .4em; font-family: ui-monospace, monospace; }
+.auth-error { color: #e11d48; margin-top: 10px; }
+.auth-note { color: #16a34a; margin-top: 10px; }
+/* notes workspace */
+.notes-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; align-items: start; }
+@media (max-width: 800px) { .notes-layout { grid-template-columns: 1fr; } }
+.note-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; background: var(--surface); cursor: pointer; transition: border-color .2s, transform .2s; }
+.note-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.note-card.active { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(139,92,246,.35); }
+/* exam / proctored assignment */
+.exam-timer { font-size: 1.6rem; font-weight: 800; font-family: ui-monospace, monospace; color: var(--primary); }
+.exam-timer.low { color: #dc2626; }
+.code-editor { width: 100%; min-height: 320px; font-family: ui-monospace, monospace; font-size: .95rem; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: #0f172a; color: #e2e8f0; }
+[data-theme="light"] .code-editor { background: #0f172a; color: #e2e8f0; }
+.flagged-warning { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 14px; margin: 12px 0; font-weight: 600; }
+.test-mode-notice { background: #fef3c7; border: 1px solid #fcd34d; color: #78350f; border-radius: 10px; padding: 12px 14px; margin: 14px 0; }
+[data-theme="dark"] .test-mode-notice { background: #292524; color: #fde68a; }
+.progress-bar { height: 10px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+[data-theme="dark"] .progress-bar { background: #334155; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #10b981); border-radius: 999px; transition: width .4s; }
+.security-stat { font-size: 1.5rem; font-weight: 800; color: var(--dark); }

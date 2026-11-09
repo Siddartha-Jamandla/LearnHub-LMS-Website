@@ -10,6 +10,7 @@
     <title>Profile - LearnHub</title>
 
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 
 </head>
 
@@ -46,13 +47,17 @@
                 Dashboard
             </a>
 
+            <a href="notes.html" class="nav-link">
+                My Notes
+            </a>
+
             <a href="learning-paths.html" class="nav-link">
                 Learning Paths
             </a>
 
         </nav>
 
-        <div class="nav-actions">
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
 
             <a href="cart.html" class="nav-icon">
                 🛒
@@ -98,6 +103,26 @@
 
         <h2 style="margin: 28px 0 12px;">My Certificates</h2>
         <div id="certList"><p>Loading…</p></div>
+
+        <h2 style="margin: 28px 0 12px;">Downloaded Resources</h2>
+        <div id="resourceList"><p>Loading…</p></div>
+
+        <h2 style="margin: 28px 0 12px;">Purchase History</h2>
+        <div id="purchaseList"><p>Loading…</p></div>
+
+        <h2 style="margin: 28px 0 12px;">Settings</h2>
+        <div class="profile-card" id="settingsCard">
+            <p><label>Theme
+                <select id="themeSetting">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select></label>
+                <button type="button" class="btn btn-outline btn-small" id="saveThemeBtn">Save theme</button>
+            </p>
+            <p><a href="notes.html" class="btn btn-primary btn-small">📝 My Notes</a>
+            <a href="dashboard.html" class="btn btn-outline btn-small">Dashboard</a></p>
+            <p class="admin-note">Theme is stored on this device (localStorage key <code>lh_theme</code>).</p>
+        </div>
 
         <p style="margin-top: 28px;">
             <button type="button" class="btn btn-outline" id="signOutBtn">Sign Out</button>
@@ -150,6 +175,32 @@
         } catch (e) {
             account.innerHTML = "<p>Could not load your profile: " + esc(e.message || "") + "</p>";
         }
+        // Resources + purchase history come from the same dashboard payload.
+        try {
+            var dash = await LearnHubAPI.getDashboard();
+            var res = dash.resources || [];
+            document.getElementById("resourceList").innerHTML = res.length ? "<ul>" + res.map(function (r) {
+                return '<li><a href="course-details.html?id=' + r.course_id + '">' + esc(r.course_title) + "</a> — " + (r.lesson_count || 0) + " lessons</li>";
+            }).join("") + "</ul>" : "<p>No resources yet — enrol in a course to access its materials.</p>";
+            var ph = dash.purchase_history || [];
+            document.getElementById("purchaseList").innerHTML = ph.length ? "<ul>" + ph.map(function (p) {
+                return "<li>Order <strong>" + esc(p.order_id || ("#" + p.id)) + "</strong> — " + esc(p.course_title || ("Course " + (p.course_id || ""))) +
+                    " — " + esc(formatPrice(p.amount)) + " " + esc(p.currency || "INR") + " — <strong>" + esc(p.status) + "</strong> <small>(" + esc(String(p.created_at || "").slice(0, 10)) + ")</small></li>";
+            }).join("") + "</ul>" : "<p>No purchases yet.</p>";
+        } catch (e) {
+            document.getElementById("resourceList").innerHTML = "<p>Could not load resources.</p>";
+            document.getElementById("purchaseList").innerHTML = "<p>Could not load purchase history.</p>";
+        }
+        // Settings: theme picker (same lh_theme key as the nav toggle).
+        try {
+            var themeSel = document.getElementById("themeSetting");
+            themeSel.value = localStorage.getItem("lh_theme") || "dark";
+            document.getElementById("saveThemeBtn").addEventListener("click", function () {
+                localStorage.setItem("lh_theme", themeSel.value);
+                document.documentElement.setAttribute("data-theme", themeSel.value);
+                if (window.lhWireThemeToggles) window.lhWireThemeToggles();
+            });
+        } catch (e) { /* settings are best-effort */ }
         try {
             var courses = await LearnHubAPI.getMyCourses();
             if (!courses.length) {

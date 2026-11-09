@@ -14,6 +14,7 @@
 
     <!-- Common CSS -->
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 </head>
 
 <body>
@@ -60,7 +61,7 @@
 </nav>
 
             <!-- Right Side -->
-            <div class="nav-actions">
+            <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
 
                 <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
                     🔔
@@ -117,6 +118,7 @@
                         experienced instructors. Learn at your own pace
                         and develop skills that help you achieve your goals.
                     </p>
+                    <p><small>Learn Hub — by <strong>CareerPlus Co-Private Limited</strong></small></p>
 
                     <div class="hero-buttons">
 
@@ -205,6 +207,21 @@
 
             </div>
 
+        </section>
+
+
+        <!-- =========================
+             FLAGSHIP TRACKS
+        ========================== -->
+        <section class="section" id="flagshipSection">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Flagship tracks</span>
+                    <h2>Flagship Tracks</h2>
+                    <p>Our five flagship tracks — C++, DSA, Python, Java and Web Development.</p>
+                </div>
+                <div class="flagship-grid" id="flagshipGrid"><p>Loading flagship tracks…</p></div>
+            </div>
         </section>
 
 
@@ -548,7 +565,7 @@
 
                 <p>
                     Learn new skills, improve your knowledge,
-                    and build a better future with LearnHub.
+                    and build a better future with Learn Hub — by CareerPlus Co-Private Limited.
                 </p>
 
                 <div class="social-links">
@@ -674,7 +691,7 @@
             <div class="container">
 
                 <p>
-                    © 2026 LearnHub. All Rights Reserved.
+                    © 2026 Learn Hub by CareerPlus Co-Private Limited. All Rights Reserved.
                 </p>
 
             </div>
@@ -789,7 +806,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        loadStats(); loadCategories(); loadTopRated(); loadNew(); loadRecommended();
+        loadStats(); loadCategories(); loadTopRated(); loadNew(); loadRecommended(); if (typeof renderFlagshipTracks === "function") renderFlagshipTracks("flagshipGrid");
     });
 })();
 </script>

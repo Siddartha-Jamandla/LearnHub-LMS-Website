@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Proctored assignment on Learn Hub — timed coding task with tab-switch and copy/paste monitoring.">
+    <title>Proctored Assignment - Learn Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+</head>
+<body>
+
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="my-courses.html" class="nav-link">My Courses</a>
+        </nav>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+            <a href="cart.html" class="nav-icon">🛒<span id="cart-count" class="cart-count">0</span></a>
+            <a href="profile.html" class="btn btn-outline">Profile</a>
+        </div>
+    </div>
+</header>
+
+<main class="section">
+    <div class="container">
+        <span class="section-tag">Proctored Assignment</span>
+        <h1 id="examTitle">Loading assignment…</h1>
+        <p id="examMeta" style="color:var(--muted);"></p>
+
+        <div id="signedOutBox" class="empty-state" hidden>
+            <h2>Sign in to take this assignment</h2>
+            <p>Proctored assignments are for enrolled learners.</p>
+            <a href="login.html" class="btn btn-primary">Sign In</a>
+        </div>
+
+        <div id="examIntro" class="exam-box" hidden>
+            <p id="examDesc"></p>
+            <p><strong>Language:</strong> <span id="examLang">—</span> ·
+               <strong>Duration:</strong> <span id="examDuration">—</span> ·
+               <strong>Total marks:</strong> <span id="examMarks">—</span></p>
+            <p>⚠️ This assignment is proctored: tab switches, window blur, copy, cut, paste and right-click are all monitored and logged. More than 3 tab switches flags your attempt.</p>
+            <p><button type="button" class="btn btn-primary btn-large" id="startExamBtn">Start Assignment</button></p>
+            <p class="auth-error" id="examError" hidden></p>
+        </div>
+
+        <div id="examLive" hidden>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div>⏱ Time remaining: <span class="exam-timer" id="examTimer">--:--</span></div>
+                <div>Tab switches: <strong id="tabSwitchCount">0</strong> <span id="flagBadge"></span></div>
+            </div>
+            <div class="flagged-warning" id="flaggedWarning" hidden>
+                ⚠️ Your attempt has been flagged — more than 3 tab switches were detected. This will be reviewed by the admin.
+            </div>
+            <div class="form-group" style="margin-top:16px;">
+                <label for="codeEditor">Your code (<span id="editorLang">code</span>)</label>
+                <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Write your solution here. Copy, cut, paste and right-click are blocked and logged."></textarea>
+            </div>
+            <p>
+                <button type="button" class="btn btn-primary btn-large" id="submitExamBtn">Submit Assignment</button>
+                <a class="btn btn-outline" id="backToCourseLink" href="courses.html">Back to courses</a>
+            </p>
+            <p class="auth-error" id="submitError" hidden></p>
+            <p class="auth-note" id="submitNote" hidden></p>
+        </div>
+
+        <div id="examResult" class="exam-box" hidden>
+            <h2 id="resultTitle">Submitted</h2>
+            <p id="resultBody"></p>
+            <p><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+            <a href="my-courses.html" class="btn btn-outline">My Courses</a></p>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer-bottom">
+        <div class="container">
+            <p>© 2026 Learn Hub by CareerPlus Co-Private Limited. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* Proctored assignment (?id=<assignment id>).
+   Flow: fetch assignment -> Start (POST /api/assignments/:id/start; a 403
+   means "not enrolled") -> countdown -> code editor with copy/cut/paste/
+   contextmenu blocked AND logged (POST /api/assignments/:id/event),
+   visibilitychange + window blur counted and sent live -> >3 tab switches
+   shows the flagged warning -> auto-submit on time-up, or Submit button. */
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>\"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    var params = new URLSearchParams(window.location.search);
+    var assignmentId = params.get("id");
+    var assignment = null;
+    var attemptId = null;
+    var tabSwitches = 0;
+    var flagged = false;
+    var submitted = false;
+    var timerHandle = null;
+    var remainingSeconds = 0;
+
+    var errEl = document.getElementById("examError");
+    function showErr(m) { errEl.textContent = m; errEl.hidden = !m; }
+
+    function fmt(seconds) {
+        var m = Math.floor(seconds / 60), s = seconds % 60;
+        return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }
+    function tick() {
+        remainingSeconds -= 1;
+        var timer = document.getElementById("examTimer");
+        timer.textContent = fmt(Math.max(0, remainingSeconds));
+        if (remainingSeconds <= 60) timer.classList.add("low");
+        if (remainingSeconds <= 0) { clearInterval(timerHandle); submitExam(true); }
+    }
+    async function logEvent(type) {
+        if (!attemptId || submitted) return;
+        try {
+            var d = await LearnHubAPI.logAssignmentEvent(assignmentId, attemptId, type);
+            if (d.tab_switches != null) tabSwitches = d.tab_switches;
+            if (d.flagged) flagged = true;
+        } catch (e) { /* logging must never break the exam itself */ }
+        document.getElementById("tabSwitchCount").textContent = tabSwitches;
+        if (tabSwitches > 3 || flagged) {
+            document.getElementById("flaggedWarning").hidden = false;
+            document.getElementById("flagBadge").innerHTML = '<span class="badge badge-red">Flagged</span>';
+        }
+    }
+    async function submitExam(auto) {
+        if (submitted || !attemptId) return;
+        submitted = true;
+        clearInterval(timerHandle);
+        var code = document.getElementById("codeEditor").value;
+        var noteEl = document.getElementById("submitNote");
+        var subErr = document.getElementById("submitError");
+        subErr.hidden = true;
+        try {
+            var d = await LearnHubAPI.submitAssignment(assignmentId, attemptId, code);
+            document.getElementById("examLive").hidden = true;
+            document.getElementById("examResult").hidden = false;
+            document.getElementById("resultTitle").textContent = auto ? "Time up — auto-submitted" : "Assignment submitted";
+            document.getElementById("resultBody").innerHTML =
+                "Score: <strong>" + esc(d.score) + " / " + esc(d.total_marks) + "</strong>" +
+                (d.flagged ? "<br>⚠️ This attempt was flagged for review (tab switches / copy-paste activity)." : "") +
+                (d.message ? "<br>" + esc(d.message) : "");
+        } catch (e) {
+            submitted = false;
+            subErr.textContent = "Could not submit: " + (e.message || "") + " Please try again.";
+            subErr.hidden = false;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        if (!assignmentId) {
+            document.getElementById("examTitle").textContent = "No assignment selected";
+            showErr("Open this page from a course's Proctored Assignment button.");
+            return;
+        }
+        if (!localStorage.getItem("lh_token")) {
+            document.getElementById("signedOutBox").hidden = false;
+            document.getElementById("examTitle").textContent = "Sign in required";
+            return;
+        }
+        try {
+            assignment = await LearnHubAPI.getAssignment(assignmentId);
+        } catch (e) {
+            document.getElementById("examTitle").textContent = "Assignment not found";
+            showErr(e.message || "Could not load this assignment.");
+            return;
+        }
+        document.getElementById("examTitle").textContent = assignment.title;
+        document.getElementById("examMeta").textContent = "Assignment #" + assignment.id + (assignment.course_id ? " · Course #" + assignment.course_id : "");
+        document.getElementById("examDesc").textContent = assignment.description || "";
+        document.getElementById("examLang").textContent = assignment.language || "—";
+        document.getElementById("examDuration").textContent = (assignment.duration_minutes || 0) + " minutes";
+        document.getElementById("examMarks").textContent = assignment.total_marks || 0;
+        document.getElementById("editorLang").textContent = assignment.language || "code";
+        if (assignment.course_id) document.getElementById("backToCourseLink").href = "course-details.html?id=" + assignment.course_id;
+        document.getElementById("examIntro").hidden = false;
+
+        var editor = document.getElementById("codeEditor");
+        if (assignment.starter_code) editor.value = assignment.starter_code;
+
+        document.getElementById("startExamBtn").addEventListener("click", async function () {
+            var btn = this; btn.disabled = true; btn.textContent = "Starting…";
+            try {
+                var d = await LearnHubAPI.startAssignment(assignmentId);
+                attemptId = d.attempt_id;
+                remainingSeconds = (d.duration_minutes || assignment.duration_minutes || 30) * 60;
+                document.getElementById("examIntro").hidden = true;
+                document.getElementById("examLive").hidden = false;
+                document.getElementById("examTimer").textContent = fmt(remainingSeconds);
+                timerHandle = setInterval(tick, 1000);
+            } catch (e) {
+                if (e.status === 403) showErr("You are not enrolled in this course — enrol first, then start the assignment.");
+                else showErr(e.message || "Could not start the assignment.");
+                btn.disabled = false; btn.textContent = "Start Assignment";
+            }
+        });
+
+        // Proctoring: block + log copy/cut/paste/contextmenu on the editor.
+        ["copy", "cut", "paste"].forEach(function (type) {
+            editor.addEventListener(type, function (e) {
+                e.preventDefault();
+                logEvent(type);
+            });
+        });
+        editor.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            logEvent("rightclick");
+        });
+        // Tab switch (page hidden) + window blur are counted and sent live.
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) { tabSwitches += 1; logEvent("tab_switch"); }
+        });
+        window.addEventListener("blur", function () { logEvent("blur"); });
+
+        document.getElementById("submitExamBtn").addEventListener("click", function () { submitExam(false); });
+    });
+})();
+</script>
+
+</body>
+</html>

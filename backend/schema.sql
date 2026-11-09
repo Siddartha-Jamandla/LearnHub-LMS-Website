@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     email         TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     is_admin      INTEGER NOT NULL DEFAULT 0,   -- 1 = site admin (Gmail-admin)
+    email_verified INTEGER NOT NULL DEFAULT 0,  -- 1 = OTP verified
     created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -276,3 +277,113 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+
+-- ------------------------------------------------------------------
+-- Learn Hub (Nov 2026): OTP auth, personal notes, proctored
+-- assignments, mock payments, AI security shield + audit logs.
+-- ------------------------------------------------------------------
+
+-- OTP codes: only the SHA256 hash is stored, never the plain code.
+CREATE TABLE IF NOT EXISTS otp_codes (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    email      TEXT NOT NULL,
+    code_hash  TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    attempts   INTEGER NOT NULL DEFAULT 0,
+    used       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_otp_email ON otp_codes(email);
+
+-- Personal notes workspace: private per-user notes, optionally
+-- attached to a course / lesson.
+CREATE TABLE IF NOT EXISTS personal_notes (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title      TEXT NOT NULL DEFAULT '',
+    body       TEXT NOT NULL DEFAULT '',
+    course_id  INTEGER REFERENCES courses(id) ON DELETE SET NULL,
+    lesson_id  INTEGER REFERENCES lessons(id) ON DELETE SET NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_pnotes_user ON personal_notes(user_id);
+
+-- Proctored live assignments (one per flagship course, seeded).
+CREATE TABLE IF NOT EXISTS assignments (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    course_id         INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    title             TEXT NOT NULL,
+    description       TEXT NOT NULL DEFAULT '',
+    language          TEXT NOT NULL DEFAULT '',
+    starter_code      TEXT NOT NULL DEFAULT '',
+    duration_minutes  INTEGER NOT NULL DEFAULT 30,
+    total_marks       INTEGER NOT NULL DEFAULT 100,
+    expected_keywords TEXT NOT NULL DEFAULT '[]',
+    created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_assignments_course ON assignments(course_id);
+
+CREATE TABLE IF NOT EXISTS assignment_attempts (
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id            INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    assignment_id      INTEGER NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+    code               TEXT NOT NULL DEFAULT '',
+    tab_switches       INTEGER NOT NULL DEFAULT 0,
+    blur_events        INTEGER NOT NULL DEFAULT 0,
+    paste_attempts     INTEGER NOT NULL DEFAULT 0,
+    rightclick_attempts INTEGER NOT NULL DEFAULT 0,
+    started_at         TEXT NOT NULL DEFAULT (datetime('now')),
+    submitted_at       TEXT,
+    score              INTEGER,
+    flagged            INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (user_id, assignment_id, started_at)
+);
+CREATE INDEX IF NOT EXISTS idx_aattempt_user ON assignment_attempts(user_id);
+
+CREATE TABLE IF NOT EXISTS assignment_events (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    attempt_id  INTEGER NOT NULL REFERENCES assignment_attempts(id) ON DELETE CASCADE,
+    type        TEXT NOT NULL,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Mock/test-mode payments (gateway = razorpay-test-mock, NO real money).
+CREATE TABLE IF NOT EXISTS payments (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id         TEXT NOT NULL UNIQUE,
+    user_id          INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id        INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    amount           INTEGER NOT NULL,
+    currency         TEXT NOT NULL DEFAULT 'INR',
+    gateway          TEXT NOT NULL DEFAULT 'razorpay-test-mock',
+    gateway_order_id TEXT NOT NULL,
+    status           TEXT NOT NULL DEFAULT 'pending',
+    created_at       TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
+
+-- AI security shield: blocked / suspicious events.
+CREATE TABLE IF NOT EXISTS security_events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip         TEXT NOT NULL DEFAULT '',
+    user_id    INTEGER,
+    event_type TEXT NOT NULL,
+    severity   TEXT NOT NULL DEFAULT 'medium',
+    details    TEXT NOT NULL DEFAULT '',
+    blocked    INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_security_created ON security_events(created_at);
+
+-- Full audit log: logins, enrolments, payments, admin actions.
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER,
+    action     TEXT NOT NULL,
+    ip         TEXT NOT NULL DEFAULT '',
+    details    TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);

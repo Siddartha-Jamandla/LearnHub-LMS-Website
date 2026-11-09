@@ -13,6 +13,7 @@
     <title>Enrolment Successful - LearnHub</title>
 
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 
 </head>
 
@@ -65,6 +66,8 @@
             listed below.
         </p>
 
+        <div id="paymentInfo"></div>
+
         <div id="enrolledList"></div>
 
         <br>
@@ -103,10 +106,36 @@
     }
     document.addEventListener("DOMContentLoaded", async function () {
         var box = document.getElementById("enrolledList");
+        var payBox = document.getElementById("paymentInfo");
         updateCartCount();
+        var idsParam = new URLSearchParams(window.location.search).get("payment_ids");
+        var paymentIds = idsParam ? idsParam.split(",").filter(Boolean) : [];
         if (!localStorage.getItem("lh_token")) {
             box.innerHTML = '<p>Please <a href="login.html">sign in</a> to see your enrolments.</p>';
             return;
+        }
+        // Confirm paid status against the server (GET /api/payments/me).
+        try {
+            var payments = await LearnHubAPI.getMyPayments();
+            var mine = paymentIds.length
+                ? payments.filter(function (p) { return paymentIds.indexOf(String(p.id)) !== -1; })
+                : payments;
+            if (payBox) {
+                if (mine.length) {
+                    var total = mine.reduce(function (s, p) { return s + (Number(p.amount) || 0); }, 0);
+                    payBox.innerHTML = '<div class="test-mode-notice"><strong>🧪 TEST MODE — Razorpay test mock.</strong> No real money was charged.</div>' +
+                        "<ul>" + mine.map(function (p) {
+                            return "<li>Order <strong>" + esc(p.order_id || ("#" + p.id)) + "</strong> — " + esc(p.course_title || ("Course " + (p.course_id || ""))) +
+                                " — " + esc(formatPrice(p.amount)) + " " + esc(p.currency || "INR") + " — status: <strong>" + esc(p.status) + "</strong></li>";
+                        }).join("") + "</ul><p><strong>Total paid (test): " + esc(formatPrice(total)) + "</strong></p>";
+                } else if (paymentIds.length) {
+                    payBox.innerHTML = '<p>Payments are still being confirmed — check <a href="profile.html">your profile</a> for purchase history.</p>';
+                } else {
+                    payBox.innerHTML = '<div class="test-mode-notice"><strong>🧪 TEST MODE — Razorpay test mock.</strong> No real money was charged.</div>';
+                }
+            }
+        } catch (e) {
+            if (payBox) payBox.innerHTML = "<p>Could not confirm payment status: " + esc(e.message || "") + "</p>";
         }
         try {
             var courses = await LearnHubAPI.getMyCourses();

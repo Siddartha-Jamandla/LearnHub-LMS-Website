@@ -73,7 +73,8 @@
             }
             try {
                 const d = await window.LearnHubAPI.login(email, password);
-                showAuthNote(form, `Welcome back, ${d.user.name}! Redirecting...`);
+                if (d.otp_required) { showAuthNote(form, "Check your inbox/phone for the one-time code, then enter it to finish signing in."); return; }
+                showAuthNote(form, `Welcome back, ${d.user ? d.user.name : ""}! Redirecting...`);
                 setTimeout(() => { window.location.href = redirectTo || "index.html"; }, 800);
             } catch (err) {
                 showAuthError(form, err.message);
@@ -96,7 +97,8 @@
             }
             try {
                 const d = await window.LearnHubAPI.register(name, email, password);
-                showAuthNote(form, `Account created for ${d.user.name}! Redirecting...`);
+                if (d.otp_required) { showAuthNote(form, "Account created — check your inbox/phone for the one-time code, then enter it to finish signing in."); return; }
+                showAuthNote(form, `Account created for ${d.user ? d.user.name : ""}! Redirecting...`);
                 setTimeout(() => { window.location.href = redirectTo || "index.html"; }, 800);
             } catch (err) {
                 showAuthError(form, err.message);

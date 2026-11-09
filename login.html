@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - LearnHub</title>
+    <title>Login - Learn Hub</title>
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 </head>
 
 <body>
@@ -23,7 +24,7 @@
             <a href="contact.html" class="nav-link">Contact</a>
         </nav>
 
-        <div class="nav-actions">
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
             <a href="cart.html" class="nav-icon">
                 🛒
                 <span id="cart-count" class="cart-count">0</span>
@@ -44,39 +45,46 @@
 
         <h1>Welcome Back</h1>
 
-        <p>Sign in to continue learning.</p>
+        <p>Sign in to Learn Hub — by CareerPlus Co-Private Limited.</p>
 
+        <!-- Step 1: email + password -->
         <form id="login-form">
-
             <div class="form-group">
                 <label for="loginEmail">Email Address</label>
-
-                <input
-                    type="email"
-                    id="loginEmail"
-                    name="email"
-                    placeholder="Enter your email"
-                    required
-                >
+                <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
-
-                <input
-                    type="password"
-                    id="loginPassword"
-                    name="password"
-                    placeholder="Enter your password"
-                    required
-                >
+                <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
             </div>
 
-            <button type="submit" class="btn btn-primary form-submit">
+            <button type="submit" class="btn btn-primary form-submit" id="loginSubmitBtn">
                 Sign In
             </button>
-
+            <p class="auth-error" id="loginError" hidden></p>
+            <p class="auth-note" id="loginNote" hidden></p>
         </form>
+
+        <!-- Step 2: one-time code -->
+        <div id="otpStep" hidden>
+            <h2 style="text-align:center;margin-bottom:8px;">Enter your one-time code</h2>
+            <p style="text-align:center;color:var(--muted);">We sent a 6-digit code to <strong id="otpEmailLabel"></strong>. It expires in 10 minutes.</p>
+            <p style="text-align:center;"><button type="button" class="btn btn-outline btn-small" id="requestOtpBtn">Send / resend code</button></p>
+            <div class="otp-demo-box" id="demoOtpBox" hidden>
+                <div><strong>Demo mode — your code is:</strong></div>
+                <div class="otp-code" id="demoOtpCode"></div>
+                <small id="demoOtpNote"></small>
+            </div>
+            <div class="form-group">
+                <label for="otpInput">6-digit code</label>
+                <input type="text" id="otpInput" class="otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+            </div>
+            <button type="button" class="btn btn-primary form-submit" id="verifyOtpBtn">Verify &amp; Sign In</button>
+            <p class="auth-error" id="otpError" hidden></p>
+            <p class="auth-note" id="otpNote" hidden></p>
+            <p style="text-align:center;margin-top:14px;"><button type="button" class="btn btn-outline btn-small" id="backToLoginBtn">← Back to password</button></p>
+        </div>
 
         <div class="form-footer">
             Don't have an account?
@@ -87,18 +95,91 @@
 
 </section>
 
+<footer class="footer">
+    <div class="footer-bottom">
+        <div class="container">
+            <p>© 2026 Learn Hub by CareerPlus Co-Private Limited. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
 
-<script src="script.js"></script>
 <script src="js/api.js"></script>
-<script src="js/auth.js"></script>
+<script src="script.js"></script>
 <script>
-    // Real sign-in: server account via POST /api/login (js/auth.js).
-    // If you are already signed in, go straight to your dashboard.
-    if (window.LearnHubAuth && LearnHubAuth.isSignedIn()) {
-        window.location.href = "dashboard.html";
-    } else if (window.LearnHubAuth) {
-        LearnHubAuth.wireLoginForm("login-form", "dashboard.html");
+/* 2-step login: Step 1 POST /api/login (password) -> {otp_required:true}
+   Step 2 POST /api/auth/request-otp -> demo OTP shown on screen (demo mode
+   only; in production the code arrives by SMS/email) -> POST
+   /api/auth/verify-otp -> token stored, redirect to dashboard.
+   The OTP is never written to the console. */
+(function () {
+    "use strict";
+    if (localStorage.getItem("lh_token")) { window.location.href = "dashboard.html"; return; }
+    var email = "";
+    var form = document.getElementById("login-form");
+    var otpStep = document.getElementById("otpStep");
+    var loginError = document.getElementById("loginError");
+    var loginNote = document.getElementById("loginNote");
+    var otpError = document.getElementById("otpError");
+    var otpNote = document.getElementById("otpNote");
+    function show(el, msg) { el.textContent = msg; el.hidden = !msg; }
+    function friendly(err) {
+        if (err && err.status === 429) return "Too many attempts — please wait a few minutes and try again.";
+        if (err && err.status === 400) return err.message || "That code or email looks wrong — please check and try again.";
+        return (err && err.message) || "Something went wrong. Please try again.";
     }
+    function showOtpStep() {
+        form.hidden = true;
+        otpStep.hidden = false;
+        document.getElementById("otpEmailLabel").textContent = email;
+        show(otpError, ""); show(otpNote, "");
+    }
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        show(loginError, ""); show(loginNote, "");
+        email = document.getElementById("loginEmail").value.trim();
+        var password = document.getElementById("loginPassword").value;
+        if (!email || !password) { show(loginError, "Please enter your email and password."); return; }
+        var btn = document.getElementById("loginSubmitBtn");
+        btn.disabled = true; btn.textContent = "Signing in…";
+        try {
+            var d = await LearnHubAPI.login(email, password);
+            if (d.token) { window.location.href = "dashboard.html"; return; } // older backend: no OTP
+            if (d.otp_required) { showOtpStep(); await requestOtp(); return; }
+            show(loginError, "Unexpected response from the server. Please try again.");
+        } catch (err) { show(loginError, friendly(err)); }
+        finally { btn.disabled = false; btn.textContent = "Sign In"; }
+    });
+    async function requestOtp() {
+        show(otpError, ""); show(otpNote, "Sending your code…");
+        try {
+            var d = await LearnHubAPI.requestOtp(email);
+            // Demo mode: the backend returns the code so it can be shown on
+            // screen. In production it arrives by SMS/email instead.
+            if (d.demo_otp) {
+                document.getElementById("demoOtpCode").textContent = d.demo_otp;
+                document.getElementById("demoOtpNote").textContent = d.note || "Demo mode: in production this code arrives by SMS/email.";
+                document.getElementById("demoOtpBox").hidden = false;
+            }
+            show(otpNote, "Code sent" + (d.expires_in_seconds ? " — it expires in " + Math.round(d.expires_in_seconds / 60) + " minutes." : "."));
+        } catch (err) { show(otpError, friendly(err)); show(otpNote, ""); }
+    }
+    document.getElementById("requestOtpBtn").addEventListener("click", requestOtp);
+    document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
+        var code = document.getElementById("otpInput").value.trim();
+        if (!/^\d{6}$/.test(code)) { show(otpError, "Enter the 6-digit code."); return; }
+        show(otpError, "");
+        var btn = this; btn.disabled = true; btn.textContent = "Verifying…";
+        try {
+            var d = await LearnHubAPI.verifyOtp(email, code);
+            if (d.token) { show(otpNote, "Verified — redirecting to your dashboard…"); setTimeout(function () { window.location.href = "dashboard.html"; }, 600); }
+            else show(otpError, "Verification did not return a session. Please try again.");
+        } catch (err) { show(otpError, friendly(err)); }
+        finally { btn.disabled = false; btn.textContent = "Verify & Sign In"; }
+    });
+    document.getElementById("backToLoginBtn").addEventListener("click", function () {
+        otpStep.hidden = true; form.hidden = false;
+    });
+})();
 </script>
 
 </body>

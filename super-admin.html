@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<!-- HIDDEN PAGE — super-admin control panel.
+     Access: direct URL only + signed-in admin (siddarthajamandla@gmail.com).
+     NOT linked from any nav, footer, sitemap.xml, robots.txt or other page.
+     Non-admin visitors see a plain 404. Do not link this page anywhere. -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Super Admin - Learn Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+    <style>
+        .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+        .admin-sidebar { position: sticky; top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+        .admin-nav-btn { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; background: transparent; border-radius: 8px; font-size: .95rem; cursor: pointer; color: var(--text); }
+        .admin-nav-btn:hover { background: var(--surface-2); }
+        .admin-nav-btn.active { background: #eef2ff; color: #7c3aed; font-weight: 700; }
+        [data-theme="dark"] .admin-nav-btn.active { background: #1e1b4b; color: #c4b5fd; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+        .admin-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .admin-note { font-size: .85rem; color: var(--muted); }
+        .status-line { font-size: .85rem; color: var(--muted); margin-top: 8px; }
+        .status-line.error { color: #b91c1c; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-amber { background: #fef3c7; color: #92400e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-grey { background: #f1f5f9; color: #475569; }
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+        .toolbar input, .toolbar select, .toolbar textarea { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: .9rem; background: var(--surface); color: var(--text); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .table-wrap { overflow-x: auto; }
+        @media (max-width: 860px) { .admin-layout { grid-template-columns: 1fr; } .admin-sidebar { position: static; } .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+            <span class="admin-note">Super Admin · hidden panel</span>
+        </div>
+    </div>
+</header>
+
+<main class="section" id="superAdminMain" hidden>
+    <div class="container">
+        <span class="section-tag">Super Admin</span>
+        <h1>Super Admin Control Panel</h1>
+        <p class="admin-note" id="superAdminWho">Checking admin status…</p>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar">
+                <nav id="superAdminNav">
+                    <button class="admin-nav-btn active" data-section="courses" type="button">📚 Courses</button>
+                    <button class="admin-nav-btn" data-section="users" type="button">👥 Users</button>
+                    <button class="admin-nav-btn" data-section="security" type="button">🛡️ Security Center</button>
+                    <button class="admin-nav-btn" data-section="audit" type="button">📋 Audit Logs</button>
+                    <button class="admin-nav-btn" data-section="payments" type="button">💳 Payments &amp; Revenue</button>
+                    <button class="admin-nav-btn" data-section="attempts" type="button">📝 Assignment Attempts</button>
+                </nav>
+            </aside>
+
+            <div>
+                <!-- COURSES -->
+                <div class="admin-section active" id="section-courses">
+                    <h2>Courses</h2>
+                    <p class="admin-note">Full course control — create, edit and delete. Live data, no cache.</p>
+                    <div class="admin-card">
+                        <div class="toolbar"><button class="btn btn-primary btn-small" id="refreshCoursesBtn" type="button">Refresh</button></div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Price</th><th>Level</th><th>Instructor</th><th>Actions</th></tr></thead><tbody id="coursesBody"><tr><td colspan="7" class="admin-note">Loading…</td></tr></tbody></table></div>
+                        <p class="status-line" id="coursesStatus"></p>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Create course</h3>
+                        <form id="createCourseForm">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Title *</label><input id="ccTitle" required maxlength="200"></div>
+                                <div class="form-group"><label>Category</label><input id="ccCategory" maxlength="60"></div>
+                                <div class="form-group"><label>Price (₹)</label><input id="ccPrice" type="number" min="0" value="0"></div>
+                                <div class="form-group"><label>Level</label><select id="ccLevel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                                <div class="form-group"><label>Instructor</label><input id="ccInstructor" maxlength="100"></div>
+                                <div class="form-group"><label>Duration (hours)</label><input id="ccHours" type="number" min="0" value="0"></div>
+                            </div>
+                            <div class="form-group"><label>Description</label><textarea id="ccDesc" rows="3"></textarea></div>
+                            <button class="btn btn-primary" type="submit">Create Course</button>
+                        </form>
+                        <p class="status-line" id="courseFormStatus"></p>
+                    </div>
+                    <div class="admin-card" id="editCourseCard" hidden>
+                        <h3>Edit course <span id="editCourseIdLabel"></span></h3>
+                        <form id="editCourseForm">
+                            <input type="hidden" id="ecId">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Title *</label><input id="ecTitle" required maxlength="200"></div>
+                                <div class="form-group"><label>Category</label><input id="ecCategory" maxlength="60"></div>
+                                <div class="form-group"><label>Price (₹)</label><input id="ecPrice" type="number" min="0"></div>
+                                <div class="form-group"><label>Level</label><select id="ecLevel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                                <div class="form-group"><label>Instructor</label><input id="ecInstructor" maxlength="100"></div>
+                                <div class="form-group"><label>Duration (hours)</label><input id="ecHours" type="number" min="0"></div>
+                            </div>
+                            <div class="form-group"><label>Description</label><textarea id="ecDesc" rows="3"></textarea></div>
+                            <button class="btn btn-primary" type="submit">Save Changes</button>
+                            <button class="btn btn-outline" type="button" id="cancelEditBtn">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- USERS -->
+                <div class="admin-section" id="section-users">
+                    <h2>Users</h2>
+                    <p class="admin-note">Every registered learner — grant or revoke admin.</p>
+                    <div class="admin-card">
+                        <div class="toolbar">
+                            <input type="search" id="userSearch" placeholder="Search name or email…">
+                            <button class="btn btn-primary btn-small" id="refreshUsersBtn" type="button">Refresh</button>
+                        </div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Joined</th><th>Admin</th><th>Action</th></tr></thead><tbody id="usersBody"><tr><td colspan="6" class="admin-note">Loading…</td></tr></tbody></table></div>
+                        <p class="status-line" id="usersStatus"></p>
+                    </div>
+                </div>
+
+                <!-- SECURITY -->
+                <div class="admin-section" id="section-security">
+                    <h2>Security Center</h2>
+                    <p class="admin-note">Live security events, stats and the self-rectification error log. Real data only.</p>
+                    <div class="admin-card"><h3>Overview</h3><div id="secStats"><p class="admin-note">Loading…</p></div></div>
+                    <div class="admin-card"><h3>Security events</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>Type</th><th>Severity</th><th>Details</th><th>Blocked</th></tr></thead><tbody id="secEventsBody"><tr><td colspan="5" class="admin-note">Loading…</td></tr></tbody></table></div>
+                    </div>
+                    <div class="admin-card"><h3>Error detection &amp; self-rectification</h3>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>Type</th><th>Message</th><th>Auto-fixed</th><th>Fix action</th></tr></thead><tbody id="secErrorsBody"><tr><td colspan="5" class="admin-note">Loading…</td></tr></tbody></table></div>
+                        <p class="status-line" id="securityStatus"></p>
+                    </div>
+                </div>
+
+                <!-- AUDIT -->
+                <div class="admin-section" id="section-audit">
+                    <h2>Audit Logs</h2>
+                    <p class="admin-note">Who did what, when, from where.</p>
+                    <div class="admin-card">
+                        <div class="toolbar"><button class="btn btn-primary btn-small" id="refreshAuditBtn" type="button">Refresh</button></div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>User</th><th>Action</th><th>IP</th><th>Details</th></tr></thead><tbody id="auditBody"><tr><td colspan="5" class="admin-note">Loading…</td></tr></tbody></table></div>
+                        <p class="status-line" id="auditStatus"></p>
+                    </div>
+                </div>
+
+                <!-- PAYMENTS -->
+                <div class="admin-section" id="section-payments">
+                    <h2>Payments &amp; Revenue</h2>
+                    <p class="admin-note">Every payment (test-mode Razorpay mock) and total revenue.</p>
+                    <div class="admin-card">
+                        <h3>Total revenue: <span id="totalRevenue">—</span></h3>
+                        <div class="toolbar"><button class="btn btn-primary btn-small" id="refreshPaymentsBtn" type="button">Refresh</button></div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Order</th><th>User</th><th>Course</th><th>Amount</th><th>Status</th><th>When</th></tr></thead><tbody id="paymentsBody"><tr><td colspan="6" class="admin-note">Loading…</td></tr></tbody></table></div>
+                        <p class="status-line" id="paymentsStatus"></p>
+                    </div>
+                </div>
+
+                <!-- ATTEMPTS -->
+                <div class="admin-section" id="section-attempts">
+                    <h2>Assignment Attempts</h2>
+                    <p class="admin-note">Proctored assignment attempts — tab switches, blur, paste and flags.</p>
+                    <div class="admin-card">
+                        <div class="toolbar"><button class="btn btn-primary btn-small" id="refreshAttemptsBtn" type="button">Refresh</button></div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Learner</th><th>Assignment</th><th>Tab switches</th><th>Blur</th><th>Paste</th><th>Right-click</th><th>Score</th><th>Flagged</th><th>Submitted</th></tr></thead><tbody id="attemptsBody"><tr><td colspan="9" class="admin-note">Loading…</td></tr></tbody></table></div>
+                        <p class="status-line" id="attemptsStatus"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="script.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* Super-admin panel (hidden, direct URL + admin sign-in only).
+   Gate: read lh_token, fetch GET /api/me/admin-status; non-admin (or
+   signed-out) visitors get a plain 404 and nothing else is rendered. */
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>\"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function notFound() {
+        document.body.innerHTML = "<main style=\"min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;font-family:Arial,sans-serif;\"><div><h1>404 — Page not found</h1><p>The page you are looking for does not exist.</p></div></main>";
+        document.title = "404 — Page not found";
+    }
+    function statusEl(id, msg, isErr) {
+        var el = document.getElementById(id);
+        if (el) { el.textContent = msg || ""; el.classList.toggle("error", !!isErr); }
+    }
+    var api = window.LearnHubAPI;
+    var inr = function (n) { return "₹" + Number(n || 0).toLocaleString("en-IN"); };
+    var coursesCache = [];
+
+    async function loadCourses() {
+        statusEl("coursesStatus", "Loading…");
+        try {
+            var d = await api.getCourses({ per_page: 100 });
+            coursesCache = d || [];
+            document.getElementById("coursesBody").innerHTML = coursesCache.map(function (c) {
+                return "<tr><td>" + c.id + "</td><td>" + esc(c.title) + "</td><td>" + esc(c.category || "") + "</td><td>" + inr(c.price) + "</td><td>" + esc(c.level || "") + "</td><td>" + esc(c.instructor || "") + "</td>" +
+                    '<td><button class="btn btn-outline btn-small" data-edit-course="' + c.id + '" type="button">Edit</button> ' +
+                    '<button class="btn btn-danger btn-small" data-del-course="' + c.id + '" type="button">Delete</button></td></tr>';
+            }).join("") || '<tr><td colspan="7" class="admin-note">No courses yet.</td></tr>';
+            statusEl("coursesStatus", coursesCache.length + " course(s).");
+        } catch (e) { statusEl("coursesStatus", "Could not load courses: " + e.message, true); }
+    }
+    async function loadUsers() {
+        statusEl("usersStatus", "Loading…");
+        try {
+            var q = document.getElementById("userSearch").value.trim();
+            var d = await api.adminUsers(null, q || undefined);
+            var list = d.users || [];
+            document.getElementById("usersBody").innerHTML = list.map(function (u) {
+                return "<tr><td>" + u.id + "</td><td>" + esc(u.name) + "</td><td>" + esc(u.email) + "</td><td>" + esc(String(u.created_at || "").slice(0, 10)) + "</td>" +
+                    '<td>' + (u.is_admin ? '<span class="badge badge-blue">Admin</span>' : "—") + "</td>" +
+                    '<td><button class="btn btn-outline btn-small" data-role-user="' + u.id + '" data-make-admin="' + (u.is_admin ? "0" : "1") + '" type="button">' + (u.is_admin ? "Revoke admin" : "Make admin") + "</button></td></tr>";
+            }).join("") || '<tr><td colspan="6" class="admin-note">No users found.</td></tr>';
+            statusEl("usersStatus", list.length + " user(s).");
+        } catch (e) { statusEl("usersStatus", "Could not load users: " + e.message, true); }
+    }
+    function sevBadge(s) {
+        s = String(s || "").toLowerCase();
+        return '<span class="badge ' + (s === "high" || s === "critical" ? "badge-red" : s === "medium" ? "badge-amber" : "badge-grey") + '">' + esc(s || "—") + "</span>";
+    }
+    async function loadSecurity() {
+        statusEl("securityStatus", "Loading…");
+        try {
+            var stats = await api.adminSecurityStats(null);
+            var counts = stats.by_severity || {};
+            document.getElementById("secStats").innerHTML =
+                '<div class="stat-grid">' +
+                '<div class="stat-card"><div class="security-stat">' + (stats.total_events || 0) + '</div><div class="stat-label">Total events</div></div>' +
+                '<div class="stat-card"><div class="security-stat">' + (stats.blocked || 0) + '</div><div class="stat-label">Blocked</div></div>' +
+                '<div class="stat-card"><div class="security-stat">' + (stats.recent_24h || 0) + '</div><div class="stat-label">Last 24h</div></div>' +
+                '<div class="stat-card"><div class="security-stat">' + (stats.failed_logins_24h || 0) + '</div><div class="stat-label">Failed logins (24h)</div></div>' +
+                '<div class="stat-card"><div class="security-stat">' + (counts.high || 0) + '</div><div class="stat-label">High severity</div></div>' +
+                '<div class="stat-card"><div class="security-stat">' + (counts.medium || 0) + '</div><div class="stat-label">Medium severity</div></div>' +
+                "</div>";
+        } catch (e) { document.getElementById("secStats").innerHTML = "<p>Security stats are unavailable right now.</p>"; }
+        try {
+            var d = await api.adminSecurity(null, 50);
+            var events = d.events || [];
+            document.getElementById("secEventsBody").innerHTML = events.map(function (ev) {
+                return "<tr><td>" + esc(String(ev.created_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(ev.event_type) + "</td><td>" + sevBadge(ev.severity) + "</td><td>" + esc(ev.details || "") + "<br><small>" + esc(ev.ip || "") + "</small></td><td>" + (ev.blocked ? '<span class="badge badge-red">Blocked</span>' : "—") + "</td></tr>";
+            }).join("") || '<tr><td colspan="5" class="admin-note">No security events logged yet.</td></tr>';
+        } catch (e) { document.getElementById("secEventsBody").innerHTML = '<tr><td colspan="5" class="admin-note">Security events are unavailable right now.</td></tr>'; }
+        try {
+            var errs = await api.adminErrors(null);
+            var list = errs.errors || [];
+            document.getElementById("secErrorsBody").innerHTML = list.map(function (er) {
+                return "<tr><td>" + esc(String(er.occurred_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(er.error_type) + "</td><td>" + esc(er.message) + "</td><td>" + (er.auto_fixed ? '<span class="badge badge-green">Auto-fixed</span>' : '<span class="badge badge-grey">Not fixed</span>') + "</td><td>" + esc(er.fix_action || "—") + "</td></tr>";
+            }).join("") || '<tr><td colspan="5" class="admin-note">No errors detected yet.</td></tr>';
+            statusEl("securityStatus", "");
+        } catch (e) { document.getElementById("secErrorsBody").innerHTML = '<tr><td colspan="5" class="admin-note">Error log is unavailable right now.</td></tr>'; }
+    }
+    async function loadAudit() {
+        statusEl("auditStatus", "Loading…");
+        try {
+            var d = await api.adminAuditLogs(null, 50);
+            var logs = d.logs || [];
+            document.getElementById("auditBody").innerHTML = logs.map(function (l) {
+                return "<tr><td>" + esc(String(l.created_at || "").slice(0, 16).replace("T", " ")) + "</td><td>" + esc(l.user_email || ("user " + (l.user_id || "—"))) + "</td><td>" + esc(l.action) + "</td><td>" + esc(l.ip || "—") + "</td><td>" + esc(l.details || "") + "</td></tr>";
+            }).join("") || '<tr><td colspan="5" class="admin-note">No audit logs yet.</td></tr>';
+            statusEl("auditStatus", "");
+        } catch (e) { statusEl("auditStatus", "Could not load audit logs: " + e.message, true); }
+    }
+    async function loadPayments() {
+        statusEl("paymentsStatus", "Loading…");
+        try {
+            var d = await api.adminPayments(null);
+            var list = d.payments || [];
+            document.getElementById("totalRevenue").textContent = inr(d.total_revenue || 0);
+            document.getElementById("paymentsBody").innerHTML = list.map(function (p) {
+                return "<tr><td>" + esc(p.order_id || ("#" + p.id)) + "</td><td>" + esc(p.user_email || ("user " + (p.user_id || "—"))) + "</td><td>" + esc(p.course_title || ("Course " + (p.course_id || "—"))) + "</td><td>" + inr(p.amount) + " " + esc(p.currency || "INR") + "</td><td>" + esc(p.status) + "</td><td>" + esc(String(p.created_at || "").slice(0, 10)) + "</td></tr>";
+            }).join("") || '<tr><td colspan="6" class="admin-note">No payments yet.</td></tr>';
+            statusEl("paymentsStatus", "");
+        } catch (e) { statusEl("paymentsStatus", "Could not load payments: " + e.message, true); }
+    }
+    async function loadAttempts() {
+        statusEl("attemptsStatus", "Loading…");
+        try {
+            var d = await api.adminAssignmentAttempts(null);
+            var list = d.attempts || [];
+            document.getElementById("attemptsBody").innerHTML = list.map(function (a) {
+                return "<tr><td>" + esc(a.user_email || ("user " + (a.user_id || "—"))) + "</td><td>" + esc(a.assignment_title || ("Assignment " + (a.assignment_id || "—"))) + "</td><td>" + (a.tab_switches || 0) + "</td><td>" + (a.blur_events || 0) + "</td><td>" + (a.paste_attempts || 0) + "</td><td>" + (a.rightclick_attempts || 0) + "</td><td>" + (a.score == null ? "—" : a.score) + "</td><td>" + (a.flagged ? '<span class="badge badge-red">Flagged</span>' : "—") + "</td><td>" + esc(String(a.submitted_at || "").slice(0, 16).replace("T", " ")) + "</td></tr>";
+            }).join("") || '<tr><td colspan="9" class="admin-note">No assignment attempts yet.</td></tr>';
+            statusEl("attemptsStatus", "");
+        } catch (e) { statusEl("attemptsStatus", "Could not load attempts: " + e.message, true); }
+    }
+
+    var loaders = { courses: loadCourses, users: loadUsers, security: loadSecurity, audit: loadAudit, payments: loadPayments, attempts: loadAttempts };
+    document.getElementById("superAdminNav").addEventListener("click", function (e) {
+        var btn = e.target.closest(".admin-nav-btn");
+        if (!btn) return;
+        document.querySelectorAll(".admin-nav-btn").forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        document.querySelectorAll(".admin-section").forEach(function (s) { s.classList.remove("active"); });
+        document.getElementById("section-" + btn.dataset.section).classList.add("active");
+        if (loaders[btn.dataset.section]) loaders[btn.dataset.section]();
+    });
+    document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
+    document.getElementById("refreshUsersBtn").addEventListener("click", loadUsers);
+    document.getElementById("refreshAuditBtn").addEventListener("click", loadAudit);
+    document.getElementById("refreshPaymentsBtn").addEventListener("click", loadPayments);
+    document.getElementById("refreshAttemptsBtn").addEventListener("click", loadAttempts);
+    document.getElementById("userSearch").addEventListener("input", function () { loadUsers(); });
+    document.getElementById("coursesBody").addEventListener("click", async function (e) {
+        var editBtn = e.target.closest("[data-edit-course]");
+        var delBtn = e.target.closest("[data-del-course]");
+        if (editBtn) {
+            var c = coursesCache.find(function (x) { return String(x.id) === editBtn.dataset.editCourse; });
+            if (!c) return;
+            document.getElementById("editCourseCard").hidden = false;
+            document.getElementById("editCourseIdLabel").textContent = "#" + c.id;
+            document.getElementById("ecId").value = c.id;
+            document.getElementById("ecTitle").value = c.title || "";
+            document.getElementById("ecCategory").value = c.category || "";
+            document.getElementById("ecPrice").value = c.price || 0;
+            document.getElementById("ecLevel").value = c.level || "Beginner";
+            document.getElementById("ecInstructor").value = c.instructor || "";
+            document.getElementById("ecHours").value = c.duration_hours || 0;
+            document.getElementById("ecDesc").value = c.description || "";
+            document.getElementById("editCourseCard").scrollIntoView({ behavior: "smooth" });
+        }
+        if (delBtn) {
+            if (!confirm("Delete this course? This cannot be undone.")) return;
+            try { await api.adminDeleteCourse(null, delBtn.dataset.delCourse); loadCourses(); }
+            catch (err) { statusEl("coursesStatus", err.message, true); }
+        }
+    });
+    document.getElementById("cancelEditBtn").addEventListener("click", function () {
+        document.getElementById("editCourseCard").hidden = true;
+    });
+    document.getElementById("createCourseForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        try {
+            await api.adminCreateCourse(null, {
+                title: document.getElementById("ccTitle").value.trim(),
+                category: document.getElementById("ccCategory").value.trim(),
+                price: Number(document.getElementById("ccPrice").value) || 0,
+                level: document.getElementById("ccLevel").value,
+                instructor: document.getElementById("ccInstructor").value.trim(),
+                duration_hours: Number(document.getElementById("ccHours").value) || 0,
+                description: document.getElementById("ccDesc").value.trim(),
+            });
+            statusEl("courseFormStatus", "Course created.");
+            e.target.reset();
+            loadCourses();
+        } catch (err) { statusEl("courseFormStatus", err.message, true); }
+    });
+    document.getElementById("editCourseForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        try {
+            await api.adminUpdateCourse(null, document.getElementById("ecId").value, {
+                title: document.getElementById("ecTitle").value.trim(),
+                category: document.getElementById("ecCategory").value.trim(),
+                price: Number(document.getElementById("ecPrice").value) || 0,
+                level: document.getElementById("ecLevel").value,
+                instructor: document.getElementById("ecInstructor").value.trim(),
+                duration_hours: Number(document.getElementById("ecHours").value) || 0,
+                description: document.getElementById("ecDesc").value.trim(),
+            });
+            statusEl("courseFormStatus", "Course updated.");
+            document.getElementById("editCourseCard").hidden = true;
+            loadCourses();
+        } catch (err) { statusEl("courseFormStatus", err.message, true); }
+    });
+    document.getElementById("usersBody").addEventListener("click", async function (e) {
+        var btn = e.target.closest("[data-role-user]");
+        if (!btn) return;
+        try {
+            await api.setUserRole(null, btn.dataset.roleUser, btn.dataset.makeAdmin === "1");
+            loadUsers();
+        } catch (err) { statusEl("usersStatus", err.message, true); }
+    });
+
+    // Gate: admin only. No token or not admin -> plain 404, nothing rendered.
+    (async function boot() {
+        if (!localStorage.getItem("lh_token")) { notFound(); return; }
+        var d;
+        try { d = await api.adminStatus(); }
+        catch (e) { notFound(); return; }
+        if (!d || !d.is_admin) { notFound(); return; }
+        document.getElementById("superAdminWho").textContent = "Signed in as admin: " + (d.name ? d.name + " (" + d.email + ")" : d.email);
+        document.getElementById("superAdminMain").hidden = false;
+        loadCourses();
+    })();
+})();
+</script>
+
+</body>
+</html>

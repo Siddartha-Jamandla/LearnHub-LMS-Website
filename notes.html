@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your private personal notes on Learn Hub — search, create, edit and delete notes for your courses.">
+    <title>My Notes - Learn Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+</head>
+<body>
+
+<header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">Learn<span>Hub</span></a>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="courses.html" class="nav-link">Courses</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="my-courses.html" class="nav-link">My Courses</a>
+            <a href="notes.html" class="nav-link active">My Notes</a>
+        </nav>
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+            <a href="cart.html" class="nav-icon">🛒<span id="cart-count" class="cart-count">0</span></a>
+            <a href="profile.html" class="btn btn-outline">Profile</a>
+        </div>
+    </div>
+</header>
+
+<main class="section">
+    <div class="container">
+        <span class="section-tag">Personal Notes</span>
+        <h1>My Notes</h1>
+        <p>Your private notes — only you can see them. Search, create, edit and delete.</p>
+
+        <div id="signedOutBox" class="empty-state" hidden>
+            <h2>Sign in to see your notes</h2>
+            <p>Notes are saved to your account.</p>
+            <a href="login.html" class="btn btn-primary">Sign In</a>
+        </div>
+
+        <div id="notesApp" hidden>
+            <div class="search-area" style="margin-top:20px;">
+                <div class="search-box" style="grid-template-columns: 2fr auto;">
+                    <input type="search" id="noteSearch" placeholder="Search your notes…" aria-label="Search notes">
+                    <button type="button" class="btn btn-primary" id="newNoteBtn">+ New Note</button>
+                </div>
+            </div>
+            <p id="notesStatus" class="status-line"></p>
+
+            <div class="notes-layout">
+                <div id="notesList"><p>Loading your notes…</p></div>
+
+                <div class="profile-card" id="editorCard">
+                    <h2 id="editorTitle">New note</h2>
+                    <form id="noteForm">
+                        <input type="hidden" id="noteId">
+                        <div class="form-group">
+                            <label for="noteTitle">Title</label>
+                            <input type="text" id="noteTitle" placeholder="Note title" required maxlength="200">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteCourse">Course (optional)</label>
+                            <select id="noteCourse"><option value="">No course</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="noteBody">Note</label>
+                            <textarea id="noteBody" rows="12" placeholder="Write your note here…" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="saveNoteBtn">Save Note</button>
+                        <button type="button" class="btn btn-outline" id="clearEditorBtn">Clear</button>
+                        <button type="button" class="btn btn-danger btn-small" id="deleteNoteBtn" hidden>Delete</button>
+                        <p class="auth-error" id="noteError" hidden></p>
+                        <p class="auth-note" id="noteSaved" hidden></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p style="margin-top:24px"><a href="dashboard.html" class="btn btn-outline">← Back to Dashboard</a>
+        <a href="profile.html" class="btn btn-outline">My Profile</a></p>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer-bottom">
+        <div class="container">
+            <p>© 2026 Learn Hub by CareerPlus Co-Private Limited. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* Personal Notes workspace — GET/POST/PUT/DELETE /api/me/notes.
+   Course picker is populated from GET /api/my-courses (enrolled courses). */
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>\"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    var notes = [];
+    var selectedId = null;
+    var statusEl = document.getElementById("notesStatus");
+    var listEl = document.getElementById("notesList");
+    var errEl = document.getElementById("noteError");
+    var savedEl = document.getElementById("noteSaved");
+    function showErr(m) { errEl.textContent = m; errEl.hidden = !m; }
+    function showSaved(m) { savedEl.textContent = m; savedEl.hidden = !m; }
+
+    function renderList() {
+        if (!notes.length) {
+            listEl.innerHTML = '<div class="empty-state"><h2>No notes yet</h2><p>Write your first note — revision summaries, tricky concepts, anything.</p></div>';
+            return;
+        }
+        listEl.innerHTML = notes.map(function (n) {
+            return '<div class="note-card' + (String(n.id) === String(selectedId) ? " active" : "") + '" data-note-id="' + n.id + '">' +
+                "<h3>" + esc(n.title) + "</h3>" +
+                "<p>" + esc((n.body || "").slice(0, 160)) + ((n.body || "").length > 160 ? "…" : "") + "</p>" +
+                '<small>' + esc((n.updated_at || "").slice(0, 10)) + "</small></div>";
+        }).join("");
+        listEl.querySelectorAll(".note-card").forEach(function (card) {
+            card.addEventListener("click", function () { openNote(Number(card.dataset.noteId)); });
+        });
+    }
+    function openNote(id) {
+        var n = notes.find(function (x) { return Number(x.id) === id; });
+        if (!n) return;
+        selectedId = id;
+        document.getElementById("noteId").value = n.id;
+        document.getElementById("noteTitle").value = n.title || "";
+        document.getElementById("noteBody").value = n.body || "";
+        document.getElementById("noteCourse").value = n.course_id ? String(n.course_id) : "";
+        document.getElementById("editorTitle").textContent = "Edit note";
+        document.getElementById("deleteNoteBtn").hidden = false;
+        showErr(""); showSaved("");
+        renderList();
+    }
+    function clearEditor() {
+        selectedId = null;
+        document.getElementById("noteId").value = "";
+        document.getElementById("noteTitle").value = "";
+        document.getElementById("noteBody").value = "";
+        document.getElementById("noteCourse").value = "";
+        document.getElementById("editorTitle").textContent = "New note";
+        document.getElementById("deleteNoteBtn").hidden = true;
+        showErr(""); showSaved("");
+        renderList();
+    }
+    async function loadNotes(q) {
+        statusEl.textContent = "Loading…";
+        try {
+            notes = await LearnHubAPI.getMyNotes(q || "");
+            statusEl.textContent = notes.length ? notes.length + (notes.length === 1 ? " note" : " notes") : "";
+            renderList();
+        } catch (e) {
+            statusEl.textContent = "Could not load your notes: " + (e.message || "");
+            listEl.innerHTML = "<p>Notes are unavailable right now.</p>";
+        }
+    }
+    async function loadCourses() {
+        try {
+            var courses = await LearnHubAPI.getMyCourses();
+            var sel = document.getElementById("noteCourse");
+            courses.forEach(function (c) {
+                var opt = document.createElement("option");
+                opt.value = c.id; opt.textContent = c.title;
+                sel.appendChild(opt);
+            });
+        } catch (e) { /* course picker stays optional */ }
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        if (!localStorage.getItem("lh_token")) {
+            document.getElementById("signedOutBox").hidden = false;
+            return;
+        }
+        document.getElementById("notesApp").hidden = false;
+        loadNotes();
+        loadCourses();
+        var searchTimer = null;
+        document.getElementById("noteSearch").addEventListener("input", function (e) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function () { loadNotes(e.target.value.trim()); }, 300);
+        });
+        document.getElementById("newNoteBtn").addEventListener("click", clearEditor);
+        document.getElementById("clearEditorBtn").addEventListener("click", clearEditor);
+        document.getElementById("noteForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            showErr(""); showSaved("");
+            var title = document.getElementById("noteTitle").value.trim();
+            var body = document.getElementById("noteBody").value.trim();
+            var courseVal = document.getElementById("noteCourse").value;
+            if (!title || !body) { showErr("Title and note text are both required."); return; }
+            var btn = document.getElementById("saveNoteBtn");
+            btn.disabled = true; btn.textContent = "Saving…";
+            try {
+                var payload = { title: title, body: body };
+                if (courseVal) payload.course_id = Number(courseVal);
+                if (selectedId) {
+                    await LearnHubAPI.updateMyNote(selectedId, payload);
+                    showSaved("Note updated.");
+                } else {
+                    var created = await LearnHubAPI.createMyNote(payload);
+                    if (created) selectedId = created.id;
+                    showSaved("Note saved.");
+                }
+                await loadNotes(document.getElementById("noteSearch").value.trim());
+                if (selectedId) openNote(Number(selectedId));
+            } catch (err) { showErr(err.message || "Could not save the note."); }
+            finally { btn.disabled = false; btn.textContent = "Save Note"; }
+        });
+        document.getElementById("deleteNoteBtn").addEventListener("click", async function () {
+            if (!selectedId || !confirm("Delete this note? This cannot be undone.")) return;
+            try {
+                await LearnHubAPI.deleteMyNote(selectedId);
+                clearEditor();
+                await loadNotes(document.getElementById("noteSearch").value.trim());
+            } catch (err) { showErr(err.message || "Could not delete the note."); }
+        });
+    });
+})();
+</script>
+
+</body>
+</html>

@@ -1,4 +1,66 @@
 /* =========================================================
+   LEARN HUB — theme (lh_theme, default dark) + flagship tracks
+   ========================================================= */
+(function () {
+    "use strict";
+    if (!window.__lhThemeInit) {
+        window.__lhThemeInit = true;
+        try {
+            document.documentElement.setAttribute("data-theme", localStorage.getItem("lh_theme") || "dark");
+        } catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+    }
+    function wireThemeToggles() {
+        var cur = document.documentElement.getAttribute("data-theme") || "dark";
+        document.querySelectorAll(".theme-toggle").forEach(function (btn) {
+            btn.textContent = cur === "light" ? "☀️" : "🌙";
+            if (btn.dataset.lhWired) return;
+            btn.dataset.lhWired = "1";
+            btn.addEventListener("click", function () {
+                var next = (document.documentElement.getAttribute("data-theme") === "light") ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", next);
+                try { localStorage.setItem("lh_theme", next); } catch (e) { /* ignore */ }
+                document.querySelectorAll(".theme-toggle").forEach(function (b) { b.textContent = next === "light" ? "☀️" : "🌙"; });
+            });
+        });
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wireThemeToggles);
+    else wireThemeToggles();
+    window.lhWireThemeToggles = wireThemeToggles;
+})();
+
+/* Flagship tracks — the 5 flagship courses, in order, fetched live. */
+var FLAGSHIP_TRACKS = [
+    { id: 17, label: "C++" },
+    { id: 14, label: "DSA" },
+    { id: 3, label: "Python" },
+    { id: 15, label: "Java" },
+    { id: 1, label: "Web Development" },
+];
+async function renderFlagshipTracks(gridId) {
+    var grid = document.getElementById(gridId || "flagshipGrid");
+    if (!grid) return;
+    try {
+        var rows = window.LearnHubAPI
+            ? await LearnHubAPI.getCourses({ per_page: 50 })
+            : [];
+        var byId = {};
+        rows.forEach(function (c) { byId[c.id] = c; });
+        var ordered = FLAGSHIP_TRACKS.map(function (t) { return { track: t, course: byId[t.id] }; })
+            .filter(function (x) { return x.course; });
+        if (!ordered.length) { grid.innerHTML = "<p>Flagship tracks are unavailable right now.</p>"; return; }
+        grid.innerHTML = ordered.map(function (x) {
+            var c = x.course;
+            var card = (window.LearnHubUI && LearnHubUI.courseCard)
+                ? LearnHubUI.courseCard(c, { badge: "Flagship" })
+                : '<div class="course-card"><div class="course-content"><h3>' + c.title + '</h3><p>' + (c.description || "") + '</p><a class="btn btn-primary btn-small" href="course-details.html?id=' + c.id + '">View Course</a></div></div>';
+            return '<div><span class="flagship-badge">★ Flagship · ' + x.track.label + '</span>' + card + "</div>";
+        }).join("");
+    } catch (e) {
+        grid.innerHTML = "<p>Flagship tracks are unavailable right now.</p>";
+    }
+}
+
+/* =========================================================
    LEARNHUB LMS - COMMON JAVASCRIPT
    ========================================================= */
 
@@ -367,8 +429,25 @@ if (checkoutForm) {
         var btn = checkoutForm.querySelector('[type="submit"]');
         if (btn) { btn.disabled = true; btn.textContent = "Processing…"; }
         try {
-            await LearnHubAPI.checkout();
-            window.location.href = "payment-success.html";
+            var d = await LearnHubAPI.checkout();
+            var payments = (d && d.payments) || [];
+            var statusBox = document.getElementById("checkoutStatus");
+            if (statusBox) {
+                statusBox.hidden = false;
+                statusBox.innerHTML = '<div class="test-mode-notice"><strong>🧪 TEST MODE — Razorpay test mock (razorpay-test-mock).</strong> No real money is charged. ' +
+                    "Order total: <strong>" + formatPrice(d.total || 0) + " " + (d.currency || "INR") + "</strong>" +
+                    (d.payments && d.payments.length ? "<br>Gateway order(s): " + d.payments.map(function (p) { return p.gateway_order_id; }).join(", ") : "") +
+                    "<br>Verifying test payments…</div>";
+            }
+            var ids = [];
+            for (var i = 0; i < payments.length; i++) {
+                try {
+                    var v = await LearnHubAPI.verifyPayment(payments[i].id, payments[i].demo_signature);
+                    if (v && v.enrolled_course_ids) ids = ids.concat(v.enrolled_course_ids);
+                } catch (verErr) { /* keep going; success page re-checks paid status */ }
+            }
+            var pidParam = payments.map(function (p) { return p.id; }).join(",");
+            window.location.href = "payment-success.html" + (pidParam ? "?payment_ids=" + encodeURIComponent(pidParam) : "");
         } catch (e) {
             alert(e.message || "Checkout failed.");
             if (btn) { btn.disabled = false; btn.textContent = "Complete Enrolment"; }

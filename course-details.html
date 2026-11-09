@@ -58,7 +58,18 @@
 
 </nav>
 
-        <div class="nav-actions">
+            <a href="learning-paths.html" class="nav-link">
+                Learning Paths
+            </a>
+
+</nav>
+
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
+
+            <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
+                🔔
+                <span id="notifCount" class="notif-count" hidden>0</span>
+            </a>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
                 🔔
@@ -105,6 +116,14 @@
         </div>
         <div id="lessonList"></div>
         <p id="lessonNote"></p>
+    </div>
+</section>
+
+<section class="section" id="assignmentSection" hidden>
+    <div class="container">
+        <h2>Proctored Assignments</h2>
+        <p>Timed coding assignments with tab-switch and copy/paste monitoring.</p>
+        <div id="assignmentList"></div>
     </div>
 </section>
 
@@ -565,5 +584,261 @@
 })();
 </script>
 
+    function esc(s) { return UI ? UI.esc(s) : String(s == null ? "" : s); }
+    function stars(r) { return UI ? UI.stars(r) : ("★".repeat(Math.round(r || 0)) + "☆".repeat(5 - Math.round(r || 0))); }
+    function fmtDate(d) { return String(d || "").slice(0, 10); }
+
+    async function loadEnrolment() {
+        if (!signedIn || !window.LearnHubAPI) return;
+        try {
+            var enr = await LearnHubAPI.getEnrollments();
+            enrolled = enr.some(function (e) { return String(e.course.id) === String(courseId); });
+        } catch (e) { enrolled = false; }
+    }
+
+    async function loadReviews() {
+        if (!window.LearnHubAPI) { avgEl.innerHTML = "<small>Reviews are unavailable right now.</small>"; return; }
+        var reviews = [];
+        try { reviews = await LearnHubAPI.getReviews(courseId); }
+        catch (e) { avgEl.innerHTML = "<small>Reviews are unavailable right now.</small>"; return; }
+        // Real average + count from the single-course endpoint.
+        var avg = 0, count = reviews.length;
+        try {
+            var d = await LearnHubAPI.getCourse(courseId);
+            avg = d.avg_rating || 0;
+            count = d.review_count != null ? d.review_count : reviews.length;
+        } catch (e) {
+            if (reviews.length) avg = reviews.reduce(function (a, r) { return a + r.rating; }, 0) / reviews.length;
+        }
+        ratingLine = document.getElementById("courseRatingLine");
+        if (avg > 0) {
+            avgEl.innerHTML = '<span class="review-stars">' + esc(stars(avg)) + "</span> <strong>" + avg.toFixed(1) + "</strong> · " + count + " review" + (count === 1 ? "" : "s");
+            if (ratingLine) ratingLine.innerHTML = "⭐ " + avg.toFixed(1) + " (" + count + " review" + (count === 1 ? "" : "s") + ")";
+        } else {
+            avgEl.innerHTML = "<small>No reviews yet — be the first to review this course.</small>";
+            if (ratingLine) ratingLine.innerHTML = "No reviews yet";
+        }
+        myReview = myName ? reviews.find(function (r) { return r.user_name === myName; }) || null : null;
+        listEl.innerHTML = reviews.length ? reviews.map(function (r) {
+            var mine = myReview && r.id === myReview.id;
+            return '<article class="review-card">' +
+                '<p class="review-meta"><strong>' + esc(r.user_name) + "</strong>" +
+                (mine ? ' <span class="preview-badge">Your review</span>' : "") +
+                " · " + esc(fmtDate(r.created_at)) + "</p>" +
+                '<p><span class="review-stars">' + esc(stars(r.rating)) + "</span></p>" +
+                "<p>" + esc(r.comment || "") + "</p>" +
+                (mine ? '<p><button type="button" class="btn btn-outline btn-small" id="editReviewBtn">Edit</button> ' +
+                    '<button type="button" class="btn btn-outline btn-small" id="deleteReviewBtn">Delete</button></p>' : "") +
+                "</article>";
+        }).join("") : "<p>No reviews yet.</p>";
+        renderForm();
+        var editBtn = document.getElementById("editReviewBtn");
+        if (editBtn) editBtn.addEventListener("click", function () { renderForm(true); });
+        var delBtn = document.getElementById("deleteReviewBtn");
+        if (delBtn) delBtn.addEventListener("click", deleteReview);
+    }
+
+    function starInput(current) {
+        var html = '<div class="star-input" role="radiogroup" aria-label="Rating">';
+        for (var i = 1; i <= 5; i++) {
+            html += '<button type="button" data-star="' + i + '" class="' + (i <= current ? "on" : "") + '" aria-label="' + i + ' star' + (i > 1 ? "s" : "") + '">★</button>';
+        }
+        return html + "</div>";
+    }
+
+    function renderForm(editing) {
+        if (!signedIn) {
+            formWrap.innerHTML = '<p><a href="login.html" class="btn btn-outline">Sign in to review</a></p>';
+            return;
+        }
+        if (!enrolled) {
+            formWrap.innerHTML = "<p>Enrol in this course to write a review.</p>";
+            return;
+        }
+        if (myReview && !editing) {
+            formWrap.innerHTML = "<p>You have already reviewed this course — see your review above to edit or delete it.</p>";
+            return;
+        }
+        var current = editing && myReview ? myReview.rating : 5;
+        var comment = editing && myReview ? myReview.comment || "" : "";
+        formWrap.innerHTML =
+            '<form id="reviewForm" class="review-form">' +
+            "<h3>" + (editing ? "Edit your review" : "Write a review") + "</h3>" +
+            starInput(current) +
+            '<p><textarea id="reviewComment" rows="4" maxlength="2000" placeholder="What did you think of this course? (optional)">' + esc(comment) + "</textarea></p>" +
+            '<p><small><span id="reviewCharCount">' + comment.length + "</span>/2000 characters</small></p>" +
+            '<button type="submit" class="btn btn-primary">' + (editing ? "Save changes" : "Submit review") + "</button> " +
+            (editing ? '<button type="button" class="btn btn-outline" id="cancelEditBtn">Cancel</button> ' : "") +
+            '<span id="reviewStatus"></span></form>';
+        var chosen = current;
+        formWrap.querySelectorAll("[data-star]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                chosen = Number(btn.dataset.star);
+                formWrap.querySelectorAll("[data-star]").forEach(function (b) {
+                    b.classList.toggle("on", Number(b.dataset.star) <= chosen);
+                });
+            });
+        });
+        var ta = document.getElementById("reviewComment");
+        ta.addEventListener("input", function () {
+            document.getElementById("reviewCharCount").textContent = ta.value.length;
+        });
+        var cancel = document.getElementById("cancelEditBtn");
+        if (cancel) cancel.addEventListener("click", function () { renderForm(false); });
+        document.getElementById("reviewForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            var status = document.getElementById("reviewStatus");
+            status.textContent = "Saving…";
+            try {
+                if (editing && myReview) {
+                    await UI.lhApi("/api/reviews/" + myReview.id,
+                        { method: "PUT", body: { rating: chosen, comment: ta.value.trim() } });
+                } else {
+                    await LearnHubAPI.postReview(courseId, chosen, ta.value.trim());
+                }
+                status.textContent = "✓ Review saved.";
+                loadReviews();
+            } catch (err) {
+                if (err.status === 409) {
+                    // Already reviewed (server-side truth): reload and
+                    // show their review with Edit/Delete instead.
+                    status.textContent = "You have already reviewed this course.";
+                    loadReviews();
+                } else if (err.status === 404 && editing) {
+                    status.textContent = "Review editing is not available yet — please try again later.";
+                } else {
+                    status.textContent = "Could not save: " + err.message;
+                }
+            }
+        });
+    }
+
+    async function deleteReview() {
+        if (!myReview || !confirm("Delete your review?")) return;
+        try {
+            await UI.lhApi("/api/reviews/" + myReview.id, { method: "DELETE" });
+            loadReviews();
+        } catch (err) {
+            alert("Could not delete: " + (err.status === 404
+                ? "review deletion is not available yet — please try again later."
+                : err.message));
+        }
+    }
+
+    // ---- Final exam ----
+    var examSection = document.getElementById("examSection");
+    var examBox = document.getElementById("examBox");
+
+    async function loadExam() {
+        if (!signedIn || !enrolled || !UI) return; // exam is for enrolled learners
+        var data;
+        try { data = await UI.lhApi("/api/courses/" + courseId + "/final-exam"); }
+        catch (e) { return; } // 404 = no final exam for this course; 403 = not enrolled: hide
+        examSection.hidden = false;
+        var status = "";
+        // NOTE: best_score is the raw best mark (questions correct),
+        // not a percent — the exam samples 10 questions.
+        var total = (data.questions || []).length || 10;
+        if (data.passed) status = '<p>✅ <strong>Passed</strong> — best score ' + data.best_score + " / " + total + " correct</p>";
+        else if (data.best_score != null) status = "<p>Best score so far: <strong>" + data.best_score + " / " + total + " correct</strong> — not passed yet. You can retake it.</p>";
+        if (data.attempts) status += "<p><small>Attempts: " + data.attempts + "</small></p>";
+        examBox.innerHTML = status +
+            '<button type="button" class="btn btn-primary" id="startExamBtn">' +
+            (data.passed ? "Retake final exam" : "Take final exam") + "</button> " +
+            '<span id="examNote"></span>';
+        document.getElementById("startExamBtn").addEventListener("click", function () {
+            renderExam(data.questions || []);
+        });
+    }
+
+    function renderExam(questions) {
+        if (!questions.length) {
+            examBox.innerHTML = "<p>No final exam questions for this course yet.</p>";
+            return;
+        }
+        examBox.innerHTML = "<p>Answer all " + questions.length + " questions, then submit. You need 70% to pass.</p>" +
+            questions.map(function (q, i) {
+                return '<div class="exam-q"><p><strong>Q' + (i + 1) + ". " + esc(q.question) + "</strong></p>" +
+                    q.options.map(function (opt, oi) {
+                        return '<label><input type="radio" name="exam-q' + q.id + '" value="' + oi + '"> ' + esc(opt) + "</label>";
+                    }).join("") + "</div>";
+            }).join("") +
+            '<button type="button" class="btn btn-primary" id="submitExamBtn">Submit exam</button> <span id="examNote"></span>';
+        document.getElementById("submitExamBtn").addEventListener("click", async function () {
+            var answers = {};
+            var missing = 0;
+            questions.forEach(function (q) {
+                var picked = examBox.querySelector('input[name="exam-q' + q.id + '"]:checked');
+                if (picked) answers[q.id] = Number(picked.value);
+                else missing++;
+            });
+            var note = document.getElementById("examNote");
+            if (missing) { note.textContent = "Please answer all " + questions.length + " questions (" + missing + " left)."; return; }
+            note.textContent = "Submitting…";
+            try {
+                var res = await UI.lhApi("/api/courses/" + courseId + "/final-exam/submit",
+                    { method: "POST", body: { answers: answers } });
+                var certLink = "";
+                if (res.passed) {
+                    // Certificate unlocks at 100% course completion.
+                    try {
+                        var prog = await LearnHubAPI.getCourseProgress(courseId);
+                        if (prog.progress_percent >= 100 && prog.certificate_code) {
+                            var certs = await LearnHubAPI.getMyCertificates();
+                            var mine = certs.find(function (c) { return c.certificate_code === prog.certificate_code; });
+                            if (mine) certLink = ' <a href="certificate.html?id=' + mine.id + '" class="btn btn-primary">View certificate</a>';
+                        }
+                    } catch (e) { /* certificate link is a bonus, not required */ }
+                }
+                examBox.innerHTML =
+                    "<h3>" + (res.passed ? "🎉 You passed!" : "Not passed yet") + "</h3>" +
+                    "<p>You scored <strong>" + res.score + " / " + res.total + "</strong>" +
+                    (res.xp_awarded ? " — <strong>+" + res.xp_awarded + " XP</strong> earned." : ".") + "</p>" +
+                    (res.passed
+                        ? "<p>Final exam passed. " + (certLink || "Complete all lessons to unlock your certificate.") + "</p>"
+                        : "<p>You need 70% to pass — review the lessons and retake the exam.</p>") +
+                    '<button type="button" class="btn btn-outline" id="retakeExamBtn">Retake exam</button> ' +
+                    '<a href="course-details.html?id=' + courseId + '" class="btn btn-outline">Back to course</a>';
+                document.getElementById("retakeExamBtn").addEventListener("click", loadExam);
+            } catch (err) {
+                note.textContent = "Could not submit: " + err.message;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        await loadEnrolment();
+        loadReviews();
+        loadExam();
+    });
+})();
+</script>
+
+<script>
+/* Proctored assignments for this course: GET /api/courses/:id/assignments.
+   Shown to everyone; starting requires enrolment (exam.html handles 403). */
+(function () {
+    "use strict";
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    document.addEventListener("DOMContentLoaded", async function () {
+        var id = new URLSearchParams(window.location.search).get("id");
+        if (!id || !window.LearnHubAPI) return;
+        var box = document.getElementById("assignmentList");
+        var section = document.getElementById("assignmentSection");
+        if (!box || !section) return;
+        try {
+            var list = await LearnHubAPI.getCourseAssignments(id);
+            if (!list.length) return;
+            section.hidden = false;
+            box.innerHTML = list.map(function (a) {
+                return '<div class="exam-box"><h3>' + esc(a.title) + '</h3>' +
+                    '<p>' + esc(a.description || "") + '</p>' +
+                    '<p><small>Language: ' + esc(a.language || "—") + ' · ' + (a.duration_minutes || 0) + ' min · ' + (a.total_marks || 0) + ' marks</small></p>' +
+                    '<a class="btn btn-primary btn-small" href="exam.html?id=' + a.id + '">Proctored Assignment — Start</a></div>';
+            }).join("");
+        } catch (e) { /* no assignments for this course, or endpoint not live yet: keep hidden */ }
+    });
+})();
+</script>
 </body>
 </html>

@@ -14,6 +14,7 @@
     <title>Courses - LearnHub</title>
 
     <link rel="stylesheet" href="style.css">
+    <script>(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("lh_theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 
 </head>
 
@@ -56,7 +57,7 @@
 
 </nav>
 
-        <div class="nav-actions">
+        <div class="nav-actions"><button type="button" class="theme-toggle" title="Toggle dark / light theme" aria-label="Toggle dark or light theme">🌙</button>
 
             <a href="dashboard.html#notifications" class="nav-icon notif-bell" id="notifBell" title="Notifications" hidden>
                 🔔
@@ -102,6 +103,17 @@
 
 </section>
 
+
+<section class="section" id="flagshipSection">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Flagship tracks</span>
+            <h2>Flagship Tracks</h2>
+            <p>Our five flagship tracks — C++, DSA, Python, Java and Web Development.</p>
+        </div>
+        <div class="flagship-grid" id="flagshipGrid"><p>Loading flagship tracks…</p></div>
+    </div>
+</section>
 
 <section class="section">
 
@@ -208,7 +220,7 @@
             </a>
 
             <p>
-                Learn new skills and build your future.
+                Learn new skills and build your future — Learn Hub by CareerPlus Co-Private Limited.
             </p>
 
         </div>
@@ -250,7 +262,7 @@
         <div class="container">
 
             <p>
-                © 2026 LearnHub. All Rights Reserved.
+                © 2026 Learn Hub by CareerPlus Co-Private Limited. All Rights Reserved.
             </p>
 
         </div>
@@ -330,6 +342,7 @@
 
     window.renderCourses = renderCourses;
     document.addEventListener("DOMContentLoaded", function () {
+        if (typeof renderFlagshipTracks === "function") renderFlagshipTracks("flagshipGrid");
         renderCourses();
         document.getElementById("courseSearch").addEventListener("input", renderCourses);
         document.getElementById("categoryFilter").addEventListener("change", renderCourses);
