@@ -168,6 +168,10 @@
                         Highest Rated
                     </option>
 
+                    <option value="newest">
+                        Newest First
+                    </option>
+
                 </select>
 
 
@@ -316,6 +320,7 @@
         if (sort === "low") filtered.sort(function (a, b) { return a.price - b.price; });
         if (sort === "high") filtered.sort(function (a, b) { return b.price - a.price; });
         if (sort === "rating") filtered.sort(function (a, b) { return ratingOf(b) - ratingOf(a); });
+        if (sort === "newest") filtered.sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
         if (!filtered.length) {
             listEl.innerHTML = '<div class="empty-state"><h2>No Courses Found</h2><p>Try another search or category.</p></div>';
             return;

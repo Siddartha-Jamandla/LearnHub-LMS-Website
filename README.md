@@ -56,7 +56,8 @@ API. Fixed (all verified on a fresh temp DB after the fix):
   real signed-in user.
 - **courses.html** — rendered a stale static 12-course list (wrong
   titles/ids vs the 16 real courses) and sorted by a static rating. Now
-  fetches the live course list once and filters/sorts client-side.
+  fetches the live course list once and filters/sorts client-side — the
+  sort menu includes Newest First (by the course `created_at`).
 - **course-details.html** — the header (title/price/description) came from
   the static list while lessons/reviews/exam used the API, and Add to Cart /
   Add to Wishlist wrote to localStorage only. Header is now API-first with
