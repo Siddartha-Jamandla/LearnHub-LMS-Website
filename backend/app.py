@@ -2999,7 +2999,8 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             return
         conn = db()
         rows = conn.execute(
-            """SELECT e.id, e.progress_percent, e.enrolled_at, c.*
+            """SELECT e.id AS enrollment_id, e.progress_percent,
+                      e.enrolled_at, c.*
                FROM enrollments e JOIN courses c ON c.id = e.course_id
                WHERE e.user_id = ? ORDER BY e.enrolled_at DESC""",
             (user["id"],),
@@ -3008,7 +3009,7 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         out = []
         for r in rows:
             d = row_to_dict(r)
-            enrollment = {"id": d.pop("id"),
+            enrollment = {"id": d.pop("enrollment_id"),
                           "progress_percent": d.pop("progress_percent"),
                           "enrolled_at": d.pop("enrolled_at")}
             enrollment["course"] = d

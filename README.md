@@ -143,7 +143,7 @@ from `/api/register` or `/api/login`).
 | POST | `/api/cart` | token | `{course_id}` → add to cart |
 | DELETE | `/api/cart/:id` | token | Remove cart item |
 | POST | `/api/checkout` | token | Enrol in all cart courses, create order, clear cart |
-| GET | `/api/enrollments` | token | Enrolments with progress |
+| GET | `/api/enrollments` | token | Enrolments with progress — each item is `{id, progress_percent, enrolled_at, course{...}}` where `id` is the enrolment's own id and `course.id` is the course's id (the enrolment id is also what `PUT /api/enrollments/:id/progress` takes) |
 | DELETE | `/api/enrollments/:courseId` | token | Unenrol from a course (404 if not enrolled). Deletes your lesson progress for the course — a later re-enrolment starts fresh — but keeps any already-earned certificate (certificates are permanent) |
 | PUT | `/api/enrollments/:id/progress` | token | `{progress_percent: 0-100}` |
 | POST | `/api/lessons/:id/complete` | token | Mark a lesson complete; course progress auto-recomputes (idempotent). Includes `certificate {id, certificate_code}` when this completes the course |

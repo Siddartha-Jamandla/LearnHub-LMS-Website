@@ -227,7 +227,26 @@ artefacts, all re-verified in a second run:
   `GET /api/enrollments` returns the course object without its `id`
   (two `id` columns in the SELECT, `dict(row)` keeps one). Enrolment itself
   works. Worth a one-line fix in a follow-up.
+  **Fixed 2026-11-10** (`e.id AS enrollment_id`; see the 2026-11-10
+  enrolments section below).
 - Checkout is two-step by design (checkout → payment verify → enrolment):
   the old "checkout enrols immediately" behaviour is replaced by the
   mock-gateway flow. Old TEST_RESULTS rows describing the previous
   behaviour are historical.
+
+---
+
+## Daily upgrade — 2026-11-10 (IST): enrolments id fix
+
+`GET /api/enrollments` returned the wrong `id`: the query
+`SELECT e.id, ..., c.*` has two `id` columns and `dict(row)` kept the
+course id, so the enrolment id was the course id and the nested course
+had no `id` at all (the frontend `updateProgress(enrollmentId)` was
+therefore calling the wrong id). Fixed by aliasing
+`e.id AS enrollment_id`, mirroring `GET /api/my-courses`.
+
+Tested on a scratch DB from this commit's `backend/app.py` (port 8141,
+seeded fresh, OTP + test-mode checkout flow): **19 checks, all passing**.
+Enrolled in course 2 first (enrolment row id 1, course id 2): the API
+returned `id: 1` with `course.id: 2`, matching the `enrollments` table
+row, and `PUT /api/enrollments/1/progress` worked with the returned id.
