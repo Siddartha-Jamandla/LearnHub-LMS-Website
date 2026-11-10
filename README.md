@@ -282,7 +282,8 @@ updates the content without wiping enrolments or progress
 | Data Structures & Algorithms | 10 | 50 | 40 | 9 |
 | Java Programming Masterclass | 8 | 48 | 31 | 7 |
 | SQL Essentials: Queries to Databases | 8 | 48 | 31 | 7 |
-| **Total learning content** | **46** | **246** | **173** | **40** |
+| Complete Web Development Bootcamp | 6 | 30 | 6 | 0 |
+| **Total learning content** | **52** | **276** | **179** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key

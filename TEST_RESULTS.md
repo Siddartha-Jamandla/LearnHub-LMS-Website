@@ -276,3 +276,20 @@ body, SQLi in a request-OTP body and SQLi in a checkout body all return
 403 and appear in `GET /api/admin/security` as `(JSON body)` blocks; a
 normal checkout still returns 200 afterwards; a study note containing
 `DROP TABLE` is saved and searchable (not blocked).
+
+---
+
+## Daily upgrade — 2026-11-10 (IST): Web Development Bootcamp quiz bank
+
+`backend/content/webdev.json` adds the missing quiz bank for Complete Web
+Development Bootcamp (course 1): 6 lessons x 5 MCQs (30 questions), 1
+practice task per lesson and short lesson bodies, loaded by the existing
+`seed_content` loader (seed totals now 6 courses, 52 lessons, 276 MCQs,
+179 tasks). The final exam previously 404'd for this course ("This course
+has no quiz questions yet").
+
+Tested on a scratch DB (port 8143, same 35-check run as items 1-2):
+`GET /api/courses/1/final-exam` returns 10 questions with 4 options each
+and no answers; submitting the correct answers scores 10/10; lesson 1's
+quiz returns 5 questions. 11 courses still have no quiz bank (their final
+exams still 404 with the same message) — follow-up content work.
