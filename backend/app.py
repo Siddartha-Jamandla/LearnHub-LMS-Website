@@ -62,8 +62,8 @@ _FAILED_LOGINS = {}     # (ip, email) -> [epoch, ...] failed logins (10 min)
 _LOGIN_BLOCKS = {}      # (ip, email) -> blocked_until epoch
 
 # Threat-shield patterns scanned in URL path/query (and in auth/checkout
-# JSON bodies via _shield_scan_body). Deliberately narrow to avoid
-# false positives on ordinary text such as "C++" or lesson content.
+# JSON bodies — see _SHIELD_BODY_PATHS in _route). Deliberately narrow
+# to avoid false positives on ordinary text such as "C++" or lesson content.
 _SHIELD_PATTERNS = [
     (re.compile(r"union\s+select", re.I), "sql_injection"),
     (re.compile(r"drop\s+table", re.I), "sql_injection"),
@@ -85,6 +85,22 @@ def _shield_scan(text):
         if rx.search(text):
             return etype
     return None
+
+
+# Write endpoints whose JSON bodies the shield also scans: login /
+# register / OTP, checkout and payment verification. Other write
+# endpoints are NOT scanned — notes, assignments and reviews
+# legitimately contain code and study text (e.g. "DROP TABLE" in a
+# SQL student's notes) — and every query is parameterised, so the
+# database is protected without blocking ordinary text.
+_SHIELD_BODY_PATHS = ("/api/register", "/api/login", "/api/auth/",
+                      "/api/checkout", "/api/payments/")
+
+
+def _shield_body_path(path):
+    """True when a write to `path` should have its JSON body scanned."""
+    return any(path == p or (p.endswith("/") and path.startswith(p))
+               for p in _SHIELD_BODY_PATHS)
 
 
 def _log_security(conn, ip, user_id, event_type, severity, details, blocked):
@@ -521,11 +537,17 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         self._json(status, {"ok": False, "error": message})
 
     def _read_json(self):
-        length = int(self.headers.get("Content-Length", 0) or 0)
-        if not length:
-            return {}
+        # _route caches the raw body for auth/checkout writes (see the
+        # threat-shield body scan); reuse it instead of reading the
+        # socket a second time (the stream is already consumed).
+        raw = getattr(self, "_cached_body", None)
+        if raw is None:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+            if not length:
+                return {}
+            raw = self.rfile.read(length)
         try:
-            return json.loads(self.rfile.read(length).decode() or "{}")
+            return json.loads(raw.decode() or "{}")
         except (json.JSONDecodeError, UnicodeDecodeError):
             return {}
 
@@ -574,6 +596,27 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                         conn = db()
                         _log_security(conn, self._client_ip(), None, hit,
                                       "high", f"Blocked {method} {self.path[:300]}",
+                                      True)
+                        conn.close()
+                    except Exception:
+                        pass
+                    self._err(403, "Request blocked by the Learn Hub security shield")
+                    return
+
+            # Threat shield: scan JSON bodies on auth/checkout writes
+            # too. The raw body is read once here and cached for
+            # _read_json, so handlers still see it. Bodies on other
+            # endpoints are not scanned (see _SHIELD_BODY_PATHS).
+            if method in ("POST", "PUT") and _shield_body_path(path):
+                length = int(self.headers.get("Content-Length", 0) or 0)
+                raw = self.rfile.read(length) if length else b""
+                self._cached_body = raw
+                hit = _shield_scan(raw.decode("utf-8", "replace"))
+                if hit:
+                    try:
+                        conn = db()
+                        _log_security(conn, self._client_ip(), None, hit,
+                                      "high", f"Blocked {method} {self.path[:300]} (JSON body)",
                                       True)
                         conn.close()
                     except Exception:

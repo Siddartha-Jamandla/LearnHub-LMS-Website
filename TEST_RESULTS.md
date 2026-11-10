@@ -223,6 +223,10 @@ artefacts, all re-verified in a second run:
   handler) but does NOT scan JSON request bodies (`_shield_scan_body` is
   mentioned in a comment only). Parameterised queries still protect the DB;
   body scanning is a follow-up hardening item.
+  **Done 2026-11-10 for auth/checkout writes** (`/api/register`,
+  `/api/login`, `/api/auth/*`, `/api/checkout`, `/api/payments/*` — see
+  the 2026-11-10 shield section below). Bodies on other endpoints stay
+  unscanned by design.
 - Pre-existing bug (found by the Learn Hub build, not the merge):
   `GET /api/enrollments` returns the course object without its `id`
   (two `id` columns in the SELECT, `dict(row)` keeps one). Enrolment itself
@@ -250,3 +254,25 @@ seeded fresh, OTP + test-mode checkout flow): **19 checks, all passing**.
 Enrolled in course 2 first (enrolment row id 1, course id 2): the API
 returned `id: 1` with `course.id: 2`, matching the `enrollments` table
 row, and `PUT /api/enrollments/1/progress` worked with the returned id.
+
+---
+
+## Daily upgrade — 2026-11-10 (IST): shield scans auth/checkout JSON bodies
+
+The code comment claimed JSON bodies were scanned via `_shield_scan_body`,
+but no such scan existed — only the URL path/query was scanned. Now
+`_route` reads the raw body once for POST/PUT to `/api/register`,
+`/api/login`, `/api/auth/*`, `/api/checkout` and `/api/payments/*`, scans
+it with the same patterns, blocks with 403 + a `security_events` row, and
+caches it for `_read_json`. Bodies on other endpoints are deliberately
+NOT scanned: notes, assignments and reviews legitimately contain code and
+study text (a SQL student's note can say `DROP TABLE`), and all queries
+are parameterised.
+
+Tested on a scratch DB from this commit's `backend/app.py` (port 8143):
+**35 checks, all passing** (same run also covers the item-1 enrolments
+fix and the item-3 quiz bank). SQLi in a register body, XSS in a login
+body, SQLi in a request-OTP body and SQLi in a checkout body all return
+403 and appear in `GET /api/admin/security` as `(JSON body)` blocks; a
+normal checkout still returns 200 afterwards; a study note containing
+`DROP TABLE` is saved and searchable (not blocked).

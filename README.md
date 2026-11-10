@@ -334,6 +334,17 @@ per page. Summary:
 Python · JavaScript · SQL (SQLite) · HTML5/CSS3 - everything in this repo is
 built from these, with zero third-party dependencies.
 
+## Security shield
+
+Every `/api/` request has its URL path + query scanned for SQL-injection,
+XSS and path-traversal patterns (`UNION SELECT`, `DROP TABLE`, `<script>`,
+`../`, ...); matches are blocked with 403 and logged to `security_events`
+(admin: `GET /api/admin/security`). JSON bodies on auth/checkout writes
+(`POST /api/register`, `/api/login`, `/api/auth/*`, `/api/checkout`,
+`/api/payments/*`) are scanned the same way. Bodies on other endpoints
+are not scanned — notes, assignments and reviews legitimately contain
+code and study text — and all database queries are parameterised.
+
 ## Test results
 
 See [TEST_RESULTS.md](TEST_RESULTS.md) for the verified local test run
