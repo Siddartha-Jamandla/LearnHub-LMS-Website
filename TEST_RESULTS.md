@@ -312,3 +312,24 @@ scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
 verified the Machine Learning and Deep Learning banks (separate
 commits) and the pre-existing Python bank (50 MCQs, still 10/10).
+
+---
+
+## Daily upgrade — 2026-11-13 (IST): Deep Learning quiz bank
+
+`backend/content/deep-learning.json` adds the missing quiz bank for
+Deep Learning & Neural Networks (course 5): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals now
+8 courses, 64 lessons, 336 MCQs, 191 tasks). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+Course 3 (Python) already had a full bank live (10 lessons, 50 MCQs),
+so this run built the next uncovered course instead of overwriting it.
+
+Tested on a scratch DB (port 8151, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/5/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
+verified the JavaScript and Machine Learning banks (separate commits)
+and the pre-existing Python bank (50 MCQs, still 10/10).

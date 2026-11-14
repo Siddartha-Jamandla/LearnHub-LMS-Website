@@ -1,0 +1,459 @@
+{
+  "course": {
+    "match_title": "Deep Learning & Neural Networks",
+    "title": "Deep Learning & Neural Networks",
+    "description": "Build neural networks from scratch and with Keras - CNNs, RNNs and practical projects.",
+    "category": "AI & ML",
+    "price": 1799,
+    "instructor": "Arjun Reddy",
+    "duration_hours": 24,
+    "level": "Advanced",
+    "image_url": "assets/images/course5.svg"
+  },
+  "lessons": [
+    {
+      "title": "Neural Network Fundamentals",
+      "duration_minutes": 60,
+      "is_preview": 1,
+      "body": "<h3>Neural Network Fundamentals</h3>\n<p>A neural network is layers of simple units called <em>neurons</em>. Each neuron takes its inputs, multiplies them by <em>weights</em>, adds a <em>bias</em>, and passes the result through an <em>activation function</em>. Stack neurons into layers — an input layer, one or more hidden layers, and an output layer — and the network can learn complex patterns. The weights are what training adjusts; everything else is the network's fixed shape.</p>\n<p>Activation functions decide what a neuron outputs. ReLU returns <code>max(0, x)</code> — negative values become 0, positives pass through — and is the default for hidden layers. Sigmoid squashes any number into (0, 1), which suits outputs that are probabilities. Choosing the right activation matters: the wrong one can stall learning entirely.</p>\n<pre><code>import numpy as np\ndef sigmoid(x):\n    return 1 / (1 + np.exp(-x))\nw = np.array([0.5, -0.5])\nx = np.array([1.0, 2.0])\nprint(round(float(sigmoid(np.dot(w, x))), 4))  # 0.3775</code></pre>\n<p>Step by step: the weighted sum is 0.5 × 1.0 + (−0.5) × 2.0 = −0.5, and sigmoid(−0.5) ≈ 0.3775 — the neuron's output for this input.</p>\n<ul><li>Key points</li><li>A neuron computes a weighted sum plus bias, then applies an activation function.</li><li>ReLU outputs max(0, x); sigmoid squashes values into (0, 1).</li><li>Hidden layers sit between the input and output layers.</li><li>Training learns the weights; the layer shapes are fixed by you.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does a single neuron compute?",
+          "options": [
+            "The average of its inputs",
+            "A weighted sum of its inputs plus a bias, passed through an activation function",
+            "The largest input value",
+            "A random number"
+          ],
+          "answer": 1,
+          "why": "A neuron multiplies each input by its weight, adds the bias, and applies the activation function to the total."
+        },
+        {
+          "q": "What does the ReLU activation function output for an input of -3?",
+          "options": [
+            "-3",
+            "0",
+            "1",
+            "0.05"
+          ],
+          "answer": 1,
+          "why": "ReLU is max(0, x), so any negative input becomes 0 while positive inputs pass through unchanged."
+        },
+        {
+          "q": "What range does the sigmoid function squash its output into?",
+          "options": [
+            "(-1, 1)",
+            "(0, 1)",
+            "(0, infinity)",
+            "(-infinity, 0)"
+          ],
+          "answer": 1,
+          "why": "Sigmoid maps any real number into the open interval (0, 1), which is why it suits probability outputs."
+        },
+        {
+          "q": "Where do hidden layers sit in a neural network?",
+          "options": [
+            "Before the input layer",
+            "Between the input layer and the output layer",
+            "After the output layer",
+            "Outside the network"
+          ],
+          "answer": 1,
+          "why": "Hidden layers take the input layer's output, transform it, and pass it on to the output layer."
+        },
+        {
+          "q": "What does training a neural network actually change?",
+          "options": [
+            "The number of layers",
+            "The weights (and biases)",
+            "The activation functions",
+            "The size of the input data"
+          ],
+          "answer": 1,
+          "why": "Training adjusts the weights and biases so the network's predictions improve; the architecture is fixed beforehand."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "import numpy as np\ndef sigmoid(x):\n    return 1 / (1 + np.exp(-x))\nw = np.array([0.5, -0.5])\nx = np.array([1.0, 2.0])\nprint(round(float(sigmoid(np.dot(w, x))), 4))",
+          "expected": "0.3775",
+          "answer": "The weighted sum is 0.5×1.0 + (−0.5)×2.0 = −0.5, and sigmoid(−0.5) = 1/(1+e^0.5) ≈ 0.3775.",
+          "hint": "Compute the dot product first, then apply sigmoid."
+        }
+      ]
+    },
+    {
+      "title": "Training & Backpropagation",
+      "duration_minutes": 70,
+      "is_preview": 0,
+      "body": "<h3>Training &amp; Backpropagation</h3>\n<p>Training is error correction at scale. The <em>loss function</em> scores how wrong the network's predictions are; <em>gradient descent</em> then nudges every weight a small step in the direction that reduces the loss; and <em>backpropagation</em> is the efficient algorithm that computes those gradients, layer by layer from the output backwards, using the chain rule. One full pass over the training data is an <em>epoch</em>; real training runs for many epochs.</p>\n<p>The <em>learning rate</em> sets the step size. Too small and training crawls; too large and the loss bounces around or explodes. A common starting point is 0.001–0.01 with the Adam optimiser, which adapts the step size per weight. You know training is working when the loss falls steadily — if it flatlines or jumps, something (usually the learning rate or the data scaling) is wrong.</p>\n<pre><code># gradient descent, by hand, on one weight\n# goal: learn w so that w * 2 = 4\nw = 0.0\nfor _ in range(1000):\n    grad = 4 * (2 * w - 4)   # gradient of (w*2 - 4)^2\n    w = w - 0.1 * grad\nprint(round(w, 2))  # 2.0</code></pre>\n<p>Step by step: each step moves w against the gradient, so w climbs from 0.0 towards 2.0; after 1000 steps it has converged, and rounding gives 2.0.</p>\n<ul><li>Key points</li><li>Loss measures error; gradient descent reduces it step by step.</li><li>Backpropagation computes gradients efficiently, from output backwards.</li><li>Learning rate too high diverges; too low crawls.</li><li>One epoch is one full pass over the training data.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does backpropagation compute?",
+          "options": [
+            "The network's predictions",
+            "The gradients of the loss with respect to each weight",
+            "The best learning rate",
+            "The number of epochs needed"
+          ],
+          "answer": 1,
+          "why": "Backpropagation applies the chain rule backwards through the layers to get each weight's gradient, which gradient descent then uses."
+        },
+        {
+          "q": "How does gradient descent update a weight?",
+          "options": [
+            "It moves the weight in the direction of the gradient",
+            "It moves the weight against the gradient to reduce the loss",
+            "It sets the weight to zero",
+            "It randomises the weight"
+          ],
+          "answer": 1,
+          "why": "The gradient points uphill (towards higher loss), so gradient descent steps the opposite way — downhill."
+        },
+        {
+          "q": "What happens if the learning rate is far too high?",
+          "options": [
+            "Training converges faster",
+            "The loss oscillates or diverges instead of falling",
+            "Nothing changes",
+            "The network uses less memory"
+          ],
+          "answer": 1,
+          "why": "Oversized steps jump past the minimum and can make the loss grow instead of shrink."
+        },
+        {
+          "q": "What is one epoch?",
+          "options": [
+            "One weight update",
+            "One full pass over the entire training dataset",
+            "One test-set evaluation",
+            "One layer of the network"
+          ],
+          "answer": 1,
+          "why": "An epoch means the network has seen every training example once; training typically runs for many epochs."
+        },
+        {
+          "q": "What is the job of a loss function?",
+          "options": [
+            "To measure how wrong the network's predictions are",
+            "To choose the activation function",
+            "To load the data",
+            "To save the model"
+          ],
+          "answer": 0,
+          "why": "The loss is a single number scoring the error; training is the process of minimising it."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print after the loop finishes?",
+          "code": "w = 0.0\nfor _ in range(1000):\n    grad = 4 * (2 * w - 4)\n    w = w - 0.1 * grad\nprint(round(w, 2))",
+          "expected": "2.0",
+          "answer": "Each step moves w towards 2.0 (where w*2 = 4 and the gradient is 0); after 1000 steps it has converged, so rounding gives 2.0.",
+          "hint": "What value of w makes the gradient zero?"
+        }
+      ]
+    },
+    {
+      "title": "CNNs for Image Classification",
+      "duration_minutes": 75,
+      "is_preview": 0,
+      "body": "<h3>CNNs for Image Classification</h3>\n<p>Convolutional neural networks are built for images. A <em>convolution</em> slides a small filter (kernel) over the image, and at each position it detects a local pattern — an edge, a corner, a texture. Early layers learn edges; deeper layers combine them into shapes and objects. Because the same filter is reused everywhere, a CNN needs far fewer parameters than a dense network fed raw pixels, and it learns patterns wherever they appear in the image.</p>\n<p>After convolution comes <em>pooling</em> — max pooling keeps the largest value in each small window, shrinking the image while keeping the strongest signals. The stack ends with <code>Flatten</code> (turn the 2D feature maps into one long vector) and a <code>Dense</code> layer with <code>softmax</code>, which outputs one probability per class that sums to 1.</p>\n<pre><code>from tensorflow import keras\nmodel = keras.Sequential([\n    keras.layers.Conv2D(32, (3, 3), activation=\"relu\", input_shape=(28, 28, 1)),\n    keras.layers.MaxPooling2D((2, 2)),\n    keras.layers.Flatten(),\n    keras.layers.Dense(10, activation=\"softmax\"),\n])</code></pre>\n<p>Step by step: 32 filters of 3×3 scan the 28×28 image for patterns, pooling halves the size, flattening turns the maps into a vector, and the dense layer scores all 10 classes.</p>\n<ul><li>Key points</li><li>Convolution slides filters over the image to detect local patterns.</li><li>Max pooling shrinks feature maps while keeping the strongest signals.</li><li>Flatten converts 2D feature maps into a 1D vector for dense layers.</li><li>Softmax outputs class probabilities that sum to 1.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does a convolution filter do as it slides over an image?",
+          "options": [
+            "It deletes pixels",
+            "It detects a local pattern, like an edge, at each position",
+            "It sorts the pixels",
+            "It resizes the image to 1x1"
+          ],
+          "answer": 1,
+          "why": "At every position the filter computes a weighted sum of the patch beneath it, responding strongly where its pattern appears."
+        },
+        {
+          "q": "What does max pooling do?",
+          "options": [
+            "It takes the largest value in each window, shrinking the feature map",
+            "It adds more filters",
+            "It increases the image size",
+            "It removes the dense layer"
+          ],
+          "answer": 0,
+          "why": "Max pooling downsamples by keeping the strongest activation in each window, which also gives some shift-invariance."
+        },
+        {
+          "q": "Why is Flatten used before the final Dense layer?",
+          "options": [
+            "To delete the pooling layer",
+            "To convert the 2D feature maps into a 1D vector the dense layer can take",
+            "To normalise the pixels",
+            "To add more classes"
+          ],
+          "answer": 1,
+          "why": "Dense layers expect a flat vector, so Flatten reshapes the (height, width, channels) maps into one long list of numbers."
+        },
+        {
+          "q": "What does a softmax output layer produce?",
+          "options": [
+            "One raw score per class",
+            "Probabilities, one per class, that sum to 1",
+            "A single number",
+            "The input image again"
+          ],
+          "answer": 1,
+          "why": "Softmax exponentiates and normalises the scores, giving a probability distribution over the classes."
+        },
+        {
+          "q": "Why do CNNs need fewer parameters than a dense network on raw pixels?",
+          "options": [
+            "They have fewer layers",
+            "Filters are shared across all positions instead of having a weight per pixel",
+            "They skip training",
+            "They use smaller images only"
+          ],
+          "answer": 1,
+          "why": "Weight sharing means one small filter does the work of thousands of per-pixel weights, so the model stays compact."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing kernel size for the first convolution layer.",
+          "code": "from tensorflow import keras\nmodel = keras.Sequential([\n    keras.layers.Conv2D(32, (___, ___), activation=\"relu\", input_shape=(28, 28, 1)),\n    keras.layers.MaxPooling2D((2, 2)),\n])",
+          "expected": "3, 3",
+          "answer": "The standard first-layer kernel is 3×3 — small enough to catch edges, cheap to compute, and stacked layers build up larger patterns.",
+          "hint": "What size filter does the lesson's example use?"
+        }
+      ]
+    },
+    {
+      "title": "RNNs & Sequence Models",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>RNNs &amp; Sequence Models</h3>\n<p>Some data is a <em>sequence</em> — words in a sentence, prices over days, notes in a melody — where order matters. A recurrent neural network (RNN) processes one step at a time and carries a <em>hidden state</em> forward: at each step it combines the new input with the hidden state from the previous step, so the network remembers what came before. That memory is what lets it predict the next word or classify a whole sentence.</p>\n<p>Plain RNNs struggle with long sequences because gradients shrink as they travel back through many steps (the vanishing-gradient problem). LSTMs and GRUs fix this with <em>gates</em> — learned switches that decide what to keep, what to forget, and what to output — so information can survive dozens of steps. For text, an <em>embedding</em> layer first turns each word id into a dense vector the network can work with.</p>\n<pre><code>from tensorflow import keras\nmodel = keras.Sequential([\n    keras.layers.Embedding(1000, 16, input_length=20),\n    keras.layers.SimpleRNN(32),\n    keras.layers.Dense(1, activation=\"sigmoid\"),\n])</code></pre>\n<p>Step by step: the embedding turns each of the 20 word ids into a 16-number vector, the RNN reads the 20 vectors in order while updating its hidden state, and the final dense layer outputs one probability (for example, positive vs negative sentiment).</p>\n<ul><li>Key points</li><li>RNNs process sequences one step at a time, carrying a hidden state.</li><li>The hidden state is the network's memory of earlier steps.</li><li>Vanishing gradients make long sequences hard for plain RNNs.</li><li>LSTMs/GRUs use gates to keep information over long sequences.</li><li>Embedding layers turn word ids into dense vectors.</li></ul>",
+      "mcqs": [
+        {
+          "q": "How does an RNN process a sequence?",
+          "options": [
+            "All steps at once",
+            "One step at a time, carrying a hidden state forward",
+            "Backwards only",
+            "By shuffling the steps"
+          ],
+          "answer": 1,
+          "why": "An RNN reads the sequence in order, updating its hidden state at each step so later steps can use earlier context."
+        },
+        {
+          "q": "What is the hidden state of an RNN?",
+          "options": [
+            "The model's saved file",
+            "The network's memory of the steps seen so far",
+            "The learning rate",
+            "The test data"
+          ],
+          "answer": 1,
+          "why": "The hidden state is a vector updated at every step; it summarises everything the network has read up to that point."
+        },
+        {
+          "q": "What is the vanishing-gradient problem?",
+          "options": [
+            "Gradients shrink as they travel back through many steps, so long-range patterns are hard to learn",
+            "The loss becomes zero",
+            "Training uses too much memory",
+            "The model forgets the training data"
+          ],
+          "answer": 0,
+          "why": "Repeated multiplication by small numbers makes early-step gradients tiny, so plain RNNs effectively only learn short-range patterns."
+        },
+        {
+          "q": "How do LSTMs handle long sequences better than plain RNNs?",
+          "options": [
+            "They train faster",
+            "They use gates that learn what to keep, forget and output",
+            "They have fewer parameters",
+            "They ignore the sequence order"
+          ],
+          "answer": 1,
+          "why": "LSTM gates control the flow of information through a cell state, letting important signals survive many steps."
+        },
+        {
+          "q": "Which of these is a sequence task?",
+          "options": [
+            "Classifying a single photo",
+            "Predicting the next word in a sentence",
+            "Counting pixels",
+            "Sorting a list"
+          ],
+          "answer": 1,
+          "why": "Next-word prediction depends on the order of the words before it, which is exactly what sequence models handle."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "trace",
+          "title": "Trace the hidden state",
+          "prompt": "Work out the hidden state after each step, then say what is printed.",
+          "code": "h = 0\nfor x in [1, 2, 3]:\n    h = h * 0.5 + x\nprint(h)",
+          "expected": "4.25",
+          "answer": "Step 1: h = 0×0.5 + 1 = 1. Step 2: h = 1×0.5 + 2 = 2.5. Step 3: h = 2.5×0.5 + 3 = 4.25 — the hidden state carries the earlier steps forward, just like an RNN.",
+          "hint": "Update h one step at a time, using the new h each time."
+        }
+      ]
+    },
+    {
+      "title": "Project: Image Classifier",
+      "duration_minutes": 90,
+      "is_preview": 0,
+      "body": "<h3>Project: Image Classifier</h3>\n<p>Now build a real image classifier end to end on Fashion-MNIST — 70,000 small clothing images in 10 classes. The pipeline: load the data, scale pixel values from 0–255 down to 0–1 (normalised inputs train far more stably), build a small CNN, compile it with the Adam optimiser and <code>sparse_categorical_crossentropy</code> (the right loss when labels are plain integers 0–9), train for a few epochs, then evaluate on the test set the model has never seen.</p>\n<p>Judge the result honestly: compare training accuracy with test accuracy. If training accuracy is high but test accuracy lags far behind, the model is overfitting — add dropout or more training data. Save the trained model so your classifier can be reused without retraining.</p>\n<pre><code>from tensorflow import keras\n(x_train, y_train), (x_test, y_test) = keras.datasets.fashion_mnist.load_data()\nx_train, x_test = x_train / 255.0, x_test / 255.0\nmodel.compile(optimizer=\"adam\",\n              loss=\"sparse_categorical_crossentropy\",\n              metrics=[\"accuracy\"])\nmodel.fit(x_train, y_train, epochs=5)\nprint(model.evaluate(x_test, y_test))</code></pre>\n<p>Step by step: the data loads already split into train and test, dividing by 255 normalises the pixels, compiling picks the optimiser and loss, five epochs train the CNN, and <code>evaluate</code> reports loss and accuracy on unseen images.</p>\n<ul><li>Key points</li><li>Normalise pixels to 0–1 by dividing by 255.</li><li><code>sparse_categorical_crossentropy</code> is for integer class labels.</li><li>Evaluate on a held-out test set, never on training data.</li><li>Training accuracy far above test accuracy means overfitting.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Why divide the Fashion-MNIST pixel values by 255?",
+          "options": [
+            "To make the images smaller",
+            "To normalise inputs to 0–1 so training is stable",
+            "To add more classes",
+            "To shuffle the data"
+          ],
+          "answer": 1,
+          "why": "Pixels range 0–255; dividing by 255 puts them in 0–1, which keeps gradients well-behaved and training stable."
+        },
+        {
+          "q": "Which loss is right when the class labels are plain integers 0–9?",
+          "options": [
+            "mean_squared_error",
+            "binary_crossentropy",
+            "sparse_categorical_crossentropy",
+            "No loss is needed"
+          ],
+          "answer": 2,
+          "why": "sparse_categorical_crossentropy expects integer labels and computes cross-entropy over the classes — exactly this setup."
+        },
+        {
+          "q": "What does model.evaluate(x_test, y_test) return?",
+          "options": [
+            "The model's weights",
+            "Loss and accuracy on the test data",
+            "The training history",
+            "A plot of the data"
+          ],
+          "answer": 1,
+          "why": "evaluate runs the model on the given data without training and returns the loss plus any compiled metrics, like accuracy."
+        },
+        {
+          "q": "What is a clear sign of overfitting in this project?",
+          "options": [
+            "Test accuracy is slightly higher than training accuracy",
+            "Training accuracy is high but test accuracy is much lower",
+            "Both accuracies are low",
+            "Training is slow"
+          ],
+          "answer": 1,
+          "why": "A big gap between training and test accuracy means the model memorised the training set instead of learning general patterns."
+        },
+        {
+          "q": "Why keep a separate test set instead of evaluating on the training data?",
+          "options": [
+            "Test data trains faster",
+            "To measure performance on data the model never saw during training",
+            "Training data has no labels",
+            "It is required by law"
+          ],
+          "answer": 1,
+          "why": "Only unseen data shows whether the model learned the underlying pattern or just memorised the training examples."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Build the image classifier",
+          "prompt": "Build and train a CNN image classifier on Fashion-MNIST: load the data, normalise the pixels, build a Conv2D + pooling + dense model, compile with adam and sparse_categorical_crossentropy, train for 5 epochs, and report test accuracy. Save the trained model.",
+          "code": "",
+          "expected": "A trained CNN saved to disk, with training and test accuracy reported (test accuracy above 85% is a good target)",
+          "answer": "Start from the lesson code, run it, and read the evaluate output. If test accuracy trails training accuracy by a lot, add a Dropout layer and retrain.",
+          "hint": "Get the lesson code running first, then tune it."
+        }
+      ]
+    },
+    {
+      "title": "Transfer Learning & Fine-Tuning",
+      "duration_minutes": 70,
+      "is_preview": 0,
+      "body": "<h3>Transfer Learning &amp; Fine-Tuning</h3>\n<p>Training a big network from scratch needs huge data and heavy compute — transfer learning skips that. Take a model already trained on a giant dataset (for example MobileNetV2 trained on ImageNet's millions of photos), drop its original classifier head with <code>include_top=False</code>, and attach your own small classifier for your classes. The early layers already know edges, textures and shapes, so your model starts smart.</p>\n<p>First <em>freeze</em> the base (<code>base.trainable = False</code>) so only your new head trains — fast, and safe on a small dataset. Once the head works, <em>fine-tune</em>: unfreeze the top few base layers and retrain everything with a very small learning rate, so the pretrained features adapt gently to your data without being destroyed. This is how small teams get big-model results.</p>\n<pre><code>from tensorflow import keras\nbase = keras.applications.MobileNetV2(weights=\"imagenet\",\n    include_top=False, input_shape=(128, 128, 3))\nbase.trainable = False\nmodel = keras.Sequential([\n    base,\n    keras.layers.GlobalAveragePooling2D(),\n    keras.layers.Dense(10, activation=\"softmax\"),\n])</code></pre>\n<p>Step by step: MobileNetV2 loads with ImageNet weights and no classifier head, freezing stops its weights changing, pooling compresses its output, and a fresh dense layer learns your 10 classes.</p>\n<ul><li>Key points</li><li>Transfer learning reuses a model trained on a large dataset for a new task.</li><li>Freezing the base keeps pretrained weights fixed while the new head trains.</li><li><code>include_top=False</code> drops the original classifier head.</li><li>Fine-tuning unfreezes top layers and retrains with a small learning rate.</li><li>Big benefit: strong results with far less data and training time.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is transfer learning?",
+          "options": [
+            "Training a model from random weights",
+            "Reusing a model trained on a large dataset as the starting point for a new task",
+            "Copying another student's model",
+            "Training on the test set"
+          ],
+          "answer": 1,
+          "why": "A pretrained model already knows general features, so you adapt it to your task instead of learning everything from scratch."
+        },
+        {
+          "q": "What does freezing the base model mean?",
+          "options": [
+            "Deleting it",
+            "Its weights do not change during training",
+            "It runs faster at test time",
+            "It uses less disk space"
+          ],
+          "answer": 1,
+          "why": "Setting trainable=False locks the base weights, so only the newly added head learns in the first phase."
+        },
+        {
+          "q": "What does include_top=False do when loading MobileNetV2?",
+          "options": [
+            "It removes the ImageNet weights",
+            "It drops the original classifier head so you can add your own",
+            "It freezes all layers",
+            "It changes the input size"
+          ],
+          "answer": 1,
+          "why": "include_top=False loads everything except the final classification layers, leaving the feature extractor for your own head."
+        },
+        {
+          "q": "What is fine-tuning?",
+          "options": [
+            "Training from scratch",
+            "Unfreezing some base layers and retraining with a small learning rate",
+            "Deleting the base model",
+            "Evaluating on the test set"
+          ],
+          "answer": 1,
+          "why": "After the new head works, fine-tuning gently adapts the top pretrained layers to your data with a small learning rate."
+        },
+        {
+          "q": "What is the main benefit of transfer learning?",
+          "options": [
+            "It needs no data at all",
+            "Strong results with far less data and training time",
+            "It removes the need for a test set",
+            "It guarantees 100% accuracy"
+          ],
+          "answer": 1,
+          "why": "Because the base already learned general features, a small dataset and a short training run are often enough."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing value so the pretrained base is frozen while the new head trains.",
+          "code": "base = keras.applications.MobileNetV2(weights=\"imagenet\", include_top=False, input_shape=(128, 128, 3))\nbase.trainable = ___",
+          "expected": "False",
+          "answer": "Setting trainable to False freezes the base — its weights stay fixed while only the new classifier head learns.",
+          "hint": "Frozen means the base should NOT train."
+        }
+      ]
+    }
+  ]
+}

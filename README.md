@@ -284,7 +284,8 @@ updates the content without wiping enrolments or progress
 | SQL Essentials: Queries to Databases | 8 | 48 | 31 | 7 |
 | Complete Web Development Bootcamp | 6 | 30 | 6 | 0 |
 | JavaScript: From Beginner to Advanced | 6 | 30 | 6 | 0 |
-| **Total learning content** | **58** | **306** | **185** | **40** |
+| Deep Learning & Neural Networks | 6 | 30 | 6 | 0 |
+| **Total learning content** | **64** | **336** | **191** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key
