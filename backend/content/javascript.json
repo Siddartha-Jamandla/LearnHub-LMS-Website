@@ -1,0 +1,459 @@
+{
+  "course": {
+    "match_title": "JavaScript: From Beginner to Advanced",
+    "title": "JavaScript: From Beginner to Advanced",
+    "description": "Master JavaScript fundamentals, DOM manipulation, events, APIs and modern JavaScript.",
+    "category": "Programming",
+    "price": 799,
+    "instructor": "Sarah Williams",
+    "duration_hours": 14,
+    "level": "Intermediate",
+    "image_url": "assets/images/course2.svg"
+  },
+  "lessons": [
+    {
+      "title": "Variables, Types & Operators",
+      "duration_minutes": 40,
+      "is_preview": 1,
+      "body": "<h3>Variables, Types &amp; Operators</h3>\n<p>Variables store values you reuse later. Declare them with <code>let</code> (reassignable), <code>const</code> (cannot be reassigned) or the old <code>var</code> (avoid it — it leaks out of blocks). JavaScript figures out the type for you: <code>\"hello\"</code> is a string, <code>42</code> is a number, <code>true</code> is a boolean, <code>undefined</code> means declared but never given a value, and <code>null</code> means deliberately empty.</p>\n<p>Operators do the work: <code>+ - * / %</code> for maths, <code>===</code> for strict comparison (always prefer it over <code>==</code>, which converts types first — <code>\"5\" == 5</code> is true but <code>\"5\" === 5</code> is false), and <code>&amp;&amp;</code> / <code>||</code> for combining conditions. Watch out for <code>+</code> with a string: <code>5 + \"5\"</code> gives <code>\"55\"</code> because the number is converted to a string first.</p>\n<pre><code>let score = 10;\nconst passMark = 40;\nscore = score + 5;\nconsole.log(typeof score);   // \"number\"\nconsole.log(score === 15);   // true\nconsole.log(\"Total: \" + score); // \"Total: 15\"</code></pre>\n<p>Step by step: <code>score</code> starts at 10, then <code>score + 5</code> makes it 15. <code>typeof</code> tells you a value's type, and <code>===</code> checks value and type together.</p>\n<ul><li>Key points</li><li>Use <code>const</code> by default, <code>let</code> when the value must change, never <code>var</code>.</li><li><code>===</code> compares value and type; <code>==</code> converts types and surprises you.</li><li><code>+</code> with a string concatenates instead of adding.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which keyword declares a variable that cannot be reassigned?",
+          "options": [
+            "let",
+            "var",
+            "const",
+            "static"
+          ],
+          "answer": 2,
+          "why": "const creates a binding that cannot be reassigned; let allows reassignment and var is the old function-scoped declaration."
+        },
+        {
+          "q": "What is the result of typeof \"42\"?",
+          "options": [
+            "\"number\"",
+            "\"string\"",
+            "\"undefined\"",
+            "\"object\""
+          ],
+          "answer": 1,
+          "why": "typeof reports the value's type, and \"42\" in quotes is a string, so typeof returns \"string\"."
+        },
+        {
+          "q": "What does 5 + \"5\" evaluate to?",
+          "options": [
+            "10",
+            "\"55\"",
+            "\"10\"",
+            "NaN"
+          ],
+          "answer": 1,
+          "why": "When + meets a string it concatenates: the number 5 is converted to \"5\" and joined, giving the string \"55\"."
+        },
+        {
+          "q": "Which of these is NOT a primitive type in JavaScript?",
+          "options": [
+            "string",
+            "number",
+            "boolean",
+            "object"
+          ],
+          "answer": 3,
+          "why": "string, number and boolean are primitives; object is a reference type (arrays and functions are objects too)."
+        },
+        {
+          "q": "What does this print? let x; console.log(x);",
+          "options": [
+            "null",
+            "0",
+            "undefined",
+            "ReferenceError"
+          ],
+          "answer": 2,
+          "why": "A declared variable with no assignment holds the value undefined — it exists, it just has no value yet."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "let price = 50;\nlet discount = 10;\nconsole.log(price - discount * 2);",
+          "expected": "30",
+          "answer": "Multiplication runs before subtraction, so discount * 2 is 20, and 50 - 20 is 30.",
+          "hint": "Remember operator precedence: * before -."
+        }
+      ]
+    },
+    {
+      "title": "Functions & Scope",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Functions &amp; Scope</h3>\n<p>A function packages reusable behaviour: you define it once with <code>function</code> and call it as often as you like. Values listed in the definition are <em>parameters</em>; the values you pass when calling are <em>arguments</em>. A function without a <code>return</code> statement returns <code>undefined</code>. Arrow functions (<code>const add = (a, b) =&gt; a + b;</code>) are a shorter way to write small functions.</p>\n<p>Scope decides where a variable can be seen. A variable declared inside a function is visible only there; <code>let</code> and <code>const</code> are also block-scoped, so they disappear outside the <code>{ }</code> they were declared in, while <code>var</code> ignores blocks. Function declarations are hoisted — you can call them before their definition in the file — but <code>const</code> arrow functions are not, so calling one early throws a ReferenceError.</p>\n<pre><code>function greet(name) {\n  return \"Hello, \" + name + \"!\";\n}\nconst square = (n) =&gt; n * n;\nconsole.log(greet(\"Sid\")); // \"Hello, Sid!\"\nconsole.log(square(4));    // 16</code></pre>\n<p>Step by step: <code>greet</code> takes the argument <code>\"Sid\"</code>, plugs it into the parameter <code>name</code>, and returns the finished string. <code>square</code> does the same job as an arrow function in one line.</p>\n<ul><li>Key points</li><li>Parameters are placeholders in the definition; arguments are the real values passed at the call.</li><li>No <code>return</code> means the function returns <code>undefined</code>.</li><li><code>let</code>/<code>const</code> are block-scoped; <code>var</code> is not.</li><li>Function declarations hoist; <code>const</code> arrow functions do not.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does a function return when it has no return statement?",
+          "options": [
+            "null",
+            "0",
+            "undefined",
+            "false"
+          ],
+          "answer": 2,
+          "why": "JavaScript functions return undefined by default when execution reaches the end without hitting return."
+        },
+        {
+          "q": "Which is the correct arrow-function syntax for adding two numbers?",
+          "options": [
+            "const add = (a, b) => a + b;",
+            "const add(a, b) => a + b;",
+            "function add = (a, b) => a + b;",
+            "let add => (a, b) a + b;"
+          ],
+          "answer": 0,
+          "why": "An arrow function assigns a function value to a variable: parameters in parentheses, then =>, then the expression to return."
+        },
+        {
+          "q": "Which declaration is block-scoped, so it cannot be used outside its { } block?",
+          "options": [
+            "var",
+            "let",
+            "function",
+            "global"
+          ],
+          "answer": 1,
+          "why": "let (and const) are scoped to the block they are declared in; var is scoped to the enclosing function instead."
+        },
+        {
+          "q": "What is the difference between a parameter and an argument?",
+          "options": [
+            "They are the same thing",
+            "A parameter is the placeholder in the definition; an argument is the value passed at the call",
+            "A parameter is the value passed; an argument is the placeholder",
+            "Parameters only exist in arrow functions"
+          ],
+          "answer": 1,
+          "why": "The parameter is the named slot in the function definition; the argument is the actual value supplied when the function is called."
+        },
+        {
+          "q": "What happens when you call a const arrow function before its definition line runs?",
+          "options": [
+            "It works, because all functions hoist",
+            "It returns undefined",
+            "ReferenceError — it is in the temporal dead zone",
+            "It runs with undefined parameters"
+          ],
+          "answer": 2,
+          "why": "Only function declarations hoist fully. A const arrow function cannot be used before its line executes — that is the temporal dead zone."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "trace",
+          "title": "Trace the variables",
+          "prompt": "Work out the value of x step by step, then say what is printed.",
+          "code": "function double(n) {\n  return n * 2;\n}\nlet x = double(4);\nconsole.log(x + 1);",
+          "expected": "9",
+          "answer": "double(4) returns 8, so x is 8; x + 1 is 9, which is what console.log prints.",
+          "hint": "Follow the call first: what does double(4) return?"
+        }
+      ]
+    },
+    {
+      "title": "Arrays & Objects in Depth",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Arrays &amp; Objects in Depth</h3>\n<p>Arrays hold ordered lists and objects hold named values. Arrays come with methods: <code>push</code> adds to the end, <code>pop</code> removes from the end, <code>map</code> builds a new array by transforming each item, and <code>filter</code> keeps only the items that pass a test. Crucially, <code>map</code> returns a new array while <code>forEach</code> returns <code>undefined</code> — use <code>map</code> when you want a result.</p>\n<p>Objects group related data: <code>const user = { name: \"Sid\", age: 19 }</code>. Read properties with dot notation (<code>user.name</code>) or bracket notation (<code>user[\"name\"]</code>) — brackets are required when the key is stored in a variable. Destructuring pulls values out in one line: <code>const { name, age } = user;</code>. <code>JSON.stringify</code> turns an object into a JSON string for storage or sending to a server.</p>\n<pre><code>const nums = [1, 2, 3, 4];\nconst doubled = nums.map(n =&gt; n * 2);\nconst evens = nums.filter(n =&gt; n % 2 === 0);\nconsole.log(doubled); // [2, 4, 6, 8]\nconsole.log(evens);   // [2, 4]</code></pre>\n<p>Step by step: <code>map</code> runs <code>n * 2</code> on every element and collects the results into a new array; the original <code>nums</code> is unchanged. <code>filter</code> keeps only numbers where <code>n % 2 === 0</code>.</p>\n<ul><li>Key points</li><li><code>map</code> returns a new array; <code>forEach</code> returns <code>undefined</code>.</li><li>Use bracket notation when the property name is in a variable.</li><li>Destructuring extracts several properties in one line.</li><li><code>JSON.stringify</code> converts an object to a JSON string.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is the length of this array afterwards? const a = [1, 2, 3]; a.push(4);",
+          "options": [
+            "3",
+            "4",
+            "5",
+            "undefined"
+          ],
+          "answer": 1,
+          "why": "push adds one element to the end, so [1, 2, 3] becomes [1, 2, 3, 4], which has length 4."
+        },
+        {
+          "q": "What is the difference between map and forEach?",
+          "options": [
+            "They are identical",
+            "map returns a new array; forEach returns undefined",
+            "forEach returns a new array; map returns undefined",
+            "map only works on objects"
+          ],
+          "answer": 1,
+          "why": "map builds and returns a new array from the callback's return values; forEach just runs the callback for side effects and returns undefined."
+        },
+        {
+          "q": "How do you read an object property when the key is stored in a variable called key?",
+          "options": [
+            "obj.key",
+            "obj[key]",
+            "obj-&gt;key",
+            "obj(key)"
+          ],
+          "answer": 1,
+          "why": "Dot notation looks for a literal property named 'key'; bracket notation evaluates the variable, so obj[key] reads the property whose name the variable holds."
+        },
+        {
+          "q": "What does JSON.stringify({a: 1}) return?",
+          "options": [
+            "The object {a: 1}",
+            "The string '{\"a\":1}'",
+            "The number 1",
+            "undefined"
+          ],
+          "answer": 1,
+          "why": "JSON.stringify serialises a value to a JSON string, so the object becomes the string '{\"a\":1}'."
+        },
+        {
+          "q": "Which array method removes the LAST element?",
+          "options": [
+            "shift()",
+            "pop()",
+            "slice()",
+            "splice(0, 1)"
+          ],
+          "answer": 1,
+          "why": "pop removes and returns the last element; shift removes the first, slice copies a portion, and splice(0, 1) removes the first."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "const nums = [1, 2, 3, 4];\nconst doubled = nums.map(n =&gt; n * 2);\nconsole.log(doubled[1]);",
+          "expected": "4",
+          "answer": "map doubles every element, so doubled is [2, 4, 6, 8]; index 1 is the second element, 4.",
+          "hint": "Work out the whole doubled array first, then pick index 1."
+        }
+      ]
+    },
+    {
+      "title": "Async JavaScript & Fetch API",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>Async JavaScript &amp; Fetch API</h3>\n<p>JavaScript runs one thing at a time, so slow work like network requests is <em>asynchronous</em>: you start it and get the result later instead of freezing the page. A <code>Promise</code> represents a value that will arrive in the future. <code>fetch(url)</code> returns a promise that resolves to the response; <code>response.json()</code> returns another promise that resolves to the parsed data. <code>async/await</code> lets you write this in straight-line style: <code>await</code> pauses the function until the promise settles.</p>\n<p>Errors need handling: <code>.catch()</code> catches a rejected promise, and <code>try/catch</code> does the same around <code>await</code>. Remember that <code>fetch</code> only rejects on network failure — a 404 still resolves, so check <code>response.ok</code> yourself. And <code>setTimeout</code> never runs early: its callback waits until the current synchronous code finishes, even with a 0 ms delay.</p>\n<pre><code>async function getUser(id) {\n  const res = await fetch(\"https://jsonplaceholder.typicode.com/users/\" + id);\n  if (!res.ok) throw new Error(\"User not found\");\n  const user = await res.json();\n  return user.name;\n}\ngetUser(1).then(name =&gt; console.log(name));</code></pre>\n<p>Step by step: <code>fetch</code> starts the request and <code>await</code> pauses <code>getUser</code> until the response arrives. <code>res.ok</code> guards against HTTP errors, then <code>await res.json()</code> parses the body and the name is returned.</p>\n<ul><li>Key points</li><li><code>fetch()</code> returns a Promise; <code>await</code> pauses until it settles.</li><li><code>response.json()</code> also returns a Promise.</li><li>Check <code>response.ok</code> — fetch does not reject on HTTP errors like 404.</li><li><code>setTimeout</code> callbacks run only after the current synchronous code finishes.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does fetch() return?",
+          "options": [
+            "The response data directly",
+            "A Promise that resolves to the response",
+            "A JSON object",
+            "undefined"
+          ],
+          "answer": 1,
+          "why": "fetch starts the request and immediately returns a Promise; the response arrives later when the promise resolves."
+        },
+        {
+          "q": "Where can await be used?",
+          "options": [
+            "Anywhere in a script",
+            "Only inside an async function",
+            "Only inside a loop",
+            "Only in the browser console"
+          ],
+          "answer": 1,
+          "why": "await is only valid inside a function declared with async (top-level await in modules aside, plain scripts require async functions)."
+        },
+        {
+          "q": "What does .catch() do on a promise?",
+          "options": [
+            "It runs when the promise resolves",
+            "It handles a rejected promise",
+            "It cancels the request",
+            "It converts the result to JSON"
+          ],
+          "answer": 1,
+          "why": ".catch registers a handler that runs if the promise rejects, so errors can be dealt with instead of crashing."
+        },
+        {
+          "q": "What does response.json() return?",
+          "options": [
+            "The parsed object directly",
+            "A Promise resolving to the parsed JSON",
+            "A string",
+            "The raw HTTP headers"
+          ],
+          "answer": 1,
+          "why": "Parsing the body is itself asynchronous, so response.json() returns a promise that resolves to the parsed data."
+        },
+        {
+          "q": "What is the output order of: console.log(\"A\"); setTimeout(() => console.log(\"B\"), 0); console.log(\"C\");",
+          "options": [
+            "A, B, C",
+            "B, A, C",
+            "A, C, B",
+            "C, A, B"
+          ],
+          "answer": 2,
+          "why": "setTimeout schedules its callback after the current synchronous code finishes, so A and C print first, then B — even with a 0 ms delay."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What is printed, in order?",
+          "code": "console.log(\"A\");\nsetTimeout(() =&gt; console.log(\"B\"), 0);\nconsole.log(\"C\");",
+          "expected": "A\nC\nB",
+          "answer": "A prints first, then C — the setTimeout callback is queued and only runs after the synchronous code finishes, so B prints last.",
+          "hint": "setTimeout never interrupts code that is already running."
+        }
+      ]
+    },
+    {
+      "title": "ES6+ Modern Features",
+      "duration_minutes": 45,
+      "is_preview": 0,
+      "body": "<h3>ES6+ Modern Features</h3>\n<p>Modern JavaScript (ES6 and later) added shortcuts that make code shorter and safer. Template literals use backticks and <code>${ }</code> to embed values: <code>`Hello ${name}`</code>. Destructuring unpacks objects and arrays: <code>const { name } = user;</code> and <code>const [first] = list;</code>. The spread operator <code>...</code> copies or merges arrays and objects: <code>[...a, ...b]</code> and <code>{...defaults, ...overrides}</code>.</p>\n<p>Other essentials: default parameters (<code>function greet(name = \"Guest\")</code>), rest parameters (<code>function sum(...nums)</code> collects extra arguments into an array), and optional chaining (<code>user?.address?.city</code>) which returns <code>undefined</code> instead of throwing when something in the chain is <code>null</code> or <code>undefined</code>. Modules split code across files with <code>export</code> and <code>import</code>.</p>\n<pre><code>const user = { name: \"Sid\", age: 19 };\nconst { name, age } = user;\nconst more = { ...user, city: \"Warangal\" };\nconsole.log(`Hello ${name}, age ${age}`); // \"Hello Sid, age 19\"\nconsole.log(more.city); // \"Warangal\"</code></pre>\n<p>Step by step: destructuring copies <code>name</code> and <code>age</code> out of <code>user</code>; the spread copies all of <code>user</code> into <code>more</code> and adds <code>city</code>; the template literal fills in the values.</p>\n<ul><li>Key points</li><li>Template literals use backticks and <code>${ }</code>.</li><li>Destructuring unpacks values; spread <code>...</code> copies or merges.</li><li>Default parameters supply a value when no argument is passed.</li><li>Optional chaining <code>?.</code> returns <code>undefined</code> instead of throwing.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which characters delimit a template literal?",
+          "options": [
+            "Single quotes ''",
+            "Double quotes \"\"",
+            "Backticks ``",
+            "Parentheses ()"
+          ],
+          "answer": 2,
+          "why": "Template literals are wrapped in backticks, which is what allows ${ } placeholders inside the string."
+        },
+        {
+          "q": "What does the spread operator do in [...a, ...b]?",
+          "options": [
+            "It multiplies the arrays",
+            "It creates a new array with all elements of a followed by all of b",
+            "It removes duplicates",
+            "It sorts the combined array"
+          ],
+          "answer": 1,
+          "why": "Spread expands each array in place, so the result is one new array containing a's elements then b's elements."
+        },
+        {
+          "q": "What does const { name } = user; do?",
+          "options": [
+            "It creates a new object",
+            "It extracts the name property into a variable called name",
+            "It deletes name from user",
+            "It renames user to name"
+          ],
+          "answer": 1,
+          "why": "Object destructuring pulls the named property out of the object into a variable of the same name."
+        },
+        {
+          "q": "What happens when you call greet() if it is defined as function greet(name = \"Guest\")?",
+          "options": [
+            "It throws an error",
+            "name is undefined",
+            "name is \"Guest\"",
+            "It returns null"
+          ],
+          "answer": 2,
+          "why": "A default parameter supplies its value whenever the argument is missing (or explicitly undefined)."
+        },
+        {
+          "q": "What does user?.address?.city return when user.address is undefined?",
+          "options": [
+            "It throws a TypeError",
+            "undefined",
+            "null",
+            "An empty string"
+          ],
+          "answer": 1,
+          "why": "Optional chaining short-circuits: when address is null or undefined it stops and returns undefined instead of throwing."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing code so the program prints the user's name.",
+          "code": "const user = { name: \"Sid\", age: 19 };\nconst { ___ } = user;\nconsole.log(name);",
+          "expected": "name",
+          "answer": "Destructuring pulls the name property out of user into a variable called name, so console.log(name) prints Sid.",
+          "hint": "Which property do you need to pull out of user?"
+        }
+      ]
+    },
+    {
+      "title": "Mini Project: Weather App",
+      "duration_minutes": 80,
+      "is_preview": 0,
+      "body": "<h3>Mini Project: Weather App</h3>\n<p>Time to put it all together: a weather app that takes a city name, fetches live weather, and shows it on the page. The flow is: read the city from an <code>input</code>, build the API URL, <code>fetch</code> it with <code>await</code>, check <code>response.ok</code> (a mistyped city returns 404, and fetch will not reject on its own), parse the JSON, and render the temperature and description into the page. Show a <code>\"Loading...\"</code> message before the request and an error message if anything fails.</p>\n<p>Structure the code in small functions: <code>getWeather(city)</code> does the fetching and returns data, <code>showWeather(data)</code> updates the page, and a click handler wires the button to both. Keep the API key in one clearly-marked constant at the top (in a real shipped app a key belongs on a server, not in client code — here a free demo key or placeholder keeps the project runnable).</p>\n<pre><code>const API_KEY = \"YOUR_API_KEY\"; // replace with a free key\nasync function getWeather(city) {\n  const url = \"https://api.openweathermap.org/data/2.5/weather?q=\" + city + \"&amp;units=metric&amp;appid=\" + API_KEY;\n  const res = await fetch(url);\n  if (!res.ok) throw new Error(\"City not found\");\n  return res.json();\n}</code></pre>\n<p>Step by step: the city goes into the URL, <code>fetch</code> calls the API, <code>res.ok</code> catches bad cities, and <code>res.json()</code> gives the weather data your display function can render.</p>\n<ul><li>Key points</li><li>Read input, fetch, check <code>response.ok</code>, parse, render — in that order.</li><li>Show a loading state before the request and an error state on failure.</li><li>Split the work into small functions: fetch, render, wire-up.</li><li>API keys belong on a server in real apps, not in shipped client code.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is the first step in the weather app's flow?",
+          "options": [
+            "Call fetch()",
+            "Read the city name from the input",
+            "Render the temperature",
+            "Check response.ok"
+          ],
+          "answer": 1,
+          "why": "Everything starts with the user's city — you cannot build the API URL until you have read it from the input."
+        },
+        {
+          "q": "Why must you check response.ok after fetching the weather?",
+          "options": [
+            "fetch rejects on 404 automatically",
+            "fetch only rejects on network failure, not on HTTP errors like 404",
+            "response.ok is required for JSON parsing",
+            "It makes the request faster"
+          ],
+          "answer": 1,
+          "why": "A mistyped city returns HTTP 404, but fetch still resolves — only a network failure rejects — so you must check res.ok yourself."
+        },
+        {
+          "q": "Where should a real API key live in a production app?",
+          "options": [
+            "Hardcoded in the JavaScript file",
+            "On the server, never shipped in client code",
+            "In the HTML title",
+            "In a console.log"
+          ],
+          "answer": 1,
+          "why": "A key in client-side JavaScript is visible to anyone who opens the page, so production keys are kept server-side and the browser calls your server."
+        },
+        {
+          "q": "Which method converts a fetch response into usable data?",
+          "options": [
+            "response.text() only",
+            "response.json()",
+            "response.parse()",
+            "response.data()"
+          ],
+          "answer": 1,
+          "why": "response.json() parses the body as JSON and returns a promise of the resulting object."
+        },
+        {
+          "q": "What is the best way to show the user that weather is loading?",
+          "options": [
+            "Do nothing until the data arrives",
+            "Set a \"Loading...\" message before the await, then replace it afterwards",
+            "Use alert() before fetching",
+            "Reload the page"
+          ],
+          "answer": 1,
+          "why": "Updating the page before the await gives instant feedback; the result replaces the message once the promise resolves."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Build the weather app",
+          "prompt": "Build a weather app: an input and a button, fetch the weather for the typed city, and show the temperature, weather description and city name. Handle a mistyped city with a friendly error message and show \"Loading...\" while fetching.",
+          "code": "",
+          "expected": "Working app: typing a city and clicking the button shows its temperature and description; a wrong city shows an error; \"Loading...\" appears while fetching",
+          "answer": "Split it into three small functions — getWeather(city) for the fetch, showWeather(data) for rendering, and a click handler that ties them together. Test with a real city first, then a fake one.",
+          "hint": "Start with the HTML input and button, then the fetch."
+        }
+      ]
+    }
+  ]
+}

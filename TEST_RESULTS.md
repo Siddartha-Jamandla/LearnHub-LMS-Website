@@ -293,3 +293,22 @@ Tested on a scratch DB (port 8143, same 35-check run as items 1-2):
 and no answers; submitting the correct answers scores 10/10; lesson 1's
 quiz returns 5 questions. 11 courses still have no quiz bank (their final
 exams still 404 with the same message) — follow-up content work.
+
+---
+
+## Daily upgrade — 2026-11-13 (IST): JavaScript quiz bank
+
+`backend/content/javascript.json` adds the missing quiz bank for
+JavaScript: From Beginner to Advanced (course 2): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals now
+7 courses, 58 lessons, 306 MCQs, 185 tasks). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+
+Tested on a scratch DB (port 8151, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/2/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
+verified the Machine Learning and Deep Learning banks (separate
+commits) and the pre-existing Python bank (50 MCQs, still 10/10).
