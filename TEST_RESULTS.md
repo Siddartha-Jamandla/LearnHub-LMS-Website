@@ -333,3 +333,25 @@ scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
 verified the JavaScript and Machine Learning banks (separate commits)
 and the pre-existing Python bank (50 MCQs, still 10/10).
+
+---
+
+## Daily upgrade — 2026-11-13 (IST): Machine Learning quiz bank
+
+`backend/content/machine-learning.json` adds the missing quiz bank for
+Machine Learning with Python (course 4): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals now
+9 courses, 70 lessons, 366 MCQs, 197 tasks). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+7 of the 12 base courses still have no quiz bank (Data Science with
+SQL & Python, UI/UX Design, React, Digital Marketing, Django,
+TypeScript, Git & GitHub) — follow-up content work.
+
+Tested on a scratch DB (port 8151, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/4/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
+verified the JavaScript and Deep Learning banks (separate commits)
+and the pre-existing Python bank (50 MCQs, still 10/10).

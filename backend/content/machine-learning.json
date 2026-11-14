@@ -1,0 +1,459 @@
+{
+  "course": {
+    "match_title": "Machine Learning with Python",
+    "title": "Machine Learning with Python",
+    "description": "Practical ML with scikit-learn - regression, classification, clustering and model evaluation.",
+    "category": "AI & ML",
+    "price": 1499,
+    "instructor": "Priya Sharma",
+    "duration_hours": 20,
+    "level": "Intermediate",
+    "image_url": "assets/images/course4.svg"
+  },
+  "lessons": [
+    {
+      "title": "ML Concepts & Workflow",
+      "duration_minutes": 45,
+      "is_preview": 1,
+      "body": "<h3>ML Concepts &amp; Workflow</h3>\n<p>Machine learning means learning patterns from data instead of writing explicit rules. In <em>supervised</em> learning the data comes with answers (labels) — predicting house prices or spam is supervised. In <em>unsupervised</em> learning there are no labels — grouping customers is clustering. <em>Reinforcement</em> learning learns by trial and reward, like game-playing agents.</p>\n<p>Every ML project follows the same workflow: collect data, clean it, split it into training and test sets, train a model on the training set, evaluate it on the test set it has never seen, then deploy. The split matters: testing on the same data you trained on tells you nothing about new data. Inputs are called <em>features</em> (X) and the answer to predict is the <em>label</em> (y).</p>\n<pre><code>from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nmodel.fit(X_train, y_train)\nprint(model.score(X_test, y_test))</code></pre>\n<p>Step by step: 20% of the rows are held out as the test set (<code>random_state=42</code> makes the split repeatable), the model learns from the other 80%, and <code>score</code> measures it on the unseen 20%.</p>\n<ul><li>Key points</li><li>Supervised learning uses labelled data; unsupervised finds structure without labels.</li><li>Always evaluate on a held-out test set, never on training data.</li><li>Features (X) are inputs; the label (y) is the answer to predict.</li><li><code>random_state</code> makes a split reproducible.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What kind of learning uses data that comes with the correct answers attached?",
+          "options": [
+            "Unsupervised learning",
+            "Supervised learning",
+            "Reinforcement learning",
+            "Transfer learning"
+          ],
+          "answer": 1,
+          "why": "Supervised learning trains on labelled examples — each input comes with its correct output, so the model learns the mapping."
+        },
+        {
+          "q": "Why do we hold out a test set instead of evaluating on the training data?",
+          "options": [
+            "Training data is too small",
+            "To measure how the model performs on data it has never seen",
+            "To make training faster",
+            "Test data has no labels"
+          ],
+          "answer": 1,
+          "why": "A model can memorise its training data, so only unseen test data shows whether it actually learned the pattern."
+        },
+        {
+          "q": "Which of these is an unsupervised learning task?",
+          "options": [
+            "Predicting house prices",
+            "Detecting spam email",
+            "Grouping customers into segments",
+            "Classifying images"
+          ],
+          "answer": 2,
+          "why": "Customer segmentation has no labels to predict — the algorithm finds the groups itself, which is unsupervised learning."
+        },
+        {
+          "q": "In ML, what is the difference between a feature and a label?",
+          "options": [
+            "They are the same",
+            "A feature is an input; a label is the answer to predict",
+            "A feature is the answer; a label is an input",
+            "Features only exist in test data"
+          ],
+          "answer": 1,
+          "why": "Features (X) are the inputs the model sees; the label (y) is the correct output the model is trained to predict."
+        },
+        {
+          "q": "What is overfitting?",
+          "options": [
+            "The model is too simple to learn anything",
+            "The model memorises the training data and performs badly on new data",
+            "The training data has too few rows",
+            "The model trains too slowly"
+          ],
+          "answer": 1,
+          "why": "An overfit model has learned the training set's noise along with its signal, so it fails on fresh data."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "How many rows end up in the training set and how many in the test set?",
+          "code": "from sklearn.model_selection import train_test_split\nX = list(range(100))\ny = list(range(100))\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nprint(len(X_train), len(X_test))",
+          "expected": "80 20",
+          "answer": "test_size=0.2 holds out 20% of 100 rows (20) for testing, leaving 80 for training.",
+          "hint": "What is 20% of 100?"
+        }
+      ]
+    },
+    {
+      "title": "Data Preprocessing with Pandas",
+      "duration_minutes": 60,
+      "is_preview": 0,
+      "body": "<h3>Data Preprocessing with Pandas</h3>\n<p>Real data is messy, and models cannot learn from mess — so cleaning comes first. Pandas loads tabular data into a <em>DataFrame</em>: <code>pd.read_csv(\"data.csv\")</code> reads a CSV file, <code>df.head()</code> shows the first five rows, <code>df.info()</code> shows column types and missing values, and <code>df.describe()</code> summarises the numbers. Missing values are handled with <code>dropna()</code> (remove the row) or <code>fillna(value)</code> (replace with a sensible value, often the column mean).</p>\n<p>Two more steps before training: categorical text such as <code>\"red\"/\"blue\"</code> must become numbers (one-hot encoding turns each category into its own 0/1 column), and numeric features often need <em>scaling</em> — algorithms like k-nearest neighbours and gradient descent are thrown off when one feature ranges 0–1 and another 0–1,000,000. Always fit scalers on the training data only, then apply them to the test data.</p>\n<pre><code>import pandas as pd\ndf = pd.read_csv(\"students.csv\")\nprint(df.head())\nprint(df.isna().sum())  # missing values per column\ndf[\"age\"] = df[\"age\"].fillna(df[\"age\"].mean())\ndf = pd.get_dummies(df, columns=[\"city\"])</code></pre>\n<p>Step by step: load the CSV, look at the first rows, count missing values per column, fill missing ages with the column mean, then one-hot encode the <code>city</code> column into 0/1 columns.</p>\n<ul><li>Key points</li><li><code>read_csv</code> loads data; <code>head</code>, <code>info</code> and <code>describe</code> inspect it.</li><li>Handle missing values with <code>dropna</code> or <code>fillna</code>.</li><li>One-hot encoding turns categories into 0/1 columns.</li><li>Scale numeric features so no feature dominates by size alone.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does pd.read_csv(\"data.csv\") return?",
+          "options": [
+            "A Python list",
+            "A pandas DataFrame",
+            "A NumPy array",
+            "A dictionary"
+          ],
+          "answer": 1,
+          "why": "read_csv parses the CSV file into a DataFrame — a labelled table with rows and named columns."
+        },
+        {
+          "q": "What does df.head() show?",
+          "options": [
+            "The last 5 rows",
+            "The first 5 rows",
+            "The column names only",
+            "A summary of statistics"
+          ],
+          "answer": 1,
+          "why": "head() returns the first five rows by default, which is the quickest way to eyeball your data."
+        },
+        {
+          "q": "What does fillna() do?",
+          "options": [
+            "Deletes rows with missing values",
+            "Replaces missing values with a given value",
+            "Counts missing values",
+            "Renames columns"
+          ],
+          "answer": 1,
+          "why": "fillna fills each missing (NaN) entry with the value you supply, such as the column mean."
+        },
+        {
+          "q": "Why do we scale numeric features before training?",
+          "options": [
+            "To make the file smaller",
+            "Because algorithms like k-NN and gradient descent are sensitive to feature magnitude",
+            "To remove duplicate rows",
+            "Scaling is only for text data"
+          ],
+          "answer": 1,
+          "why": "A feature ranging 0–1,000,000 would dominate one ranging 0–1 in distance and gradient calculations, so features are put on a comparable scale."
+        },
+        {
+          "q": "What does one-hot encoding do to a categorical column like city with values Mumbai and Delhi?",
+          "options": [
+            "Deletes the column",
+            "Replaces it with one 0/1 column per category",
+            "Sorts the rows by city",
+            "Converts it to dates"
+          ],
+          "answer": 1,
+          "why": "One-hot encoding creates a separate binary column for each category (city_Mumbai, city_Delhi), which models can use as numbers."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "import pandas as pd\ndf = pd.DataFrame({\"age\": [20, None, 30]})\ndf[\"age\"] = df[\"age\"].fillna(25)\nprint(df[\"age\"].tolist())",
+          "expected": "[20.0, 25.0, 30.0]",
+          "answer": "The None becomes a missing value in a float column, fillna(25) replaces it with 25, and tolist() gives [20.0, 25.0, 30.0] (floats, because the column holds a NaN).",
+          "hint": "What does fillna do to the middle value?"
+        }
+      ]
+    },
+    {
+      "title": "Regression Models",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Regression Models</h3>\n<p>Regression predicts a <em>continuous</em> number — a price, a temperature, a score. The simplest model is linear regression: it fits a straight line <code>y = mx + c</code> through the data, learning the slope <code>m</code> and intercept <code>c</code> that minimise the error. In scikit-learn the pattern is always the same: create the model, <code>fit</code> it on training data, <code>predict</code> on new data.</p>\n<p>How good is the line? Mean squared error (MSE) averages the squared differences between predictions and reality — squaring punishes big misses more than small ones. R-squared (R²) says what fraction of the variation your model explains: 1.0 is a perfect fit, 0 means no better than guessing the mean. A model that is too simple misses the pattern (underfitting); one that chases every wiggle memorises noise (overfitting).</p>\n<pre><code>from sklearn.linear_model import LinearRegression\nX = [[1], [2], [3]]\ny = [2, 4, 6]\nmodel = LinearRegression()\nmodel.fit(X, y)\nprint(model.predict([[4]]))  # [8.]</code></pre>\n<p>Step by step: the points (1,2), (2,4), (3,6) lie exactly on the line y = 2x, so the fitted model predicts 8 for x = 4.</p>\n<ul><li>Key points</li><li>Regression predicts continuous values; classification predicts categories.</li><li>scikit-learn pattern: create model, <code>fit</code>, <code>predict</code>.</li><li>MSE punishes large errors more; R² of 1.0 is a perfect fit.</li><li>Too simple underfits; too flexible overfits.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What kind of value does a regression model predict?",
+          "options": [
+            "A category label",
+            "A continuous number, like a price",
+            "A True/False value",
+            "A cluster id"
+          ],
+          "answer": 1,
+          "why": "Regression predicts numbers on a continuous scale — prices, temperatures, scores — while classification predicts discrete categories."
+        },
+        {
+          "q": "What does model.fit(X_train, y_train) do in scikit-learn?",
+          "options": [
+            "Makes predictions",
+            "Trains the model by learning from the training data",
+            "Splits the data",
+            "Evaluates accuracy"
+          ],
+          "answer": 1,
+          "why": "fit is the training step: the model adjusts its internal parameters (slope and intercept, for linear regression) to the training data."
+        },
+        {
+          "q": "What does an R-squared (R²) of 1.0 mean?",
+          "options": [
+            "The model is useless",
+            "A perfect fit on that data",
+            "The model overfits",
+            "The data has no pattern"
+          ],
+          "answer": 1,
+          "why": "R² is the fraction of variance explained by the model, so 1.0 means the predictions match the actual values exactly."
+        },
+        {
+          "q": "Why is mean squared error (MSE) useful?",
+          "options": [
+            "It ignores large errors",
+            "Squaring the errors punishes large misses more than small ones",
+            "It only works for classification",
+            "It counts correct predictions"
+          ],
+          "answer": 1,
+          "why": "MSE averages squared differences, so one huge error counts far more than several tiny ones — the model is pushed to avoid big misses."
+        },
+        {
+          "q": "What is underfitting?",
+          "options": [
+            "The model memorises the training data",
+            "The model is too simple and has high error on both training and test data",
+            "The test set is too small",
+            "Training takes too long"
+          ],
+          "answer": 1,
+          "why": "An underfit model (a straight line through curved data, say) cannot capture the pattern, so it errs everywhere."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "from sklearn.linear_model import LinearRegression\nX = [[1], [2], [3]]\ny = [2, 4, 6]\nmodel = LinearRegression()\nmodel.fit(X, y)\nprint(model.predict([[4]]))",
+          "expected": "[8.]",
+          "answer": "The points lie exactly on y = 2x, so the fitted line predicts 2 × 4 = 8 for x = 4 (NumPy prints it as [8.]).",
+          "hint": "What line passes through (1,2), (2,4) and (3,6)?"
+        }
+      ]
+    },
+    {
+      "title": "Classification & Evaluation",
+      "duration_minutes": 65,
+      "is_preview": 0,
+      "body": "<h3>Classification &amp; Evaluation</h3>\n<p>Classification predicts a <em>category</em>: spam or not spam, cat or dog, will the customer churn. Common models are logistic regression (despite the name, a classifier), decision trees and k-nearest neighbours. Training is the same <code>fit</code>/<code>predict</code> pattern as regression — only the question and the metrics change.</p>\n<p>Accuracy (correct ÷ total) is the headline number, but it can mislead: a model that always says \"not spam\" scores 95% when only 5% of mail is spam. So we also read the <em>confusion matrix</em> — true/false positives and negatives — and compute <em>precision</em> (of everything predicted positive, how many truly were) and <em>recall</em> (of all real positives, how many were found). F1 is the balance of the two. Which matters more depends on the cost of each mistake: missing a disease (low recall) is worse than a false alarm.</p>\n<pre><code>from sklearn.metrics import accuracy_score, classification_report\nprint(accuracy_score(y_test, y_pred))\nprint(classification_report(y_test, y_pred))</code></pre>\n<p>Step by step: <code>accuracy_score</code> gives the overall fraction correct; <code>classification_report</code> breaks it down into precision, recall and F1 per class, so you can see which class the model struggles with.</p>\n<ul><li>Key points</li><li>Classification predicts categories, not numbers.</li><li>Accuracy alone can mislead on imbalanced data.</li><li>Precision: predicted positives that were truly positive. Recall: real positives that were found.</li><li>Read the confusion matrix before trusting a single score.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does a classification model predict?",
+          "options": [
+            "A continuous number",
+            "A category or label",
+            "A cluster centre",
+            "A probability only"
+          ],
+          "answer": 1,
+          "why": "Classification assigns each input to one of a fixed set of classes, such as spam/not-spam."
+        },
+        {
+          "q": "How is accuracy calculated?",
+          "options": [
+            "Correct predictions divided by total predictions",
+            "True positives divided by false positives",
+            "The average prediction",
+            "The largest class share"
+          ],
+          "answer": 0,
+          "why": "Accuracy is simply the fraction of predictions that were right: correct ÷ total."
+        },
+        {
+          "q": "What does precision measure?",
+          "options": [
+            "Of all real positives, how many were found",
+            "Of everything predicted positive, how many truly were positive",
+            "The total number of predictions",
+            "How fast the model trains"
+          ],
+          "answer": 1,
+          "why": "Precision = true positives ÷ (true positives + false positives): when the model says 'positive', how often is it right?"
+        },
+        {
+          "q": "What does recall measure?",
+          "options": [
+            "Of everything predicted positive, how many truly were positive",
+            "Of all real positives, how many the model found",
+            "The model's training speed",
+            "The size of the test set"
+          ],
+          "answer": 1,
+          "why": "Recall = true positives ÷ (true positives + false negatives): of all the real positives out there, how many did the model catch?"
+        },
+        {
+          "q": "What does a confusion matrix show?",
+          "options": [
+            "Training loss over epochs",
+            "Actual vs predicted classes, split into true/false positives and negatives",
+            "Feature importance",
+            "The model's weights"
+          ],
+          "answer": 1,
+          "why": "The confusion matrix tabulates actual classes against predicted classes, revealing exactly which mistakes the model makes."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "trace",
+          "title": "Trace the predictions",
+          "prompt": "Work out the accuracy step by step from these five predictions.",
+          "code": "from sklearn.metrics import accuracy_score\ny_true = [1, 0, 1, 1, 0]\ny_pred = [1, 0, 0, 1, 0]\nprint(accuracy_score(y_true, y_pred))",
+          "expected": "0.8",
+          "answer": "Compare position by position: 1=1 correct, 0=0 correct, 1 vs 0 wrong, 1=1 correct, 0=0 correct — 4 of 5 right, so accuracy is 4/5 = 0.8.",
+          "hint": "Count the matching positions first."
+        }
+      ]
+    },
+    {
+      "title": "Clustering & Dimensionality Reduction",
+      "duration_minutes": 50,
+      "is_preview": 0,
+      "body": "<h3>Clustering &amp; Dimensionality Reduction</h3>\n<p>Clustering is unsupervised: with no labels to learn from, the algorithm groups similar points together. K-means is the classic: pick <code>k</code>, place <code>k</code> centres, assign each point to its nearest centre, move each centre to the middle of its points, and repeat until the centres stop moving. The <em>elbow method</em> helps choose <code>k</code>: plot the total within-cluster distance (inertia) for increasing k and pick the k where the curve bends — adding more clusters stops helping much after that.</p>\n<p>Dimensionality reduction compresses many features into fewer while keeping the signal. PCA (principal component analysis) finds the directions of greatest variation and projects the data onto them — useful for visualisation (a 100-feature dataset becomes a 2D scatter plot) and for speeding up models. Scaling matters here too: unscaled features distort both k-means distances and PCA directions.</p>\n<pre><code>from sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=3, random_state=42, n_init=10)\nlabels = kmeans.fit_predict(X)\nprint(labels)</code></pre>\n<p>Step by step: <code>KMeans</code> with 3 clusters learns three centres from the data; <code>fit_predict</code> trains and returns each point's cluster label (0, 1 or 2). <code>random_state</code> keeps the result repeatable.</p>\n<ul><li>Key points</li><li>Clustering groups similar points without any labels.</li><li>K-means repeats: assign points to the nearest centre, then move the centres.</li><li>The elbow method picks k where extra clusters stop helping much.</li><li>PCA compresses features while keeping the most variation.</li><li>Scale features before k-means or PCA — distances depend on it.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does k-means clustering do?",
+          "options": [
+            "Predicts a number for each row",
+            "Groups similar data points without using labels",
+            "Classifies images",
+            "Removes duplicate rows"
+          ],
+          "answer": 1,
+          "why": "K-means is unsupervised: it discovers groups in the data by similarity, with no labels involved."
+        },
+        {
+          "q": "What does the n_clusters parameter of KMeans set?",
+          "options": [
+            "The number of training rows",
+            "The number of clusters to find",
+            "The number of features",
+            "The number of iterations"
+          ],
+          "answer": 1,
+          "why": "n_clusters (k) is how many groups the algorithm should split the data into."
+        },
+        {
+          "q": "What is the elbow method used for?",
+          "options": [
+            "Choosing the number of clusters k",
+            "Removing outliers",
+            "Scaling features",
+            "Splitting train and test data"
+          ],
+          "answer": 0,
+          "why": "You plot inertia against k and pick the 'elbow' — the point where adding more clusters stops reducing inertia much."
+        },
+        {
+          "q": "What does PCA do?",
+          "options": [
+            "Adds more features",
+            "Reduces the number of features while keeping most of the variation",
+            "Clusters the data",
+            "Fills missing values"
+          ],
+          "answer": 1,
+          "why": "PCA projects data onto the directions of greatest variance, so fewer features still carry most of the information."
+        },
+        {
+          "q": "Why is clustering called unsupervised learning?",
+          "options": [
+            "It needs no training data at all",
+            "It learns structure from data without labels",
+            "It trains without a computer",
+            "It never makes mistakes"
+          ],
+          "answer": 1,
+          "why": "Unsupervised means there are no correct answers supplied during training — the algorithm finds the structure itself."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing argument so the data is split into exactly 2 clusters.",
+          "code": "from sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=___, random_state=42, n_init=10)\nlabels = kmeans.fit_predict(X)",
+          "expected": "2",
+          "answer": "n_clusters is the number of groups k-means should find, so 2 gives exactly two clusters.",
+          "hint": "Which parameter controls how many clusters there are?"
+        }
+      ]
+    },
+    {
+      "title": "Model Deployment Basics",
+      "duration_minutes": 55,
+      "is_preview": 0,
+      "body": "<h3>Model Deployment Basics</h3>\n<p>A model sitting in a notebook helps nobody — deployment means packaging it so a real app can use it. The standard path: train the model, save it to a file with <code>joblib.dump(model, \"model.pkl\")</code>, then load it in a small script or web API with <code>joblib.load(\"model.pkl\")</code> and call <code>predict</code> on incoming data. The loading code must apply the <em>exact same preprocessing</em> the training data got — same scaling, same encoding, same column order — or the predictions will be silently wrong.</p>\n<p>Two warnings before you ship. First, pickle/joblib files can run arbitrary code when loaded, so only ever load model files you created or fully trust. Second, models decay: the world changes, so monitor live predictions, log mistakes, and retrain on fresh data on a schedule. Deployment is not the finish line — it is the start of maintaining the model.</p>\n<pre><code>import joblib\njoblib.dump(model, \"model.pkl\")          # save after training\nloaded = joblib.load(\"model.pkl\")       # load in your app\nprint(loaded.predict([[25, 50000]]))</code></pre>\n<p>Step by step: the trained model is saved to <code>model.pkl</code>, loaded back in the app, and used to predict on one new row — <code>[[25, 50000]]</code> is a single sample with two features, matching the training shape.</p>\n<ul><li>Key points</li><li>Save with <code>joblib.dump</code>, load with <code>joblib.load</code>, then <code>predict</code>.</li><li>Live inputs need the exact same preprocessing as training data.</li><li>Only load model files you trust — pickle can run code.</li><li>Monitor predictions and retrain as the world changes.</li></ul>",
+      "mcqs": [
+        {
+          "q": "How do you save a trained scikit-learn model to a file?",
+          "options": [
+            "model.save(\"model.pkl\")",
+            "joblib.dump(model, \"model.pkl\")",
+            "print(model)",
+            "model.to_csv(\"model.pkl\")"
+          ],
+          "answer": 1,
+          "why": "joblib.dump serialises the trained model object to a file; joblib.load brings it back."
+        },
+        {
+          "q": "What does deploying a model mean?",
+          "options": [
+            "Deleting the training data",
+            "Making the trained model usable by an app or API",
+            "Training it for longer",
+            "Drawing a diagram of it"
+          ],
+          "answer": 1,
+          "why": "Deployment packages the model so real users and systems can send it data and get predictions back."
+        },
+        {
+          "q": "Why must live inputs get the same preprocessing as the training data?",
+          "options": [
+            "It makes predictions faster",
+            "The model was trained on scaled and encoded features, so mismatched inputs give wrong predictions",
+            "The API requires it",
+            "Preprocessing is only for training"
+          ],
+          "answer": 1,
+          "why": "The model learned patterns in the transformed feature space; feeding raw, unscaled features breaks the assumptions it was trained under."
+        },
+        {
+          "q": "What is the security risk of loading a pickle/joblib model file?",
+          "options": [
+            "It is always safe",
+            "Pickle files can execute arbitrary code when loaded, so only load files you trust",
+            "It deletes your data",
+            "It needs an internet connection"
+          ],
+          "answer": 1,
+          "why": "Unpickling runs code embedded in the file, so a malicious model file can compromise the machine that loads it."
+        },
+        {
+          "q": "What should happen after a model is deployed?",
+          "options": [
+            "Nothing — it is finished",
+            "Monitor its predictions and retrain on fresh data as needed",
+            "Delete the test set",
+            "Retrain it every minute"
+          ],
+          "answer": 1,
+          "why": "Real-world data drifts over time, so deployed models need monitoring and periodic retraining to stay accurate."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Ship a house-price predictor",
+          "prompt": "Build an end-to-end regression project: load a small housing dataset with pandas, handle missing values, train a LinearRegression model, report MSE and R² on the test set, then save the model with joblib and write a tiny script that loads it and predicts the price of one new house.",
+          "code": "",
+          "expected": "A saved model.pkl plus a script that loads it and prints a sensible price prediction, with MSE and R² reported",
+          "answer": "Follow the course workflow: clean with pandas, split 80/20, fit LinearRegression, evaluate with mean_squared_error and r2_score, dump with joblib, then load and predict in a separate script.",
+          "hint": "Start from the lesson 3 code and grow it step by step."
+        }
+      ]
+    }
+  ]
+}

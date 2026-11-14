@@ -285,7 +285,8 @@ updates the content without wiping enrolments or progress
 | Complete Web Development Bootcamp | 6 | 30 | 6 | 0 |
 | JavaScript: From Beginner to Advanced | 6 | 30 | 6 | 0 |
 | Deep Learning & Neural Networks | 6 | 30 | 6 | 0 |
-| **Total learning content** | **64** | **336** | **191** | **40** |
+| Machine Learning with Python | 6 | 30 | 6 | 0 |
+| **Total learning content** | **70** | **366** | **197** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key
