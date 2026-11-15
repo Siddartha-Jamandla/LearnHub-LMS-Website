@@ -287,7 +287,8 @@ updates the content without wiping enrolments or progress
 | Deep Learning & Neural Networks | 6 | 30 | 6 | 0 |
 | Machine Learning with Python | 6 | 30 | 6 | 0 |
 | Data Science with SQL & Python | 6 | 30 | 6 | 0 |
-| **Total learning content** | **76** | **396** | **203** | **40** |
+| UI/UX Design Fundamentals | 6 | 30 | 6 | 0 |
+| **Total learning content** | **82** | **426** | **209** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key

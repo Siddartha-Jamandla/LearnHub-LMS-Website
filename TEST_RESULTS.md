@@ -375,3 +375,23 @@ scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
 verified the other two banks built today (separate commits)
 and the pre-existing Python bank (50 MCQs, still 10/10).
+
+---
+
+## Daily upgrade — 2026-11-14 (IST): UI/UX Design Fundamentals quiz bank
+
+`backend/content/ui-ux.json` adds the missing quiz bank for
+UI/UX Design Fundamentals (course 7): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals now
+11 courses, 82 lessons, 426 MCQs, 209 tasks). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+5 of the 12 base courses still have no quiz bank (React, Digital Marketing, Django, TypeScript, Git & GitHub) — follow-up content work.
+
+Tested on a scratch DB (port 8152, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/7/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
+verified the other two banks built today (separate commits)
+and the pre-existing Python bank (50 MCQs, still 10/10).

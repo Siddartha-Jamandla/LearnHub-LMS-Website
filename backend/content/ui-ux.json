@@ -1,0 +1,304 @@
+{
+  "course": {
+    "match_title": "UI/UX Design Fundamentals",
+    "title": "UI/UX Design Fundamentals",
+    "description": "Design beautiful, user-friendly interfaces - wireframing, typography, colour and Figma basics.",
+    "category": "Design",
+    "price": 899,
+    "instructor": "Riya Kapoor",
+    "duration_hours": 12,
+    "level": "Beginner",
+    "image_url": "assets/images/course1.svg"
+  },
+  "lessons": [
+    {
+      "title": "Design Thinking Process",
+      "duration_minutes": 40,
+      "is_preview": 1,
+      "body": "<h3>Design Thinking Process</h3>\n<p>Design thinking is a five-step way to solve problems by starting from the user, not from the solution. The steps are Empathise, Define, Ideate, Prototype and Test — and you loop back through them whenever you learn something new. It stops you building a beautiful product nobody needs.</p>\n<p>Empathise means watching and talking to real users to understand what frustrates them. Define turns what you learned into one clear problem statement, such as \"Students cannot find their course progress in under a minute.\" Ideate is generating lots of ideas without judging them yet — quantity first, because the best idea is rarely the first one. Prototype means building a quick, cheap version to try out, and Test means putting it in front of real users and watching where they struggle.</p>\n<pre><code>1. Empathise  - talk to users, watch them work\n2. Define     - one clear problem statement\n3. Ideate     - many ideas, no judging yet\n4. Prototype  - quick, cheap version\n5. Test       - real users try it, you watch and learn</code></pre>\n<p>Step by step: you cannot define the right problem until you have empathised with users, and you cannot test a solution until you have prototyped something to test.</p>\n<ul><li>Key points</li><li>Design thinking has five stages: Empathise, Define, Ideate, Prototype, Test.</li><li>Define turns research into one clear problem statement.</li><li>Prototype cheap and test with real users — never guess what they need.</li></ul>",
+      "mcqs": [
+        {
+          "q": "How many stages does the design thinking process have?",
+          "options": ["Three", "Four", "Five", "Seven"],
+          "answer": 2,
+          "why": "Design thinking has five stages: Empathise, Define, Ideate, Prototype and Test."
+        },
+        {
+          "q": "What is the first stage of design thinking?",
+          "options": ["Define", "Ideate", "Prototype", "Empathise"],
+          "answer": 3,
+          "why": "Empathise comes first: you observe and talk to real users before deciding what problem to solve."
+        },
+        {
+          "q": "What does the Define stage produce?",
+          "options": ["A finished product", "A clear problem statement", "A list of colours", "A clickable prototype"],
+          "answer": 1,
+          "why": "Define turns research findings into one focused problem statement that the rest of the process solves."
+        },
+        {
+          "q": "During Ideate, what is the right approach?",
+          "options": ["Judge every idea immediately", "Generate many ideas without judging them yet", "Pick the first idea and build it", "Skip to testing"],
+          "answer": 1,
+          "why": "Ideation is about quantity first; judging too early kills unusual ideas that could become the best solution."
+        },
+        {
+          "q": "What happens in the Test stage?",
+          "options": ["The team checks the code for bugs", "Real users try the prototype and the team watches where they struggle", "The design is sent to print", "The project budget is reviewed"],
+          "answer": 1,
+          "why": "Testing means observing real users with the prototype so you learn what actually confuses them."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the five stages of design thinking in order.",
+          "code": "Empathise, Define, Ideate, Prototype and ___",
+          "expected": "Test",
+          "answer": "Test is the fifth stage: real users try the prototype so you can learn and improve.",
+          "hint": "Which stage puts the prototype in front of real users?"
+        }
+      ]
+    },
+    {
+      "title": "Wireframing & Prototyping",
+      "duration_minutes": 55,
+      "body": "<h3>Wireframing &amp; Prototyping</h3>\n<p>A wireframe is a low-fidelity sketch of a page's layout: boxes for images, lines for text, no colours or final images. It answers one question — where does everything go? — before anyone spends time on visual polish. A prototype goes one step further: it links screens together so a user can click through the flow, like going from a login screen to a dashboard.</p>\n<p>Start low-fidelity on paper or a whiteboard; it is fast to change and nobody mistakes it for the finished product. Move to high-fidelity only when the layout and flow are settled — high-fidelity looks close to the real product, with real text, colours and images. Test the prototype with users before writing any code: a confusing flow found in a prototype costs minutes to fix, while the same confusion found after development costs days.</p>\n<pre><code>Low-fidelity wireframe:  boxes + lines, no colour\n  [ logo ]        [ menu ]\n  [  hero image box  ]\n  [ text line ][ text line ]\nHigh-fidelity: real text, colours, images</code></pre>\n<p>Step by step: sketch the layout first, link the screens into a clickable prototype, then watch a user try the flow and note where they hesitate.</p>\n<ul><li>Key points</li><li>Wireframes show layout and structure, not colours or final images.</li><li>Low-fidelity is fast to change; high-fidelity looks like the real product.</li><li>Test the prototype with users before any code is written.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is a wireframe?",
+          "options": ["A finished, pixel-perfect design", "A low-fidelity sketch of a page's layout", "A piece of code", "A colour palette"],
+          "answer": 1,
+          "why": "A wireframe shows where elements go using simple boxes and lines, without colours or final images."
+        },
+        {
+          "q": "What is the main difference between low-fidelity and high-fidelity designs?",
+          "options": ["Low-fidelity is for mobile, high-fidelity is for desktop", "Low-fidelity is a quick sketch; high-fidelity looks close to the finished product", "Low-fidelity uses colour, high-fidelity is black and white", "There is no difference"],
+          "answer": 1,
+          "why": "Low-fidelity is rough and fast to change; high-fidelity uses real text, colours and images and looks like the final product."
+        },
+        {
+          "q": "What does a clickable prototype let a user do?",
+          "options": ["Edit the source code", "Click through the screens and try the flow before anything is built", "Buy the product", "Change the database"],
+          "answer": 1,
+          "why": "A prototype links screens together so users can experience the flow and reveal confusion early."
+        },
+        {
+          "q": "Why test a prototype before development starts?",
+          "options": ["It makes the code run faster", "Fixing a confusing flow in a prototype costs minutes; fixing it after development costs days", "Developers prefer it", "It is required by law"],
+          "answer": 1,
+          "why": "Finding usability problems early is far cheaper than rebuilding a finished product."
+        },
+        {
+          "q": "What should a wireframe focus on?",
+          "options": ["Exact colours and fonts", "Layout, structure and what goes where", "The final photos", "Animation timing"],
+          "answer": 1,
+          "why": "Wireframes settle layout and hierarchy first; visual details like colour and typography come later."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the sentence.",
+          "code": "A ___ shows the layout of a page using boxes and lines, without colours or final images.",
+          "expected": "wireframe",
+          "answer": "A wireframe is the low-fidelity layout sketch made of boxes for images and lines for text.",
+          "hint": "What is the low-fidelity layout sketch called?"
+        }
+      ]
+    },
+    {
+      "title": "Typography & Colour Theory",
+      "duration_minutes": 45,
+      "body": "<h3>Typography &amp; Colour Theory</h3>\n<p>Typography is how text looks and reads. Serif fonts have small strokes on the ends of letters and feel traditional; sans-serif fonts have clean ends and feel modern. Hierarchy guides the eye: the biggest, boldest text is read first, so headings are large, subheadings smaller, and body text smallest. Line height (leading) matters too — cramped lines tire the eyes, while generous spacing makes long text readable.</p>\n<p>Colour starts with the colour wheel. Complementary colours sit opposite each other (blue and orange) and create strong contrast; analogous colours sit next to each other (blue and green) and feel calm. Contrast is a usability issue, not just a style choice: light grey text on a white background is hard to read, especially for people with weak vision. A common rule is 60-30-10: 60% dominant colour, 30% secondary, 10% accent — it keeps a design from feeling random.</p>\n<pre><code>60-30-10 rule example:\n  60% background (white)\n  30% text and panels (dark grey)\n  10% accent (one brand blue for buttons and links)</code></pre>\n<p>Step by step: pick one dominant colour for most of the screen, a secondary colour for text and panels, and a single accent colour for the actions you want users to notice.</p>\n<ul><li>Key points</li><li>Use size and weight to build hierarchy: headings big, body text small.</li><li>Complementary colours are opposite on the wheel; analogous colours sit together.</li><li>Text must contrast with its background or it becomes unreadable.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is the difference between serif and sans-serif fonts?",
+          "options": ["Serif fonts are always bold", "Serif fonts have small strokes on letter ends; sans-serif fonts have clean ends", "Serif fonts are only for headings", "Sans-serif fonts cannot be used on screens"],
+          "answer": 1,
+          "why": "Serifs are the small strokes at the ends of letterforms; sans-serif (without serif) fonts lack them and look cleaner and more modern."
+        },
+        {
+          "q": "What does visual hierarchy do in a design?",
+          "options": ["It decides the file size", "It guides the eye: the biggest, boldest text is read first", "It picks the colour palette", "It aligns the code"],
+          "answer": 1,
+          "why": "Hierarchy uses size, weight and spacing so users notice the most important content first."
+        },
+        {
+          "q": "Which pair of colours are complementary?",
+          "options": ["Blue and green", "Blue and orange", "Red and pink", "Black and grey"],
+          "answer": 1,
+          "why": "Complementary colours sit opposite each other on the colour wheel — blue opposite orange, red opposite green."
+        },
+        {
+          "q": "Why is text-background contrast a usability issue?",
+          "options": ["It affects page load speed", "Low contrast text is hard to read, especially for people with weak vision", "It changes the font size", "It breaks the layout"],
+          "answer": 1,
+          "why": "If text does not stand out from its background, many users simply cannot read it."
+        },
+        {
+          "q": "What does the 60-30-10 colour rule describe?",
+          "options": ["60% images, 30% text, 10% video", "60% dominant colour, 30% secondary colour, 10% accent colour", "60% of users prefer blue", "60 pixels of padding, 30 of margin, 10 of border"],
+          "answer": 1,
+          "why": "The 60-30-10 rule balances a design: mostly one dominant colour, a secondary colour, and a small accent for actions."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the sentence about the colour wheel.",
+          "code": "Colours opposite each other on the colour wheel are called ___ colours.",
+          "expected": "complementary",
+          "answer": "Complementary colours sit opposite each other — blue and orange, red and green — and create strong contrast.",
+          "hint": "What word describes colours that complete each other from opposite sides?"
+        }
+      ]
+    },
+    {
+      "title": "Figma Hands-On",
+      "duration_minutes": 60,
+      "body": "<h3>Figma Hands-On</h3>\n<p>Figma is a browser-based design tool where a whole team can work on the same file at once — no installs, no \"which version is latest\" confusion. The canvas holds frames, which are the artboards for each screen (a phone screen, a desktop page). Inside a frame you draw shapes, add text and place images, arranging them with the alignment and spacing controls.</p>\n<p>Components are Figma's superpower: design a button once as a component, then place instances of it everywhere. Change the component and every instance updates — fix the button colour once instead of on forty screens. Auto Layout makes a frame resize itself around its content, so a button grows when its label gets longer and a list reflows when an item is added. Prototyping links frames with interactions (\"on click, go to this frame\"), turning static screens into a clickable flow you can test with users.</p>\n<pre><code>Figma basics:\n  Frame      - one screen (phone 390x844, desktop 1440x900)\n  Component  - master element; instances follow its changes\n  Auto Layout - frame resizes around its content\n  Prototype  - link frames: on click -&gt; go to frame</code></pre>\n<p>Step by step: make the button a component first, place instances on every screen, then link the screens in prototype mode and test the flow.</p>\n<ul><li>Key points</li><li>Frames are the artboards for each screen; components are reusable masters.</li><li>Changing a component updates all its instances at once.</li><li>Auto Layout lets frames resize around their content; prototyping links screens into a flow.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is Figma?",
+          "options": ["A code editor", "A browser-based collaborative design tool", "A database", "A video editor"],
+          "answer": 1,
+          "why": "Figma runs in the browser and lets a whole team design together in the same file in real time."
+        },
+        {
+          "q": "What is a frame in Figma?",
+          "options": ["A border around an image", "The artboard that holds one screen's design", "A font style", "A type of animation"],
+          "answer": 1,
+          "why": "A frame is the container for a screen — for example a 390x844 phone screen or a 1440x900 desktop page."
+        },
+        {
+          "q": "What happens when you edit a component in Figma?",
+          "options": ["Nothing changes elsewhere", "Every instance of that component updates to match", "Only the first instance updates", "The file is duplicated"],
+          "answer": 1,
+          "why": "Instances inherit from their component, so one edit updates every place the component is used."
+        },
+        {
+          "q": "What does Auto Layout do?",
+          "options": ["It picks colours automatically", "It makes a frame resize itself around its content", "It exports the design as code", "It aligns text to the left"],
+          "answer": 1,
+          "why": "Auto Layout arranges elements and resizes the container as content changes, like a button growing with its label."
+        },
+        {
+          "q": "What is prototyping in Figma used for?",
+          "options": ["Writing production code", "Linking frames with interactions so users can click through the flow", "Compressing images", "Creating user accounts"],
+          "answer": 1,
+          "why": "Prototype mode connects frames (on click, go to this frame) so the design can be tested as a clickable flow."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the sentence about Figma.",
+          "code": "In Figma, a reusable button you design once and place on many screens is a ___.",
+          "expected": "component",
+          "answer": "A component is the master element; its instances update automatically when the component changes.",
+          "hint": "What is the reusable master element called?"
+        }
+      ]
+    },
+    {
+      "title": "Portfolio Project",
+      "duration_minutes": 75,
+      "body": "<h3>Portfolio Project</h3>\n<p>A portfolio is how a designer gets hired, and it is judged on process, not just pretty screens. Recruiters want to see how you think: what problem you were given, what you tried, what you learned from users, and what changed because of it. A case study tells that story in four parts — problem, process, outcome, and what you would do next.</p>\n<p>Pick three to five strong projects rather than ten weak ones; one deep case study beats five shallow screenshots. For each project show the problem statement, a few wireframes or iterations (including one that failed — it proves you iterate), the final screens, and the result in numbers where you can: \"task completion rose from 60% to 90% in testing\". Keep the portfolio itself simple and fast: the work is the star, not the portfolio's own decoration. Update it after every project, while the details are still fresh.</p>\n<pre><code>Case study structure:\n  1. Problem    - what was broken, for whom\n  2. Process    - research, wireframes, iterations\n  3. Outcome    - final screens + measured result\n  4. Next steps - what you would improve</code></pre>\n<p>Step by step: open with the problem so the reader cares, show the process so they trust your thinking, then close with the outcome and a number that proves it worked.</p>\n<ul><li>Key points</li><li>A portfolio is judged on process — problem, process, outcome — not just final screens.</li><li>Three to five strong projects beat ten weak ones.</li><li>Show results in numbers where possible, and include one failed iteration.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What do recruiters judge most in a design portfolio?",
+          "options": ["The number of projects", "The process: problem, thinking, iterations and outcome", "The portfolio's own decoration", "The tools listed on the resume"],
+          "answer": 1,
+          "why": "Recruiters hire for how a designer thinks, so the process behind the screens matters more than the screens alone."
+        },
+        {
+          "q": "What are the four parts of a good case study?",
+          "options": ["Sketch, colour, font, export", "Problem, process, outcome, next steps", "Login, home, profile, settings", "Research, code, test, deploy"],
+          "answer": 1,
+          "why": "A case study tells the story: what was broken, how you worked on it, what resulted, and what you would improve."
+        },
+        {
+          "q": "How many projects should a portfolio ideally show?",
+          "options": ["As many as possible", "Three to five strong projects", "Exactly one", "At least twenty"],
+          "answer": 1,
+          "why": "Quality beats quantity: a few deep case studies prove skill better than many shallow screenshots."
+        },
+        {
+          "q": "Why show a failed iteration in a case study?",
+          "options": ["It fills space", "It proves you test, learn and iterate instead of guessing right first time", "Recruiters expect mistakes", "It makes the portfolio longer"],
+          "answer": 1,
+          "why": "Showing what did not work and what you changed demonstrates real design thinking."
+        },
+        {
+          "q": "When should you update your portfolio after finishing a project?",
+          "options": ["After a year", "Right away, while the details are still fresh", "Only when job hunting", "Never — keep the first version"],
+          "answer": 1,
+          "why": "Details fade fast; updating immediately keeps the case study accurate and complete."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Build a portfolio case study",
+          "prompt": "Pick one app you use daily and write a one-page case study for redesigning its home screen: the problem (one sentence), your process (research note, wireframe sketch, one iteration), the final design, and the result you would measure in a user test.",
+          "code": "",
+          "expected": "A one-page case study with a problem statement, process notes, a wireframe, the final design and one measurable result",
+          "answer": "Start from a real frustration you have with the app, sketch the current screen, change one thing at a time, and define the result as a number (for example task time or success rate).",
+          "hint": "Begin with the problem sentence — everything else follows from it."
+        }
+      ]
+    },
+    {
+      "title": "Design Systems & Component Libraries",
+      "duration_minutes": 55,
+      "body": "<h3>Design Systems &amp; Component Libraries</h3>\n<p>A design system is a shared set of reusable components plus the rules for using them: buttons, inputs, cards, colours, spacing and typography, all documented in one place. Without one, every screen reinvents the same button slightly differently and the product slowly falls apart visually. With one, a new screen is assembled from parts that already match.</p>\n<p>The building blocks are design tokens — named values for colour, spacing and type, such as <code>color-primary</code> or <code>space-16</code> — so changing the brand blue in one place updates the whole product. Components come in variants (primary button, secondary button, disabled button) and states (default, hover, pressed). A good system is documented: when to use each component, when not to, and what not to customise. Version it like code, because a breaking change to a button affects every screen that uses it.</p>\n<pre><code>Design tokens (named values):\n  color-primary: #2563EB   (brand blue)\n  color-text:    #1F2937   (headings and body)\n  space-16:      16px      (standard gap)\n  radius-md:     8px       (card corners)</code></pre>\n<p>Step by step: name the values once as tokens, build components from those tokens, then document each component's variants and rules so the whole team uses them the same way.</p>\n<ul><li>Key points</li><li>A design system is reusable components plus the rules for using them.</li><li>Design tokens are named values for colour, spacing and typography.</li><li>Document when to use each component — and version the system like code.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is a design system?",
+          "options": ["A single finished app screen", "A shared set of reusable components plus rules for using them", "A folder of stock photos", "A type of database"],
+          "answer": 1,
+          "why": "A design system combines a component library with guidelines, so every screen is built from consistent, documented parts."
+        },
+        {
+          "q": "What are design tokens?",
+          "options": ["Login codes for designers", "Named values for colour, spacing and typography, such as color-primary", "Small icons", "Figma plugins"],
+          "answer": 1,
+          "why": "Tokens give a name to a value so it can be reused and changed in one place across the whole product."
+        },
+        {
+          "q": "What is the main benefit of a component library?",
+          "options": ["It makes files smaller", "The same button looks and behaves the same on every screen", "It removes the need for testing", "It writes the code automatically"],
+          "answer": 1,
+          "why": "Reusing one button component guarantees consistency; rebuilding it per screen creates drift."
+        },
+        {
+          "q": "Why should a design system be versioned like code?",
+          "options": ["So designers get paid more", "Because changing a shared component affects every screen that uses it", "Because Figma requires it", "So it can be sold"],
+          "answer": 1,
+          "why": "A component change ripples everywhere, so versions let teams adopt changes deliberately instead of by surprise."
+        },
+        {
+          "q": "What should the documentation of a component include?",
+          "options": ["Only its colour", "When to use it, when not to, and its variants and states", "The name of its designer", "Its file size"],
+          "answer": 1,
+          "why": "Good documentation tells teams the right use, the wrong use, and the available variants so the system is used consistently."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the sentence about design systems.",
+          "code": "Named values for colour and spacing in a design system are called design ___.",
+          "expected": "tokens",
+          "answer": "Design tokens are named values like color-primary or space-16 that can be reused and changed in one place.",
+          "hint": "What are the named values in a design system called?"
+        }
+      ]
+    }
+  ]
+}
