@@ -1,0 +1,304 @@
+{
+  "course": {
+    "match_title": "React - Build Modern Web Apps",
+    "title": "React - Build Modern Web Apps",
+    "description": "Master React hooks, routing, state management and deploy production-ready apps.",
+    "category": "Development",
+    "price": 1299,
+    "instructor": "Vikram Singh",
+    "duration_hours": 15,
+    "level": "Intermediate",
+    "image_url": "assets/images/course2.svg"
+  },
+  "lessons": [
+    {
+      "title": "Components & JSX",
+      "duration_minutes": 50,
+      "is_preview": 1,
+      "body": "<h3>Components &amp; JSX</h3>\n<p>A React app is built from components — small, reusable functions that return what should appear on screen. A component is just a JavaScript function whose name starts with a capital letter: <code>function Greet() { return &lt;h1&gt;Hello&lt;/h1&gt;; }</code>. Components can be reused anywhere: use <code>&lt;Greet /&gt;</code> ten times and you get ten greetings.</p>\n<p>JSX is the HTML-like syntax inside components. It looks like HTML but it is JavaScript: put any expression inside curly braces — <code>&lt;h1&gt;Hello {name}&lt;/h1&gt;</code> shows the value of <code>name</code>. Two JSX rules trip up beginners: use <code>className</code> instead of <code>class</code> (because <code>class</code> is a reserved word in JavaScript), and every component must return a single root element, so wrap siblings in one <code>&lt;div&gt;</code> or a fragment <code>&lt;&gt;...&lt;/&gt;</code>. Components receive data through props — <code>&lt;Greet name=\"Sid\" /&gt;</code> makes <code>props.name</code> equal to \"Sid\" inside Greet.</p>\n<pre><code>function Greet({ name }) {\n  return &lt;h1 className=\"title\"&gt;Hello {name}&lt;/h1&gt;;\n}\n// &lt;Greet name=\"Sid\" /&gt; renders: Hello Sid</code></pre>\n<p>Step by step: the component receives <code>name</code> as a prop, destructures it in the function signature, and the JSX expression <code>{name}</code> prints its value into the heading.</p>\n<ul><li>Key points</li><li>A component is a function returning JSX; its name must start with a capital letter.</li><li>JavaScript expressions go inside curly braces in JSX.</li><li>Use <code>className</code>, not <code>class</code>, and return a single root element.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is JSX?",
+          "options": ["A database query language", "An HTML-like syntax for writing UI inside JavaScript", "A CSS framework", "A testing tool for React"],
+          "answer": 1,
+          "why": "JSX lets you write HTML-like markup inside JavaScript; React compiles it into JavaScript calls that build the UI."
+        },
+        {
+          "q": "What is a React component?",
+          "options": ["A CSS file", "A reusable function that returns JSX describing part of the UI", "A database table", "A browser plugin"],
+          "answer": 1,
+          "why": "Components are functions (or classes) that return JSX; apps are built by composing them."
+        },
+        {
+          "q": "How do you show the value of a JavaScript variable inside JSX?",
+          "options": ["By writing it as plain text", "Inside curly braces: {name}", "Inside square brackets: [name]", "With a dollar sign: $name"],
+          "answer": 1,
+          "why": "Curly braces in JSX mark a JavaScript expression, so {name} evaluates the variable and prints its value."
+        },
+        {
+          "q": "Why do you write className instead of class in JSX?",
+          "options": ["It makes the page load faster", "Because class is a reserved word in JavaScript", "Because React does not support CSS classes", "It is only a style preference"],
+          "answer": 1,
+          "why": "class is reserved in JavaScript, so JSX uses className for the HTML class attribute."
+        },
+        {
+          "q": "What happens if a component returns two sibling elements with no wrapper?",
+          "options": ["React renders both fine", "JSX throws an error: a component must return a single root element", "Only the first element renders", "The page goes blank with no error"],
+          "answer": 1,
+          "why": "A component must return one root element; wrap siblings in a div or a fragment <>...</>."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "const name = \"Sid\";\nconsole.log(`Hello ${name}`);",
+          "expected": "Hello Sid",
+          "answer": "The template literal ${name} is replaced by the value of name, so it prints Hello Sid.",
+          "hint": "What does ${name} inside backticks do?"
+        }
+      ]
+    },
+    {
+      "title": "Hooks: useState & useEffect",
+      "duration_minutes": 60,
+      "body": "<h3>Hooks: useState &amp; useEffect</h3>\n<p>Hooks let function components hold state and react to changes. <code>useState</code> is the most common: <code>const [count, setCount] = useState(0)</code> creates a state value <code>count</code> starting at 0 and a setter <code>setCount</code>. Calling <code>setCount(5)</code> updates the value and tells React to re-render the component with the new value. Never assign to <code>count</code> directly — only the setter triggers a re-render.</p>\n<p><code>useEffect</code> handles side effects — things outside rendering, like fetching data or setting a timer. It runs after the component renders. The dependency array controls when it re-runs: <code>useEffect(fn, [])</code> with an empty array runs once after the first render, while <code>useEffect(fn, [count])</code> re-runs whenever <code>count</code> changes. Leave the array out entirely and the effect runs after every render. Two rules apply to all hooks: call them only at the top level of a component (never inside loops, conditions or nested functions) and only from React components or other hooks.</p>\n<pre><code>function Counter() {\n  const [count, setCount] = useState(0);\n  useEffect(() =&gt; {\n    document.title = `Count: ${count}`;\n  }, [count]);\n  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;{count}&lt;/button&gt;;\n}</code></pre>\n<p>Step by step: clicking the button calls <code>setCount(count + 1)</code>, React re-renders with the new count, and the effect updates the page title because <code>count</code> is in its dependency array.</p>\n<ul><li>Key points</li><li><code>useState</code> returns <code>[value, setter]</code>; only the setter triggers a re-render.</li><li><code>useEffect</code> runs after render; the dependency array controls when it re-runs.</li><li>Hooks go at the top level of a component — never in loops or conditions.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does const [count, setCount] = useState(0) give you?",
+          "options": ["A variable count and a function setCount that updates it and re-renders", "Two copies of the number 0", "A prop called count", "A reference to the DOM element"],
+          "answer": 0,
+          "why": "useState returns a pair: the current state value and a setter function that updates it and triggers a re-render."
+        },
+        {
+          "q": "What happens when you call setCount(5)?",
+          "options": ["count is set to 5 but nothing re-renders", "The state updates to 5 and React re-renders the component", "The component unmounts", "An error is thrown"],
+          "answer": 1,
+          "why": "The setter updates the state and schedules a re-render so the UI shows the new value."
+        },
+        {
+          "q": "What is useEffect used for?",
+          "options": ["Styling components", "Side effects such as fetching data or setting timers, run after render", "Defining new components", "Routing between pages"],
+          "answer": 1,
+          "why": "useEffect runs code after rendering for work outside the render itself, like data fetching and subscriptions."
+        },
+        {
+          "q": "What does an empty dependency array [] in useEffect mean?",
+          "options": ["The effect never runs", "The effect runs once, after the first render", "The effect runs after every render", "The effect runs only when the component unmounts"],
+          "answer": 1,
+          "why": "With no dependencies to watch, the effect has nothing that can trigger a re-run, so it runs once on mount."
+        },
+        {
+          "q": "Which of these breaks the Rules of Hooks?",
+          "options": ["Calling useState at the top of a component", "Calling useState inside an if block", "Calling useState in a custom hook", "Calling two useState hooks in one component"],
+          "answer": 1,
+          "why": "Hooks must be called in the same order on every render, so they cannot be inside conditions, loops or nested functions."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "trace",
+          "title": "Trace the variables",
+          "prompt": "A Counter starts at 0. The button is clicked twice. What number does the button show after the second click?",
+          "code": "const [count, setCount] = useState(0);\n// click 1: setCount(count + 1)\n// click 2: setCount(count + 1)",
+          "expected": "2",
+          "answer": "Each click adds 1: after click 1 the count is 1, after click 2 it is 2, and the button renders the current count.",
+          "hint": "Trace count through each click: what is count when the second click runs?"
+        }
+      ]
+    },
+    {
+      "title": "React Router",
+      "duration_minutes": 45,
+      "body": "<h3>React Router</h3>\n<p>A single-page app has no real page loads, so React Router provides client-side routing: the URL changes and a different component renders, without the browser fetching a new page. Wrap the app in <code>&lt;BrowserRouter&gt;</code>, list the routes inside <code>&lt;Routes&gt;</code>, and map each path to a component with <code>&lt;Route path=\"/about\" element={&lt;About /&gt;} /&gt;</code>.</p>\n<p>Navigate with <code>&lt;Link to=\"/about\"&gt;About&lt;/Link&gt;</code> instead of a plain <code>&lt;a href&gt;</code> — a Link updates the URL and renders the new route without a full page reload, so state is preserved. Dynamic parts of a URL are parameters: a route <code>/users/:id</code> matches <code>/users/42</code>, and <code>useParams()</code> inside the component returns <code>{ id: \"42\" }</code>. A catch-all route <code>path=\"*\"</code> renders a \"page not found\" component for unknown URLs.</p>\n<pre><code>import { BrowserRouter, Routes, Route, Link } from \"react-router-dom\";\n&lt;BrowserRouter&gt;\n  &lt;Link to=\"/about\"&gt;About&lt;/Link&gt;\n  &lt;Routes&gt;\n    &lt;Route path=\"/\" element={&lt;Home /&gt;} /&gt;\n    &lt;Route path=\"/about\" element={&lt;About /&gt;} /&gt;\n    &lt;Route path=\"*\" element={&lt;NotFound /&gt;} /&gt;\n  &lt;/Routes&gt;\n&lt;/BrowserRouter&gt;</code></pre>\n<p>Step by step: clicking the Link changes the URL to /about, the Routes list finds the matching Route, and the About component renders — no page reload, no lost state.</p>\n<ul><li>Key points</li><li><code>&lt;BrowserRouter&gt;</code> wraps the app; <code>&lt;Routes&gt;</code> holds the <code>&lt;Route&gt;</code> list.</li><li><code>&lt;Link&gt;</code> navigates without a full page reload; a plain <code>&lt;a&gt;</code> reloads the page.</li><li>URL parameters like <code>:id</code> are read with <code>useParams()</code>.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which component must wrap the app for React Router to work?",
+          "options": ["<Routes>", "<Link>", "<BrowserRouter>", "<Route>"],
+          "answer": 2,
+          "why": "BrowserRouter provides the routing context (history and location) that Routes, Link and the hooks need."
+        },
+        {
+          "q": "What does <Route path=\"/about\" element={<About />} /> do?",
+          "options": ["It always renders About", "It renders About only when the URL is /about", "It redirects to /about", "It fetches the About page from the server"],
+          "answer": 1,
+          "why": "A Route renders its element only when the current URL matches its path."
+        },
+        {
+          "q": "Why use <Link> instead of a plain <a href> in a React app?",
+          "options": ["Links are faster to type", "Link navigates without a full page reload, so app state is preserved", "Links work without JavaScript", "Plain anchors are banned in React"],
+          "answer": 1,
+          "why": "Link updates the URL through the router and renders the new route client-side; a plain anchor reloads the whole page."
+        },
+        {
+          "q": "For the route /users/:id, what does useParams() return when the URL is /users/42?",
+          "options": ["42", "{ id: \"42\" }", "{ user: 42 }", "null"],
+          "answer": 1,
+          "why": "useParams returns an object of the matched parameters, with values as strings: { id: \"42\" }."
+        },
+        {
+          "q": "What is the purpose of a Route with path=\"*\"?",
+          "options": ["It matches only the home page", "It is a catch-all that renders for any unmatched URL, such as a 404 page", "It loads all routes at once", "It disables routing"],
+          "answer": 1,
+          "why": "The * path matches anything, so it is used as the last route to render a Not Found page."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing component so clicking About navigates without a full page reload.",
+          "code": "<___ to=\"/about\">About</___>",
+          "expected": "Link",
+          "answer": "Link is React Router's navigation component: it updates the URL and renders the matching route client-side.",
+          "hint": "Which component navigates without reloading the page?"
+        }
+      ]
+    },
+    {
+      "title": "State Management Basics",
+      "duration_minutes": 55,
+      "body": "<h3>State Management Basics</h3>\n<p>State is data that changes over time, and in React it flows one way: down. A parent passes data to a child through props, and the child cannot change the parent's state directly — it calls a function the parent passed down instead. When two sibling components need the same data, lift the state up: move it into their nearest common parent and pass it down to both.</p>\n<p>Passing props through many layers just to reach a deep child is called prop drilling, and it makes components hard to change. The Context API fixes it: create a context, wrap the tree in a Provider with the value, and any deep component reads it with <code>useContext</code> — no middlemen. For state with many related values and transitions, <code>useReducer</code> groups the logic into one reducer function instead of many separate <code>useState</code> calls. The rule of thumb: local state with <code>useState</code> first, lift state up when siblings share it, Context when many components need it, and a reducer when updates get complicated.</p>\n<pre><code>// Lifting state up: the parent owns the shared value\nfunction Parent() {\n  const [theme, setTheme] = useState(\"light\");\n  return &lt;&gt;&lt;Header theme={theme} /&gt;&lt;Footer setTheme={setTheme} /&gt;&lt;/&gt;;\n}</code></pre>\n<p>Step by step: the theme lives in the parent, Header receives it as a prop to display, and Footer receives the setter so it can change the theme for both.</p>\n<ul><li>Key points</li><li>Data flows down through props; children change parent state via functions passed down.</li><li>Lift shared state into the nearest common parent of the components that need it.</li><li>Context avoids prop drilling; useReducer organises complex state updates.</li></ul>",
+      "mcqs": [
+        {
+          "q": "When two sibling components need the same data, what should you do?",
+          "options": ["Duplicate the state in both components", "Lift the state up into their nearest common parent", "Store it in a global variable", "Fetch it twice from the server"],
+          "answer": 1,
+          "why": "Lifting state up keeps one source of truth in the shared parent, which passes it down to both siblings."
+        },
+        {
+          "q": "In React, which direction does data flow?",
+          "options": ["Both directions freely", "One way: down from parent to child through props", "Only upward, from child to parent", "Sideways between siblings"],
+          "answer": 1,
+          "why": "React data flows down via props; children communicate upward only by calling functions the parent passed down."
+        },
+        {
+          "q": "What problem does the Context API solve?",
+          "options": ["Slow page loads", "Prop drilling: passing props through many layers to reach a deep child", "Styling components", "Fetching data from APIs"],
+          "answer": 1,
+          "why": "Context lets any deep component read a shared value directly, without every layer in between passing it along."
+        },
+        {
+          "q": "When is useReducer a better choice than several useState calls?",
+          "options": ["When the state is a single boolean", "When the state has many related values and transitions", "When the component has no state", "When you need to fetch data"],
+          "answer": 1,
+          "why": "useReducer groups related state and its update logic into one reducer function, which stays readable as complexity grows."
+        },
+        {
+          "q": "What is prop drilling?",
+          "options": ["Passing data through many layers of components just to reach a deep child", "Drilling a hole in the component tree", "A way to fetch props from the server", "Passing props to a parent"],
+          "answer": 0,
+          "why": "Prop drilling is threading props through intermediate components that do not use the data themselves."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Complete the sentence about passing data through many layers.",
+          "code": "Passing data through many layers of components just to reach a deep child is called prop ___.",
+          "expected": "drilling",
+          "answer": "Prop drilling is threading props through components that do not need the data themselves; Context is the usual fix.",
+          "hint": "Which word describes threading props down through layers?"
+        }
+      ]
+    },
+    {
+      "title": "Deploy a React App",
+      "duration_minutes": 40,
+      "body": "<h3>Deploy a React App</h3>\n<p>Deploying turns your development project into a live website. First build it: <code>npm run build</code> runs the production build, which bundles, minifies and optimises your code into static files. With Create React App the output goes into a <code>build/</code> folder; with Vite it goes into <code>dist/</code>. Those files are plain HTML, CSS and JavaScript — no Node server is needed to serve them.</p>\n<p>Upload that folder to a static host such as Netlify, Vercel or GitHub Pages and the app is live. One catch: client-side routing. When a user refreshes on <code>/about</code>, the host must serve <code>index.html</code> for that URL instead of a 404, because the route only exists inside your JavaScript — this is called the SPA fallback, and Netlify and Vercel handle it with a one-line redirect rule. Environment variables keep secrets out of the code: in Create React App, variables starting with <code>REACT_APP_</code> are embedded at build time, so never put a real secret in one — anything in the bundle is visible to users.</p>\n<pre><code>npm run build        # creates the production bundle\n# Create React App -&gt; build/ folder\n# Vite             -&gt; dist/ folder\n# Then upload that folder to Netlify, Vercel or GitHub Pages</code></pre>\n<p>Step by step: build the bundle, upload the output folder to a static host, and add the SPA fallback so refreshing on any route serves index.html.</p>\n<ul><li>Key points</li><li><code>npm run build</code> creates the optimised production bundle.</li><li>A React build is static files — any static host can serve it.</li><li>Hosts need an SPA fallback so client-side routes do not 404 on refresh.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which command creates the production-ready bundle of a React app?",
+          "options": ["npm start", "npm run build", "npm install", "npm test"],
+          "answer": 1,
+          "why": "npm run build bundles, minifies and optimises the app into static files ready for hosting."
+        },
+        {
+          "q": "Where does Create React App put the production build output?",
+          "options": ["In the src/ folder", "In the build/ folder", "In the public/ folder", "In node_modules/"],
+          "answer": 1,
+          "why": "The build script writes the optimised static files into build/ (Vite uses dist/ instead)."
+        },
+        {
+          "q": "Which of these can host a React production build?",
+          "options": ["Only a Node.js server", "Any static host such as Netlify, Vercel or GitHub Pages", "Only the developer's laptop", "Only a database server"],
+          "answer": 1,
+          "why": "The build output is plain HTML, CSS and JavaScript, so any static file host can serve it."
+        },
+        {
+          "q": "What is the SPA fallback a host needs for a React Router app?",
+          "options": ["A database connection", "Serving index.html for any route so client-side routing works on refresh", "A faster CPU", "An SSL certificate only"],
+          "answer": 1,
+          "why": "Routes like /about exist only in JavaScript, so the host must return index.html for them instead of a 404."
+        },
+        {
+          "q": "In Create React App, which variables are embedded into the build?",
+          "options": ["All environment variables", "Only variables starting with REACT_APP_", "Only variables in .gitignore", "None — environment variables never reach the browser"],
+          "answer": 1,
+          "why": "CRA embeds variables prefixed with REACT_APP_ at build time; anything in the bundle is visible, so secrets must never go there."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing word to create the production bundle.",
+          "code": "npm run ___  # creates the production-ready bundle",
+          "expected": "build",
+          "answer": "npm run build runs the build script, which bundles and minifies the app into static files.",
+          "hint": "Which npm script builds the app for production?"
+        }
+      ]
+    },
+    {
+      "title": "Performance Optimisation in React",
+      "duration_minutes": 50,
+      "body": "<h3>Performance Optimisation in React</h3>\n<p>React is fast by default, but re-renders add up. A component re-renders when its state, props or parent change — and a big list re-rendering on every keystroke feels sluggish. <code>React.memo</code> wraps a component so React skips re-rendering it when its props have not changed: <code>const UserRow = React.memo(function UserRow({ user }) { ... })</code>.</p>\n<p>For expensive calculations, <code>useMemo</code> caches a value and only recomputes it when its dependencies change: <code>const sorted = useMemo(() =&gt; items.sort(), [items])</code>. <code>useCallback</code> does the same for functions, so a memoised child does not re-render just because its parent passed a brand-new function each time. For big apps, split the code: <code>React.lazy(() =&gt; import(\"./Admin\"))</code> loads a heavy page only when the user opens it, wrapped in <code>&lt;Suspense&gt;</code> with a loading fallback. And always give list items a stable <code>key</code> — keys tell React which item is which, so it updates only the rows that changed instead of rebuilding the whole list.</p>\n<pre><code>const sorted = useMemo(() =&gt; items.sort((a, b) =&gt; a - b), [items]);\nconst onSave = useCallback(() =&gt; save(items), [items]);\nconst Admin = React.lazy(() =&gt; import(\"./Admin\"));</code></pre>\n<p>Step by step: <code>useMemo</code> re-sorts only when <code>items</code> changes, <code>useCallback</code> keeps the same save function until <code>items</code> changes, and <code>React.lazy</code> defers loading Admin until it is needed.</p>\n<ul><li>Key points</li><li><code>React.memo</code> skips re-rendering a component when its props are unchanged.</li><li><code>useMemo</code> caches computed values; <code>useCallback</code> caches functions.</li><li>Use <code>React.lazy</code> for code splitting and stable <code>key</code>s for lists.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does React.memo do?",
+          "options": ["It stores data in localStorage", "It skips re-rendering a component when its props have not changed", "It makes the component load faster from the server", "It caches API responses"],
+          "answer": 1,
+          "why": "React.memo compares the new props with the previous ones and reuses the last render when they are unchanged."
+        },
+        {
+          "q": "What does useMemo cache?",
+          "options": ["A function", "A computed value, recomputed only when its dependencies change", "A DOM element", "A route"],
+          "answer": 1,
+          "why": "useMemo memoises the result of an expensive calculation and returns the cached value until a dependency changes."
+        },
+        {
+          "q": "What does useCallback cache?",
+          "options": ["A computed value", "A function, so its identity stays stable across renders", "A component's state", "A CSS class"],
+          "answer": 1,
+          "why": "useCallback returns the same function reference until its dependencies change, which keeps memoised children from re-rendering."
+        },
+        {
+          "q": "How does React.lazy help performance?",
+          "options": ["It compresses images", "It loads a component's code only when that component is first needed", "It removes unused CSS", "It makes the server faster"],
+          "answer": 1,
+          "why": "React.lazy code-splits: the chunk for a heavy page is fetched only when the user opens it, so the first load stays small."
+        },
+        {
+          "q": "Why do list items need a stable key prop?",
+          "options": ["Keys make the list look nicer", "Keys tell React which item is which, so it updates only changed rows", "Keys are required for styling", "Keys sort the list automatically"],
+          "answer": 1,
+          "why": "Stable keys let React match old and new items, so it reuses DOM nodes and only updates what actually changed."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing hook so the sorted list is only recomputed when items changes.",
+          "code": "const sorted = ___(() => items.sort((a, b) => a - b), [items]);",
+          "expected": "useMemo",
+          "answer": "useMemo caches the sorted result and recomputes it only when items changes.",
+          "hint": "Which hook caches a computed value?"
+        }
+      ]
+    }
+  ]
+}

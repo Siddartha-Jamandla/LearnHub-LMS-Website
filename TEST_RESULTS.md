@@ -395,3 +395,23 @@ scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
 verified the other two banks built today (separate commits)
 and the pre-existing Python bank (50 MCQs, still 10/10).
+
+---
+
+## Daily upgrade — 2026-11-14 (IST): React - Build Modern Web Apps quiz bank
+
+`backend/content/react.json` adds the missing quiz bank for
+React - Build Modern Web Apps (course 8): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals now
+12 courses, 88 lessons, 456 MCQs, 215 tasks). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+4 of the 12 base courses still have no quiz bank (Digital Marketing, Django, TypeScript, Git & GitHub) — follow-up content work.
+
+Tested on a scratch DB (port 8152, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/8/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
+verified the other two banks built today (separate commits)
+and the pre-existing Python bank (50 MCQs, still 10/10).
