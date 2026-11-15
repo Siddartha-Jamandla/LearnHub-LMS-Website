@@ -1,0 +1,304 @@
+{
+  "course": {
+    "match_title": "Data Science with SQL & Python",
+    "title": "Data Science with SQL & Python",
+    "description": "Analyse real datasets with SQL, Pandas and visualisation to drive business insights.",
+    "category": "Data Science",
+    "price": 1199,
+    "instructor": "Kavya Nair",
+    "duration_hours": 16,
+    "level": "Intermediate",
+    "image_url": "assets/images/course6.svg"
+  },
+  "lessons": [
+    {
+      "title": "SQL Joins & Aggregations",
+      "duration_minutes": 55,
+      "is_preview": 1,
+      "body": "<h3>SQL Joins &amp; Aggregations</h3>\n<p>Real data lives in several tables, and joins stitch them together. An <code>INNER JOIN</code> keeps only rows that match in both tables, a <code>LEFT JOIN</code> keeps every row from the left table and fills in <code>NULL</code> where the right table has no match, and a <code>CROSS JOIN</code> pairs every row with every row (rarely what you want).</p>\n<p>Aggregations summarise many rows into one number: <code>COUNT(*)</code> counts rows, <code>SUM()</code> adds them up, <code>AVG()</code> takes the mean, <code>MIN()</code> and <code>MAX()</code> find the extremes. <code>COUNT(column)</code> skips <code>NULL</code> values while <code>COUNT(*)</code> counts every row. <code>GROUP BY</code> splits rows into groups first, so you get one result row per group — one average salary per department, for example.</p>\n<pre><code>SELECT department, AVG(salary) AS avg_pay\nFROM employees\nGROUP BY department\nHAVING AVG(salary) &gt; 50000\nORDER BY avg_pay DESC;</code></pre>\n<p>Step by step: <code>GROUP BY department</code> makes one group per department, <code>AVG(salary)</code> computes the average inside each group, and <code>HAVING</code> filters groups after aggregation — <code>WHERE</code> cannot do that because it runs before grouping.</p>\n<ul><li>Key points</li><li><code>INNER JOIN</code> keeps matches only; <code>LEFT JOIN</code> keeps all left rows with <code>NULL</code> for misses.</li><li><code>COUNT(*)</code> counts all rows; <code>COUNT(column)</code> skips <code>NULL</code>.</li><li><code>WHERE</code> filters rows before grouping; <code>HAVING</code> filters groups after aggregation.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which JOIN returns only the rows that have a match in both tables?",
+          "options": ["LEFT JOIN", "INNER JOIN", "FULL OUTER JOIN", "CROSS JOIN"],
+          "answer": 1,
+          "why": "INNER JOIN keeps only rows that match on the join condition in both tables; the other joins keep unmatched rows too."
+        },
+        {
+          "q": "What does COUNT(email) count in a table where some email values are NULL?",
+          "options": ["All rows in the table", "Only rows where email is not NULL", "Only distinct email values", "Only rows where email is NULL"],
+          "answer": 1,
+          "why": "COUNT(column) counts non-NULL values in that column, while COUNT(*) counts every row including NULLs."
+        },
+        {
+          "q": "Which clause filters groups after aggregation, for example keeping only departments whose average salary is above 50000?",
+          "options": ["WHERE", "HAVING", "ORDER BY", "LIMIT"],
+          "answer": 1,
+          "why": "HAVING filters grouped results after aggregation; WHERE runs before grouping and cannot see aggregate values."
+        },
+        {
+          "q": "A LEFT JOIN from customers to orders returns which rows?",
+          "options": ["Only customers who placed an order", "All customers, with NULLs where a customer has no order", "Only orders with no matching customer", "Exactly the same rows as an INNER JOIN"],
+          "answer": 1,
+          "why": "LEFT JOIN keeps every row from the left table and fills NULL for columns of the right table when there is no match."
+        },
+        {
+          "q": "What does SELECT department, AVG(salary) FROM employees GROUP BY department return?",
+          "options": ["The average salary of all employees", "One row per department with that department's average salary", "The highest salary in each department", "The number of employees in each department"],
+          "answer": 1,
+          "why": "GROUP BY department creates one group per department and AVG(salary) is computed separately inside each group."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "There are 5 students and only 3 of them have a row in the scores table. What does this query print?",
+          "code": "SELECT COUNT(*) FROM students s\nLEFT JOIN scores sc ON s.id = sc.student_id\nWHERE sc.student_id IS NULL;",
+          "expected": "2",
+          "answer": "The LEFT JOIN keeps all 5 students; the 2 without a score get NULL in sc.student_id, and the WHERE keeps exactly those 2 rows.",
+          "hint": "Which students have NULL on the scores side of the LEFT JOIN?"
+        }
+      ]
+    },
+    {
+      "title": "Pandas DataFrames",
+      "duration_minutes": 60,
+      "body": "<h3>Pandas DataFrames</h3>\n<p>A DataFrame is a table in Python: rows are records, columns are named series of values. <code>pd.read_csv(\"sales.csv\")</code> loads a CSV file into a DataFrame, <code>df.head()</code> shows the first five rows, and <code>df.describe()</code> summarises the numeric columns with count, mean, min and max.</p>\n<p>Pick a single column with <code>df[\"age\"]</code> — that gives you a Series, one column on its own. Filter rows with a condition: <code>df[df[\"age\"] &gt; 30]</code> keeps only rows where age is over 30. Group and summarise with <code>df.groupby(\"city\")[\"sales\"].sum()</code>, which totals sales separately for each city. Remember the difference between <code>.loc</code> (label-based: <code>df.loc[0]</code> is the row labelled 0) and <code>.iloc</code> (position-based: <code>df.iloc[0]</code> is the first row).</p>\n<pre><code>import pandas as pd\ndf = pd.read_csv(\"sales.csv\")\nprint(df.groupby(\"city\")[\"sales\"].sum())\nprint(df[df[\"sales\"] &gt; 1000].shape)  # (rows, columns) of big sales</code></pre>\n<p>Step by step: <code>read_csv</code> builds the table, <code>groupby(\"city\")</code> splits it into one group per city, and <code>[\"sales\"].sum()</code> adds up the sales inside each group.</p>\n<ul><li>Key points</li><li><code>df[\"col\"]</code> returns a Series; <code>df[[\"a\", \"b\"]]</code> returns a DataFrame.</li><li>Filter rows with a boolean condition: <code>df[df[\"age\"] &gt; 30]</code>.</li><li><code>.loc</code> selects by label, <code>.iloc</code> selects by position.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does pd.read_csv(\"sales.csv\") return?",
+          "options": ["A Series", "A DataFrame", "A NumPy array", "A Python dict"],
+          "answer": 1,
+          "why": "read_csv loads tabular data into a DataFrame, Pandas' two-dimensional labelled table."
+        },
+        {
+          "q": "What does df[\"age\"] return?",
+          "options": ["A DataFrame", "A Series", "A list", "A NumPy array"],
+          "answer": 1,
+          "why": "Selecting a single column with df[\"age\"] returns a Series; selecting a list of columns returns a DataFrame."
+        },
+        {
+          "q": "What does df.groupby(\"city\")[\"sales\"].sum() compute?",
+          "options": ["The total sales across all cities", "The total sales for each city separately", "The average sale per city", "The number of rows per city"],
+          "answer": 1,
+          "why": "groupby splits the rows into one group per city and sum() adds the sales inside each group."
+        },
+        {
+          "q": "What does df.dropna() do?",
+          "options": ["Fills missing values with zero", "Removes rows containing any missing value", "Removes duplicate rows", "Sorts the DataFrame"],
+          "answer": 1,
+          "why": "dropna() drops rows that contain at least one missing (NaN) value; fillna() is the one that replaces them."
+        },
+        {
+          "q": "What is the difference between df.loc[0] and df.iloc[0]?",
+          "options": ["They are identical", "loc selects by row label, iloc selects by row position", "loc selects by position, iloc selects by label", "loc returns a DataFrame, iloc returns a Series"],
+          "answer": 1,
+          "why": "loc is label-based indexing and iloc is integer-position-based indexing; they agree only when labels are 0, 1, 2, ..."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "import pandas as pd\ndf = pd.DataFrame({\"a\": [1, 2, 3]})\nprint(df[\"a\"].sum())",
+          "expected": "6",
+          "answer": "df[\"a\"] is the Series 1, 2, 3 and .sum() adds them: 1 + 2 + 3 = 6.",
+          "hint": "What does selecting one column give you, and what does .sum() do to it?"
+        }
+      ]
+    },
+    {
+      "title": "Data Cleaning Techniques",
+      "duration_minutes": 50,
+      "body": "<h3>Data Cleaning Techniques</h3>\n<p>Real datasets are messy: missing values, duplicates, wrong types and stray spaces. Start by finding the mess — <code>df.isna().sum()</code> counts missing values per column and <code>df.duplicated().sum()</code> counts duplicate rows. Then decide what to do: <code>df.dropna()</code> removes rows with missing values (good when few are missing), while <code>df[\"age\"].fillna(df[\"age\"].mean())</code> fills the gaps with the column average (better when you cannot afford to lose rows).</p>\n<p>Types matter too: a price column read as text cannot be summed, so convert it with <code>df[\"price\"].astype(float)</code>. Clean text with string methods — <code>df[\"name\"].str.strip()</code> removes leading and trailing spaces and <code>.str.lower()</code> makes casing consistent. Outliers are values far from the rest: the IQR rule flags anything below Q1 - 1.5 * IQR or above Q3 + 1.5 * IQR. Always clean on a copy or check the row count before and after, so you know exactly what changed.</p>\n<pre><code>df[\"price\"] = df[\"price\"].str.replace(\"$\", \"\", regex=False).astype(float)\ndf[\"city\"] = df[\"city\"].str.strip().str.title()\ndf = df.drop_duplicates()\nprint(df.shape)  # check how many rows survived cleaning</code></pre>\n<p>Step by step: strip the <code>$</code> and convert to float so prices can be summed, tidy the city names so \" goa \" and \"Goa\" stop counting as two cities, then drop exact duplicate rows.</p>\n<ul><li>Key points</li><li><code>fillna()</code> replaces missing values; <code>dropna()</code> removes rows with missing values.</li><li>Fix types with <code>astype()</code> before doing maths on a column.</li><li>Use <code>.str.strip()</code> and consistent casing so the same value is not counted twice.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which method replaces missing values in a Pandas column?",
+          "options": ["dropna()", "fillna()", "drop_duplicates()", "astype()"],
+          "answer": 1,
+          "why": "fillna(value) fills missing (NaN) entries with the given value; dropna() removes the rows instead."
+        },
+        {
+          "q": "What does df.drop_duplicates() do?",
+          "options": ["Removes rows with missing values", "Removes duplicate rows, keeping the first copy", "Sorts the DataFrame", "Resets the row index"],
+          "answer": 1,
+          "why": "drop_duplicates() removes repeated rows and keeps the first occurrence of each by default."
+        },
+        {
+          "q": "A price column was read as text like \"$49\". What is the correct first step before summing it?",
+          "options": ["Call .sum() directly on the text column", "Strip the $ sign and convert the column with astype(float)", "Call .mean() instead of .sum()", "Sort the column alphabetically"],
+          "answer": 1,
+          "why": "Text cannot be summed, so the currency symbol must be removed and the column converted to a numeric type first."
+        },
+        {
+          "q": "Under the IQR rule, which values count as outliers?",
+          "options": ["Values equal to the median", "Values below Q1 - 1.5 * IQR or above Q3 + 1.5 * IQR", "Values within one standard deviation of the mean", "Any negative value"],
+          "answer": 1,
+          "why": "The IQR rule flags values more than 1.5 interquartile ranges beyond the first or third quartile."
+        },
+        {
+          "q": "Why would you run df[\"name\"].str.strip() during cleaning?",
+          "options": ["To remove duplicate rows", "To remove leading and trailing spaces so \" Goa \" and \"Goa\" match", "To convert the column to numbers", "To fill missing names"],
+          "answer": 1,
+          "why": "Stray spaces make the same value look like two different values in groupings and counts."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing method so duplicate rows are removed from the DataFrame.",
+          "code": "df = df.___()  # remove duplicate rows",
+          "expected": "drop_duplicates",
+          "answer": "drop_duplicates() removes repeated rows, keeping the first copy of each.",
+          "hint": "Which method name says it drops duplicates?"
+        }
+      ]
+    },
+    {
+      "title": "Visualisation with Matplotlib",
+      "duration_minutes": 45,
+      "body": "<h3>Visualisation with Matplotlib</h3>\n<p>A chart makes a pattern visible in seconds. Matplotlib's pyplot module draws them: <code>plt.plot(x, y)</code> draws a line chart, <code>plt.bar(categories, values)</code> draws bars, <code>plt.scatter(x, y)</code> plots points, and <code>plt.hist(data)</code> shows how values are distributed. Every chart needs labels — <code>plt.xlabel()</code> and <code>plt.ylabel()</code> name the axes, <code>plt.title()</code> names the chart, and <code>plt.legend()</code> explains the colours.</p>\n<p>Control the canvas with <code>plt.figure(figsize=(10, 6))</code> before plotting, save the result with <code>plt.savefig(\"chart.png\")</code>, and call <code>plt.show()</code> to display it. Pick the chart for the question: line charts show change over time, bar charts compare categories, scatter plots show the relationship between two numbers, and histograms show the spread of one number. A chart without labels is a guessing game — always label axes and add a title.</p>\n<pre><code>import matplotlib.pyplot as plt\nmonths = [\"Jan\", \"Feb\", \"Mar\"]\nsales = [120, 150, 90]\nplt.bar(months, sales)\nplt.ylabel(\"Sales\")\nplt.title(\"Sales by month\")\nplt.savefig(\"sales.png\")</code></pre>\n<p>Step by step: the bar heights come from the sales list, the y-axis label says what the numbers are, and the title says what the chart is about.</p>\n<ul><li>Key points</li><li><code>plt.plot()</code> is a line chart, <code>plt.bar()</code> compares categories, <code>plt.scatter()</code> relates two numbers.</li><li>Always label axes with <code>xlabel</code>/<code>ylabel</code> and add a <code>title</code>.</li><li><code>plt.savefig()</code> saves the chart to a file; <code>plt.show()</code> displays it.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which Matplotlib function draws a line chart?",
+          "options": ["plt.bar()", "plt.plot()", "plt.scatter()", "plt.hist()"],
+          "answer": 1,
+          "why": "plt.plot(x, y) draws a line through the points; bar, scatter and hist draw other chart types."
+        },
+        {
+          "q": "Which chart type best shows how sales change over twelve months?",
+          "options": ["A histogram", "A scatter plot", "A line chart", "A pie chart"],
+          "answer": 2,
+          "why": "Line charts show change over time; histograms show distribution and scatter plots show a relationship between two variables."
+        },
+        {
+          "q": "What does plt.xlabel(\"Month\") do?",
+          "options": ["Sets the chart title", "Labels the x-axis as Month", "Saves the chart to a file", "Changes the figure size"],
+          "answer": 1,
+          "why": "xlabel sets the label of the horizontal axis; title sets the chart title and savefig saves the file."
+        },
+        {
+          "q": "What does plt.figure(figsize=(10, 6)) control?",
+          "options": ["The font size of the labels", "The width and height of the figure in inches", "The number of bars in the chart", "The file format when saving"],
+          "answer": 1,
+          "why": "figsize sets the figure size in inches (width, height) before plotting."
+        },
+        {
+          "q": "How do you save a Matplotlib chart to an image file?",
+          "options": ["plt.show()", "plt.savefig(\"chart.png\")", "plt.title(\"chart\")", "plt.legend()"],
+          "answer": 1,
+          "why": "savefig writes the current figure to a file; show only displays it on screen."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print? (It is the data that will be plotted.)",
+          "code": "x = [1, 2, 3]\ny = [v * 2 for v in x]\nprint(y)",
+          "expected": "[2, 4, 6]",
+          "answer": "Each value in x is doubled: 1*2=2, 2*2=4, 3*2=6, so y is [2, 4, 6].",
+          "hint": "Work through the list comprehension one value at a time."
+        }
+      ]
+    },
+    {
+      "title": "End-to-End Analysis Project",
+      "duration_minutes": 85,
+      "body": "<h3>End-to-End Analysis Project</h3>\n<p>A real analysis runs end to end: ask a question, get the data, clean it, explore it, and present the answer. Start by writing the question down — \"Which region brings the most revenue, and is it growing?\" — because the question decides which columns you need and which charts to draw. Load the data with <code>pd.read_csv()</code>, check it with <code>df.head()</code> and <code>df.info()</code>, and clean it before trusting any number.</p>\n<p>Explore with groupings and charts: total revenue per region with <code>groupby</code>, monthly trend with a line chart, top products with a bar chart. When a number looks surprising, dig into the raw rows behind it before believing it. Finish by presenting: one page with the question, three key findings, the charts that prove them, and a recommendation. Keep the whole analysis in one notebook or script so anyone can re-run it and get the same answer — that is reproducibility, and it is what separates a real analysis from a one-off guess.</p>\n<pre><code>df = pd.read_csv(\"sales.csv\")\ndf[\"revenue\"] = df[\"price\"] * df[\"quantity\"]\nby_region = df.groupby(\"region\")[\"revenue\"].sum().sort_values(ascending=False)\nprint(by_region.head())</code></pre>\n<p>Step by step: revenue is price times quantity for every row, <code>groupby(\"region\")</code> totals it per region, and sorting descending puts the biggest region first.</p>\n<ul><li>Key points</li><li>Write the question first — it decides what to load, clean and chart.</li><li>Clean before you analyse; a dirty column poisons every number after it.</li><li>Keep the analysis in one re-runnable script or notebook so results can be checked.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is the correct first step of an end-to-end analysis project?",
+          "options": ["Draw charts immediately", "Write down the question the analysis must answer", "Delete all missing values", "Share the results"],
+          "answer": 1,
+          "why": "The question decides which data you need, what to clean and which charts matter; without it you analyse blindly."
+        },
+        {
+          "q": "Which Pandas function loads a CSV file into a DataFrame?",
+          "options": ["pd.read_excel()", "pd.read_csv()", "pd.load()", "pd.open_csv()"],
+          "answer": 1,
+          "why": "pd.read_csv() reads comma-separated files; read_excel is for spreadsheets."
+        },
+        {
+          "q": "After loading and cleaning the data, what is the sensible next step?",
+          "options": ["Present the findings straight away", "Explore with groupings and charts to find patterns", "Delete the raw file", "Convert everything to strings"],
+          "answer": 1,
+          "why": "Exploration — groupbys, summaries and charts — is how you find the patterns worth presenting."
+        },
+        {
+          "q": "What does reproducibility mean for an analysis?",
+          "options": ["The charts look the same every time you open them", "Anyone can re-run the same script and get the same answer", "The data file is copied to two places", "The analysis uses only one dataset"],
+          "answer": 1,
+          "why": "A reproducible analysis is stored as a re-runnable script or notebook, so results can be checked and repeated."
+        },
+        {
+          "q": "A chart shows one region with suddenly double the revenue of last month. What should you do first?",
+          "options": ["Report it as growth immediately", "Dig into the raw rows behind that number before believing it", "Delete the region from the data", "Redraw the chart with different colours"],
+          "answer": 1,
+          "why": "Surprising numbers are often data errors; verify them against the underlying rows before presenting."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Analyse the sales CSV",
+          "prompt": "Load sales.csv with Pandas, clean the price and region columns, compute total revenue per region, and draw a bar chart of the top 5 regions. Write a 3-line summary: the top region, the month with the highest revenue, and one recommendation.",
+          "code": "",
+          "expected": "Working analysis: revenue per region computed and ranked, a bar chart of the top 5 regions, and a 3-line summary with the top region, best month and a recommendation",
+          "answer": "Do it in four steps: load and clean, add a revenue column (price * quantity), group by region and sort, then chart the top 5 and write the summary from those numbers.",
+          "hint": "Start with pd.read_csv and check the shape after cleaning."
+        }
+      ]
+    },
+    {
+      "title": "A/B Testing Fundamentals",
+      "duration_minutes": 50,
+      "body": "<h3>A/B Testing Fundamentals</h3>\n<p>An A/B test compares two versions of one thing — two button colours, two headlines, two prices — to see which performs better. Users are split at random into a control group (version A, the current one) and a treatment group (version B, the new one), and you measure the same metric for both, usually a conversion rate: sign-ups or purchases divided by visitors.</p>\n<p>Random assignment is the key: it makes the two groups alike on average, so any difference in the result comes from the version, not from who saw it. Run the test long enough for a decent sample — a handful of visitors proves nothing. Then check statistical significance: a p-value below 0.05 is the usual bar for \"this difference is probably real, not chance\". Even then, a 0.2% lift on a tiny sample is not a business win — significance and size both matter, and you should test one change at a time so you know what caused the result.</p>\n<pre><code>control = 100 / 1000 * 100    # 100 sign-ups from 1000 visitors\ntreatment = 120 / 1000 * 100  # 120 sign-ups from 1000 visitors\nprint(round(treatment - control, 1))  # lift in percentage points</code></pre>\n<p>Step by step: each rate is sign-ups divided by visitors times 100, and the lift is the treatment rate minus the control rate — 12.0 minus 10.0 is 2.0 percentage points.</p>\n<ul><li>Key points</li><li>Randomly split users into control (A) and treatment (B) groups.</li><li>Compare the same metric for both groups, usually a conversion rate.</li><li>A p-value below 0.05 is the usual bar for statistical significance.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does an A/B test compare?",
+          "options": ["Two different products", "Two versions of the same thing to see which performs better", "Two different audiences", "A product before and after a redesign with no control group"],
+          "answer": 1,
+          "why": "An A/B test runs two versions side by side on comparable groups so the difference in outcome can be attributed to the version."
+        },
+        {
+          "q": "What is the control group in an A/B test?",
+          "options": ["The group that sees the new version", "The group that sees the current, unchanged version", "The group of testers inside the company", "The group with the most users"],
+          "answer": 1,
+          "why": "The control group sees version A (the current experience) and is the baseline the new version B is measured against."
+        },
+        {
+          "q": "Why must users be assigned to groups at random?",
+          "options": ["So the test finishes faster", "So the two groups are alike on average and the difference comes from the version", "So more users see the new version", "So the test needs fewer users"],
+          "answer": 1,
+          "why": "Random assignment removes selection bias: without it, a difference could come from who was in each group rather than the change."
+        },
+        {
+          "q": "A result with a p-value of 0.03 is usually described as what?",
+          "options": ["Not significant", "Statistically significant at the 0.05 level", "Proof the new version is better for everyone", "Too small a sample to report"],
+          "answer": 1,
+          "why": "A p-value below the common 0.05 threshold means the observed difference is unlikely to be pure chance."
+        },
+        {
+          "q": "Version A converts at 10% and version B at 12% on equal samples. What is the lift?",
+          "options": ["0.2 percentage points", "2 percentage points", "20%", "1.2%"],
+          "answer": 1,
+          "why": "12% minus 10% is a 2 percentage point lift (a 20% relative increase, but the lift in points is 2)."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "a = 100 / 1000 * 100\nb = 120 / 1000 * 100\nprint(round(b - a, 1))",
+          "expected": "2.0",
+          "answer": "a is 10.0%, b is 12.0%, and 12.0 - 10.0 = 2.0 percentage points of lift.",
+          "hint": "Compute each conversion rate first, then subtract."
+        }
+      ]
+    }
+  ]
+}

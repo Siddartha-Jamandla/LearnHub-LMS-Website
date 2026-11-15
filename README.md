@@ -286,7 +286,8 @@ updates the content without wiping enrolments or progress
 | JavaScript: From Beginner to Advanced | 6 | 30 | 6 | 0 |
 | Deep Learning & Neural Networks | 6 | 30 | 6 | 0 |
 | Machine Learning with Python | 6 | 30 | 6 | 0 |
-| **Total learning content** | **70** | **366** | **197** | **40** |
+| Data Science with SQL & Python | 6 | 30 | 6 | 0 |
+| **Total learning content** | **76** | **396** | **203** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key
