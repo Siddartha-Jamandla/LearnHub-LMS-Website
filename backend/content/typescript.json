@@ -1,0 +1,454 @@
+{
+  "course": {
+    "match_title": "TypeScript: Static Typing for JavaScript",
+    "title": "TypeScript: Static Typing for JavaScript",
+    "description": "Add static types to your JavaScript - interfaces, generics, type-safe DOM code and Node.js projects.",
+    "category": "Development",
+    "price": 1099,
+    "instructor": "Ananya Iyer",
+    "duration_hours": 13,
+    "level": "Intermediate",
+    "image_url": "assets/images/course5.svg"
+  },
+  "lessons": [
+    {
+      "title": "Why TypeScript?",
+      "duration_minutes": 35,
+      "is_preview": 1,
+      "body": "<h3>Why TypeScript?</h3>\n<p>JavaScript is flexible, but that flexibility has a cost: a typo in a variable name or a wrong argument type only shows up when the code runs, often in front of a user. TypeScript is a typed superset of JavaScript — you write JavaScript plus optional type annotations, and the TypeScript compiler (<code>tsc</code>) checks your code and compiles it down to plain JavaScript that any browser or Node.js can run.</p>\n<p>The compiler catches mistakes before the code runs: pass a string where a number is expected and you get a clear error at compile time, not a silent bug at runtime. Types also make the editor smarter — autocomplete, safe renaming and jump-to-definition all work because the editor knows the shape of your data. And because TypeScript is a superset, any valid JavaScript file is already valid TypeScript, so you can adopt it file by file.</p>\n<pre><code>function add(a: number, b: number): number {\n  return a + b;\n}\nconsole.log(add(2, 3)); // 5\n// add('2', 3); // Compile error: Argument of type 'string' is not assignable to parameter of type 'number'.</code></pre>\n<p>Step by step: <code>a: number</code> and <code>b: number</code> declare that both parameters must be numbers, <code>: number</code> after the parentheses promises a number result, and the compiler rejects the commented-out call because <code>'2'</code> is a string.</p>\n<ul><li>Key points</li><li>TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.</li><li>The compiler catches type mistakes before the code runs.</li><li>Any valid JavaScript is valid TypeScript, so adoption can be gradual.</li><li>Types power editor autocomplete, safe renaming and refactoring.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is TypeScript?",
+          "options": [
+            "A replacement for JavaScript that browsers run directly",
+            "A typed superset of JavaScript that compiles to plain JavaScript",
+            "A CSS preprocessor",
+            "A database for Node.js apps"
+          ],
+          "answer": 1,
+          "why": "TypeScript adds optional static types to JavaScript and the tsc compiler turns it into plain JavaScript that browsers and Node.js can run."
+        },
+        {
+          "q": "What does the TypeScript compiler (tsc) produce?",
+          "options": [
+            "Plain JavaScript",
+            "Machine code",
+            "A new web browser",
+            "SQL queries"
+          ],
+          "answer": 0,
+          "why": "tsc strips the type annotations and emits plain JavaScript files — browsers never run TypeScript directly."
+        },
+        {
+          "q": "Which mistake does TypeScript catch that plain JavaScript misses?",
+          "options": [
+            "A missing semicolon",
+            "A slow network request",
+            "Passing a string to a function that expects a number, caught before the code runs",
+            "A broken image link"
+          ],
+          "answer": 2,
+          "why": "Static types let the compiler check argument types at compile time, so a type mismatch is an error before anything runs."
+        },
+        {
+          "q": "Can valid JavaScript code run as TypeScript?",
+          "options": [
+            "No, every file must be rewritten first",
+            "Only if it uses classes",
+            "Only inside Node.js",
+            "Yes — plain JavaScript is valid TypeScript"
+          ],
+          "answer": 3,
+          "why": "TypeScript is a superset of JavaScript, so every JavaScript program is already a valid TypeScript program."
+        },
+        {
+          "q": "What is the main benefit of static types in a large codebase?",
+          "options": [
+            "The code runs faster in the browser",
+            "Errors are caught at compile time and editors can autocomplete and refactor safely",
+            "It removes the need for tests",
+            "It makes the JavaScript bundle smaller automatically"
+          ],
+          "answer": 1,
+          "why": "Early error detection plus editor support (autocomplete, safe rename, jump to definition) is what pays off as a codebase grows."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print?",
+          "code": "function greet(name: string): string {\n  return 'Hello, ' + name;\n}\nconsole.log(greet('Sid'));",
+          "expected": "Hello, Sid",
+          "answer": "greet returns the string 'Hello, ' joined with 'Sid', so console.log prints Hello, Sid.",
+          "hint": "What string does greet return when name is 'Sid'?"
+        }
+      ]
+    },
+    {
+      "title": "Types & Interfaces",
+      "duration_minutes": 55,
+      "body": "<h3>Types &amp; Interfaces</h3>\n<p>Every value in TypeScript has a type. The primitives are <code>string</code>, <code>number</code> and <code>boolean</code>; arrays are written <code>number[]</code> or <code>string[]</code>. You declare a variable's type with a colon: <code>let age: number = 19;</code>. If you then assign a string to <code>age</code>, the compiler reports an error instead of letting the bug reach runtime.</p>\n<p>Objects get their shape from an interface: a list of property names and their types. A <code>?</code> after a property name makes it optional, so it may be left out. Interfaces are the way you tell TypeScript — and every other developer — exactly what an object must look like, and the compiler checks every object literal against them.</p>\n<pre><code>interface User {\n  id: number;\n  name: string;\n  email?: string;\n}\nconst user: User = { id: 1, name: 'Sid' };\nconst scores: number[] = [90, 85, 92];\n// user.email is string | undefined because email is optional.</code></pre>\n<p>Step by step: the interface says a User has a number <code>id</code>, a string <code>name</code> and an optional string <code>email</code>; the object literal is checked against it and passes because only the optional property is missing; <code>scores</code> is checked as an array of numbers.</p>\n<ul><li>Key points</li><li>Primitive types: string, number, boolean; arrays: number[], string[].</li><li>An interface describes the shape of an object: property names and their types.</li><li>A ? after a property name makes it optional.</li><li>Assigning a value of the wrong type is a compile-time error.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Which annotation declares a variable that holds text?",
+          "options": [
+            "let name: string;",
+            "let name: text;",
+            "let name: str;",
+            "let name: char;"
+          ],
+          "answer": 0,
+          "why": "string is TypeScript's type for text; text, str and char are not built-in types."
+        },
+        {
+          "q": "What does the ? mean in `email?: string` inside an interface?",
+          "options": [
+            "The property is private",
+            "The property must be a number",
+            "The property is optional and may be omitted",
+            "The property is read-only"
+          ],
+          "answer": 2,
+          "why": "A ? marks an optional property: objects of that type may leave it out, and reading it gives string | undefined."
+        },
+        {
+          "q": "What is an interface used for?",
+          "options": [
+            "To style a web page",
+            "To describe the shape (property names and types) of an object",
+            "To connect to a database",
+            "To run code in parallel"
+          ],
+          "answer": 1,
+          "why": "An interface is a contract for an object's shape; the compiler checks every value against it."
+        },
+        {
+          "q": "What type is `const scores: number[]`?",
+          "options": [
+            "A single number",
+            "An array of strings",
+            "An object",
+            "An array of numbers"
+          ],
+          "answer": 3,
+          "why": "The [] after a type means an array of that type, so number[] is an array whose elements are all numbers."
+        },
+        {
+          "q": "What happens if you assign a string to a variable declared as number?",
+          "options": [
+            "It converts silently at runtime",
+            "The TypeScript compiler reports a type error",
+            "The variable becomes a string",
+            "Nothing — types are ignored"
+          ],
+          "answer": 1,
+          "why": "The declared type is a compile-time contract; assigning a string where a number is declared is a type error."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fix",
+          "title": "Fix the bug",
+          "prompt": "This code does not compile. Fix it so the object matches the interface.",
+          "code": "interface User {\n  id: number;\n  name: string;\n}\nconst u: User = { id: '1', name: 'Sid' };",
+          "expected": "const u: User = { id: 1, name: 'Sid' };",
+          "answer": "The interface says id must be a number, but '1' is a string. Remove the quotes so id is the number 1.",
+          "hint": "Check the type of each value against the interface — which one does not match?"
+        }
+      ]
+    },
+    {
+      "title": "Functions & Generics",
+      "duration_minutes": 60,
+      "body": "<h3>Functions &amp; Generics</h3>\n<p>Functions in TypeScript carry types on both sides: each parameter gets a type and the return type goes after the parentheses — <code>function add(a: number, b: number): number</code>. A parameter with a default value, like <code>b: number = 10</code>, is optional and falls back to 10 when no argument is passed. Arrow functions work the same way: <code>const double = (n: number): number =&gt; n * 2;</code>.</p>\n<p>Generics let one function work with many types without losing type safety. A type parameter such as <code>&lt;T&gt;</code> is a placeholder: when the function is called, TypeScript fills in the real type and remembers it. <code>identity&lt;number&gt;(42)</code> returns a number, while <code>identity('hello')</code> infers <code>T</code> as string and returns a string — unlike <code>any</code>, which throws all type information away.</p>\n<pre><code>function identity&lt;T&gt;(value: T): T {\n  return value;\n}\nconst n = identity&lt;number&gt;(42); // n is number\nconst s = identity('hello');     // T is inferred as string\nfunction add(a: number, b: number = 10): number {\n  return a + b;\n}\n// add(5) is 15, add(5, 1) is 6</code></pre>\n<p>Step by step: <code>&lt;T&gt;</code> declares the placeholder, <code>value: T</code> uses it as the parameter type, <code>: T</code> promises the same type back, and the call sites fill <code>T</code> in — explicitly with <code>&lt;number&gt;</code> or by inference from the argument.</p>\n<ul><li>Key points</li><li>Parameter types and the return type are written on the function signature.</li><li>A default value makes a parameter optional.</li><li>Generics use a placeholder type such as &lt;T&gt;, filled in at each call.</li><li>Generics keep the exact type; any discards it.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does `function add(a: number, b: number): number` declare?",
+          "options": [
+            "A function taking two numbers and returning a number",
+            "A function taking two strings and returning a number",
+            "A variable named add",
+            "A function that returns nothing"
+          ],
+          "answer": 0,
+          "why": "The annotations say both parameters are numbers and the : number after the parentheses is the return type."
+        },
+        {
+          "q": "What is a generic type parameter such as <T>?",
+          "options": [
+            "A variable that holds text",
+            "A loop counter",
+            "A placeholder for a type, filled in when the function or type is used",
+            "A CSS class name"
+          ],
+          "answer": 2,
+          "why": "T stands in for a real type that is decided at each use, so one generic function can safely handle numbers, strings and objects."
+        },
+        {
+          "q": "In `identity<number>(42)`, what is T?",
+          "options": [
+            "string",
+            "number",
+            "boolean",
+            "any"
+          ],
+          "answer": 1,
+          "why": "The <number> in the call explicitly fills in T as number, matching the argument 42."
+        },
+        {
+          "q": "What does `b: number = 10` mean in a function signature?",
+          "options": [
+            "b must always be 10",
+            "b is a string",
+            "b cannot be changed",
+            "b defaults to 10 if no argument is passed"
+          ],
+          "answer": 3,
+          "why": "A default value makes the parameter optional: callers may omit it and 10 is used instead."
+        },
+        {
+          "q": "Why use generics instead of `any` for a function like identity?",
+          "options": [
+            "Generics run faster",
+            "Generics keep the exact type through the function, while any throws type information away",
+            "any is not allowed in TypeScript",
+            "Generics use less memory"
+          ],
+          "answer": 1,
+          "why": "With <T> the compiler knows identity(42) returns a number; with any it knows nothing about the result."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing type so this generic function accepts an array of T and returns its first element.",
+          "code": "function first<T>(items: T___): T | undefined {\n  return items[0];\n}",
+          "expected": "[]",
+          "answer": "items must be an array of T, written T[], so items[0] is a T (or undefined when the array is empty).",
+          "hint": "items must be an array of T — how do you write an array type?"
+        }
+      ]
+    },
+    {
+      "title": "Type-Safe DOM Handling",
+      "duration_minutes": 50,
+      "body": "<h3>Type-Safe DOM Handling</h3>\n<p>The DOM is untyped by nature: <code>document.querySelector('#email')</code> returns <code>Element | null</code> because the element might not exist, and a plain <code>Element</code> has no <code>value</code> property. To read an input's value you assert the specific element type — <code>as HTMLInputElement</code> — which tells the compiler to treat the result as an input element.</p>\n<p>Because the result can still be <code>null</code>, always guard before using it: an <code>if (input)</code> check or optional chaining <code>?.</code> keeps a missing element from crashing the page. Event listeners are typed too — a <code>'click'</code> handler receives a <code>MouseEvent</code>, so properties like <code>clientX</code> are checked by the compiler.</p>\n<pre><code>const input = document.querySelector('#email') as HTMLInputElement;\nif (input) {\n  console.log(input.value);\n}\nconst btn = document.getElementById('save');\nbtn?.addEventListener('click', (e: MouseEvent) =&gt; {\n  console.log('saved at', e.clientX);\n});</code></pre>\n<p>Step by step: <code>querySelector</code> may return null, the assertion narrows it to an input element with a <code>value</code> property, the <code>if</code> guard handles the null case, and <code>?.</code> skips the listener entirely when the button is missing.</p>\n<ul><li>Key points</li><li>querySelector returns Element | null — narrow it with as HTMLInputElement (or the matching element type).</li><li>Always guard against null before using a DOM element.</li><li>Optional chaining ?. skips a call when the value is null.</li><li>Event handlers receive typed events such as MouseEvent.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Why does `document.querySelector('#email')` need a type assertion before you read `.value`?",
+          "options": [
+            "It returns a string",
+            "It returns Element | null, and a plain Element has no value property — assert it as HTMLInputElement",
+            "It always returns null",
+            "It returns a number"
+          ],
+          "answer": 1,
+          "why": "querySelector's return type is the generic Element, which has no value property; asserting HTMLInputElement gives access to it."
+        },
+        {
+          "q": "What does `as HTMLInputElement` do?",
+          "options": [
+            "It tells the compiler to treat the value as an HTMLInputElement",
+            "It creates a new input element on the page",
+            "It converts the element to a string",
+            "It deletes the element"
+          ],
+          "answer": 0,
+          "why": "A type assertion is a compile-time instruction: it narrows the value's type without changing the value at runtime."
+        },
+        {
+          "q": "What does `btn?.addEventListener(...)` do if btn is null?",
+          "options": [
+            "It throws an error",
+            "It creates the button",
+            "It safely skips the call — nothing happens",
+            "It reloads the page"
+          ],
+          "answer": 2,
+          "why": "Optional chaining ?. short-circuits on null or undefined, so the method is simply not called."
+        },
+        {
+          "q": "What type is the event object in a 'click' handler?",
+          "options": [
+            "string",
+            "number",
+            "KeyboardEvent",
+            "MouseEvent"
+          ],
+          "answer": 3,
+          "why": "Click events are mouse events, so TypeScript types the handler's event parameter as MouseEvent."
+        },
+        {
+          "q": "Why check `if (input)` before using `input.value`?",
+          "options": [
+            "It makes the code run faster",
+            "querySelector can return null when the element is missing, and reading .value of null would crash",
+            "It is required by HTML",
+            "It changes the input's type"
+          ],
+          "answer": 1,
+          "why": "A null guard handles the case where the selector matches nothing, which is exactly why the return type includes null."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "trace",
+          "title": "Trace the code",
+          "prompt": "Trace this code step by step. The page contains an h1 with id 'title'. What happens?",
+          "code": "const el = document.querySelector('#title') as HTMLHeadingElement | null;\nif (el) {\n  el.textContent = 'Welcome';\n} else {\n  console.log('missing');\n}",
+          "expected": "el is the h1 element (not null), so the if branch runs and textContent becomes 'Welcome'; 'missing' is never logged.",
+          "answer": "querySelector finds the h1, so el is not null; the if branch runs and sets the heading text to 'Welcome', and the else branch with console.log('missing') is skipped.",
+          "hint": "Is el null when #title exists on the page?"
+        }
+      ]
+    },
+    {
+      "title": "TypeScript with Node.js",
+      "duration_minutes": 55,
+      "body": "<h3>TypeScript with Node.js</h3>\n<p>Node.js runs JavaScript, not TypeScript, so a TypeScript project is compiled first and the JavaScript output is run. Install the compiler with <code>npm install -D typescript</code>, create a <code>tsconfig.json</code> with <code>npx tsc --init</code>, and run <code>npx tsc</code> to compile every <code>.ts</code> file in <code>src</code> into JavaScript in <code>dist</code>.</p>\n<p>The <code>tsconfig.json</code> controls the build: <code>outDir</code> is where compiled files go, <code>rootDir</code> is where source lives, <code>target</code> picks the JavaScript version to emit, and <code>strict: true</code> turns on the full set of type checks, including no implicit <code>any</code>. Node.js built-ins such as <code>fs</code> need their own type definitions, installed with <code>npm install -D @types/node</code>. Then you run the result with plain <code>node dist/index.js</code>.</p>\n<pre><code>// tsconfig.json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"commonjs\",\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"strict\": true\n  }\n}\nimport * as fs from 'fs';\nconst data: string = fs.readFileSync('notes.txt', 'utf-8');\nconsole.log(data.length);</code></pre>\n<p>Step by step: <code>tsc</code> reads <code>tsconfig.json</code>, compiles <code>src/index.ts</code> to <code>dist/index.js</code>, the <code>@types/node</code> package supplies the types for <code>fs</code>, and <code>node</code> runs the compiled JavaScript.</p>\n<ul><li>Key points</li><li>Node.js runs the compiled JavaScript output, not the .ts files.</li><li>tsconfig.json sets outDir, rootDir, target and strict mode.</li><li>Install @types/node so TypeScript knows Node.js built-in APIs.</li><li>Compile with npx tsc, then run with node dist/index.js.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does `npx tsc` do?",
+          "options": [
+            "It runs the Node.js server",
+            "It installs packages",
+            "It compiles TypeScript files into JavaScript",
+            "It formats the code"
+          ],
+          "answer": 2,
+          "why": "tsc is the TypeScript compiler: it type-checks .ts files and emits equivalent .js files."
+        },
+        {
+          "q": "What is tsconfig.json for?",
+          "options": [
+            "It stores the compiler settings for the project",
+            "It lists the npm packages to install",
+            "It is the compiled JavaScript output",
+            "It configures the web browser"
+          ],
+          "answer": 0,
+          "why": "tsconfig.json tells tsc how to compile the project — target, module system, output directory and strictness."
+        },
+        {
+          "q": "Why install `@types/node` in a TypeScript Node.js project?",
+          "options": [
+            "To make Node.js run faster",
+            "To give TypeScript type definitions for Node.js APIs such as fs and path",
+            "To replace Node.js entirely",
+            "To minify the compiled output"
+          ],
+          "answer": 1,
+          "why": "Node.js ships no TypeScript types of its own; @types/node provides them so fs, path and friends type-check."
+        },
+        {
+          "q": "What does `\"strict\": true` enable in tsconfig.json?",
+          "options": [
+            "It blocks all console.log calls",
+            "It makes the code run in the browser",
+            "It disables all type checking",
+            "It turns on strict type checking, including no implicit any"
+          ],
+          "answer": 3,
+          "why": "strict mode enables the full family of strictness flags, catching implicit anys, possible nulls and more."
+        },
+        {
+          "q": "After compiling a TypeScript Node.js project, how do you run it?",
+          "options": [
+            "node src/index.ts",
+            "Run the .ts file directly with node",
+            "node dist/index.js on the compiled JavaScript output",
+            "tsc index.js"
+          ],
+          "answer": 2,
+          "why": "Node.js cannot run .ts files; you run the JavaScript tsc emitted, e.g. node dist/index.js."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "predict",
+          "title": "Predict the output",
+          "prompt": "What does this print on Linux?",
+          "code": "import * as path from 'path';\nconst file: string = path.join('src', 'app.ts');\nconsole.log(file);",
+          "expected": "src/app.ts",
+          "answer": "path.join joins the segments with the platform separator, which is / on Linux, so the result is src/app.ts.",
+          "hint": "What separator does path.join use on Linux?"
+        }
+      ]
+    },
+    {
+      "title": "Project: Typed Task Manager",
+      "duration_minutes": 75,
+      "body": "<h3>Project: Typed Task Manager</h3>\n<p>Time to put the whole course together: a task manager where every piece of data is typed. Start with a <code>Task</code> interface — an <code>id</code>, a <code>title</code> and a <code>done</code> flag — so a task can never accidentally be missing a field. Then build a <code>TaskManager</code> class that keeps a private array of tasks and exposes typed methods: <code>add(title: string): void</code>, <code>complete(id: number): void</code> and <code>list(): Task[]</code>.</p>\n<p>The compiler now guards the whole program: you cannot add a task without a title, mark a non-existent task done without the compiler noticing the wrong type, or return the wrong shape from <code>list()</code>. A small script at the bottom adds three tasks, completes one and prints the list — compile it with <code>npx tsc</code>, fix any errors the compiler reports, and run the result with Node.js.</p>\n<pre><code>interface Task {\n  id: number;\n  title: string;\n  done: boolean;\n}\nclass TaskManager {\n  private tasks: Task[] = [];\n  add(title: string): void {\n    this.tasks.push({ id: this.tasks.length + 1, title, done: false });\n  }\n  complete(id: number): void {\n    const task = this.tasks.find((t) =&gt; t.id === id);\n    if (task) {\n      task.done = true;\n    }\n  }\n  list(): Task[] {\n    return this.tasks;\n  }\n}\nconst manager = new TaskManager();\nmanager.add('Learn TypeScript');\nconsole.log(manager.list());</code></pre>\n<p>Step by step: the interface fixes the shape of a task, the class stores tasks privately, <code>add</code> builds a valid Task object, <code>complete</code> finds the task by id and flips its flag, and <code>list</code> returns the typed array.</p>\n<ul><li>Key points</li><li>Model the data first with an interface, then build the class around it.</li><li>Private fields keep the task list safe from outside code.</li><li>Typed methods make wrong calls a compile-time error.</li><li>Compile with tsc and run the JavaScript output with Node.js.</li></ul>",
+      "mcqs": [
+        {
+          "q": "Why define a Task interface before building the manager?",
+          "options": [
+            "It makes the page load faster",
+            "So every task has the same known shape — id, title and done — checked by the compiler",
+            "It is required by Node.js",
+            "It replaces the class entirely"
+          ],
+          "answer": 1,
+          "why": "The interface is the single source of truth for what a task looks like; every method and object literal is checked against it."
+        },
+        {
+          "q": "What does `private tasks: Task[]` mean?",
+          "options": [
+            "tasks is a single Task object",
+            "tasks is a string",
+            "tasks is an array of Task objects, only accessible inside the class",
+            "tasks is shared between all classes"
+          ],
+          "answer": 2,
+          "why": "Task[] is an array of Task, and private restricts access to code inside the TaskManager class."
+        },
+        {
+          "q": "Which method adds a task to the manager?",
+          "options": [
+            "add(title: string): void",
+            "list(): Task[]",
+            "complete(id: number): void",
+            "constructor()"
+          ],
+          "answer": 0,
+          "why": "add takes a title, builds a Task object with done: false and pushes it onto the tasks array."
+        },
+        {
+          "q": "What does `list(): Task[]` promise to its caller?",
+          "options": [
+            "It returns a single task",
+            "It returns nothing",
+            "It returns a string",
+            "It returns an array of Task objects"
+          ],
+          "answer": 3,
+          "why": "The return type Task[] says the method returns an array whose elements are all Task objects."
+        },
+        {
+          "q": "What is the final step before running this project?",
+          "options": [
+            "Delete the .ts files",
+            "Compile with tsc, then run the JavaScript output with node",
+            "Open the .ts file in a browser",
+            "Rename the files to .js by hand"
+          ],
+          "answer": 1,
+          "why": "Node.js runs JavaScript, so tsc must compile the TypeScript first and node runs the emitted output."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Build the Typed Task Manager",
+          "prompt": "Build the Typed Task Manager: define a Task interface, a TaskManager class with add, complete and list methods, and a small script that adds 3 tasks, completes 1, and prints the list. Compile with tsc and run it with Node.js.",
+          "code": "",
+          "expected": "A compiled program that prints 3 tasks with exactly 1 marked done; tsc reports no errors.",
+          "answer": "Define the Task interface first, implement the class methods with typed parameters and returns, then compile and run — fix any type errors tsc reports before running.",
+          "hint": "Start from the Task interface in this lesson and add one method at a time."
+        }
+      ]
+    }
+  ]
+}

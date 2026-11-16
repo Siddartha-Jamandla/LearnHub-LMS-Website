@@ -289,7 +289,8 @@ updates the content without wiping enrolments or progress
 | Data Science with SQL & Python | 6 | 30 | 6 | 0 |
 | UI/UX Design Fundamentals | 6 | 30 | 6 | 0 |
 | React - Build Modern Web Apps | 6 | 30 | 6 | 0 |
-| **Total learning content** | **88** | **456** | **215** | **40** |
+| TypeScript: Static Typing for JavaScript | 6 | 30 | 6 | 0 |
+| **Total learning content** | **94** | **486** | **221** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key

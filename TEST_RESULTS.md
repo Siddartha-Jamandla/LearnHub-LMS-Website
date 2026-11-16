@@ -415,3 +415,23 @@ scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 45-check run also
 verified the other two banks built today (separate commits)
 and the pre-existing Python bank (50 MCQs, still 10/10).
+
+---
+
+## Daily upgrade — 2026-11-16 (IST): TypeScript: Static Typing for JavaScript quiz bank
+
+`backend/content/typescript.json` adds the missing quiz bank for
+TypeScript: Static Typing for JavaScript (course 11): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals after this
+bank: 13 courses, 94 lessons, 486 MCQs, 221 tasks — LH1/LH2 staged
+and land separately). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+3 of the 12 base courses still have no quiz bank (Digital Marketing, Django, Git & GitHub) — follow-up content work.
+
+Tested on a scratch DB (port 8155, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/11/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 15-check run also
+verified the pre-existing Python bank still holds 50 MCQs.
