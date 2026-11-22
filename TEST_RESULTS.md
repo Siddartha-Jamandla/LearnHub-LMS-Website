@@ -454,3 +454,26 @@ with 4 options each and no answers; submitting the correct answers
 scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 15-check run also
 verified the pre-existing Python bank (50 MCQs, still 10/10).
+
+---
+
+## Daily upgrade — 2026-11-17 (IST): Django Full-Stack Web Development quiz bank
+
+`backend/content/django.json` adds the missing quiz bank for
+Django Full-Stack Web Development (course 10): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals after this
+bank: 15 courses, 106 lessons, 546 MCQs, 233 tasks — LH1 Digital
+Marketing lands in the same run, immediately before this commit). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+1 of the 12 base courses still has no quiz bank (Git & GitHub) — follow-up content work.
+
+Tested on a scratch DB (port 8157, live `backend/app.py`, OTP +
+test-mode checkout enrolment flow): `GET /api/courses/10/final-exam`
+returns 10 questions with 4 options each and no answers; submitting
+the correct answers scores 10/10 (+50 XP); every lesson's quiz
+returns 5 questions (free preview for lesson 1, enrolled for the
+rest) and every lesson's tasks endpoint returns 1 task. Same
+17-check run also verified the pre-existing banks are unchanged
+(Python 50 MCQs, Digital Marketing 30) and the
+Digital Marketing preview lesson still returns 5 questions.

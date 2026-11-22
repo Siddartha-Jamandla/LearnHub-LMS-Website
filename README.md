@@ -291,7 +291,8 @@ updates the content without wiping enrolments or progress
 | React - Build Modern Web Apps | 6 | 30 | 6 | 0 |
 | TypeScript: Static Typing for JavaScript | 6 | 30 | 6 | 0 |
 | Digital Marketing Masterclass | 6 | 30 | 6 | 0 |
-| **Total learning content** | **100** | **516** | **227** | **40** |
+| Django Full-Stack Web Development | 6 | 30 | 6 | 0 |
+| **Total learning content** | **106** | **546** | **233** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key
