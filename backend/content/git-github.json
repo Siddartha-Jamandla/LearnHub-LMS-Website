@@ -1,0 +1,454 @@
+{
+  "course": {
+    "match_title": "Git & GitHub: Version Control Mastery",
+    "title": "Git & GitHub: Version Control Mastery",
+    "description": "Master Git from first commit to open-source collaboration - branching, rebasing, pull requests and team workflows.",
+    "category": "Development",
+    "price": 599,
+    "instructor": "Kiran Patel",
+    "duration_hours": 8,
+    "level": "Beginner",
+    "image_url": "assets/images/course6.svg"
+  },
+  "lessons": [
+    {
+      "title": "Git Setup & First Commit",
+      "duration_minutes": 30,
+      "is_preview": 1,
+      "body": "<h3>Git Setup &amp; First Commit</h3>\n<p>Git is a <strong>distributed version control system</strong>: it records every change you make to your files, so you can go back to any earlier version, see who changed what, and work on the same project as other people without overwriting each other. Every developer has a full copy of the history on their own machine — there is no single central copy you must stay connected to.</p>\n<p>Before your first commit, tell Git who you are. The name and email are stamped onto every commit you make, so teammates can see who wrote each change:</p>\n<pre><code>git config --global user.name \"Siddartha Jamandla\"\ngit config --global user.email \"siddarthajamandla@gmail.com\"</code></pre>\n<p>Git thinks in three areas. The <strong>working directory</strong> is your files as you edit them. The <strong>staging area</strong> (also called the index) is the list of changes you have chosen for the next commit. The <strong>repository</strong> is the permanent history of commits. The basic loop is: edit files, <code>git add</code> to stage them, <code>git commit</code> to save a snapshot:</p>\n<pre><code>git init                 # turn this folder into a Git repo\ngit status               # what changed, what is staged\ngit add index.html       # stage one file (git add . stages all)\ngit commit -m \"Add homepage\"   # save the snapshot with a message\ngit log --oneline        # list your commits, one per line</code></pre>\n<p>A commit is a snapshot, not a backup of one file: it records the state of <em>everything staged</em> at that moment. Write messages in the present tense that say what the change does — \"Add login form\", not \"Added stuff\". Future you (and your teammates) will read these messages to understand the history.</p>\n<ul><li>Key points</li><li>Git records snapshots of your project so any earlier version can be restored.</li><li>Set your identity once with <code>git config --global user.name</code> and <code>user.email</code>.</li><li>The loop is edit → <code>git add</code> (stage) → <code>git commit</code> (save snapshot).</li><li><code>git status</code> shows what changed and what is staged; <code>git log --oneline</code> lists commits.</li><li>Commit messages say what the change does, in the present tense.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is Git mainly used for?",
+          "options": [
+            "Running websites on a server",
+            "Recording versions of your files so changes can be tracked and undone",
+            "Designing web page layouts",
+            "Storing passwords securely"
+          ],
+          "answer": 1,
+          "why": "Git is a version control system: it snapshots your files at each commit so you can track changes, restore earlier versions and collaborate."
+        },
+        {
+          "q": "Which command tells Git your name for all repositories on this machine?",
+          "options": [
+            "git config --global user.name \"Your Name\"",
+            "git set name \"Your Name\"",
+            "git whoami \"Your Name\"",
+            "git init --name \"Your Name\""
+          ],
+          "answer": 0,
+          "why": "git config --global user.name stores your name in the global config, and it is stamped on every commit you make."
+        },
+        {
+          "q": "Which command moves your edited files into the staging area?",
+          "options": [
+            "git commit",
+            "git push",
+            "git add",
+            "git stage --save"
+          ],
+          "answer": 2,
+          "why": "git add stages changes: it marks exactly which edits go into the next commit. git commit then saves the staged snapshot."
+        },
+        {
+          "q": "What does git commit do?",
+          "options": [
+            "Uploads your code to GitHub",
+            "Saves a snapshot of the staged changes into the repository history",
+            "Deletes uncommitted changes",
+            "Creates a new branch"
+          ],
+          "answer": 1,
+          "why": "A commit saves the staged changes as a permanent snapshot in the local repository history, with your message attached."
+        },
+        {
+          "q": "What does git status show you?",
+          "options": [
+            "Your GitHub notifications",
+            "Which files changed, which are staged, and which are untracked",
+            "The list of all branches",
+            "How many people starred your repo"
+          ],
+          "answer": 1,
+          "why": "git status reports the state of the working directory: modified files, staged files and untracked files."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing command to stage every changed file in the project.",
+          "code": "git ___ .",
+          "expected": "add",
+          "answer": "git add . stages all changed and new files in the current folder (and below) so the next commit includes them.",
+          "hint": "Which command moves edits into the staging area?"
+        }
+      ]
+    },
+    {
+      "title": "Branching & Merging",
+      "duration_minutes": 50,
+      "body": "<h3>Branching &amp; Merging</h3>\n<p>A <strong>branch</strong> is a lightweight movable pointer to a commit. It lets you work on a feature in isolation: the <code>main</code> branch stays stable while you experiment on a <code>login-page</code> branch, and nothing you do there touches <code>main</code> until you deliberately merge it back.</p>\n<p><strong>HEAD</strong> is a pointer to the branch you are currently on — it answers \"where am I?\". Create a branch and switch to it in one step with <code>git switch -c</code> (older Git uses <code>git checkout -b</code>, which does the same thing):</p>\n<pre><code>git branch                  # list branches; * marks the current one\ngit switch -c login-page    # create the branch and switch to it\n# ... edit files, add, commit ...\ngit switch main             # back to main\ngit merge login-page        # bring login-page's commits into main\ngit branch -d login-page    # delete the branch once merged</code></pre>\n<p>When <code>main</code> has not moved since you branched off, the merge is a <strong>fast-forward</strong>: Git simply slides the <code>main</code> pointer forward to your branch's tip — no extra commit is created. If <code>main</code> moved too, Git creates a <strong>merge commit</strong> with two parents, one from each branch, so the history keeps both lines of work.</p>\n<p>The golden rule: one branch per task. A branch named <code>fix-navbar-bug</code> tells a reviewer exactly what it contains; a branch named <code>stuff</code> tells them nothing. Keep branches short-lived — merge or delete them within days, not months, so they never drift far from <code>main</code>.</p>\n<ul><li>Key points</li><li>A branch is a pointer to a commit; it isolates work until you merge it back.</li><li><code>git switch -c name</code> creates and switches to a branch in one step.</li><li>HEAD points at the branch you are currently on.</li><li>A fast-forward merge just moves the pointer; a diverged history creates a merge commit.</li><li>One branch per task, with a descriptive name, merged while it is still fresh.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is a Git branch?",
+          "options": [
+            "A copy of the whole repository on GitHub",
+            "A lightweight pointer to a commit, letting you work on a separate line of history",
+            "A backup folder Git creates automatically",
+            "A tag marking a release version"
+          ],
+          "answer": 1,
+          "why": "A branch is just a pointer to a commit. Committing on a branch moves only that pointer, so other branches are untouched."
+        },
+        {
+          "q": "Which single command creates a branch called feature-x AND switches to it?",
+          "options": [
+            "git branch feature-x",
+            "git switch feature-x",
+            "git switch -c feature-x",
+            "git checkout feature-x --new"
+          ],
+          "answer": 2,
+          "why": "git switch -c feature-x creates the branch and checks it out in one step (git checkout -b feature-x is the older equivalent)."
+        },
+        {
+          "q": "What does HEAD point to?",
+          "options": [
+            "The newest commit in the repository",
+            "The branch you are currently working on",
+            "The remote repository",
+            "The first commit ever made"
+          ],
+          "answer": 1,
+          "why": "HEAD is a pointer to the current branch (which itself points to a commit). It tells Git where new commits should go."
+        },
+        {
+          "q": "When does git merge do a fast-forward instead of creating a merge commit?",
+          "options": [
+            "When both branches changed the same file",
+            "When the current branch has not moved since the other branch was created",
+            "When you pass the --fast flag",
+            "When the branch names are the same"
+          ],
+          "answer": 1,
+          "why": "If main has not moved since you branched off, Git can simply slide the main pointer forward to your branch tip — a fast-forward with no extra commit."
+        },
+        {
+          "q": "Why should you use one branch per task?",
+          "options": [
+            "Git only allows one commit per branch",
+            "It keeps each change isolated, reviewable and easy to undo on its own",
+            "Branches make commits faster",
+            "It is required to push to GitHub"
+          ],
+          "answer": 1,
+          "why": "One branch per task keeps changes isolated: a reviewer sees exactly one feature, and a bad change can be dropped without touching other work."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing command to create a branch called feature-login and switch to it in one step.",
+          "code": "git switch -c ___",
+          "expected": "feature-login",
+          "answer": "git switch -c feature-login creates the branch and moves HEAD to it, so your next commits land on feature-login, not main.",
+          "hint": "The -c flag means create; what is the branch name?"
+        }
+      ]
+    },
+    {
+      "title": "Resolving Merge Conflicts",
+      "duration_minutes": 40,
+      "body": "<h3>Resolving Merge Conflicts</h3>\n<p>A <strong>merge conflict</strong> happens when Git cannot decide how to combine two versions of the same lines — usually because you and a teammate edited the same lines of the same file on different branches. Git stops the merge and asks you to choose, instead of guessing and silently losing someone's work.</p>\n<p>Git marks the conflicted area in the file with markers. Everything between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> and <code>=======</code> is your version (HEAD); everything between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> is the incoming branch's version:</p>\n<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD\n&lt;h1&gt;Welcome to LearnHub&lt;/h1&gt;\n=======\n&lt;h1&gt;Welcome to Learn Hub LMS&lt;/h1&gt;\n&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-title</code></pre>\n<p>Resolve it in three steps: edit the file to keep the version you want (or combine both) and delete all the markers; <code>git add</code> the file to tell Git the conflict is resolved; then <code>git commit</code> to finish the merge. <code>git status</code> lists which files are still conflicted, so you can work through them one by one. Changed your mind mid-merge? <code>git merge --abort</code> cancels the whole merge and returns both branches to how they were.</p>\n<p>Conflicts are normal, not a sign you broke something — they are Git asking a human to decide. The best prevention is small, frequent merges: the longer two branches drift apart, the more lines can collide. Pull the latest <code>main</code> into your branch often, and resolve conflicts while they are still small.</p>\n<ul><li>Key points</li><li>A conflict means two branches changed the same lines — Git stops and asks you to choose.</li><li>Markers: <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> HEAD version, <code>=======</code> divider, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> incoming version.</li><li>Fix the file, remove the markers, <code>git add</code> it, then <code>git commit</code> to finish the merge.</li><li><code>git merge --abort</code> cancels a merge in progress.</li><li>Merge often and in small steps to keep conflicts rare and small.</li></ul>",
+      "mcqs": [
+        {
+          "q": "When does Git report a merge conflict?",
+          "options": [
+            "Whenever two branches exist",
+            "When two branches changed the same lines of the same file in different ways",
+            "When a branch name is too long",
+            "When the repository has no remote"
+          ],
+          "answer": 1,
+          "why": "Git merges automatically when changes do not overlap. A conflict only happens when the same lines were changed differently on both sides."
+        },
+        {
+          "q": "In a conflicted file, what sits between <<<<<<< HEAD and ======= ?",
+          "options": [
+            "The incoming branch's version",
+            "Your current branch's (HEAD) version",
+            "The deleted lines",
+            "Git's suggested fix"
+          ],
+          "answer": 1,
+          "why": "The section after <<<<<<< HEAD up to ======= is your current branch's version; the section after ======= is the incoming branch's version."
+        },
+        {
+          "q": "After editing a conflicted file and removing the markers, what is the next step?",
+          "options": [
+            "git push immediately",
+            "git add the file, then git commit to finish the merge",
+            "git stash the file",
+            "Delete the file and start over"
+          ],
+          "answer": 1,
+          "why": "git add marks the conflict resolved; the following git commit completes the merge commit. Pushing before committing would push nothing new."
+        },
+        {
+          "q": "Which command cancels a merge that is in progress and restores the pre-merge state?",
+          "options": [
+            "git merge --cancel",
+            "git merge --abort",
+            "git reset --merge-now",
+            "git checkout --abort"
+          ],
+          "answer": 1,
+          "why": "git merge --abort stops the merge and returns the working tree and branches to exactly how they were before the merge started."
+        },
+        {
+          "q": "What is the best way to keep merge conflicts small?",
+          "options": [
+            "Never create branches",
+            "Merge small changes frequently instead of letting branches drift apart for weeks",
+            "Always use git push --force",
+            "Commit only once per month"
+          ],
+          "answer": 1,
+          "why": "Short-lived branches and frequent merges mean fewer overlapping changes, so conflicts stay small and easy to resolve."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fix",
+          "title": "Fix the bug",
+          "prompt": "Priya resolved a conflict in style.css but her merge never finished. Fix the sequence so the merge completes.",
+          "code": "git merge feature-title\n# ... edit style.css, remove the markers ...\ngit commit -m \"Merge feature-title\"",
+          "expected": "git merge feature-title\n# ... edit style.css, remove the markers ...\ngit add style.css\ngit commit -m \"Merge feature-title\"",
+          "answer": "After editing a conflicted file you must git add it to mark the conflict resolved. Without the add, git commit refuses (or commits nothing) because the merge is still unfinished.",
+          "hint": "What tells Git the conflict in style.css is resolved?"
+        }
+      ]
+    },
+    {
+      "title": "GitHub: Remotes & Pull Requests",
+      "duration_minutes": 55,
+      "body": "<h3>GitHub: Remotes &amp; Pull Requests</h3>\n<p>GitHub is a hosting service for Git repositories — it adds a shared home for your repo, plus pull requests, issues and collaboration tools. A <strong>remote</strong> is Git's name for a copy of your repo elsewhere; by convention the main remote is called <code>origin</code>:</p>\n<pre><code>git remote add origin https://github.com/Siddartha-Jamandla/my-project.git\ngit push -u origin main     # upload main; -u remembers origin/main as its upstream\ngit pull                     # fetch + merge the latest from the upstream branch\ngit clone https://github.com/user/repo.git   # download a whole repo, remote already set</code></pre>\n<p><code>git push</code> sends your commits to the remote; <code>git pull</code> brings the remote's new commits into your branch (it is a <code>fetch</code> followed by a <code>merge</code>). Never rewrite history that others have already pulled — a forced push can strand your teammates' work.</p>\n<p>A <strong>pull request (PR)</strong> is how changes get reviewed before they land in <code>main</code>: push your branch, open a PR, and a teammate reviews the diff, leaves comments and approves. The typical open-source flow is: <strong>fork</strong> the repo (your own copy under your account) → <strong>clone</strong> your fork → branch → commit → <strong>push</strong> to your fork → open a <strong>PR</strong> against the original repo → address review comments by pushing more commits to the same branch → maintainer merges.</p>\n<p>Write PRs like a reviewer is busy (they are): a clear title, one or two sentences saying what changed and why, and a screenshot if the change is visual. Small PRs get reviewed fast; a 2,000-line PR sits unreviewed for days.</p>\n<ul><li>Key points</li><li>A remote is a copy of your repo elsewhere; <code>origin</code> is the conventional name for the main one.</li><li><code>git push</code> uploads commits; <code>git pull</code> downloads and merges the remote's commits.</li><li>A pull request asks for review before a branch merges into <code>main</code>.</li><li>Open-source flow: fork → clone → branch → commit → push → PR → address review → merge.</li><li>Keep PRs small and describe what changed and why.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is a remote in Git?",
+          "options": [
+            "A backup server Git creates automatically",
+            "A named reference to a copy of your repository hosted elsewhere, such as on GitHub",
+            "A branch stored on another computer only",
+            "A GitHub account setting"
+          ],
+          "answer": 1,
+          "why": "A remote is a named pointer (usually 'origin') to a repository copy hosted elsewhere. push and pull move commits between your repo and the remote."
+        },
+        {
+          "q": "What does git push -u origin main do the first time?",
+          "options": [
+            "Downloads main from GitHub",
+            "Uploads your main branch to the origin remote and remembers it as the upstream",
+            "Creates a pull request",
+            "Deletes the local main branch"
+          ],
+          "answer": 1,
+          "why": "git push -u origin main uploads local main to the origin remote; -u sets the upstream tracking so later pushes need only 'git push'."
+        },
+        {
+          "q": "What does git pull do?",
+          "options": [
+            "Uploads your commits to GitHub",
+            "Fetches the latest commits from the remote and merges them into your current branch",
+            "Lists all remote branches",
+            "Deletes local commits that are not on the remote"
+          ],
+          "answer": 1,
+          "why": "git pull is git fetch followed by git merge: it downloads the remote's new commits and merges them into your branch."
+        },
+        {
+          "q": "What is a fork on GitHub?",
+          "options": [
+            "A copy of a repository under your own account that you can change freely",
+            "A type of merge conflict",
+            "A GitHub issue template",
+            "A branch that can never be merged"
+          ],
+          "answer": 0,
+          "why": "Forking copies someone else's repo into your account. You work on your fork and propose changes back with a pull request."
+        },
+        {
+          "q": "What is the main purpose of a pull request?",
+          "options": [
+            "To download a repository",
+            "To let changes be reviewed and discussed before they are merged into the main branch",
+            "To delete a branch",
+            "To back up the repository"
+          ],
+          "answer": 1,
+          "why": "A pull request presents a branch's changes for review: teammates read the diff, comment, request changes and approve before merging."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "fill",
+          "title": "Fill in the blank",
+          "prompt": "Fill in the missing word to push the local main branch to the origin remote for the first time.",
+          "code": "git push -u ___ main",
+          "expected": "origin",
+          "answer": "origin is the conventional name of the main remote. -u remembers it, so later you can push with just git push.",
+          "hint": "What is the usual name of the main remote?"
+        }
+      ]
+    },
+    {
+      "title": "Stashing, Rebasing & Undo",
+      "duration_minutes": 45,
+      "body": "<h3>Stashing, Rebasing &amp; Undo</h3>\n<p>Sometimes you need to switch branches but your work is half-finished. <code>git stash</code> shelves your uncommitted changes — working directory clean, nothing lost — and <code>git stash pop</code> brings them back:</p>\n<pre><code>git stash            # shelve uncommitted changes\ngit switch main        # move freely with a clean tree\ngit stash pop        # restore the shelved changes</code></pre>\n<p><strong>Rebasing</strong> replays your branch's commits on top of another branch, one by one, producing a straight-line history with no merge commit. It is the tidy alternative to merging when you want to catch up with <code>main</code>:</p>\n<pre><code>git switch feature\ngit rebase main        # replay feature's commits on top of main</code></pre>\n<p>Rebasing rewrites commit hashes, so never rebase commits you have already pushed to a shared branch — your teammates' copies would no longer match. Rebase your own private branch freely; merge shared branches.</p>\n<p>To undo, prefer the safe tools first. <code>git revert &lt;commit&gt;</code> creates a <em>new</em> commit that undoes an old one — safe even on shared history. <code>git reset --soft</code> moves the branch pointer back but keeps your changes staged; <code>git reset --hard</code> throws changes away entirely and cannot be undone, so use it only on work you are sure you do not need. <code>git log --oneline</code> shows the history you are navigating.</p>\n<ul><li>Key points</li><li><code>git stash</code> shelves unfinished work; <code>git stash pop</code> restores it.</li><li>Rebasing replays your commits onto another branch for a clean, linear history.</li><li>Never rebase commits that are already pushed to a shared branch.</li><li><code>git revert</code> safely undoes a commit with a new commit; <code>git reset --hard</code> discards work permanently.</li><li><code>git log --oneline</code> shows the history before you undo anything.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What does git stash do?",
+          "options": [
+            "Deletes all uncommitted changes",
+            "Temporarily shelves uncommitted changes so you can switch branches with a clean tree",
+            "Creates a backup branch",
+            "Uploads changes to GitHub"
+          ],
+          "answer": 1,
+          "why": "git stash saves your uncommitted changes aside and cleans the working directory; git stash pop brings them back later."
+        },
+        {
+          "q": "What does git rebase main do while you are on your feature branch?",
+          "options": [
+            "Deletes the main branch",
+            "Replays your feature commits on top of the latest main, giving a linear history",
+            "Merges main into feature with a merge commit",
+            "Copies main's files over your branch"
+          ],
+          "answer": 1,
+          "why": "Rebase moves your branch's base to the tip of main and replays each of your commits on top, so the history stays a straight line."
+        },
+        {
+          "q": "Why should you never rebase commits already pushed to a shared branch?",
+          "options": [
+            "Rebasing is slower than merging",
+            "Rebasing rewrites commit hashes, so teammates' copies no longer match the rewritten history",
+            "GitHub blocks rebased branches",
+            "Rebasing deletes the remote"
+          ],
+          "answer": 1,
+          "why": "Rebase creates new commit hashes. If teammates already pulled the old hashes, their history diverges from yours and fixing it is painful."
+        },
+        {
+          "q": "What is the safest way to undo a commit that is already public on a shared branch?",
+          "options": [
+            "git reset --hard to before the commit",
+            "git rebase to drop the commit",
+            "git revert, which adds a new commit that undoes the old one",
+            "Delete the repository and push again"
+          ],
+          "answer": 2,
+          "why": "git revert creates a new commit that reverses the old change, so shared history is never rewritten and teammates just pull the fix."
+        },
+        {
+          "q": "What does git reset --hard do?",
+          "options": [
+            "Moves the branch pointer back and permanently discards the working-directory and staged changes",
+            "Creates a backup before resetting",
+            "Only unstages files",
+            "Reverts just the last commit message"
+          ],
+          "answer": 0,
+          "why": "git reset --hard moves HEAD and wipes uncommitted and staged changes in the working tree. The discarded work cannot be recovered, so use it carefully."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "trace",
+          "title": "Trace the code",
+          "prompt": "Siddartha is mid-feature on branch search when an urgent fix lands on main. Trace what happens to his uncommitted work at each step.",
+          "code": "git stash\ngit switch main\ngit pull\ngit switch search\ngit stash pop",
+          "expected": "1. stash: uncommitted edits shelved, tree clean. 2. switch main: HEAD moves to main. 3. pull: main updated with the fix. 4. switch search: back on the feature branch. 5. stash pop: shelved edits restored onto search.",
+          "answer": "Stash parks the half-finished edits so the branch switch is allowed; pop restores them onto the same branch afterwards, so no work is lost and the urgent fix on main is never touched.",
+          "hint": "Follow the edits: where do they go at step 1, and where do they return at step 5?"
+        }
+      ]
+    },
+    {
+      "title": "Capstone: Open-Source Contribution",
+      "duration_minutes": 60,
+      "body": "<h3>Capstone: Open-Source Contribution</h3>\n<p>You now have the full workflow. Contributing to a real open-source project is the same loop you have practised — fork, clone, branch, commit, push, pull request — with one addition: keep your fork in sync with the original project, which keeps moving while you work.</p>\n<pre><code># 1. Fork the repo on GitHub, then clone YOUR fork\ngit clone https://github.com/Siddartha-Jamandla/cool-project.git\ncd cool-project\n# 2. Add the original repo as 'upstream' so you can pull its updates\ngit remote add upstream https://github.com/original-author/cool-project.git\n# 3. Branch, fix, commit with a clear message\ngit switch -c fix-typo-in-readme\ngit add README.md\ngit commit -m \"Fix typo in installation steps\"\n# 4. Push to your fork and open a PR from your branch\ngit push -u origin fix-typo-in-readme\n# 5. Before the next contribution, sync your fork\ngit switch main\ngit fetch upstream\ngit merge upstream/main\ngit push origin main</code></pre>\n<p>Pick a first contribution that is small and welcome: a typo, a broken link, a missing example in the docs, or an issue labelled <code>good first issue</code>. Read the repo's <code>CONTRIBUTING.md</code> first — it tells you the branch naming, commit style and tests the maintainers expect. When a reviewer asks for changes, push more commits to the <em>same</em> branch and the PR updates itself; never open a second PR for the same fix.</p>\n<p>Your first merged PR is a public, verifiable record of real collaboration: the repo, the diff and the review thread all live on your GitHub profile. That is exactly the kind of evidence recruiters look for — and the habit you will use on every team you join.</p>\n<ul><li>Key points</li><li>Fork, clone your fork, add the original as the <code>upstream</code> remote.</li><li>One branch per fix; push it and open a PR against the original repo.</li><li>Read CONTRIBUTING.md and start with a small, welcome fix (docs or a <code>good first issue</code>).</li><li>Address review comments by pushing more commits to the same branch.</li><li>Sync with <code>git fetch upstream</code> + <code>git merge upstream/main</code> before your next contribution.</li></ul>",
+      "mcqs": [
+        {
+          "q": "What is the first step to contribute to a repository you do not own?",
+          "options": [
+            "Push directly to its main branch",
+            "Fork it, so you get your own copy under your account",
+            "Email the maintainer your code",
+            "Clone it and push to its origin"
+          ],
+          "answer": 1,
+          "why": "You cannot push to a repo you do not own. Forking gives you your own copy to change, and you propose those changes back with a pull request."
+        },
+        {
+          "q": "Why do you add the original repository as a remote called upstream?",
+          "options": [
+            "To delete your fork",
+            "To fetch the original project's latest commits and keep your fork in sync",
+            "To rename your fork",
+            "To hide your commits from the maintainer"
+          ],
+          "answer": 1,
+          "why": "The original repo keeps moving. The upstream remote lets you fetch its new commits and merge them into your fork so your next PR starts from fresh code."
+        },
+        {
+          "q": "A maintainer asks for changes on your pull request. What should you do?",
+          "options": [
+            "Open a second pull request",
+            "Close the PR and start over",
+            "Push more commits to the same branch — the PR updates automatically",
+            "Edit the files directly on GitHub's main branch"
+          ],
+          "answer": 2,
+          "why": "A pull request tracks its branch: new commits pushed to that branch appear in the same PR, keeping the whole review in one thread."
+        },
+        {
+          "q": "What is a good first contribution to an open-source project?",
+          "options": [
+            "Rewriting the whole project",
+            "A small, welcome fix such as a typo, a broken link, or a 'good first issue'",
+            "Changing the project's licence",
+            "Deleting code you do not understand"
+          ],
+          "answer": 1,
+          "why": "Small fixes are easy to review, likely to be merged, and teach you the project's workflow before you attempt bigger changes."
+        },
+        {
+          "q": "Before opening your first pull request, what should you read in the repository?",
+          "options": [
+            "The .gitignore file",
+            "CONTRIBUTING.md — it states the branch, commit and test conventions the maintainers expect",
+            "The commit history of every contributor",
+            "The GitHub Terms of Service"
+          ],
+          "answer": 1,
+          "why": "CONTRIBUTING.md documents how the project wants contributions made: branch naming, commit style, tests to run. Following it gets your PR merged faster."
+        }
+      ],
+      "tasks": [
+        {
+          "type": "project",
+          "title": "Build the Open-Source Contribution",
+          "prompt": "Make your first real open-source contribution: fork a project, fix one small thing, and open a pull request. Deliverable checklist: (1) fork + clone of a real repo, (2) upstream remote added, (3) a branch named for the fix, (4) one focused commit with a clear message, (5) a pull request with a title and a one-paragraph description. Keep the change small — a docs fix or a 'good first issue' is perfect.",
+          "code": "",
+          "expected": "Fork created; repo cloned; upstream remote added; fix branch created; 1 focused commit; PR opened with clear title + description; review comments addressed on the same branch.",
+          "answer": "Work the loop from this course: fork → clone → git remote add upstream → branch → commit → push → PR. Read CONTRIBUTING.md first, keep the change to one idea, and describe what and why in the PR body.",
+          "hint": "Start with a docs typo or a 'good first issue' — small PRs get reviewed fastest."
+        }
+      ]
+    }
+  ]
+}

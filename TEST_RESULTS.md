@@ -477,3 +477,25 @@ rest) and every lesson's tasks endpoint returns 1 task. Same
 17-check run also verified the pre-existing banks are unchanged
 (Python 50 MCQs, Digital Marketing 30) and the
 Digital Marketing preview lesson still returns 5 questions.
+
+---
+
+## Daily upgrade — 2026-11-17 (IST): Git & GitHub: Version Control Mastery quiz bank
+
+`backend/content/git-github.json` adds the missing quiz bank for
+Git & GitHub: Version Control Mastery (course 12): 6 lessons x 5 MCQs
+(30 questions), 1 practice task per lesson and short lesson bodies,
+loaded by the existing `seed_content` loader (seed totals after this
+bank: 16 courses, 112 lessons, 576 MCQs, 239 tasks — LH1 Digital
+Marketing and LH2 Django land in the same run, immediately before
+this commit). The final exam previously
+404'd for this course ("This course has no quiz questions yet").
+All 12 base courses now have a quiz bank — every base course's final exam works.
+
+Tested on a scratch DB (port 8158, live `backend/app.py`, OTP +
+enrolment flow): `GET /api/courses/12/final-exam` returns 10 questions
+with 4 options each and no answers; submitting the correct answers
+scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
+lesson 2's quiz returns 5 questions (enrolled). Same 16-check run also
+verified the pre-existing Python bank (50 MCQs, still 10/10) and the
+Digital Marketing and Django banks (30 MCQs each).

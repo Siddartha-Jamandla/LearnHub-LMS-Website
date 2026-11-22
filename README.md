@@ -292,7 +292,8 @@ updates the content without wiping enrolments or progress
 | TypeScript: Static Typing for JavaScript | 6 | 30 | 6 | 0 |
 | Digital Marketing Masterclass | 6 | 30 | 6 | 0 |
 | Django Full-Stack Web Development | 6 | 30 | 6 | 0 |
-| **Total learning content** | **106** | **546** | **233** | **40** |
+| Git & GitHub: Version Control Mastery | 6 | 30 | 6 | 0 |
+| **Total learning content** | **112** | **576** | **239** | **40** |
 
 - **Lesson page** — `lesson.html?id=<lesson_id>` (linked from every lesson
   row on `course-details.html`): explanation with code examples and key
