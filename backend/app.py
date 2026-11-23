@@ -720,6 +720,8 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("POST",   r"^/api/lessons/(\d+)/complete$", self.api_lesson_complete),
             ("GET",    r"^/api/lessons/(\d+)/quiz$",     self.api_lesson_quiz),
             ("POST",   r"^/api/lessons/(\d+)/quiz$",     self.api_lesson_quiz_submit),
+            ("GET",    r"^/api/lessons/(\d+)/quiz/best$",
+                                                 self.api_lesson_quiz_best),
             ("GET",    r"^/api/lessons/(\d+)/tasks$",    self.api_lesson_tasks),
             ("POST",   r"^/api/tasks/(\d+)/complete$",   self.api_task_complete),
             ("GET",    r"^/api/courses/(\d+)/learn-progress$",
@@ -1326,6 +1328,50 @@ class LearnHubHandler(BaseHTTPRequestHandler):
                   "total": len(rows),
                   "percent": round(score / len(rows) * 100, 1) if rows else 0,
                   "results": results})
+
+    def api_lesson_quiz_best(self, lesson_id):
+        """GET /api/lessons/:id/quiz/best — the caller's best quiz score.
+
+        Same access rule as the quiz itself (preview = public, but a
+        signed-in user is needed to have attempts at all). Returns the
+        best attempt (highest percent, then most recent), the attempt
+        count and the 5 most recent attempts, so the lesson page can
+        show progress and the learner can see retakes improving.
+        """
+        lesson, user = self._lesson_access(lesson_id)
+        if not lesson:
+            return
+        if not user:
+            self._err(401, "Sign in to see your quiz best score")
+            return
+        conn = db()
+        n = conn.execute(
+            "SELECT COUNT(*) AS n FROM quiz_attempts"
+            " WHERE user_id = ? AND lesson_id = ?",
+            (user["id"], lesson_id)).fetchone()["n"]
+        best = conn.execute(
+            """SELECT score, total, taken_at FROM quiz_attempts
+               WHERE user_id = ? AND lesson_id = ?
+               ORDER BY score * 1.0 / total DESC, taken_at DESC, id DESC
+               LIMIT 1""",
+            (user["id"], lesson_id)).fetchone()
+        recent = conn.execute(
+            """SELECT score, total, taken_at FROM quiz_attempts
+               WHERE user_id = ? AND lesson_id = ?
+               ORDER BY taken_at DESC, id DESC LIMIT 5""",
+            (user["id"], lesson_id)).fetchall()
+        conn.close()
+        self._ok({
+            "lesson_id": int(lesson_id),
+            "attempts": n,
+            "best": ({"score": best["score"], "total": best["total"],
+                      "percent": round(best["score"] / best["total"] * 100, 1)
+                      if best["total"] else 0,
+                      "taken_at": best["taken_at"]} if best else None),
+            "recent": [{"score": r["score"], "total": r["total"],
+                        "percent": round(r["score"] / r["total"] * 100, 1)
+                        if r["total"] else 0,
+                        "taken_at": r["taken_at"]} for r in recent]})
 
     def api_lesson_tasks(self, lesson_id):
         """GET /api/lessons/:id/tasks — practice tasks WITHOUT solutions.

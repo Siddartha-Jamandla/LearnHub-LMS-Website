@@ -366,6 +366,13 @@
             return d;
         },
 
+        async getQuizBest(lessonId) {
+            // Best score + attempt count + 5 most recent attempts for
+            // this lesson. Returns {lesson_id, attempts, best, recent}.
+            const d = await request("GET", `/api/lessons/${lessonId}/quiz/best`, null, true);
+            return d;
+        },
+
         async getLessonTasks(lessonId) {
             // Tasks without solutions; each carries a `completed` flag.
             const d = await request("GET", `/api/lessons/${lessonId}/tasks`);

@@ -499,3 +499,26 @@ scores 10/10; lesson 1's quiz returns 5 questions (free preview) and
 lesson 2's quiz returns 5 questions (enrolled). Same 16-check run also
 verified the pre-existing Python bank (50 MCQs, still 10/10) and the
 Digital Marketing and Django banks (30 MCQs each).
+
+---
+
+## Daily upgrade — 2026-11-23 (IST): quiz best score on the lesson page
+
+`GET /api/lessons/:id/quiz/best` returns the signed-in learner's best quiz
+score for a lesson (highest percent, then most recent), the attempt count
+and the 5 most recent attempts (score/total/percent/when). Same access rule
+as the lesson quiz (preview = public, otherwise enrolled; 401 when signed
+out, 403 when not enrolled, 404 for an unknown lesson). The lesson page
+shows "Your best: X / Y (Z%) · N attempts" above the quiz plus the recent
+attempts, and refreshes it after each submit — retakes now visibly improve.
+
+Tested on a scratch DB (port 8161, live `backend/app.py`, OTP + test-mode
+checkout enrolment flow): 21 checks, all passing — health, register/OTP/
+verify for two users, courses/lessons, 401/403/404 guards, 0-attempt best
+(null), three submits (all-0, all-correct, 1-wrong) then best = full score
+100% with 3 attempts and newest-first recent list, cross-user isolation
+(second user sees 0 attempts), cart + test-mode checkout + payment verify
+enrolment, best on an enrolled non-preview lesson, and the
+learn-progress regression. JS: `node --check` clean on `js/api.js` and on
+the lesson page's inline script; `getQuizBest` helper + `quizBest` display
+wired in `lesson.html`.

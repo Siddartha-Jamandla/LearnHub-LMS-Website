@@ -127,6 +127,7 @@
         }
 
         html += '<div class="lesson-quiz"><h2>Quiz — check what you learned</h2>' +
+            '<div id="quizBest"></div>' +
             '<div id="quizBox"><p>Loading quiz…</p></div></div>';
 
         html += '<div class="lesson-tasks"><h2>Practice tasks</h2>' +
@@ -201,6 +202,8 @@
             '<button type="button" class="btn btn-primary" id="quizSubmit">Submit quiz</button> ' +
             '<span id="quizScore"></span>';
 
+        loadQuizBest();
+
         document.getElementById("quizSubmit").addEventListener("click", async function () {
             var answers = {};
             questions.forEach(function (q) {
@@ -219,11 +222,37 @@
                         : '<p class="quiz-wrong">Correct answer: ' + esc(r.options[r.correct_index]) + '</p>') +
                         '<p><small>Why: ' + esc(r.explanation) + '</small></p>';
                 });
+                loadQuizBest();
                 this.disabled = true;
             } catch (e) {
                 scoreEl.textContent = "Could not submit: " + e.message + " (sign in first).";
             }
         });
+    }
+
+    async function loadQuizBest() {
+        var bestEl = document.getElementById("quizBest");
+        if (!bestEl) return;
+        var best;
+        try {
+            best = await LearnHubAPI.getQuizBest(lessonId);
+        } catch (e) {
+            bestEl.innerHTML = "";
+            return;
+        }
+        if (!best.attempts) {
+            bestEl.innerHTML = "<p><small>No attempts yet — this will be your first try.</small></p>";
+            return;
+        }
+        var html = "<p><strong>Your best: " + best.best.score + " / " + best.best.total +
+            " (" + best.best.percent + "%)</strong> <small>· " + best.attempts +
+            (best.attempts === 1 ? " attempt" : " attempts") + "</small></p>";
+        if (best.recent && best.recent.length > 1) {
+            html += "<p><small>Recent attempts: " + best.recent.map(function (a) {
+                return a.score + "/" + a.total + " (" + a.percent + "%)";
+            }).join(" · ") + "</small></p>";
+        }
+        bestEl.innerHTML = html;
     }
 
     async function loadTasks() {
