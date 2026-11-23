@@ -44,6 +44,7 @@
                 <div class="search-box" style="grid-template-columns: 2fr auto;">
                     <input type="search" id="noteSearch" placeholder="Search your notes…" aria-label="Search notes">
                     <button type="button" class="btn btn-primary" id="newNoteBtn">+ New note</button>
+                    <button type="button" class="btn btn-outline" id="exportNotesBtn">Export notes (.md)</button>
                 </div>
             </div>
             <p id="notesStatus" class="status-line"></p>
@@ -146,6 +147,33 @@
         showErr(""); showSaved("");
         renderList();
     }
+    function buildNotesMarkdown(list, courseTitles) {
+        // Pure function (kept separate so it can be unit-tested): one
+        // Markdown document, notes grouped by course, newest first
+        // within each group. Bodies are included verbatim.
+        var lines = ["# My LearnHub notes", ""];
+        lines.push("Exported " + new Date().toISOString().slice(0, 10) +
+            " · " + list.length + (list.length === 1 ? " note" : " notes"));
+        lines.push("");
+        if (!list.length) return lines.join("\n");
+        var groups = {};
+        var order = [];
+        list.forEach(function (n) {
+            var key = n.course_id ? String(n.course_id) : "";
+            if (!groups[key]) { groups[key] = []; order.push(key); }
+            groups[key].push(n);
+        });
+        order.forEach(function (key) {
+            var title = key ? (courseTitles[key] || ("Course " + key)) : "No course";
+            lines.push("## " + title, "");
+            groups[key].forEach(function (n) {
+                lines.push("### " + (n.title || "Untitled") +
+                    " (" + String(n.updated_at || "").slice(0, 10) + ")", "");
+                lines.push(n.body || "", "");
+            });
+        });
+        return lines.join("\n");
+    }
     async function loadNotes(q) {
         statusEl.textContent = "Loading…";
         try {
@@ -182,6 +210,30 @@
             searchTimer = setTimeout(function () { loadNotes(e.target.value.trim()); }, 300);
         });
         document.getElementById("newNoteBtn").addEventListener("click", clearEditor);
+        document.getElementById("exportNotesBtn").addEventListener("click", function () {
+            // Exports the notes currently listed (all notes when no
+            // search is active). Runs entirely in the browser — the
+            // Markdown is built from the notes already loaded.
+            if (!notes.length) {
+                statusEl.textContent = "No notes to export yet — write your first note.";
+                return;
+            }
+            var titles = {};
+            document.getElementById("noteCourse").querySelectorAll("option").forEach(function (o) {
+                if (o.value) titles[o.value] = o.textContent;
+            });
+            var md = buildNotesMarkdown(notes, titles);
+            var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "learnhub-notes-" + new Date().toISOString().slice(0, 10) + ".md";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+            statusEl.textContent = "Exported " + notes.length +
+                (notes.length === 1 ? " note" : " notes") + " as Markdown.";
+        });
         document.getElementById("clearEditorBtn").addEventListener("click", clearEditor);
         document.getElementById("noteForm").addEventListener("submit", async function (e) {
             e.preventDefault();

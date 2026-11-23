@@ -544,3 +544,21 @@ current password, successful change, old password no longer logs in, new
 password logs in, the other session is revoked (401) while the current
 session still works, and a chained change with the new password. JS:
 `node --check` clean on `js/api.js` and on the profile page's inline script.
+
+---
+
+## Daily upgrade — 2026-11-23 (IST): export my notes as Markdown
+
+`notes.html` gains an "Export notes (.md)" button next to "+ New note". It
+downloads the notes currently listed (all notes when no search is active)
+as one Markdown file (`learnhub-notes-YYYY-MM-DD.md`), grouped by course
+with each note's title, date and full body — built entirely in the browser
+from the notes already loaded, no new endpoint. The builder is a pure
+`buildNotesMarkdown(notes, courseTitles)` function: empty list → header
+only; unknown course id → "Course <id>"; untitled notes → "Untitled".
+
+Tested: 10 Node unit checks on the builder extracted from the page (empty
+list, grouping, ordering, untitled, verbatim bodies, singular/plural) —
+all passing; `node --check` clean on the page's inline script; and an
+11-check scratch-DB smoke test (port 8163, OTP flow) of the notes API the
+page reads — create with/without course, list, search, update, delete.
