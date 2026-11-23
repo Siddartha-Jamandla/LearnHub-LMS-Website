@@ -139,6 +139,7 @@ from `/api/register` or `/api/login`).
 | POST | `/api/reviews` | token | `{course_id, rating (1-5), comment?}` → 201. Must be enrolled; one review per user per course |
 | POST | `/api/register` | - | `{name, email, password}` → token |
 | POST | `/api/login` | - | `{email, password}` → token |
+| POST | `/api/me/change-password` | token | Change your own password: `{current_password, new_password}` (new 6–128 chars, different from current). Wrong current password → 401; other sessions are revoked, the current one stays signed in |
 | POST | `/api/logout` | token | Invalidate token |
 | GET | `/api/cart` | token | Cart items with course details |
 | POST | `/api/cart` | token | `{course_id}` → add to cart |

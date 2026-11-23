@@ -119,6 +119,14 @@
                 </select></label>
                 <button type="button" class="btn btn-outline btn-small" id="saveThemeBtn">Save theme</button>
             </p>
+            <hr>
+            <h3>Change password</h3>
+            <form id="changePwForm">
+                <p><label>Current password<br><input type="password" id="pwCurrent" required autocomplete="current-password"></label></p>
+                <p><label>New password<br><input type="password" id="pwNew" required minlength="6" maxlength="128" autocomplete="new-password"></label></p>
+                <p><label>Confirm new password<br><input type="password" id="pwConfirm" required minlength="6" maxlength="128" autocomplete="new-password"></label></p>
+                <p><button type="submit" class="btn btn-primary btn-small">Change password</button> <span id="pwStatus" class="status-line"></span></p>
+            </form>
             <p><a href="notes.html" class="btn btn-primary btn-small"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> My notes</a>
             <a href="dashboard.html" class="btn btn-outline btn-small">Dashboard</a></p>
             <p class="admin-note">Theme is stored on this device (localStorage key <code>lh_theme</code>).</p>
@@ -201,6 +209,25 @@
                 if (window.lhWireThemeToggles) window.lhWireThemeToggles();
             });
         } catch (e) { /* settings are best-effort */ }
+        // Settings: change password.
+        try {
+            var pwForm = document.getElementById("changePwForm");
+            pwForm.addEventListener("submit", async function (ev) {
+                ev.preventDefault();
+                var status = document.getElementById("pwStatus");
+                var cur = document.getElementById("pwCurrent").value;
+                var nw = document.getElementById("pwNew").value;
+                var cf = document.getElementById("pwConfirm").value;
+                if (nw !== cf) { status.textContent = "New passwords do not match."; return; }
+                try {
+                    await LearnHubAPI.changePassword(cur, nw);
+                    status.textContent = "Password changed. Other devices are signed out.";
+                    pwForm.reset();
+                } catch (e) {
+                    status.textContent = "Could not change password: " + (e.message || "");
+                }
+            });
+        } catch (e) { /* best-effort */ }
         try {
             var courses = await LearnHubAPI.getMyCourses();
             if (!courses.length) {

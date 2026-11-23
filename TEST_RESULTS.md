@@ -522,3 +522,25 @@ enrolment, best on an enrolled non-preview lesson, and the
 learn-progress regression. JS: `node --check` clean on `js/api.js` and on
 the lesson page's inline script; `getQuizBest` helper + `quizBest` display
 wired in `lesson.html`.
+
+---
+
+## Daily upgrade — 2026-11-23 (IST): change password
+
+`POST /api/me/change-password` lets the signed-in learner change their own
+password: `{current_password, new_password}` (new 6–128 chars, different
+from current). Wrong current password → 401; missing/short/unchanged new
+password → 400. On success every OTHER session token is revoked, so a
+stolen session cannot survive a password change — the token used for the
+request stays valid so the user is not signed out mid-change. The profile
+page Settings card has a change-password form (current / new / confirm,
+mismatch caught in the browser) wired to a new `LearnHubAPI.changePassword`
+helper.
+
+Tested on a scratch DB (port 8162, live `backend/app.py`, OTP flow):
+17 checks, all passing — health, register/OTP/verify, two concurrent
+sessions, 401 unauthenticated, 400 missing/short/same-as-current, 401 wrong
+current password, successful change, old password no longer logs in, new
+password logs in, the other session is revoked (401) while the current
+session still works, and a chained change with the new password. JS:
+`node --check` clean on `js/api.js` and on the profile page's inline script.

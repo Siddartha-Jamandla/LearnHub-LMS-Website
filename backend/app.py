@@ -779,6 +779,8 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             ("POST",   r"^/api/me/notes$",              self.api_me_notes_create),
             ("PUT",    r"^/api/me/notes/(\d+)$",        self.api_me_notes_update),
             ("DELETE", r"^/api/me/notes/(\d+)$",        self.api_me_notes_delete),
+            ("POST",   r"^/api/me/change-password$",
+                                                 self.api_me_change_password),
             ("GET",    r"^/api/courses/(\d+)/assignments$", self.api_course_assignments),
             ("GET",    r"^/api/assignments/(\d+)$",     self.api_assignment_get),
             ("POST",   r"^/api/assignments/(\d+)/start$", self.api_assignment_start),
@@ -4613,6 +4615,56 @@ class LearnHubHandler(BaseHTTPRequestHandler):
             "is_admin": _is_admin_user(u)}})
 
     # -- Learn Hub: personal notes workspace ----------------------------
+    def api_me_change_password(self):
+        """POST /api/me/change-password — change the signed-in user's password.
+
+        Body: {"current_password", "new_password"}. The current password
+        must match, the new one must be 6–128 chars and different from
+        the current one. On success every OTHER session token is revoked
+        (a stolen session cannot survive a password change); the token
+        used for this request stays valid so the user is not signed out
+        mid-change.
+        """
+        user = self._require_user()
+        if not user:
+            return
+        body = self._read_json()
+        current = body.get("current_password") or ""
+        new = body.get("new_password") or ""
+        if not isinstance(current, str) or not isinstance(new, str):
+            self._err(400, "current_password and new_password are required")
+            return
+        if not current or not new:
+            self._err(400, "current_password and new_password are required")
+            return
+        if len(new) < 6:
+            self._err(400, "new password must be at least 6 characters")
+            return
+        if len(new) > 128:
+            self._err(400, "new password must be at most 128 characters")
+            return
+        if new == current:
+            self._err(400, "new password must be different from the current password")
+            return
+        conn = db()
+        row = conn.execute("SELECT password_hash FROM users WHERE id = ?",
+                           (user["id"],)).fetchone()
+        if not row or not verify_password(current, row["password_hash"]):
+            conn.close()
+            self._err(401, "Current password is incorrect")
+            return
+        conn.execute("UPDATE users SET password_hash = ? WHERE id = ?",
+                     (hash_password(new), user["id"]))
+        auth = self.headers.get("Authorization", "")
+        m = re.match(r"Bearer\s+(\S+)", auth)
+        if m:
+            conn.execute("DELETE FROM auth_tokens WHERE user_id = ? AND token != ?",
+                         (user["id"], m.group(1)))
+        _audit(conn, user["id"], "password_changed", self._client_ip(), "")
+        conn.commit()
+        conn.close()
+        self._ok({"message": "Password changed successfully"})
+
     def api_me_notes_list(self):
         user = self._require_user()
         if not user:

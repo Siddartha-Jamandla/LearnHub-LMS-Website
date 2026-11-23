@@ -245,6 +245,13 @@
             localStorage.removeItem("currentUser"); // legacy key
         },
 
+        async changePassword(currentPassword, newPassword) {
+            // Changes the signed-in user's password; other sessions are
+            // revoked by the server, this one stays signed in.
+            return request("POST", "/api/me/change-password",
+                { current_password: currentPassword, new_password: newPassword }, true);
+        },
+
         async getCart() {
             if (await checkApi()) {
                 const d = await request("GET", "/api/cart", null, true);
