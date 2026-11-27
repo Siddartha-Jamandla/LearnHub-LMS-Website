@@ -89,10 +89,12 @@ CREATE INDEX IF NOT EXISTS idx_wishlist_user ON wishlist(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_lessons_course   ON lessons(course_id);
 CREATE INDEX IF NOT EXISTS idx_enroll_user      ON enrollments(user_id);
+CREATE INDEX IF NOT EXISTS idx_enroll_course    ON enrollments(course_id);
 CREATE INDEX IF NOT EXISTS idx_cart_user        ON cart_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user      ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_courses_category ON courses(category);
 CREATE INDEX IF NOT EXISTS idx_lesson_progress_user ON lesson_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_lesson ON lesson_progress(lesson_id);
 
 -- Course reviews: one review per user per course, rating 1-5.
 CREATE TABLE IF NOT EXISTS reviews (

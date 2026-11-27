@@ -260,6 +260,12 @@ Hot query paths are indexed (`CREATE INDEX IF NOT EXISTS`, applied on every
 startup): lessons/course, enrolments by user / course / (user, course),
 cart and wishlist by user and course, lesson_progress by user and lesson,
 reviews by course and user, certificates by user, auth_tokens by token.
+Enrolment counts per course (`WHERE course_id = ?`, used by the course page
+and admin stats) and the lesson-progress joins (`JOIN lessons ON
+lesson_progress.lesson_id`) each have their own index
+(`idx_enroll_course`, `idx_lesson_progress_lesson`, added 25 Nov 2026) —
+the `UNIQUE (user_id, course_id)` index alone cannot serve a
+course-only lookup.
 
 ## Seeded catalogue
 

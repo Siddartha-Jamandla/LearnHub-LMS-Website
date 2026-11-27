@@ -562,3 +562,25 @@ list, grouping, ordering, untitled, verbatim bodies, singular/plural) —
 all passing; `node --check` clean on the page's inline script; and an
 11-check scratch-DB smoke test (port 8163, OTP flow) of the notes API the
 page reads — create with/without course, list, search, update, delete.
+
+---
+
+## Daily upgrade — 2026-11-25 (IST): enrolment + lesson-progress lookup indexes
+
+Two hot queries had no usable index: enrolment counts per course
+(`SELECT COUNT(*) FROM enrollments WHERE course_id = ?`, hit by the course
+page and admin stats) could not use the `UNIQUE (user_id, course_id)`
+auto-index, which is ordered by user first; and the progress counts join
+`lesson_progress` to `lessons` on `lesson_id`, which only had a `user_id`
+index. `backend/schema.sql` now adds `idx_enroll_course ON
+enrollments(course_id)` and `idx_lesson_progress_lesson ON
+lesson_progress(lesson_id)` (`CREATE INDEX IF NOT EXISTS`, so existing
+databases pick them up on the next startup when `init_db()` runs the
+schema). The README's index paragraph now names them and says why the
+unique index alone is not enough.
+
+Tested: scratch-DB smoke test (port 8171, OTP flow) — see
+`hidden_files/test_learnhub_2026-11-25_item1.py` — **14/14 checks passed**.
+Both indexes exist in
+`sqlite_master` after boot; `/api/health` ok; register → enrol → complete
+a lesson → course progress and admin stats still return the right counts.
