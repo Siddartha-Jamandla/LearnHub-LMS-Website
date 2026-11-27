@@ -1986,7 +1986,9 @@ class LearnHubHandler(BaseHTTPRequestHandler):
         from urllib.parse import urlparse, parse_qs
         qs = parse_qs(urlparse(self.path).query)
         key = qs.get("key", [""])[0] or self.headers.get("X-Admin-Key", "")
-        if key and key == API_SECRET:
+        # Constant-time comparison: a plain == leaks the key prefix
+        # length through timing, and this secret gates every admin route.
+        if key and hmac.compare_digest(key, API_SECRET):
             return True
         user = self._auth_user()
         if user and _is_admin_user(user):

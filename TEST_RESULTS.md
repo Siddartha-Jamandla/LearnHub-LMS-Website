@@ -606,3 +606,24 @@ state, one course → cards, API down → legacy list, checkApi error →
 legacy empty state; and a 6-check scratch-DB smoke test (port 8172,
 `hidden_files/test_learnhub_2026-11-25_item2.py`) confirming
 `GET /api/my-courses` returns an empty list for a fresh user.
+
+---
+
+## Daily upgrade — 2026-11-25 (IST): timing-safe admin-key comparison
+
+`_require_admin` in `backend/app.py` compared the supplied admin key with
+a plain `==` against `API_SECRET` — a string comparison that returns
+earlier the sooner two strings differ, leaking how much of a guessed key
+matches through response timing. The key gates every admin route, so the
+comparison is now `hmac.compare_digest(key, API_SECRET)` (`hmac` was
+already imported). Behaviour is unchanged otherwise: a correct key (via
+`?key=` or the `X-Admin-Key` header) still passes, a wrong or missing key
+still gets 403, and a signed-in admin user still passes without a key.
+The README's Admin API section now says the comparison is constant-time.
+
+Tested: scratch-DB smoke test (port 8173, `API_SECRET` set to a known
+test value; `hidden_files/test_learnhub_2026-11-25_item3.py`) — 10 checks:
+health ok, correct key via `?key=` → 200, correct key via `X-Admin-Key`
+→ 200, wrong key → 403, missing key → 403, empty key → 403, near-miss key
+(same length, one char off) → 403, and the source uses `compare_digest`
+with no remaining `== API_SECRET`.

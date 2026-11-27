@@ -161,7 +161,9 @@ from `/api/register` or `/api/login`).
 
 Admin endpoints are gated on the shared secret: pass it as `?key=<API_SECRET>`
 (the same value as the backend's `API_SECRET` env var) or as the
-`X-Admin-Key` header. There is no admin username/password account — the key
+`X-Admin-Key` header. The key is compared with `hmac.compare_digest`
+(constant-time, since 25 Nov 2026) — a plain `==` would leak how much of
+a guessed key matches through response timing. There is no admin username/password account — the key
 is the login. The admin UI at [`admin.html`](admin.html) (also linked
 in the footer) is a full dashboard with a sidebar — Dashboard, Courses,
 Lessons & Content, Users, Learning, Orders, Certificates — and keeps the key
