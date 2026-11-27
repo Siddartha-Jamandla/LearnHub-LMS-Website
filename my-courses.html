@@ -171,10 +171,48 @@ async function renderMyCourses() {
                     });
                     return;
                 }
+                // The API answered and you have no enrolments: show the
+                // empty state, not the legacy localStorage list — a stale
+                // local list shows phantom courses with a fake 25% bar
+                // and a dead Continue button.
+                if (Array.isArray(courses)) {
+                    renderMyCoursesEmpty(container);
+                    return;
+                }
             }
         } catch (e) { /* fall through to legacy rendering */ }
     }
     renderMyCoursesLegacy();
+}
+
+
+// Empty state shared by the backend path (signed in, no enrolments)
+// and the legacy path (signed out / offline, no local courses).
+function renderMyCoursesEmpty(container) {
+    container.innerHTML = `
+
+            <div class="empty-state">
+
+                <h2>
+                    No courses yet
+                </h2>
+
+                <p>
+                    Purchase a course to start learning.
+                </p>
+
+                <br>
+
+                <a
+                    href="courses.html"
+                    class="btn btn-primary"
+                >
+                    Explore courses
+                </a>
+
+            </div>
+
+        `;
 }
 
 
@@ -207,34 +245,8 @@ function renderMyCoursesLegacy() {
 
 
     if (ids.length === 0) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                <h2>
-                    No courses yet
-                </h2>
-
-                <p>
-                    Purchase a course to start learning.
-                </p>
-
-                <br>
-
-                <a
-                    href="courses.html"
-                    class="btn btn-primary"
-                >
-                    Explore courses
-                </a>
-
-            </div>
-
-        `;
-
+        renderMyCoursesEmpty(container);
         return;
-
     }
 
 

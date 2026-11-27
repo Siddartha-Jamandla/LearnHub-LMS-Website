@@ -584,3 +584,25 @@ Tested: scratch-DB smoke test (port 8171, OTP flow) — see
 Both indexes exist in
 `sqlite_master` after boot; `/api/health` ok; register → enrol → complete
 a lesson → course progress and admin stats still return the right counts.
+
+---
+
+## Daily upgrade — 2026-11-25 (IST): My Courses trusts the API empty state
+
+`my-courses.html` tried the backend first, but when `GET /api/my-courses`
+returned an empty list it fell through to the legacy localStorage
+rendering: a signed-in user with no enrolments (and any stale `myCourses`
+entry) saw phantom courses with a fake 25% progress bar and a
+"Continue learning" button that only showed an alert. Now, when the API
+answers with an empty array, the page renders the shared "No courses yet"
+empty state (`renderMyCoursesEmpty`, also used by the legacy path); the
+legacy fallback only runs when the backend is unreachable or the user is
+signed out.
+
+Tested: `node --check` clean on the page's inline script, plus a Node
+harness (`hidden_files/test_learnhub_2026-11-25_item2.js`, 10 checks) driving
+the extracted decision logic with a stubbed API — empty array → empty
+state, one course → cards, API down → legacy list, checkApi error →
+legacy empty state; and a 6-check scratch-DB smoke test (port 8172,
+`hidden_files/test_learnhub_2026-11-25_item2.py`) confirming
+`GET /api/my-courses` returns an empty list for a fresh user.
